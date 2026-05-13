@@ -13,6 +13,7 @@ import { CommandPlan } from './scenes/CommandPlan';
 import { CommandDev } from './scenes/CommandDev';
 import { CommandTest } from './scenes/CommandTest';
 import { CommandPR } from './scenes/CommandPR';
+import { Summary } from './scenes/Summary';
 import { Resume } from './scenes/Resume';
 import { Anatomy } from './scenes/Anatomy';
 import { Outro } from './scenes/Outro';
@@ -45,6 +46,7 @@ export const scenes: SceneSpec[] = [
   { id: 'dev',      component: CommandDev,       duration: s(8),  status: { skill: 'sse:dev (backend)',    stage: 'dev running',   next: '/sse:dev  →  approve' } },
   { id: 'test',     component: CommandTest,      duration: s(5),  status: { skill: 'sse:test',             stage: 'test running',  next: '/sse:test  →  approve' } },
   { id: 'pr',       component: CommandPR,        duration: s(6),  status: { skill: 'sse:pr',               stage: 'pr opening',    next: '/sse:pr  →  done' } },
+  { id: 'summary',  component: Summary,          duration: s(10), status: { skill: 'pipeline complete',    stage: 'summary',       next: 'every sensor · eval · guide named' } },
   { id: 'resume',   component: Resume,           duration: s(8),  status: { skill: 'pipeline:continue',    stage: 'resume',        next: 'next pending stage' } },
   { id: 'anatomy',  component: Anatomy,          duration: s(8),  status: { skill: 'anatomy of a stage',   stage: 'guide · sensor · eval · refs', next: 'every stage runs this loop' } },
   { id: 'outro',    component: Outro,            duration: s(5),  status: null },

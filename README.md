@@ -15,7 +15,7 @@ From idea to merged PR, one pipeline.
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>100s walkthrough · install → 6 commands → PR → resume. Each command scene shows the active **guide · ref · sensor · eval**. Dedicated scenes for the dynamic status bar and `/pipeline:continue` resume flow.</sub>
+<sub>110s walkthrough · install → 6 commands → final summary → resume. Each command scene shows the active **guide · ref · sensor · eval**. Dedicated scenes for the dynamic status bar, the named-everything final summary, and `/pipeline:continue` resume flow.</sub>
 
 </div>
 
