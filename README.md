@@ -11,6 +11,10 @@ From idea to merged PR, one pipeline.
 [![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
+<br/>
+
+![harness-kit demo](demo/preview.gif)
+
 </div>
 
 ---
