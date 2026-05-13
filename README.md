@@ -5,7 +5,7 @@
 Claude Code harness for product + engineering delivery.
 From idea to merged PR, one pipeline.
 
-[![Version](https://img.shields.io/badge/version-3.1.1-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Plugins](https://img.shields.io/badge/plugins-2-success.svg)](#layout)
 [![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
