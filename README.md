@@ -46,7 +46,9 @@ npm i -g @pieerry/harness-kit
 hk install
 ```
 
-`hk install` writes plugins into `.claude/plugins/`, drops the status-line hook in `.claude/hooks/`, generates `.claude/settings.json`, and scaffolds `.claude/conventions/` for your project overrides. Run it from the target repo (or pass an explicit `[target]`). Restart Claude Code after.
+`hk install` writes plugins into `.claude/plugins/`, drops the status-line + pipeline-tracking hooks in `.claude/hooks/`, copies the pipeline state manager to `.claude/scripts/`, registers slash commands under `.claude/commands/`, generates `.claude/settings.json`, and scaffolds `.claude/conventions/` for your project overrides. Run it from the target repo (or pass an explicit `[target]`). Restart Claude Code after.
+
+Reinstalling on top of an existing setup backs up the previous `settings.json` to `.claude/settings.json.bak.{timestamp}` before overwriting, so manual customizations are recoverable.
 
 CLI subcommands:
 
@@ -67,11 +69,20 @@ bash ~/.harness-kit/setup/install.sh
 
 ### Update
 
+For npm installs:
+
+```bash
+npm i -g @pieerry/harness-kit@latest
+hk update
+```
+
+For git-clone installs:
+
 ```bash
 hk update
 ```
 
-Pulls latest source and reinstalls. Idempotent. Version is read from the package `VERSION` and recorded in your target at `.claude/.hk-version`.
+`hk update` pulls latest source (git installs only) and reinstalls. Idempotent. Version is read from the package `VERSION` and recorded in your target at `.claude/.hk-version`. npm users must bump the package first — `hk update` alone won't reach the registry.
 
 ### Usage
 
@@ -230,7 +241,7 @@ Every stage in the pipeline runs the same loop. Same four ingredients, every tim
 
 Sensors are pass/fail (deterministic, fast). Evals are scored (LLM-judged, retried until ≥ threshold or max attempts). Approval markers (`<!-- approved: -->`) gate the next stage.
 
-The 85s demo above shows every command running with these artifacts loading live on the right panel.
+The 110s demo above shows every command running with these artifacts loading live on the right panel — plus the final summary scene that names every sensor, eval, and guide per phase.
 
 ---
 
