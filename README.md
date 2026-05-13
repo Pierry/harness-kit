@@ -54,7 +54,7 @@ CLI subcommands:
 No-npm path (if you don't want a Node dep):
 
 ```bash
-git clone https://github.com/space-metrics-ai/harness-kit ~/.harness-kit
+git clone https://github.com/Pierry/harness-kit ~/.harness-kit
 bash ~/.harness-kit/setup/install.sh
 ```
 

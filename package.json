@@ -6,9 +6,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/space-metrics-ai/harness-kit.git"
+    "url": "git+https://github.com/Pierry/harness-kit.git"
   },
-  "homepage": "https://github.com/space-metrics-ai/harness-kit",
+  "homepage": "https://github.com/Pierry/harness-kit",
   "keywords": [
     "claude-code",
     "claude",

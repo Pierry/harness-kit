@@ -16,7 +16,7 @@ VERSION="$(cat "$SOURCE_ROOT/VERSION" 2>/dev/null || echo "0.0.0")"
 
 if [ ! -d "$SOURCE_ROOT/.claude/plugins/product-manager" ]; then
   echo "missing plugins at $SOURCE_ROOT/.claude/plugins/"
-  echo "clone the repo first, then re-run: git clone https://github.com/space-metrics-ai/harness-kit ~/.harness-kit"
+  echo "clone the repo first, then re-run: git clone https://github.com/Pierry/harness-kit ~/.harness-kit"
   exit 1
 fi
 
