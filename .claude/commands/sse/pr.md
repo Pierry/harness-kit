@@ -42,4 +42,13 @@ Append approval marker:
 <!-- approved: {YYYY-MM-DD} ready-for-handoff: true -->
 ```
 
-Reply: PR opened: {url}.
+Reply with this exact shape:
+
+```
+PR opened: {url}
+  title:  {title}
+  draft:  {yes|no}
+  guides: pr-template.md, commit-style.md
+  refs:   plan/{feature_id}.md, dev/{feature_id}.md
+  next:   request review (if draft, mark ready when checks pass)
+```

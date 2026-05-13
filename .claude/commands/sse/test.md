@@ -37,4 +37,16 @@ Append approval marker when exit code is 0:
 
 If tests fail, return a blocker with the failing test names and a snippet of the failure output. Do not retry automatically; let the user decide.
 
-Reply: Tests {passed/failed}. {summary}.
+Reply with this exact shape:
+
+```
+Tests {passed|failed}.
+  command:  {detected-test-command}
+  passed:   {N}
+  failed:   {M}
+  duration: {seconds}s
+  output:   {path/to/test/output.md}
+  next:     /sse:pr (if passed) | fix failing tests (if failed)
+```
+
+If failed, append a `failures:` block listing each failing test name with a one-line snippet from the failure output.

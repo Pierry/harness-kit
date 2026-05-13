@@ -34,4 +34,13 @@ Sensors: .claude/plugins/product-manager/sensors/prp-structure.md, .claude/plugi
 
 Evals: .claude/plugins/product-manager/evals/prp-quality.md, .claude/plugins/product-manager/evals/prp-context-readiness.md.
 
-After save reply: PRP saved at {path}. Score: {N}/10. Ready for handoff.
+After save, reply with this exact shape (name the actual sensors/evals/guides that ran):
+
+```
+PRP saved at {path}.
+  sensors: prp-structure ok, prp-context-quality ok, prp-links ok
+  eval:    prp-quality {N}/10, prp-context-readiness {N}/10
+  guides:  prp-guidelines.md, writing-style.md, templates/prp.md
+  refs:    prd/{feature_id}.md, {target repo paths probed}
+  next:    /sse:plan (ready for handoff)
+```

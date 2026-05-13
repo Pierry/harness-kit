@@ -30,4 +30,13 @@ Sensors: .claude/plugins/product-manager/sensors/prd-structure.md, .claude/plugi
 
 Evals: .claude/plugins/product-manager/evals/prd-quality.md, .claude/plugins/product-manager/evals/prd-readiness.md.
 
-After save reply: PRD saved at {path}. Score: {N}/10.
+After save, reply with this exact shape (name the actual sensors/evals/guides that ran, do not abbreviate):
+
+```
+PRD saved at {path}.
+  sensors: prd-structure ok, prd-acceptance-criteria ok
+  eval:    prd-quality {N}/10, prd-readiness {N}/10
+  guides:  product-guidelines.md, prd-guidelines.md, writing-style.md, templates/prd.md
+  refs:    business-info.md, squads/{squad}/context.md
+  next:    /product-manager:prp
+```

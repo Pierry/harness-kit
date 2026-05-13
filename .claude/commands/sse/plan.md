@@ -32,4 +32,13 @@ Sensors: .claude/plugins/staff-software-engineer/sensors/plan-structure.md.
 
 Evals: .claude/plugins/staff-software-engineer/evals/plan-quality.md.
 
-After save reply: Plan saved at {path}. Score: {N}/10.
+After save, reply with this exact shape (name the actual sensors/evals/guides that ran):
+
+```
+Plan saved at {path}.
+  sensors: plan-structure ok ({sub-checks: problem, files, gates, scope})
+  eval:    plan-quality {N}/10
+  guides:  pipeline.md, coding-style.md, skills/{area}/SKILL.md
+  refs:    prp/{feature_id}.md, conventions/{area}.md
+  next:    /sse:dev
+```

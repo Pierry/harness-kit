@@ -12,28 +12,39 @@ Run end to end.
 
 Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, and publish behavior.
 
-Return format:
+Return format. Name every sensor, eval, and guide that ran. Generic summaries are not acceptable — list specifics so the user sees what was checked and what was loaded.
 
 ```
 Engineering pipeline complete.
 
 Plan: .claude/plugins/staff-software-engineer/outputs/plan/{path}
-  sensors: passed (attempts: N)
-  eval: {score}/10
+  sensors: {sensor-name} ok ({sub-check, sub-check, ...}), {sensor-name} ok
+  eval:    {eval-name} {score}/10 (attempts: N)
+  guides:  {guide-1.md}, {guide-2.md}, skills/{area}/SKILL.md
+  refs:    prp/{feature_id}.md, conventions/{area}.md
 
 Dev: branch {branch}
   files changed: N
-  commits: N
-  gates: code-style ok, conventions ok
+  commits: N ({short-sha}, {short-sha}, ...)
+  sensors: code-conventions ok, test-coverage ok
+  guides:  coding-style.md, commit-style.md, skills/{area}/SKILL.md
+  refs:    plan/{feature_id}.md, conventions/{area}.md
 
 Test: .claude/plugins/staff-software-engineer/outputs/test/{path}
-  passed: N, failed: M
+  command: {detected-test-command}
+  passed:  N, failed: M
+  duration: {seconds}s
 
 PR: {url}
+  title: {title}
   draft: yes|no
+  guides: pr-template.md, commit-style.md
+  refs:   plan/{feature_id}.md, dev/{feature_id}.md
 
-Confluence: {published | skipped, reason}
+Confluence: {published to {space-key}: {url} | skipped, reason}
 
 Blockers:
 - {file:line, issue, fix}
 ```
+
+If a phase has no sensors/eval/guides/refs, omit that line for that phase rather than printing an empty one.

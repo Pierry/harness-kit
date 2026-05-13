@@ -46,4 +46,14 @@ Append approval marker when all gates pass:
 <!-- approved: {YYYY-MM-DD} -->
 ```
 
-Reply: Dev complete. {N} files changed, {M} commits. Next /sse:test.
+After approval, reply with this exact shape (name the actual sensors/guides that ran):
+
+```
+Dev complete. branch {branch}.
+  files changed: {N}
+  commits: {M} ({short-sha}, {short-sha}, ...)
+  sensors: code-conventions ok, test-coverage ok
+  guides:  coding-style.md, commit-style.md, skills/{area}/SKILL.md
+  refs:    plan/{feature_id}.md, conventions/{area}.md
+  next:    /sse:test
+```
