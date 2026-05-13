@@ -107,8 +107,19 @@ $ /product-manager:run
 > squad? billing
 > problem? invoice generation fails for multi-currency customers
 > ...
-PRD saved at outputs/prd/2026-05-12-billing-multi-currency.md. Score: 8.6/10.
-PRP saved at outputs/prp/2026-05-12-billing-multi-currency.md. Score: 8.4/10.
+PRD saved at outputs/prd/2026-05-12-billing-multi-currency.md.
+  sensors: prd-structure ok, prd-acceptance-criteria ok
+  eval:    prd-quality 8.6/10, prd-readiness 8.9/10
+  guides:  prd-guidelines.md, writing-style.md, templates/prd.md
+  refs:    business-info.md, squads/billing/context.md
+  next:    /product-manager:prp
+
+PRP saved at outputs/prp/2026-05-12-billing-multi-currency.md.
+  sensors: prp-structure ok, prp-context-quality ok, prp-links ok
+  eval:    prp-quality 8.4/10, prp-context-readiness 9.0/10
+  guides:  prp-guidelines.md, templates/prp.md
+  refs:    prd/2026-05-12-billing-multi-currency.md
+  next:    /sse:plan (ready for handoff)
 ```
 
 Engineering session in the target service repo:
@@ -117,11 +128,33 @@ Engineering session in the target service repo:
 $ /sse:run
 > source PRP? outputs/prp/2026-05-12-billing-multi-currency.md
 > area? backend
-Plan saved at outputs/plan/2026-05-12-billing-multi-currency.md. Score: 8.3/10.
-Dev complete. 5 files changed, 3 commits.
-Tests: 24 passed, 0 failed.
+Plan saved at outputs/plan/2026-05-12-billing-multi-currency.md.
+  sensors: plan-structure ok (problem, files, gates, scope)
+  eval:    plan-quality 8.3/10
+  guides:  pipeline.md, coding-style.md, skills/backend/SKILL.md
+  refs:    prp/2026-05-12-billing-multi-currency.md, conventions/backend.md
+  next:    /sse:dev
+
+Dev complete. branch feat/PROJ-123-multi-currency.
+  files changed: 5
+  commits: 3 (a1b2c3d, d4e5f6g, h7i8j9k)
+  sensors: code-conventions ok, test-coverage ok
+  guides:  coding-style.md, commit-style.md, skills/backend/SKILL.md
+  next:    /sse:test
+
+Tests passed.
+  command:  ./mvnw test
+  passed:   24, failed: 0
+  duration: 12.4s
+  next:     /sse:pr
+
 PR opened: https://github.com/your-org/billing-service/pull/567
+  title:  feat(PROJ-123): timezone-aware deadline check
+  draft:  yes
+  guides: pr-template.md, commit-style.md
 ```
+
+Every reply names the actual sensors that ran, evals with scores, and guides loaded — no generic "ok" lines. The `/sse:run` and `/product-manager:run` summaries aggregate the same shape across phases.
 
 Token usage is logged per phase to a shared JSON across both plugins. See the [product-manager README](.claude/plugins/product-manager/README.md#token-accounting) for the schema and query examples.
 
