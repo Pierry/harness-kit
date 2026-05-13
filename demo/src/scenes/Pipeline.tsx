@@ -17,13 +17,12 @@ export const Pipeline = () => {
   const titleOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
   const titleY = spring({ frame, fps, config: { damping: 18 } });
 
-  // Stage reveal pacing
   const stageStart = 24;
-  const stageStep = 22;
-  const exit = interpolate(frame, [330, 360], [1, 0], { extrapolateRight: 'clamp' });
+  const stageStep = 14;
+  const exit = interpolate(frame, [180, 210], [1, 0], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ padding: theme.space.pad, opacity: exit }}>
+    <AbsoluteFill style={{ padding: theme.space.pad, paddingBottom: 140, opacity: exit }}>
       <div
         style={{
           marginLeft: 80,
@@ -32,7 +31,7 @@ export const Pipeline = () => {
         }}
       >
         <div style={{ fontSize: theme.type.label, color: theme.color.textDim, letterSpacing: 4, textTransform: 'uppercase' }}>
-          The pipeline
+          the pipeline
         </div>
         <div
           style={{
@@ -44,7 +43,7 @@ export const Pipeline = () => {
             letterSpacing: -2,
           }}
         >
-          Six stages, one approval marker each.
+          Six stages. <span style={{ color: theme.color.accent }}>One approval each.</span>
         </div>
       </div>
 
@@ -52,8 +51,7 @@ export const Pipeline = () => {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 0,
-          marginTop: 130,
+          marginTop: 140,
           marginLeft: 80,
           marginRight: 80,
           justifyContent: 'space-between',
@@ -63,18 +61,12 @@ export const Pipeline = () => {
           const start = stageStart + i * stageStep;
           const reveal = spring({ frame: frame - start, fps, config: { damping: 14 } });
           const opacity = interpolate(frame, [start, start + 14], [0, 1], { extrapolateRight: 'clamp' });
-          const approveStart = start + 90;
+          const approveStart = start + 70;
           const approve = interpolate(frame, [approveStart, approveStart + 18], [0, 1], { extrapolateRight: 'clamp' });
 
           return (
             <div key={stage.key} style={{ display: 'flex', alignItems: 'center', flex: i === STAGES.length - 1 ? '0 0 auto' : 1 }}>
-              <Stage
-                label={stage.label}
-                sub={stage.sub}
-                opacity={opacity}
-                reveal={reveal}
-                approve={approve}
-              />
+              <Stage label={stage.label} sub={stage.sub} opacity={opacity} reveal={reveal} approve={approve} />
               {i < STAGES.length - 1 && (
                 <Connector
                   opacity={interpolate(frame, [start + 10, start + 26], [0, 1], { extrapolateRight: 'clamp' })}
@@ -87,21 +79,17 @@ export const Pipeline = () => {
 
       <div
         style={{
-          marginTop: 110,
+          marginTop: 80,
           marginLeft: 80,
+          marginRight: 80,
           fontFamily: theme.font.mono,
           fontSize: theme.type.codeSmall,
           color: theme.color.textDim,
-          opacity: interpolate(frame, [200, 230], [0, 1], { extrapolateRight: 'clamp' }),
+          opacity: interpolate(frame, [150, 180], [0, 1], { extrapolateRight: 'clamp' }),
+          textAlign: 'center',
         }}
       >
-        <span style={{ color: theme.color.accent }}>$</span> hk status
-        <div style={{ marginTop: 16, color: theme.color.text }}>
-          installed: <span style={{ color: theme.color.success }}>v3.0.0</span>
-        </div>
-        <div style={{ color: theme.color.text }}>
-          pipeline:&nbsp;&nbsp;<span style={{ color: theme.color.textDim }}>billing-tz-fix · prp approved · plan pending · next /sse:plan</span>
-        </div>
+        prd  →  prp  →  plan  →  dev  →  test  →  pr
       </div>
     </AbsoluteFill>
   );
@@ -147,7 +135,6 @@ const Stage = ({
           fontSize: 28,
           color: filled ? theme.color.accent : theme.color.text,
           letterSpacing: 1,
-          transition: 'all 0.2s',
           position: 'relative',
           boxShadow: filled ? `0 0 60px ${theme.color.accent}30` : 'none',
         }}

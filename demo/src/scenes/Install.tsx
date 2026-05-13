@@ -9,23 +9,22 @@ export const Install = () => {
 
   const titleOpacity = interpolate(frame, [0, 14], [0, 1], { extrapolateRight: 'clamp' });
   const termSpring = spring({ frame: frame - 8, fps, config: { damping: 16, mass: 0.8 } });
-  const exit = interpolate(frame, [400, 420], [1, 0], { extrapolateRight: 'clamp' });
+  const exit = interpolate(frame, [220, 240], [1, 0], { extrapolateRight: 'clamp' });
 
-  // Frame milestones
   const F = {
-    cmd1Start: 30,
-    cmd1End: 90,
-    out1Start: 100,
-    out1End: 145,
-    cmd2Start: 165,
-    cmd2End: 200,
-    out2Start: 215,
-    out2End: 320,
-    cursor: 340,
+    cmd1Start: 10,
+    cmd1End: 50,
+    out1Start: 55,
+    out1End: 85,
+    cmd2Start: 90,
+    cmd2End: 130,
+    out2Start: 135,
+    out2End: 200,
+    cursor: 215,
   };
 
   return (
-    <AbsoluteFill style={{ padding: theme.space.pad, opacity: exit }}>
+    <AbsoluteFill style={{ padding: theme.space.pad, paddingBottom: 140, opacity: exit }}>
       <div
         style={{
           marginLeft: 80,
@@ -80,21 +79,21 @@ export const Install = () => {
               <Line>
                 <span style={{ color: theme.color.success }}>harness-kit v3.0.0</span> installing at <span style={{ color: theme.color.textDim }}>~/repo</span>
               </Line>
-              {frame >= F.out2Start + 18 && <Line dim>writing .claude/plugins/product-manager</Line>}
-              {frame >= F.out2Start + 28 && <Line dim>writing .claude/plugins/staff-software-engineer</Line>}
-              {frame >= F.out2Start + 38 && <Line dim>writing .claude/hooks/status-line.sh</Line>}
-              {frame >= F.out2Start + 48 && <Line dim>writing .claude/settings.json</Line>}
-              {frame >= F.out2Start + 60 && (
+              {frame >= F.out2Start + 14 && <Line dim>writing .claude/plugins/product-manager</Line>}
+              {frame >= F.out2Start + 22 && <Line dim>writing .claude/plugins/staff-software-engineer</Line>}
+              {frame >= F.out2Start + 30 && <Line dim>writing .claude/hooks/status-line.sh</Line>}
+              {frame >= F.out2Start + 38 && <Line dim>writing .claude/settings.json</Line>}
+              {frame >= F.out2Start + 50 && (
                 <Line>
                   <span style={{ color: theme.color.success }}>done.</span> restart Claude Code to load.
                 </Line>
               )}
-              {frame >= F.out2Start + 74 && (
+              {frame >= F.out2Start + 62 && (
                 <Line dim>
                   &nbsp;&nbsp;/product-manager:prd | :prp | :run
                 </Line>
               )}
-              {frame >= F.out2Start + 80 && (
+              {frame >= F.out2Start + 70 && (
                 <Line dim>
                   &nbsp;&nbsp;/sse:plan | :dev | :test | :pr | :run
                 </Line>

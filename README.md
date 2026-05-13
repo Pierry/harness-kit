@@ -15,6 +15,8 @@ From idea to merged PR, one pipeline.
 
 ![harness-kit demo](demo/preview.gif)
 
+<sub>85s walkthrough · install → 6 commands → PR. Each command scene shows the active **guide · ref · sensor · eval** with a footer status bar tracking the live skill, stage, and next slash command.</sub>
+
 </div>
 
 ---
@@ -29,6 +31,7 @@ From idea to merged PR, one pipeline.
   - [Samples](#samples)
 - [Layout](#layout)
 - [Project conventions](#project-conventions)
+- [Anatomy of a stage](#anatomy-of-a-stage)
 - [Status bar](#status-bar)
 - [Tooling](#tooling)
 
@@ -161,6 +164,23 @@ Each target repo can override the SSE plugin defaults with its own files:
 ```
 
 The installer scaffolds `.claude/conventions/README.md` to remind you of the contract. Fill only the area files relevant to the repo. Plugin reads them on top of its defaults. See [conventions-override.md](.claude/plugins/staff-software-engineer/guides/conventions-override.md) for the override mechanics and examples.
+
+---
+
+## Anatomy of a stage
+
+Every stage in the pipeline runs the same loop. Same four ingredients, every time:
+
+| Ingredient | What it is | Example |
+|-----------|------------|---------|
+| **guide** | How to write the artifact. Style + structure rules the LLM follows. | `prd-guidelines.md`, `coding-style.md` |
+| **ref** | Context pulled in before drafting. Org/squad data + prior artifacts. | `business-info.md`, `outputs/prp/...md`, `.claude/conventions/backend.md` |
+| **sensor** | Must-pass structural check. Blocks the stage from being approved. | `prd-structure`, `prp-links`, `code-conventions`, `test-coverage` |
+| **eval** | Scored quality rubric. Returns a 0–10 score with diff suggestions. | `prd-quality`, `prp-context-readiness`, `plan-quality` |
+
+Sensors are pass/fail (deterministic, fast). Evals are scored (LLM-judged, retried until ≥ threshold or max attempts). Approval markers (`<!-- approved: -->`) gate the next stage.
+
+The 85s demo above shows every command running with these artifacts loading live on the right panel.
 
 ---
 
