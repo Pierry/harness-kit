@@ -1,0 +1,1 @@
+../../product-manager/scripts/sensor-runner.py

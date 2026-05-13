@@ -1,33 +1,41 @@
 {
-  "name": "eng-delivery-playbook",
+  "name": "@space-metrics-ai/harness-kit",
   "version": "3.0.0",
-  "description": "Curated context profiles and knowledge bases for AI coding tools",
+  "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
   "author": "Space Metrics AI",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/space-metrics-ai/engineering-delivery-playbook.git"
+    "url": "https://github.com/space-metrics-ai/harness-kit.git"
   },
-  "homepage": "https://github.com/space-metrics-ai/engineering-delivery-playbook",
+  "homepage": "https://github.com/space-metrics-ai/harness-kit",
   "keywords": [
-    "ai",
-    "profiles",
-    "engineering",
-    "delivery",
-    "playbook",
+    "claude-code",
     "claude",
-    "cursor",
-    "chatgpt"
+    "ai",
+    "harness",
+    "agent",
+    "prd",
+    "prp",
+    "engineering",
+    "product-management",
+    "delivery",
+    "pipeline",
+    "plugin"
   ],
   "bin": {
-    "eng-delivery-playbook": "./bin/cli.js",
-    "eng-play": "./bin/cli.js",
-    "edp": "./bin/cli.js"
+    "hk": "./bin/hk.js",
+    "harness-kit": "./bin/hk.js"
   },
   "files": [
     "bin",
-    "profiles",
-    ".AGENT"
+    "setup",
+    ".claude",
+    "context-library",
+    "VERSION",
+    "README.md",
+    "LICENSE",
+    "CLAUDE.md"
   ],
   "engines": {
     "node": ">=14.0.0"

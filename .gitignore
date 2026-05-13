@@ -1,1 +1,43 @@
+# ===========================================
+# harness-kit - Git Ignore Rules
+# ===========================================
+
+# -------------------------------------------
+# Personal context (per-user, not shared)
+# -------------------------------------------
+context-library/personal-context-*.md
+context-library/stakeholder-*.md
+context-library/writing-style-*.md
+
+# -------------------------------------------
+# Plugin outputs (artifacts of work)
+# -------------------------------------------
+.claude/plugins/*/outputs/prd/
+.claude/plugins/*/outputs/prp/
+.claude/plugins/*/outputs/plan/
+.claude/plugins/*/outputs/dev/
+.claude/plugins/*/outputs/test/
+.claude/plugins/*/outputs/pr/
+.claude/plugins/*/outputs/tokens/
+!.claude/plugins/*/outputs/.markers/
+
+# -------------------------------------------
+# Claude Code local settings
+# -------------------------------------------
+.claude/settings.local.json
+.claude/.hk-version
+
+# -------------------------------------------
+# OS / editor noise
+# -------------------------------------------
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# -------------------------------------------
+# Build / dist
+# -------------------------------------------
+dist/
+node_modules/

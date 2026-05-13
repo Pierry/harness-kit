@@ -1,0 +1,24 @@
+# Sensor: PRP Links
+
+Type: deterministic
+Mode: warn-then-gate
+
+Implemented in scripts/link-validator.py. Same rules when agent self-checks.
+
+## Hard checks (block)
+
+Source PRD resolvable. The "Source PRD:" line must point to a path that exists under outputs/prd/, relative to the PRP file, or relative to the repo root.
+
+No localhost URLs. `http://localhost` or `http://127.0.0.1` not allowed as pinned references.
+
+GitHub permalinks. Links like `github.com/.../blob/{main|master|develop}/...` not allowed. Use commit SHA or tag.
+
+## Soft checks (warn)
+
+Path format. Inline code spans that look like file paths (have `/` and end with extension) should end in a recognized extension.
+
+URL syntax. http/https URLs must be syntactically valid.
+
+## On failure
+
+Hard-check failures block publish. Soft-check warnings surface for review but do not block.

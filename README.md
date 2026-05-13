@@ -1,209 +1,192 @@
-<p align="center">
-  <img src="logo.png" alt="Engineering Delivery Playbook Logo" width="640">
-</p>
+<div align="center">
 
-<p align="center">
-  <strong>Curated context profiles for AI coding tools — not agents, not magic, just good defaults.</strong>
-</p>
+# harness-kit
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/eng-delivery-playbook"><img src="https://img.shields.io/npm/v/eng-delivery-playbook" alt="npm"></a>
-  <img src="https://img.shields.io/badge/license-MIT-yellow" alt="License">
-</p>
+Claude Code harness for product + engineering delivery.
+From idea to merged PR, one pipeline.
 
----
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](VERSION)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
+[![Plugins](https://img.shields.io/badge/plugins-2-success.svg)](#layout)
+[![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
-## What Is This?
-
-A collection of **curated system prompts** (we call them "profiles") that configure how AI coding tools behave for specific technology stacks.
-
-Each profile is a Markdown file with battle-tested conventions, patterns, and guidelines for a given stack. When your AI reads it, it writes code the way a senior engineer on that stack would.
-
-- **14 profiles**: Java, Kotlin, Go, Python, Rust, Node.js, React, Vue, Android, iOS, Flutter, DevOps, Code Reviewer, Tech Consultant
-- **14 knowledge bases**: Design patterns, testing strategies, system design, code review guidelines, and more
-- **Memory architecture**: Persistent context that survives across sessions
-- **OpenSpec integration**: Spec-driven development workflow
-- **Lean CLAUDE.md**: ~600 tokens pointing to profiles on demand, not 10k+ dumped upfront
-
-**These are not autonomous agents.** They don't make decisions, don't run tools, don't loop. They're structured context that makes your existing AI tools (Claude Code, Cursor, Copilot, etc.) better at writing code for your stack.
+</div>
 
 ---
 
-## Why Not Just Write Your Own CLAUDE.md?
+## Table of Contents
 
-You absolutely can. But most teams end up with one of two problems:
-
-1. **Too long** (500+ lines, 10k+ tokens) — context stuffing that degrades model recall
-2. **Too generic** ("write clean code, follow best practices") — no real signal
-
-This playbook gives you:
-
-- **Stack-specific conventions** curated per technology (not generic "best practices")
-- **Lean CLAUDE.md** (~600 tokens) that points to detailed profiles on demand — following [Boris Cherny's approach](https://alirezarezvani.medium.com/your-claude-md-is-probably-wrong-7-mistakes-boris-cherny-never-makes-6d3e5e41f4b7)
-- **Knowledge bases** the AI can pull from when it needs depth on patterns, testing, or system design
-- **Zero setup** — `npx eng-delivery-playbook` and you're configured
-- **A starting point, not a straitjacket** — customize from there
+- [Getting Started](#getting-started)
+  - [Install](#install)
+  - [Update](#update)
+  - [Usage](#usage)
+  - [Workflow](#workflow)
+  - [Samples](#samples)
+- [Layout](#layout)
+- [Project conventions](#project-conventions)
+- [Status bar](#status-bar)
+- [Tooling](#tooling)
 
 ---
 
-## Quick Start
+## Getting Started
+
+### Install
 
 ```bash
-npx eng-delivery-playbook
+npm i -g @space-metrics-ai/harness-kit
+hk install
 ```
 
-This installs profiles, knowledge bases, and memory architecture into your project. Then:
+`hk install` writes plugins into `.claude/plugins/`, drops the status-line hook in `.claude/hooks/`, generates `.claude/settings.json`, and scaffolds `.claude/conventions/` for your project overrides. Run it from the target repo (or pass an explicit `[target]`). Restart Claude Code after.
+
+CLI subcommands:
+
+| Command | What it does |
+|---------|--------------|
+| `hk install [target]` | install plugins into target repo (default: cwd) |
+| `hk update [target]` | pull latest source and reinstall |
+| `hk uninstall [target]` | remove plugins, hooks, settings, agents (keeps `outputs/` and `conventions/`) |
+| `hk status [target]` | installed version + active pipeline stage |
+| `hk version` | source version |
+
+No-npm path (if you don't want a Node dep):
 
 ```bash
-eng-play switch java       # Switch to Java profile
-eng-play switch py         # Use aliases
-eng-play list              # Show all profiles
+git clone https://github.com/space-metrics-ai/harness-kit ~/.harness-kit
+bash ~/.harness-kit/setup/install.sh
 ```
 
-### Spec-Driven Workflow
+### Update
 
 ```bash
-eng-play openspec start "
-  context: We have a billing service.
-  goals: Add usage-based billing API.
-  requirements:
-    - POST /api/billing/usage — record API calls per tenant
-    - GET /api/billing/invoices/:tenant_id — list invoices
-    - Pricing tiers: free (1k calls), pro (100k), enterprise (unlimited)"
+hk update
 ```
 
-The CLI auto-detects your stack, generates a structured prompt, and kicks off the OpenSpec workflow: PROPOSE > DESIGN > TASKS > IMPLEMENT > REVIEW > SHIP.
+Pulls latest source and reinstalls. Idempotent. Version is read from the package `VERSION` and recorded in your target at `.claude/.hk-version`.
 
----
+### Usage
 
-## Profiles
+| Command | What it does |
+|---------|--------------|
+| `/product-manager:prd` | Draft a PRD |
+| `/product-manager:prp` | Draft a PRP (needs an approved PRD) |
+| `/product-manager:run` | Full PM pipeline (PRD then PRP) |
+| `/sse:plan` | Generate plan from an approved PRP |
+| `/sse:dev` | Implement the plan, run convention gates |
+| `/sse:test` | Run the project test suite |
+| `/sse:pr` | Open the draft PR |
+| `/sse:run` | Full SSE pipeline (plan, dev, test, pr) |
 
-### Backend
+Pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
 
-| Profile | Stack | Alias |
-|---------|-------|-------|
-| **Java** | Spring Boot, JPA, Maven/Gradle | `java` |
-| **Kotlin** | Ktor, Spring, Coroutines | `kt` |
-| **Go** | stdlib, Gin/Chi, GORM/sqlx | `go` |
-| **Python** | FastAPI, Django, SQLAlchemy | `py` |
-| **Rust** | Actix/Axum, Tokio, SQLx | `rs` |
-| **Node.js** | Express, Fastify, NestJS, TypeScript | `ts` |
+### Workflow
 
-### Frontend
+PM session in this workspace:
 
-| Profile | Stack | Alias |
-|---------|-------|-------|
-| **React** | React 19, Next.js 15, TanStack Query | `next` |
-| **Vue** | Vue 3, Nuxt 3, Pinia | `nuxt` |
-
-### Mobile
-
-| Profile | Stack | Alias |
-|---------|-------|-------|
-| **Android** | Kotlin, Jetpack Compose, Hilt | `droid` |
-| **iOS** | Swift, SwiftUI, Combine | `swift` |
-| **Flutter** | Dart, Riverpod/Bloc, go_router | `fl`, `dart` |
-
-### Infrastructure & Review
-
-| Profile | Purpose | Alias |
-|---------|---------|-------|
-| **DevOps** | K8s, Terraform, Docker, CI/CD | `ops` |
-| **Reviewer** | Tech-agnostic code review | `review` |
-| **Consultant** | Architecture advice (no code) | `consult` |
-
----
-
-## CLI Reference
-
-```bash
-eng-play                                      # Install (interactive)
-eng-play switch <profile>                     # Switch profile
-eng-play list                                 # List profiles
-eng-play openspec start "<feature>"           # Start workflow (auto-detect)
-eng-play openspec start "<feature>" <profile> # Start with specific profile
-eng-play memory init                          # Initialize .AGENT/ memory
-eng-play memory status                        # Show memory status
+```
+$ /product-manager:run
+> squad? billing
+> problem? invoice generation fails for multi-currency customers
+> ...
+PRD saved at outputs/prd/2026-05-12-billing-multi-currency.md. Score: 8.6/10.
+PRP saved at outputs/prp/2026-05-12-billing-multi-currency.md. Score: 8.4/10.
 ```
 
-### Auto-Detection
+Engineering session in the target service repo:
 
-When you omit the profile from `eng-play openspec start`, the CLI scans your codebase:
+```
+$ /sse:run
+> source PRP? outputs/prp/2026-05-12-billing-multi-currency.md
+> area? backend
+Plan saved at outputs/plan/2026-05-12-billing-multi-currency.md. Score: 8.3/10.
+Dev complete. 5 files changed, 3 commits.
+Tests: 24 passed, 0 failed.
+PR opened: https://github.com/your-org/billing-service/pull/567
+```
 
-| Signal | Profile |
-|--------|---------|
-| `Cargo.toml` | Rust |
-| `go.mod` | Go |
-| `pom.xml`, `build.gradle` | Java |
-| `build.gradle.kts` | Kotlin |
-| `pyproject.toml`, `requirements.txt` | Python |
-| `pubspec.yaml` | Flutter |
-| `package.json` + React/Next | React |
-| `package.json` + Vue/Nuxt | Vue |
-| `Dockerfile`, `main.tf` | DevOps |
+Token usage is logged per phase to a shared JSON across both plugins. See the [product-manager README](.claude/plugins/product-manager/README.md#token-accounting) for the schema and query examples.
 
----
+### Samples
 
-## Memory Architecture
+Reference artifacts ship inside the plugins:
 
-The `.AGENT/` directory provides persistent context across sessions with 5 memory types: working, procedural, semantic, episodic, and meta. Initialize with `eng-play memory init`.
-
-See [.AGENT/procedural_memory/PROFILES.md](.AGENT/procedural_memory/PROFILES.md) for details.
+- [good PRD example](.claude/plugins/product-manager/guides/examples/good-prd-example.md)
+- [good PRP example](.claude/plugins/product-manager/guides/examples/good-prp-example.md)
 
 ---
 
-## OpenSpec
+## Layout
 
-[OpenSpec](https://openspec.dev/) provides spec-driven development — AI reads structured specs instead of guessing. Specs persist in the repo, enabling review of **intent** (spec deltas) alongside code diffs.
+```
+.
+├── .claude/
+│   ├── plugins/
+│   │   ├── product-manager/          PRD + PRP plugin
+│   │   └── staff-software-engineer/  plan, dev, test, pr plugin
+│   ├── commands/                     slash commands per plugin namespace
+│   ├── agents/                       Task-tool-invokable orchestrators
+│   ├── hooks/
+│   │   └── status-line.sh            pipeline status indicator
+│   └── settings.json                 hooks wiring + permissions
+├── context-library/                  reusable org/squad context
+├── setup/
+│   ├── install.sh                    target-repo installer
+│   └── update.sh                     pull + reinstall
+└── VERSION                           source of truth for installer
+```
 
-See [profiles/knowledge/openspec.md](profiles/knowledge/openspec.md) for the full guide.
+Plugin documentation:
 
----
-
-## Examples
-
-_Coming soon: before/after examples and links to real PRs generated with this workflow._
-
-If you've used this playbook in a project, [open an issue](https://github.com/space-metrics-ai/engineering-delivery-playbook/issues) — we'd love to feature it.
-
----
-
-## Changelog
-
-### 3.0.0 (Breaking)
-- **Renamed "agents" to "profiles"** — honest terminology, these are context configurations not autonomous agents
-- **Removed AI Metrics** profile and knowledge base
-- **Rewrote README** — shorter, honest positioning, no vanity badges
-- **Added CONTRIBUTING.md** — proper contribution guide
-- **14 profiles, 14 knowledge bases** — curated per technology stack
-
-<details>
-<summary>Previous versions</summary>
-
-### 2.1.x
-- OpenSpec auto-install, structured prompt format
-
-### 2.0.0
-- `eng-play` CLI, auto-detect, lean CLAUDE.md
-
-### 1.x
-- Initial release through memory architecture
-</details>
+- [product-manager](.claude/plugins/product-manager/README.md): PRD and PRP generation, sensor and eval gates, retry loop, token accounting, optional Confluence publish.
+- [staff-software-engineer](.claude/plugins/staff-software-engineer/README.md): plan, dev, test, pr stages with per-project conventions override.
 
 ---
 
-## Contributing
+## Project conventions
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Each target repo can override the SSE plugin defaults with its own files:
+
+```
+{repo}/.claude/conventions/
+├── backend.md
+├── web.md
+├── mobile.md
+└── devops.md
+```
+
+The installer scaffolds `.claude/conventions/README.md` to remind you of the contract. Fill only the area files relevant to the repo. Plugin reads them on top of its defaults. See [conventions-override.md](.claude/plugins/staff-software-engineer/guides/conventions-override.md) for the override mechanics and examples.
 
 ---
 
-## License
+## Status bar
 
-MIT
+The status line follows the active feature through the 6-stage pipeline. Examples:
+
+```
+idle · start /product-manager:run or /sse:run
+multi-currency · prd drafting · next /product-manager:prd
+multi-currency · prd approved · prp pending · next /product-manager:prp
+multi-currency · prp approved · plan pending · next /sse:plan
+multi-currency · plan approved · dev pending · next /sse:dev
+multi-currency · complete
+```
+
+State derives from artifact files plus the `<!-- approved: -->` marker. A feature is "active" when any of its artifacts was modified in the last hour. With no recent activity, the bar shows the idle prompt.
 
 ---
 
-<p align="center">
-  <strong>AI is a tool, not a replacement for understanding.</strong>
-</p>
+## Tooling
+
+| Tool | Why |
+|------|-----|
+| [Claude Code](https://claude.ai/code) | the agent runtime |
+| [git](https://git-scm.com/) | version control + status bar branch detection |
+| [python3](https://www.python.org/) | sensor runner, token accounting, optional Confluence publish |
+| [gh CLI](https://cli.github.com/) | install, update, opening PRs via `/sse:pr` |
+
+Optional:
+
+- [jq](https://stedolan.github.io/jq/) for querying the token JSON files
+- `JIRA_USERNAME` and `JIRA_API_TOKEN` env vars to enable Confluence publish (details in the [product-manager README](.claude/plugins/product-manager/README.md#confluence-publish))

@@ -1,7 +1,0 @@
-{
-  "$schema": "stack",
-  "description": "Current task stack - Tracks active workflow steps",
-  "stack": [],
-  "completed": [],
-  "blocked": []
-}
