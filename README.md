@@ -35,7 +35,7 @@ From idea to merged PR, one pipeline.
 ### Install
 
 ```bash
-npm i -g @space-metrics-ai/harness-kit
+npm i -g @pieerry/harness-kit
 hk install
 ```
 
