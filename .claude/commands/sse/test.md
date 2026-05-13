@@ -4,6 +4,8 @@ description: Run the project test suite. Reports results to .claude/plugins/staf
 
 Run the test suite for the current repo.
 
+Print a header card before running and a footer card after the suite finishes. Format: .claude/scripts/stage-card.md.
+
 Detect the project test command (in order):
 1. Check README.md or CONTRIBUTING.md for explicit test instructions.
 2. Maven (pom.xml present): `./mvnw test` or `mvn test`

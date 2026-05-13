@@ -6,12 +6,14 @@ import { Intro } from './scenes/Intro';
 import { Pipeline } from './scenes/Pipeline';
 import { Install } from './scenes/Install';
 import { StatusBarExplain } from './scenes/StatusBarExplain';
+import { DynamicStatusBar } from './scenes/DynamicStatusBar';
 import { CommandPRD } from './scenes/CommandPRD';
 import { CommandPRP } from './scenes/CommandPRP';
 import { CommandPlan } from './scenes/CommandPlan';
 import { CommandDev } from './scenes/CommandDev';
 import { CommandTest } from './scenes/CommandTest';
 import { CommandPR } from './scenes/CommandPR';
+import { Resume } from './scenes/Resume';
 import { Anatomy } from './scenes/Anatomy';
 import { Outro } from './scenes/Outro';
 
@@ -35,13 +37,15 @@ export const scenes: SceneSpec[] = [
   { id: 'intro',    component: Intro,            duration: s(4),  status: null },
   { id: 'pipeline', component: Pipeline,         duration: s(7),  status: { skill: '—', stage: 'overview', next: '—' } },
   { id: 'install',  component: Install,          duration: s(8),  status: { skill: 'installer', stage: 'install', next: 'restart claude code' } },
-  { id: 'sb',       component: StatusBarExplain, duration: s(6),  status: { skill: '—', stage: 'idle', next: '/product-manager:run or /sse:run' } },
+  { id: 'sb',       component: StatusBarExplain, duration: s(5),  status: { skill: '—', stage: 'idle', next: '/product-manager:run · /sse:run · /pipeline:continue' } },
+  { id: 'sbdyn',    component: DynamicStatusBar, duration: s(9),  status: { skill: 'status bar', stage: 'live shape · live state', next: 'reflects every action' } },
   { id: 'prd',      component: CommandPRD,       duration: s(10), status: { skill: 'product-manager:prd',  stage: 'prd drafting',  next: '/product-manager:prd  →  approve' } },
   { id: 'prp',      component: CommandPRP,       duration: s(10), status: { skill: 'product-manager:prp',  stage: 'prp drafting',  next: '/product-manager:prp  →  approve' } },
   { id: 'plan',     component: CommandPlan,      duration: s(8),  status: { skill: 'sse:plan',             stage: 'plan drafting', next: '/sse:plan  →  approve' } },
   { id: 'dev',      component: CommandDev,       duration: s(8),  status: { skill: 'sse:dev (backend)',    stage: 'dev running',   next: '/sse:dev  →  approve' } },
   { id: 'test',     component: CommandTest,      duration: s(5),  status: { skill: 'sse:test',             stage: 'test running',  next: '/sse:test  →  approve' } },
   { id: 'pr',       component: CommandPR,        duration: s(6),  status: { skill: 'sse:pr',               stage: 'pr opening',    next: '/sse:pr  →  done' } },
+  { id: 'resume',   component: Resume,           duration: s(8),  status: { skill: 'pipeline:continue',    stage: 'resume',        next: 'next pending stage' } },
   { id: 'anatomy',  component: Anatomy,          duration: s(8),  status: { skill: 'anatomy of a stage',   stage: 'guide · sensor · eval · refs', next: 'every stage runs this loop' } },
   { id: 'outro',    component: Outro,            duration: s(5),  status: null },
 ];

@@ -5,7 +5,7 @@
 Claude Code harness for product + engineering delivery.
 From idea to merged PR, one pipeline.
 
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Plugins](https://img.shields.io/badge/plugins-2-success.svg)](#layout)
 [![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
@@ -15,7 +15,7 @@ From idea to merged PR, one pipeline.
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>85s walkthrough · install → 6 commands → PR. Each command scene shows the active **guide · ref · sensor · eval** with a footer status bar tracking the live skill, stage, and next slash command.</sub>
+<sub>100s walkthrough · install → 6 commands → PR → resume. Each command scene shows the active **guide · ref · sensor · eval**. Dedicated scenes for the dynamic status bar and `/pipeline:continue` resume flow.</sub>
 
 </div>
 
@@ -85,8 +85,18 @@ Pulls latest source and reinstalls. Idempotent. Version is read from the package
 | `/sse:test` | Run the project test suite |
 | `/sse:pr` | Open the draft PR |
 | `/sse:run` | Full SSE pipeline (plan, dev, test, pr) |
+| `/pipeline:continue` | Resume the active pipeline at its next pending stage |
+| `/pipeline:reset` | Abandon the active pipeline run (clears state, keeps artifacts) |
 
-Pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
+Pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker.
+
+You can enter the pipeline at any stage. Three common shapes:
+
+- `prd → prp → plan → dev → test → pr` (full PM + SSE)
+- `prd → prp` (PM only, hand off to a separate engineering process)
+- `plan → dev → test → pr` (SSE only, when discovery already happened elsewhere)
+
+Status bar tracks the shape you started with. Close the session and reopen later — `/pipeline:continue` picks up at the next pending stage. `/pipeline:reset` clears the run if you decide to abandon it.
 
 ### Workflow
 
@@ -135,7 +145,14 @@ Reference artifacts ship inside the plugins:
 │   ├── commands/                     slash commands per plugin namespace
 │   ├── agents/                       Task-tool-invokable orchestrators
 │   ├── hooks/
-│   │   └── status-line.sh            pipeline status indicator
+│   │   ├── status-line.sh            pipeline status indicator
+│   │   ├── pipeline-prompt.sh        slash-command intent tracking
+│   │   ├── pipeline-postwrite.sh     stage-state from artifact writes
+│   │   ├── pipeline-postedit.sh      stage-state from approval marker
+│   │   └── pipeline-session-start.sh resume hint on startup
+│   ├── scripts/
+│   │   └── pipeline.py               state manager (state file CRUD)
+│   ├── .pipeline-state.json          active feature + per-stage state
 │   └── settings.json                 hooks wiring + permissions
 ├── context-library/                  reusable org/squad context
 ├── setup/
@@ -186,18 +203,20 @@ The 85s demo above shows every command running with these artifacts loading live
 
 ## Status bar
 
-The status line follows the active feature through the 6-stage pipeline. Examples:
+The status line follows the active feature through whatever pipeline shape you started. It is dynamic: a `UserPromptSubmit` hook records intent the moment you type a slash command, and `PostToolUse` hooks update state as artifact files land on disk.
 
 ```
-idle · start /product-manager:run or /sse:run
-multi-currency · prd drafting · next /product-manager:prd
-multi-currency · prd approved · prp pending · next /product-manager:prp
-multi-currency · prp approved · plan pending · next /sse:plan
-multi-currency · plan approved · dev pending · next /sse:dev
-multi-currency · complete
+idle · /product-manager:run · /sse:run · /pipeline:continue
+starting sse-run [plan+dev+test+pr] · plan pending · next /sse:plan
+multi-currency [plan+dev+test+pr] · plan drafting · next /sse:plan
+multi-currency [plan+dev+test+pr] · plan approved · dev pending · next /sse:dev
+multi-currency [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next /sse:plan
+multi-currency · complete (prd+prp+plan+dev+test+pr)
 ```
 
-State derives from artifact files plus the `<!-- approved: -->` marker. A feature is "active" when any of its artifacts was modified in the last hour. With no recent activity, the bar shows the idle prompt.
+The bracketed list is the pipeline shape — the stages this run will execute. The shape is inferred from the slash command you invoked and extended when you chain commands (e.g. running `/sse:run` after `/product-manager:run` appends `plan+dev+test+pr` to the existing `prd+prp`).
+
+State lives at `.claude/.pipeline-state.json`. Close the session and reopen — the SessionStart hook prints a one-line resume hint, and `/pipeline:continue` invokes the next pending stage. `/pipeline:reset` clears the file. Output artifacts under `.claude/plugins/*/outputs/` are never deleted by reset.
 
 ---
 

@@ -4,6 +4,8 @@ description: Open a Pull Request on GitHub following team conventions. Draft by 
 
 Open a Pull Request.
 
+Print a header card before opening and a footer card after gh returns. Format: .claude/scripts/stage-card.md.
+
 Prerequisites:
 - All previous gates passed (plan approved, dev approved, test approved).
 - Branch pushed to origin with current changes.

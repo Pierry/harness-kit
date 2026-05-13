@@ -62,9 +62,17 @@ function cmdUninstall(target) {
     '.claude/plugins/staff-software-engineer',
     '.claude/commands/product-manager',
     '.claude/commands/sse',
+    '.claude/commands/pipeline',
     '.claude/agents/product-manager.md',
     '.claude/agents/staff-software-engineer.md',
     '.claude/hooks/status-line.sh',
+    '.claude/hooks/pipeline-prompt.sh',
+    '.claude/hooks/pipeline-postwrite.sh',
+    '.claude/hooks/pipeline-postedit.sh',
+    '.claude/hooks/pipeline-session-start.sh',
+    '.claude/scripts/pipeline.py',
+    '.claude/scripts/stage-card.md',
+    '.claude/.pipeline-state.json',
     '.claude/settings.json',
     '.claude/.hk-version',
   ];
@@ -113,7 +121,8 @@ usage:
 
 after install, restart Claude Code and use:
   /product-manager:prd | :prp | :run
-  /sse:plan | :dev | :test | :pr | :run`);
+  /sse:plan | :dev | :test | :pr | :run
+  /pipeline:continue | :reset`);
 }
 
 function main() {

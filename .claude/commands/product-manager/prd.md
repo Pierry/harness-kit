@@ -4,6 +4,8 @@ description: Generate a Product Requirements Document for an team squad. Busines
 
 Generate a PRD. Follow .claude/plugins/product-manager/guides/pipeline.md for retry, approval, and publish.
 
+Print a header card before drafting and a footer card after gates run. Format: .claude/scripts/stage-card.md.
+
 Ask once if missing: squad, problem in 1-2 sentences, customers, hypothesis, bet link, stage.
 
 Compute feature_id = {YYYY-MM-DD}-{squad}-{slug}. Before generating, write the phase start marker:

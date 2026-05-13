@@ -4,6 +4,8 @@ description: Implement the approved plan in code. Writes commits, runs gates, re
 
 Implement the plan. Follow .claude/plugins/staff-software-engineer/guides/pipeline.md.
 
+Print a header card before coding and a footer card after gates run. Format: .claude/scripts/stage-card.md.
+
 Source plan: latest in .claude/plugins/staff-software-engineer/outputs/plan/ with approved marker. If none, abort and ask user to run /sse:plan first.
 
 Before coding, write the phase start marker:

@@ -4,6 +4,8 @@ description: Generate a Product Requirements Prompt for engineering handoff. Nee
 
 Generate a PRP. Follow .claude/plugins/product-manager/guides/pipeline.md for retry, approval, and publish.
 
+Print a header card before drafting and a footer card after gates run. Format: .claude/scripts/stage-card.md.
+
 Source PRD: if user passes a path, use it. Else pick the most recent in .claude/plugins/product-manager/outputs/prd/. None found, abort. Tell user to run /product-manager:prd first. .claude/plugins/product-manager/hooks/pre-prp-check.sh blocks if the PRD lacks the approved marker.
 
 Compute feature_id from the source PRD filename (basename without .md). Save the PRP to .claude/plugins/product-manager/outputs/prp/{feature_id}.md so it matches.

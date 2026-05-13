@@ -4,6 +4,8 @@ description: Generate an implementation plan from an approved PRP. Sensors and e
 
 Generate a technical plan. Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval, and publish.
 
+Print a header card before drafting and a footer card after gates run. Format: .claude/scripts/stage-card.md.
+
 Source PRP: if user passes a path, use it. Else pick the most recent in .claude/plugins/product-manager/outputs/prp/. None found, abort. Tell user to run /product-manager:prp first.
 
 Compute feature_id from the source PRP filename (basename without .md). Save the plan to .claude/plugins/staff-software-engineer/outputs/plan/{feature_id}.md so it matches.

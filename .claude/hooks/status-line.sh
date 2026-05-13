@@ -1,20 +1,19 @@
 #!/bin/sh
-# Status line for the PM and SSE plugin pipelines.
-#
-# Shows the current stage of the active feature. Stages, in order:
-#   prd   (product-manager plugin)
-#   prp   (product-manager plugin)
-#   plan  (staff-software-engineer plugin)
-#   dev   (staff-software-engineer plugin)
-#   test  (staff-software-engineer plugin)
-#   pr    (staff-software-engineer plugin)
-#
-# State per stage is "pending" (no file), "drafting" (file exists, no approval
-# marker), or "approved" (approval marker present). The bar shows the previous
-# approved stage plus the current stage, with the next command to run.
-#
-# A feature is "active" when any of its artifact files was modified in the last
-# hour. With no active feature, the bar shows an idle prompt.
+# Status line for the harness-kit pipeline. Reads .claude/.pipeline-state.json
+# (managed by .claude/scripts/pipeline.py) for live state. Falls back to a
+# file-scan if state is absent.
+
+PIPELINE_PY=".claude/scripts/pipeline.py"
+
+if [ -x "$PIPELINE_PY" ] && [ -f ".claude/.pipeline-state.json" ]; then
+  OUT="$(python3 "$PIPELINE_PY" render 2>/dev/null)"
+  if [ -n "$OUT" ]; then
+    printf '%s' "$OUT"
+    exit 0
+  fi
+fi
+
+# --- Fallback: original file-scan logic ---
 
 PM_DIR=".claude/plugins/product-manager"
 SSE_DIR=".claude/plugins/staff-software-engineer"
@@ -31,7 +30,7 @@ render() {
   done
 
   if [ -z "$LATEST" ]; then
-    printf "idle · start /product-manager:run or /sse:run"
+    printf "idle · /product-manager:run · /sse:run · /pipeline:continue"
     return 0
   fi
 
@@ -39,12 +38,11 @@ render() {
   MTIME=$(stat -f %m "$LATEST" 2>/dev/null || stat -c %Y "$LATEST" 2>/dev/null || echo 0)
   AGE=$((NOW - MTIME))
   if [ "$AGE" -ge 3600 ]; then
-    printf "idle · start /product-manager:run or /sse:run"
+    printf "idle · /product-manager:run · /sse:run · /pipeline:continue"
     return 0
   fi
 
   FID=$(basename "$LATEST" .md)
-  # Strip leading YYYY-MM-DD-. Optional team prefix accepted (any kebab-case slug).
   SLUG=$(echo "$FID" | sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}-//')
 
   check_state() {

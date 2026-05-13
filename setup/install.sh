@@ -51,7 +51,7 @@ done
 
 # Copy slash commands and Task-invokable agents
 mkdir -p "$TARGET/.claude/commands" "$TARGET/.claude/agents"
-for ns in product-manager sse; do
+for ns in product-manager sse pipeline; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
@@ -66,12 +66,27 @@ for plugin in product-manager staff-software-engineer; do
          "$TARGET/.claude/plugins/$plugin/.claude-plugin"
 done
 
-# Copy status-line hook
+# Copy harness-kit hooks (status-line + pipeline tracking)
 mkdir -p "$TARGET/.claude/hooks"
-cp "$SOURCE_ROOT/.claude/hooks/status-line.sh" "$TARGET/.claude/hooks/status-line.sh"
-chmod +x "$TARGET/.claude/hooks/status-line.sh"
+for h in status-line.sh pipeline-prompt.sh pipeline-postwrite.sh pipeline-postedit.sh pipeline-session-start.sh; do
+  cp "$SOURCE_ROOT/.claude/hooks/$h" "$TARGET/.claude/hooks/$h"
+  chmod +x "$TARGET/.claude/hooks/$h"
+done
 
-# Settings.json
+# Copy harness-kit scripts (pipeline state manager + stage-card convention)
+mkdir -p "$TARGET/.claude/scripts"
+cp "$SOURCE_ROOT/.claude/scripts/pipeline.py" "$TARGET/.claude/scripts/pipeline.py"
+cp "$SOURCE_ROOT/.claude/scripts/stage-card.md" "$TARGET/.claude/scripts/stage-card.md"
+chmod +x "$TARGET/.claude/scripts/pipeline.py"
+
+# Settings.json (back up existing if content differs)
+if [ -f "$TARGET/.claude/settings.json" ]; then
+  STAMP="$(date +%Y%m%d-%H%M%S)"
+  BACKUP="$TARGET/.claude/settings.json.bak.$STAMP"
+  cp "$TARGET/.claude/settings.json" "$BACKUP"
+  echo "backed up existing settings.json -> .claude/settings.json.bak.$STAMP"
+  echo "  if you customized permissions or hooks, merge them back from the backup."
+fi
 cat > "$TARGET/.claude/settings.json" <<'EOF'
 {
   "permissions": {
@@ -93,6 +108,20 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-prompt.sh ] && bash .claude/hooks/pipeline-prompt.sh; exit 0" }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Write",
@@ -107,7 +136,8 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         "hooks": [
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prd.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-postwrite.sh ] && bash .claude/hooks/pipeline-postwrite.sh; exit 0" }
         ]
       },
       {
@@ -115,7 +145,8 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         "hooks": [
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prd.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-postedit.sh ] && bash .claude/hooks/pipeline-postedit.sh; exit 0" }
         ]
       }
     ]
@@ -152,3 +183,4 @@ echo "$VERSION" > "$TARGET/.claude/.hk-version"
 echo "done. restart Claude Code to load."
 echo "  /product-manager:prd | :prp | :run"
 echo "  /sse:plan | :dev | :test | :pr | :run"
+echo "  /pipeline:continue | :reset"
