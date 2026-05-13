@@ -1,12 +1,12 @@
 {
-  "name": "@space-metrics-ai/harness-kit",
+  "name": "@pieerry/harness-kit",
   "version": "3.0.0",
   "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
   "author": "Space Metrics AI",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/space-metrics-ai/harness-kit.git"
+    "url": "git+https://github.com/space-metrics-ai/harness-kit.git"
   },
   "homepage": "https://github.com/space-metrics-ai/harness-kit",
   "keywords": [
@@ -24,8 +24,8 @@
     "plugin"
   ],
   "bin": {
-    "hk": "./bin/hk.js",
-    "harness-kit": "./bin/hk.js"
+    "hk": "bin/hk.js",
+    "harness-kit": "bin/hk.js"
   },
   "files": [
     "bin",
