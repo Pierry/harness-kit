@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-## Required sections (all must be present, in order)
+## Required sections (all present, in order)
 
 - Goal
 - Why

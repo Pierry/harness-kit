@@ -6,11 +6,11 @@ user_invocable: false
 
 Mobile conventions, team default.
 
-Project override: if `{repo}/.claude/conventions/mobile.md` exists, it overrides any rule here. See guides/conventions-override.md.
+Project override: if `{repo}/.claude/conventions/mobile.md` exists, overrides any rule here. See guides/conventions-override.md.
 
 ## Defaults
 
-team's mobile work is limited; repos vary widely. Always read the repo before writing.
+team mobile work limited; repos vary widely. Always read repo before writing.
 
 iOS:
 - Swift 5.x. Avoid Objective-C unless repo already uses it.
@@ -28,7 +28,7 @@ Shared:
 
 ## Before writing code
 
-Read at least 3 similar files in the repo to confirm:
+Read at least 3 similar files in repo to confirm:
 - language version (Swift/Kotlin)
 - architecture pattern
 - DI framework

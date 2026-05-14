@@ -3,7 +3,7 @@
 Type: rule-based stage gate
 Mode: advisory
 
-Decides whether a PRD has enough content for its declared stage to advance. Run after prd-quality passes.
+Decides whether PRD has enough content for declared stage to advance. Run after prd-quality passes.
 
 ## Stage gates
 

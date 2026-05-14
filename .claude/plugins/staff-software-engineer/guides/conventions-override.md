@@ -1,10 +1,10 @@
 # Conventions Override
 
-How project-specific conventions override the plugin defaults.
+How project-specific conventions override plugin defaults.
 
 ## Path
 
-Each repo can have its own conventions file per area:
+Each repo can have own conventions file per area:
 
 ```
 {repo-root}/
@@ -16,21 +16,21 @@ Each repo can have its own conventions file per area:
  └── devops.md
 ```
 
-Only the files you need. If you do not have web work in this repo, do not create web.md.
+Only files you need. No web work in repo, no web.md.
 
 ## How it works
 
-When a skill or command generates code:
+When skill or command generates code:
 
-1. Read the plugin's default conventions from `skills/{area}/SKILL.md`.
+1. Read plugin default conventions from `skills/{area}/SKILL.md`.
 2. Check if `cwd/.claude/conventions/{area}.md` exists.
-3. If yes, read it. Rules in this file override or add to the defaults.
-4. If a rule conflicts, project wins.
-5. If no project file, use plugin defaults only.
+3. If yes, read it. Rules override or add to defaults.
+4. On conflict, project wins.
+5. No project file, use plugin defaults only.
 
-## What goes in a project conventions file
+## What goes in project conventions file
 
-The DIFFERENCES from defaults, not the full rule set. Examples:
+DIFFERENCES from defaults, not full rule set. Examples:
 
 ```markdown
 # Backend conventions for recon-service
@@ -54,15 +54,15 @@ Forbidden in this repo:
 - @Component annotation on classes (always @Service, @Repository, @Configuration)
 ```
 
-Keep it short. Document what is DIFFERENT, not what is shared with defaults.
+Keep short. Document what is DIFFERENT, not what is shared with defaults.
 
 ## Avoiding drift
 
-If a convention you wrote for the repo also applies to others, consider promoting it to the plugin defaults (skills/{area}/SKILL.md). Per-repo files should hold genuine repo-specific decisions.
+If convention you wrote for repo applies to others, consider promoting to plugin defaults (skills/{area}/SKILL.md). Per-repo files hold genuine repo-specific decisions.
 
 ## Versioning
 
-Track conventions changes in git. When a rule changes, the commit message and PR description explain why.
+Track conventions changes in git. When rule changes, commit message and PR description explain why.
 
 ## Example structure for recon-service
 

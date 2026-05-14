@@ -6,7 +6,7 @@ user_invocable: false
 
 Web frontend conventions, team default.
 
-Project override: if `{repo}/.claude/conventions/web.md` exists, it overrides any rule here. See guides/conventions-override.md.
+Project override: if `{repo}/.claude/conventions/web.md` exists, overrides any rule here. See guides/conventions-override.md.
 
 ## Defaults (team frontend stack)
 
@@ -41,7 +41,7 @@ Tests:
 
 ## Before writing code
 
-Read at least 3 similar components in the repo to confirm:
+Read at least 3 similar components in repo to confirm:
 - Vue version (2 vs 3)
 - API style (Options vs Composition)
 - Design system in use (TMS, PrimeVue, custom)

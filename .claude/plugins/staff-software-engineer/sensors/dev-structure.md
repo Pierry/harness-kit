@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates the dev summary document at `outputs/dev/{feature_id}.md`.
+Validates dev summary doc at `outputs/dev/{feature_id}.md`.
 
 ## Required sections
 

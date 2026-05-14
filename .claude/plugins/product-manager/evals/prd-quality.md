@@ -9,21 +9,21 @@ Score each dimension 0-10. Cite line numbers when scoring below 7. Weighted tota
 ## Rubric
 
 ### Clarity (weight 20%)
-Is the problem stated in 1-2 sentences? Names who suffers, how often, what it costs?
+Problem stated in 1-2 sentences? Names who suffers, how often, what it costs?
 
 - 10: crisp, specific, evidence-backed
 - 5: present but generic
 - 0: missing or vague
 
 ### Hypothesis (weight 15%)
-Is there an "If we X, then Y will Z, because W" hypothesis with numeric target?
+"If we X, then Y will Z, because W" hypothesis with numeric target?
 
 - 10: falsifiable, numeric, evidence-tied
 - 5: directional but missing target or evidence
 - 0: aspirational, no measurable claim
 
 ### Customer specificity (weight 10%)
-Real customers named with reasons each one matters?
+Real customers named with reasons each matters?
 
 - 10: concrete, differentiated
 - 5: segments named but thin

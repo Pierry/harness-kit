@@ -6,7 +6,7 @@ user_invocable: false
 
 DevOps conventions, team default.
 
-Project override: if `{repo}/.claude/conventions/devops.md` exists, it overrides any rule here. See guides/conventions-override.md.
+Project override: if `{repo}/.claude/conventions/devops.md` exists, overrides any rule here. See guides/conventions-override.md.
 
 ## Defaults
 
@@ -32,12 +32,12 @@ Observability:
 - Log structure: JSON, with `trace_id`, `service`, `level`, `msg`.
 
 Secrets:
-- Never commit secrets. Use a secret manager.
+- Never commit secrets. Use secret manager.
 - Pre-commit hook to scan for accidental secrets.
 
 ## Before writing code
 
-Read at least 3 similar workflows or terraform modules in the repo. Confirm:
+Read at least 3 similar workflows or terraform modules in repo. Confirm:
 - runner type (ubuntu-latest, self-hosted)
 - secret naming convention
 - environments (dev, staging, prod)

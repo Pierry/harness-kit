@@ -30,7 +30,7 @@ Blueprint specific enough that executor never decides naming, file location, or 
 - 0: prose handwaving
 
 ### Validation executability (weight 15%)
-Validation gates are real commands the executor copy-pastes? Manual checks specific?
+Validation gates are real commands executor copy-pastes? Manual checks specific?
 
 - 10: copy-paste ready
 - 5: commands with placeholders

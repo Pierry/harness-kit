@@ -3,7 +3,7 @@
 Type: deterministic (via project-specific tooling)
 Mode: hard gate
 
-Run lint and format checks for the area being touched.
+Run lint and format checks for area being touched.
 
 ## Backend (Java/Kotlin)
 
@@ -11,7 +11,7 @@ Detect via build file:
 - Maven: `mvn -q checkstyle:check` or `mvn -q spotless:check` if configured
 - Gradle: `./gradlew detekt` or `./gradlew checkstyleMain`
 
-If no linter is configured, skip and emit a warning.
+If no linter configured, skip and emit warning.
 
 ## Web (Vue/JS)
 
@@ -30,8 +30,8 @@ If no linter is configured, skip and emit a warning.
 
 ## On failure
 
-Block. Surface the linter output. Agent fixes and re-runs.
+Block. Surface linter output. Agent fixes and re-runs.
 
 ## On warning (no linter configured)
 
-Note in the output, do not block. Suggest adding the linter to the repo.
+Note in output, do not block. Suggest adding linter to repo.

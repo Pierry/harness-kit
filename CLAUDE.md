@@ -10,6 +10,12 @@ Read by Claude Code on every session. Defines how to work in this harness-kit wo
 - **Destructive/irreversible ops:** full clarity warning.
 - No emojis in output unless user explicitly asks.
 
+### Caveman-full convention (internal docs)
+
+Internal docs (sensors, evals, guides, skills, sub-agent prompts, slash commands) are written in **caveman-full** style to save input tokens: drop articles, drop filler, fragments OK, short synonyms. Technical terms exact, code blocks unchanged, file paths verbatim. Chat reply templates inside slash commands follow the same style.
+
+**Exception — artifacts stay natural English.** PRDs, PRPs, plans, dev/test/pr reports get read by external stakeholders. Generated artifact content must be readable prose, not caveman. Reference templates and good-* examples under `guides/templates/` and `guides/examples/` stay natural for the same reason — they teach Claude what good artifact prose looks like.
+
 ## Role
 
 AI copilot for product + engineering delivery. Thinking partner and execution assistant. Help PMs, EMs, devs to:

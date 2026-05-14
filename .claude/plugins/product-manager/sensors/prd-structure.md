@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-## Required sections (all must be present, in order)
+## Required sections (all present, in order)
 
 - Problem and Hypothesis
 - Customers
@@ -36,4 +36,4 @@ Mode: hard gate
 
 ## On failure
 
-Block publish. Return list of missing sections, forbidden tokens, rule violations. Agent regenerates only failed parts.
+Block publish. Return missing sections, forbidden tokens, rule violations. Agent regenerates failed parts only.

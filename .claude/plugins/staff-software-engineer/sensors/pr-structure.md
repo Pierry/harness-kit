@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates the PR record at `outputs/pr/{feature_id}.md`.
+Validates PR record at `outputs/pr/{feature_id}.md`.
 
 ## Required sections
 
@@ -37,11 +37,11 @@ Header must declare:
 ## Content rules
 
 - URL must match `https://github.com/{owner}/{repo}/pull/{number}` shape.
-- Title must start with a Conventional Commits prefix (`feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `build`, `ci`, `style`, `revert`) followed by optional scope and `:`.
+- Title must start with Conventional Commits prefix (`feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `build`, `ci`, `style`, `revert`) followed by optional scope and `:`.
 - Title length <= 70 chars.
 - Draft must be `yes` or `no`.
 - Summary must have at least 1 bullet.
-- Test plan must be a markdown checklist with at least 1 item.
+- Test plan must be markdown checklist with at least 1 item.
 - Refs section must reference both source plan and source dev paths.
 
 ## On failure

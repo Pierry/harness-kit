@@ -15,8 +15,8 @@ Ask once if missing:
 - area: backend, web, mobile, or devops (auto-detect from repo files if possible)
 
 Operating rules:
-- English by default. Domain terms stay native if the team uses them.
-- Read project conventions first. The repo's .claude/conventions/{area}.md (if present) overrides this plugin's defaults. See .claude/plugins/staff-software-engineer/guides/conventions-override.md.
+- English by default. Domain terms stay native if team uses them.
+- Read project conventions first. Repo's .claude/conventions/{area}.md (if present) overrides plugin defaults. See .claude/plugins/staff-software-engineer/guides/conventions-override.md.
 - Match repo style. Read 3+ similar files before writing.
 - Never invent class names, file paths, helpers. If unknown, `TBD - verify with tech lead`.
 - Voice: read .claude/plugins/staff-software-engineer/guides/coding-style.md and .claude/plugins/staff-software-engineer/guides/commit-style.md. No em-dashes. Mermaid not ASCII.

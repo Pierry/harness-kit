@@ -2,24 +2,24 @@
 description: Watch the active PR for merge with backoff polling. Auto-invoked after /sse:pr. Clears pipeline state on merge.
 ---
 
-Monitor the active PR until it merges. Polls with backoff: 3min → 6min → 12min → 24min → 30min cap, escalating after 5 attempts at each rung.
+Monitor active PR until it merges. Polls with backoff: 3min → 6min → 12min → 24min → 30min cap, escalating after 5 attempts at each rung.
 
-Runs in the active session via ScheduleWakeup. Closing the session ends the monitor.
+Runs in active session via ScheduleWakeup. Closing session ends monitor.
 
 ## Flow
 
 1. **Read state** from `.claude/.pr-monitor-state.json`.
-   - If missing → first run. Detect PR from current branch:
+   - Missing → first run. Detect PR from current branch:
      ```
      gh pr view --json number,url,headRefName,state
      ```
-     If no PR or state already MERGED → exit silently (nothing to watch).
+     No PR or state already MERGED → exit silently (nothing to watch).
      Otherwise initialize state:
      ```
      .claude/scripts/pr-monitor.py init <number> <url> <branch>
      ```
-     The script prints next-delay in seconds.
-   - If present → use `state.pr_number`.
+     Script prints next-delay in seconds.
+   - Present → use `state.pr_number`.
 
 2. **Check merge status**:
    ```
@@ -42,7 +42,7 @@ Runs in the active session via ScheduleWakeup. Closing the session ends the moni
      .claude/scripts/pr-monitor.py bump
      ```
      Script prints next-delay in seconds (e.g. `180`, `360`, `720`, `1440`, `1800`).
-   - Read state with `.claude/scripts/pr-monitor.py read` for `current_interval_min` and `total_attempts` to include in the user-facing line.
+   - Read state with `.claude/scripts/pr-monitor.py read` for `current_interval_min` and `total_attempts` to include in user-facing line.
    - Print one line: `PR #<n> still open (attempt <total>, next check in <m>min).`
    - Schedule next wake:
      - Load `ScheduleWakeup` via ToolSearch: `select:ScheduleWakeup`

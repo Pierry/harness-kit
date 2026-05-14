@@ -2,10 +2,10 @@
 description: Clear the pipeline state file. Abandons the active feature run.
 ---
 
-Reset the pipeline.
+Reset pipeline.
 
-1. Confirm with the user that they want to abandon the active pipeline. Show `python3 .claude/scripts/pipeline.py render` so they see what they are dropping.
+1. Confirm user wants to abandon active pipeline. Show `python3 .claude/scripts/pipeline.py render` so they see what they drop.
 2. On confirmation: `python3 .claude/scripts/pipeline.py clear`.
-3. Output files under `.claude/plugins/*/outputs/` are not deleted. Only the in-memory state is cleared.
+3. Output files under `.claude/plugins/*/outputs/` not deleted. Only in-memory state cleared.
 
-The status bar will return to idle after reset.
+Status bar returns to idle after reset.

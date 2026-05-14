@@ -6,11 +6,11 @@ user_invocable: false
 
 Backend conventions, team default.
 
-Project override: if `{repo}/.claude/conventions/backend.md` exists, it overrides any rule here. See guides/conventions-override.md.
+Project override: if `{repo}/.claude/conventions/backend.md` exists, overrides any rule here. See guides/conventions-override.md.
 
 ## Defaults
 
-These are illustrative defaults for a JVM-leaning backend. Override per repo via `.claude/conventions/backend.md`.
+Illustrative defaults for JVM-leaning backend. Override per repo via `.claude/conventions/backend.md`.
 
 Stack:
 - Java or Kotlin (check pom.xml or build.gradle.kts)
@@ -20,7 +20,7 @@ Stack:
 - Package prefix: match repo convention
 
 Persistence:
-- Custom JDBC AbstractRepository + SQL templates. Avoid JPA except where the repo already uses it.
+- Custom JDBC AbstractRepository + SQL templates. Avoid JPA except where repo already uses it.
 - Migrations via Flyway, naming `V{YYYYMMDD}__{description}.sql`.
 
 Mapping:
@@ -37,7 +37,7 @@ Null handling:
 
 Streams:
 - Fluent: `.stream().filter(...).findAny().orElseThrow(...)`.
-- Avoid stream-of-stream when a guard would do.
+- Avoid stream-of-stream when guard would do.
 
 Transactions:
 - `@Transactional` on service methods, not repositories.
@@ -46,12 +46,12 @@ Tests:
 - JUnit 4 + Mockito legacy; JUnit 5 + Mockito for newer.
 - `@RunWith(MockitoJUnitRunner.class)` (JUnit 4) or `@ExtendWith(MockitoExtension.class)` (JUnit 5).
 - Naming: `givenX_WhenY_ShouldZ` or `shouldDoSomethingWhenCondition`.
-- Cover positive, negative, and edge cases.
+- Cover positive, negative, edge cases.
 - `verify()` with `never()`, `times()`, arg matchers.
 
 ## Before writing code
 
-Read at least 3 similar files in the target repo to confirm:
+Read at least 3 similar files in target repo to confirm:
 - framework version
 - build tool
 - package layout
@@ -71,10 +71,10 @@ Never assume. Stack varies per repo.
 
 ## Mark gaps
 
-If you cannot find a pattern in the repo, do not invent it:
+If you cannot find pattern in repo, do not invent:
 
 ```java
 // TBD - verify with tech lead: {what you searched, what is missing}
 ```
 
-Read actual code first. A TODO with context beats fabricated code.
+Read actual code first. TODO with context beats fabricated code.

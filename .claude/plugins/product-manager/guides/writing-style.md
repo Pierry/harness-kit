@@ -1,13 +1,13 @@
 # Writing Style
 
-How PRDs and PRPs read .
+How PRDs and PRPs read.
 
 ## Voice
 
-- Direct. Lead with the point.
+- Direct. Lead with point.
 - Specific. Real numbers, real names, real quotes. "47% abandon at step 3" beats "many users struggle".
 - Conversational, professional. Contractions ok. Use "we", not "I".
-- Action-oriented. Every section helps a reader decide or act.
+- Action-oriented. Every section helps reader decide or act.
 
 ## Length
 
@@ -32,21 +32,21 @@ Dead giveaways for AI fluff:
 
 ## Punctuation
 
-- No em-dashes. Use commas, periods, parentheses, or a new sentence.
+- No em-dashes. Use commas, periods, parentheses, or new sentence.
 - Oxford comma: yes.
-- One space after a period.
+- One space after period.
 
 ## Negative parallelism
 
-Avoid. Lead with the positive:
+Avoid. Lead with positive:
 - bad: "Don't use X. Use Y."
 - good: "Use Y."
 
 ## AI-detector test
 
-If a paragraph sounds like a LinkedIn post, rewrite it. Real human writing:
+If paragraph sounds like LinkedIn post, rewrite. Real human writing:
 - occasional sentence starting with "And" or "But"
-- specific details a generic writer would not know
+- specific details generic writer would not know
 - slightly imperfect rhythm
 - mid-paragraph asides
 
@@ -64,7 +64,7 @@ Not:
 
 ## Tables
 
-Use when you have comparison across 3+ items, structured data with same fields per row, or decision matrices. Otherwise use bullets.
+Use when you have comparison across 3+ items, structured data with same fields per row, or decision matrices. Otherwise bullets.
 
 ## Diagrams
 

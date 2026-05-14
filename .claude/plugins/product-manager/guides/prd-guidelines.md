@@ -2,11 +2,11 @@
 
 Rules specific to PRDs. General PM rules in product-guidelines.md.
 
-Business only. Zero technical detail. File paths, APIs, schemas belong in the PRP.
+Business only. Zero technical detail. File paths, APIs, schemas belong in PRP.
 
 User stories: As a {persona}, I want {action}, so that {benefit}.
 
-Metrics need baseline, target, horizon in every row. No empty cells.
+Metrics need baseline, target, horizon per row. No empty cells.
 
 Mermaid only, never ASCII.
 
@@ -18,10 +18,10 @@ Word count by stage:
 - Solution Review: 800-1200
 - Launch Readiness: 1500-2000
 
-Required sections at each stage:
+Required sections per stage:
 - Team Kickoff: 1, 2, 8
 - Planning Review: + 5
 - Solution Review: + 4, 7
 - Launch Readiness: all
 
-Stage progression: do not skip stages. Each gate adds requirements, never removes them.
+Stage progression: do not skip stages. Each gate adds requirements, never removes.

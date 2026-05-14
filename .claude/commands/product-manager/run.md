@@ -4,14 +4,14 @@ description: Run the full PM pipeline. PRD then PRP, with sensor and eval gates 
 
 Run end to end.
 
-1. Invoke /product-manager:prd. Wait for the approval marker.
-2. .claude/plugins/product-manager/hooks/pre-prp-check.sh validates the PRD.
-3. Invoke /product-manager:prp using the just-approved PRD.
+1. Invoke /product-manager:prd. Wait for approval marker.
+2. .claude/plugins/product-manager/hooks/pre-prp-check.sh validates PRD.
+3. Invoke /product-manager:prp using just-approved PRD.
 4. Return summary.
 
 Follow .claude/plugins/product-manager/guides/pipeline.md. Read .claude/agents/product-manager.md for inputs and rules.
 
-Return format. Name every sensor, eval, and guide that ran. Generic summaries are not acceptable — list specifics so the user sees what was checked and what was loaded.
+Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so user sees what was checked and loaded.
 
 ```
 Pipeline complete.
@@ -34,4 +34,4 @@ Blockers:
 - {file:line, issue, fix}
 ```
 
-If a phase has no sensors/eval/guides/refs, omit that line rather than printing an empty one.
+Phase has no sensors/eval/guides/refs, omit line rather than print empty one.

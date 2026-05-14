@@ -9,22 +9,22 @@ Score each dimension 0-10. Cite line numbers when below 7. Weighted total = sum(
 ## Rubric
 
 ### Scope clarity (weight 20%)
-Is what is being built clear? Tied to the source PRP?
+What is being built clear? Tied to source PRP?
 
 ### Files touched specificity (weight 20%)
-Are the files and modules concrete? Real paths, not placeholders?
+Files and modules concrete? Real paths, not placeholders?
 
 ### Execution flow (weight 20%)
-Are the steps actionable in order? Could a fresh engineer follow them?
+Steps actionable in order? Could fresh engineer follow them?
 
 ### Risk awareness (weight 15%)
-Are real risks called out with mitigations?
+Real risks called out with mitigations?
 
 ### Rollout (weight 15%)
-Is there a phased plan or feature flag strategy?
+Phased plan or feature flag strategy?
 
 ### Tests (weight 10%)
-Does the plan name the test cases to cover?
+Plan names test cases to cover?
 
 ## On failure (total below 8.0)
 

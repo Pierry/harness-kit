@@ -3,13 +3,13 @@
 Type: heuristic
 Mode: hard gate
 
-Every feature or bugfix must include tests for the changed code.
+Every feature or bugfix must include tests for changed code.
 
 ## Check
 
-For each changed source file in the dev commit set, look for:
-- a corresponding test file (e.g., `Foo.java` -> `FooTest.java`, `bar.ts` -> `bar.test.ts`)
-- OR a test file modified in the same commit that exercises the change
+For each changed source file in dev commit set, look for:
+- corresponding test file (e.g., `Foo.java` -> `FooTest.java`, `bar.ts` -> `bar.test.ts`)
+- OR test file modified in same commit exercising the change
 
 Patterns recognized:
 - `**/test/**`, `**/tests/**`, `**/__tests__/**`, `**/spec/**`, `**/specs/**`
@@ -17,7 +17,7 @@ Patterns recognized:
 
 ## Exclusions
 
-The following do not need a test in the same commit:
+Following do not need test in same commit:
 - README and docs
 - migration files (V*.sql)
 - pure config (yaml, json)
@@ -25,4 +25,4 @@ The following do not need a test in the same commit:
 
 ## On failure
 
-Block. List the source files without tests. Agent adds the missing tests.
+Block. List source files without tests. Agent adds missing tests.

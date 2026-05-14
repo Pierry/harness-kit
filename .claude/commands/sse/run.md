@@ -4,15 +4,15 @@ description: Run the full engineering pipeline. Plan, dev, test, pr in sequence.
 
 Run end to end.
 
-1. Invoke /sse:plan. Wait for the approval marker on the plan.
-2. Invoke /sse:dev. Implements the plan in code.
-3. Invoke /sse:test. Runs the project test suite.
-4. Invoke /sse:pr. Opens the pull request.
+1. Invoke /sse:plan. Wait for approval marker on plan.
+2. Invoke /sse:dev. Implements plan in code.
+3. Invoke /sse:test. Runs project test suite.
+4. Invoke /sse:pr. Opens pull request.
 5. Return summary.
 
-Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, and publish behavior.
+Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
 
-Return format. Name every sensor, eval, and guide that ran. Generic summaries are not acceptable — list specifics so the user sees what was checked and what was loaded.
+Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so user sees what was checked and loaded.
 
 ```
 Engineering pipeline complete.
@@ -47,4 +47,4 @@ Blockers:
 - {file:line, issue, fix}
 ```
 
-If a phase has no sensors/eval/guides/refs, omit that line for that phase rather than printing an empty one.
+Phase has no sensors/eval/guides/refs, omit line for that phase rather than print empty one.

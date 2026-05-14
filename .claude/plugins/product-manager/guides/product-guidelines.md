@@ -1,23 +1,23 @@
 # Product Guidelines
 
-How PMs think about product. Read before drafting a PRD.
+How PMs think about product. Read before drafting PRD.
 
-## We ship outcomes, not features
+## Ship outcomes, not features
 
-Every PRD touches a real user or customer cohort. Always answer:
-- Who pays for the pain today?
+Every PRD touches real user or customer cohort. Always answer:
+- Who pays for pain today?
 - Whose workflow changes?
-- What metric in the customer's business or experience moves?
+- What metric in customer's business or experience moves?
 
-If you cannot answer all three, the PRD is not ready.
+If you cannot answer all three, PRD not ready.
 
 ## Squads
 
-Defined per org in `context-library/business-info.md` and `context-library/squads/`. Multi-squad PRDs: name a primary squad, call out cross-squad interfaces.
+Defined per org in `context-library/business-info.md` and `context-library/squads/`. Multi-squad PRDs: name primary squad, call out cross-squad interfaces.
 
 ## Customer hierarchy
 
-When prioritizing, make trade-offs between cohorts explicit, not invisible. A common ranking template (override per org):
+When prioritizing, make trade-offs between cohorts explicit, not invisible. Common ranking template (override per org):
 
 1. Paying customers with high operational impact
 2. Reliability partners (SLAs, contracts)
@@ -26,9 +26,9 @@ When prioritizing, make trade-offs between cohorts explicit, not invisible. A co
 
 ## Metrics
 
-Prefer metrics already on existing dashboards. New metrics need an owner to instrument.
+Prefer metrics already on existing dashboards. New metrics need owner to instrument.
 
-Strong examples (the shape of a strong metric — specific, owned, instrumented):
+Strong examples (shape of strong metric — specific, owned, instrumented):
 - error rate of X by segment
 - first-attempt success rate
 - latency P95 of Y action
@@ -40,17 +40,17 @@ Weak:
 - "Improved efficiency" with no number
 - "Reduced friction" with no baseline
 
-## Non-goals are mandatory
+## Non-goals mandatory
 
-Every PRD lists at least one non-goal. If you cannot think of one, you have not scoped the feature.
+Every PRD lists at least one non-goal. If you cannot think of one, you have not scoped feature.
 
-## Rollout is not "ship it"
+## Rollout not "ship it"
 
 Every PRD ends with phases, audience per phase, pass criteria per phase, rollback. Feature flags by default.
 
 ## Kill criteria
 
-Decide before launch what makes you turn the feature off. Examples:
+Decide before launch what makes you turn feature off. Examples:
 - error rate above X%
 - latency P95 above Yms
 - adoption below Z% after N days
@@ -59,7 +59,7 @@ Decide before launch what makes you turn the feature off. Examples:
 
 In PRD:
 - why we are building
-- who feels the pain
+- who feels pain
 - success metric and target
 - open questions about scope
 
@@ -68,7 +68,7 @@ In PRP:
 - API endpoints, validation commands
 - open questions about implementation
 
-If the question is "should we build this", PRD. If it is "how do we build this", PRP.
+If question is "should we build this", PRD. If "how do we build this", PRP.
 
 ## Diagrams
 

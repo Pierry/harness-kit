@@ -9,10 +9,10 @@ Score each dimension 0-10. Cite file paths or commit SHAs when below 7. Weighted
 ## Rubric
 
 ### Plan fidelity (weight 25%)
-Did the implementation cover every step in the source plan? Any scope creep or missed items?
+Did implementation cover every step in source plan? Any scope creep or missed items?
 
 ### Files touched specificity (weight 15%)
-Are real, concrete paths listed (not placeholders)? Do they match what the plan named?
+Real, concrete paths listed (not placeholders)? Match what plan named?
 
 ### Commit hygiene (weight 20%)
 Conventional Commits prefix correct. Small commits (1-4 files, < 100 lines ideal). One concern per commit. Messages explain why, not what.
@@ -24,7 +24,7 @@ Every new feature/bugfix has matching tests. Edge cases covered. Tests run befor
 Coding style, framework version, package layout match `coding-style.md` and `conventions/{area}.md`.
 
 ### Blocker quality (weight 10%)
-If blockers exist, they are specific (file:line, error message). If none, state `none` explicitly.
+If blockers exist, specific (file:line, error message). If none, state `none` explicitly.
 
 ## On failure (total below 8.0)
 

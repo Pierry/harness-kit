@@ -1,13 +1,13 @@
 # Pipeline
 
-Shared rules for PRD and PRP generation. Edit retry, approval, publish, and token accounting here.
+Shared rules for PRD and PRP generation. Edit retry, approval, publish, token accounting here.
 
 ## Stages per artifact
 
-1. Generate the artifact using the template in skills/{prd|prp}/SKILL.md.
+1. Generate artifact using template in skills/{prd|prp}/SKILL.md.
 2. Apply sensors listed in skills/{prd|prp}/SKILL.md.
 3. Apply evals listed in skills/{prd|prp}/SKILL.md.
-4. Append the approval marker. Publish hook fires.
+4. Append approval marker. Publish hook fires.
 
 ## Retry policy
 
@@ -18,7 +18,7 @@ Trigger on:
 - eval weighted total below threshold (default 8.0)
 
 Strategy:
-1. Read the feedback.
+1. Read feedback.
 2. Regenerate only failed or low-scoring sections.
 3. Re-run sensors and eval.
 
@@ -42,7 +42,7 @@ Triggers hooks/post-eval-{prd|prp}.sh.
 
 Local: file stays in outputs/{prd|prp}/.
 
-Confluence: fires if JIRA_USERNAME and JIRA_API_TOKEN are set. Calls scripts/confluence-publish.py. Missing creds skips silently.
+Confluence: fires if JIRA_USERNAME and JIRA_API_TOKEN set. Calls scripts/confluence-publish.py. Missing creds skips silently.
 
 After publish, hook appends:
 ```
@@ -51,34 +51,34 @@ After publish, hook appends:
 
 ## Token accounting
 
-Each phase brackets a measurable token window. Phases for this plugin:
+Each phase brackets measurable token window. Phases:
 - prd-generate: from skill invocation to first save in outputs/prd/
-- prd-validate: from first save to approval marker (covers sensors and evals)
+- prd-validate: from first save to approval marker (sensors + evals)
 - prp-generate: from skill invocation to first save in outputs/prp/
 - prp-validate: from first save to approval marker
 
-Markers live in outputs/.markers/{feature_id}.{phase}.{start|end}, each with `{"timestamp": ISO, "session_id": ""}`. Skill writes the .start marker; hooks write the .end markers.
+Markers in outputs/.markers/{feature_id}.{phase}.{start|end}, each `{"timestamp": ISO, "session_id": ""}`. Skill writes .start; hooks write .end.
 
-After each artifact's eval passes, the publish hook runs scripts/token-phase.py for both of its phases. The script reads the Claude transcript JSONL, sums usage tokens (input, output, cache_read, cache_creation) within each window, and appends a phase entry to outputs/tokens/{feature_id}.json. Markers are deleted after consumption.
+After eval passes, publish hook runs scripts/token-phase.py for both phases. Script reads Claude transcript JSONL, sums usage tokens (input, output, cache_read, cache_creation) within each window, appends phase entry to outputs/tokens/{feature_id}.json. Markers deleted after consumption.
 
-The post-eval hook also appends an inline summary comment to the artifact:
+Post-eval hook also appends inline summary to artifact:
 ```
 <!-- tokens: outputs/tokens/{feature_id}.json in={N} out={N} cache_r={N} -->
 ```
 
-Future phases (dev, code review, launch) append new entries to the same outputs/tokens/{feature_id}.json by reusing the feature_id slug.
+Future phases (dev, code review, launch) append entries to same outputs/tokens/{feature_id}.json by reusing feature_id slug.
 
-If the transcript is not readable, the script logs a warning and exits 0. Token accounting never blocks publish.
+If transcript not readable, script logs warning and exits 0. Token accounting never blocks publish.
 
 ## Orchestrator order
 
 1. PRD: stages 1-4.
-2. hooks/pre-prp-check.sh validates the PRD approved marker.
+2. hooks/pre-prp-check.sh validates PRD approved marker.
 3. PRP: stages 1-4.
 4. Return summary.
 
 ## Stop conditions
 
-- 3 failed attempts on the same artifact
+- 3 failed attempts on same artifact
 - missing required input after one clarification
 - pre-prp-check.sh denies PRP start

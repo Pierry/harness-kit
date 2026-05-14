@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates the test report at `outputs/test/{feature_id}.md`.
+Validates test report at `outputs/test/{feature_id}.md`.
 
 ## Required sections
 
@@ -34,12 +34,12 @@ Header must declare:
 
 ## Content rules
 
-- Command must be a real shell command (not placeholder).
+- Command must be real shell command (not placeholder).
 - Result must be `pass` or `fail`.
 - Counts must include numeric `passed` and `failed` values.
 - If Result is `fail`, Failures section must list at least 1 failing test name.
 - If Result is `pass`, Failures section must be `none`.
-- Duration must include a unit (s | ms | m).
+- Duration must include unit (s | ms | m).
 
 ## On failure
 

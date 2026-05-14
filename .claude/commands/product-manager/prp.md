@@ -2,15 +2,15 @@
 description: Generate a Product Requirements Prompt for engineering handoff. Needs an approved PRD. Sensors, link validation, and eval gates.
 ---
 
-Generate a PRP. Follow .claude/plugins/product-manager/guides/pipeline.md for retry, approval, and publish.
+Generate PRP. Follow .claude/plugins/product-manager/guides/pipeline.md for retry, approval, publish.
 
-Print a header card before drafting and a footer card after gates run. Format: .claude/scripts/stage-card.md.
+Print header card before drafting and footer card after gates run. Format: .claude/scripts/stage-card.md.
 
-Source PRD: if user passes a path, use it. Else pick the most recent in .claude/plugins/product-manager/outputs/prd/. None found, abort. Tell user to run /product-manager:prd first. .claude/plugins/product-manager/hooks/pre-prp-check.sh blocks if the PRD lacks the approved marker.
+Source PRD: user passes path, use it. Else pick most recent in .claude/plugins/product-manager/outputs/prd/. None found, abort. Tell user to run /product-manager:prd first. .claude/plugins/product-manager/hooks/pre-prp-check.sh blocks if PRD lacks approved marker.
 
-Compute feature_id from the source PRD filename (basename without .md). Save the PRP to .claude/plugins/product-manager/outputs/prp/{feature_id}.md so it matches.
+Compute feature_id from source PRD filename (basename without .md). Save PRP to .claude/plugins/product-manager/outputs/prp/{feature_id}.md so it matches.
 
-Before generating, write the phase start marker:
+Before generating, write phase start marker:
 
 ```
 .claude/plugins/product-manager/outputs/.markers/{feature_id}.prp-generate.start
@@ -19,7 +19,7 @@ Before generating, write the phase start marker:
 Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
-- the source PRD
+- source PRD
 - .claude/plugins/product-manager/guides/prp-guidelines.md
 - .claude/plugins/product-manager/guides/writing-style.md
 - .claude/plugins/product-manager/guides/templates/prp.md
@@ -34,7 +34,7 @@ Sensors: .claude/plugins/product-manager/sensors/prp-structure.md, .claude/plugi
 
 Evals: .claude/plugins/product-manager/evals/prp-quality.md, .claude/plugins/product-manager/evals/prp-context-readiness.md.
 
-After save, reply with this exact shape (name the actual sensors/evals/guides that ran):
+After save, reply with this exact shape (name actual sensors/evals/guides that ran):
 
 ```
 PRP saved at {path}.

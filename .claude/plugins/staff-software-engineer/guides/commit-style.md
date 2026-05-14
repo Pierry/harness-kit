@@ -24,7 +24,7 @@ Examples:
 
 ## Body (optional)
 
-- Why, not what. Diff already shows what.
+- Why, not what. Diff shows what.
 - Reference linked tickets or related PRs.
 - Mention breaking changes explicitly with `BREAKING CHANGE:` footer.
 
@@ -32,12 +32,12 @@ Examples:
 
 - "WIP", "fixes", "more changes", "asdf"
 - Ticket missing
-- Description that just repeats the type ("fix(...): fix the bug")
+- Description repeats type ("fix(...): fix the bug")
 - Multi-line title
 
 ## Co-author
 
-When pairing or AI-assisted:
+Pairing or AI-assisted:
 
 ```
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>

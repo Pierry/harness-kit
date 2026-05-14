@@ -7,7 +7,7 @@ Implemented in scripts/link-validator.py. Same rules when agent self-checks.
 
 ## Hard checks (block)
 
-Source PRD resolvable. The "Source PRD:" line must point to a path that exists under outputs/prd/, relative to the PRP file, or relative to the repo root.
+Source PRD resolvable. "Source PRD:" line must point to path existing under outputs/prd/, relative to PRP file, or relative to repo root.
 
 No localhost URLs. `http://localhost` or `http://127.0.0.1` not allowed as pinned references.
 
@@ -15,7 +15,7 @@ GitHub permalinks. Links like `github.com/.../blob/{main|master|develop}/...` no
 
 ## Soft checks (warn)
 
-Path format. Inline code spans that look like file paths (have `/` and end with extension) should end in a recognized extension.
+Path format. Inline code spans looking like file paths (have `/` and end with extension) should end in recognized extension.
 
 URL syntax. http/https URLs must be syntactically valid.
 
