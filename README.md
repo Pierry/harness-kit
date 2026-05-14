@@ -5,7 +5,7 @@
 Claude Code harness for product + engineering delivery.
 From idea to merged PR, one pipeline.
 
-[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Plugins](https://img.shields.io/badge/plugins-2-success.svg)](#layout)
 [![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
@@ -30,6 +30,8 @@ The pipeline is two Claude Code plugins (`product-manager`, `staff-software-engi
 **Who it's for:** PMs and engineers who want their `/`-commands to (1) produce real artifacts with named gates, (2) survive session restarts via persisted state, (3) record per-phase token spend so usage is auditable.
 
 **What it's not:** a code generator, a CI replacement, or an opinionated agent framework. It's a thin harness that defers all model work to Claude Code and all VCS work to `git`/`gh`.
+
+**Internal docs use caveman-full style** (drop articles + filler, fragments OK) to save input tokens — see [CLAUDE.md](CLAUDE.md). Generated artifacts (PRDs, PRPs, plans, dev/test/pr reports) stay natural English for external stakeholders. Reference templates and good-example artifacts are deliberately left in natural prose so produced docs inherit the right pattern.
 
 ---
 
