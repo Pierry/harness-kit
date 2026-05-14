@@ -1,14 +1,29 @@
 #!/bin/sh
 # Status line for the harness-kit pipeline. Reads .claude/.pipeline-state.json
 # (managed by .claude/scripts/pipeline.py) for live state. Falls back to a
-# file-scan if state is absent.
+# file-scan if state is absent. Appends current activity (sensor/eval/guide)
+# in cyan when one is active.
 
 PIPELINE_PY=".claude/scripts/pipeline.py"
+ACTIVITY_PY=".claude/scripts/activity.py"
+
+CYAN=$(printf '\033[36m')
+RESET=$(printf '\033[0m')
+
+append_activity() {
+  if [ -x "$ACTIVITY_PY" ]; then
+    A="$(python3 "$ACTIVITY_PY" read 2>/dev/null || true)"
+    if [ -n "$A" ]; then
+      printf ' · %s%s%s' "$CYAN" "$A" "$RESET"
+    fi
+  fi
+}
 
 if [ -x "$PIPELINE_PY" ] && [ -f ".claude/.pipeline-state.json" ]; then
   OUT="$(python3 "$PIPELINE_PY" render 2>/dev/null)"
   if [ -n "$OUT" ]; then
     printf '%s' "$OUT"
+    append_activity
     exit 0
   fi
 fi
@@ -99,3 +114,4 @@ if [ -z "$OUT" ]; then
 else
   printf '%s' "$OUT"
 fi
+append_activity

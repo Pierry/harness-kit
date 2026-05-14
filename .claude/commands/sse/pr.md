@@ -35,8 +35,14 @@ Save .claude/plugins/staff-software-engineer/outputs/pr/{feature_id}.md with:
 - title
 - draft status
 - summary
+- test plan checklist
+- refs (plan + dev paths)
 
-Append approval marker:
+Document gates (run on the saved record):
+- Sensor: .claude/plugins/staff-software-engineer/sensors/pr-structure.md (auto-run by post-write hook)
+- Eval:   .claude/plugins/staff-software-engineer/evals/pr-quality.md (you score it; threshold 8.0)
+
+Append approval marker only when sensor passes and pr-quality eval is >= 8.0:
 
 ```
 <!-- approved: {YYYY-MM-DD} ready-for-handoff: true -->
@@ -46,9 +52,13 @@ Reply with this exact shape:
 
 ```
 PR opened: {url}
-  title:  {title}
-  draft:  {yes|no}
-  guides: pr-template.md, commit-style.md
-  refs:   plan/{feature_id}.md, dev/{feature_id}.md
-  next:   request review (if draft, mark ready when checks pass)
+  title:   {title}
+  draft:   {yes|no}
+  sensors: pr-structure ok
+  eval:    pr-quality {N}/10
+  guides:  pr-template.md, commit-style.md
+  refs:    plan/{feature_id}.md, dev/{feature_id}.md
+  next:    request review (if draft, mark ready when checks pass)
 ```
+
+After replying, **auto-invoke `/sse:pr-monitor`** so the session watches the PR for merge with backoff polling. Skip if the user passed `--no-monitor` or the PR is already MERGED.

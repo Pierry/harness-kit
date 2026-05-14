@@ -1,6 +1,6 @@
 # harness-kit demo
 
-85-second Remotion video walking through install → six commands → ship a feature. Each command scene shows the active guide, sensor, eval, and reference loaded by the plugin, with a persistent footer status bar tracking the active skill and next step.
+~110-second Remotion video walking through install → six commands → ship + auto-watch PR until merged. Each command scene shows the active guide, sensor, eval, and reference loaded by the plugin, with a persistent footer status bar tracking the active skill and next step.
 
 ## Scenes
 
@@ -8,14 +8,17 @@
 2. **Pipeline** — six stages animated, approval markers light up
 3. **Install** — `npm i -g` + `hk install` terminal recording
 4. **StatusBarExplain** — what the footer status bar shows: active skill, stage, next command
-5. **CommandPRD** — `/product-manager:prd` running: guides + refs loaded, sensors pass, evals score
-6. **CommandPRP** — `/product-manager:prp` running
-7. **CommandPlan** — `/sse:plan` running
-8. **CommandDev** — `/sse:dev` running: edits, commits, convention sensor
-9. **CommandTest** — `/sse:test` running: suite + coverage sensor
-10. **CommandPR** — `/sse:pr` opening the draft PR
-11. **Anatomy** — every stage = guide + ref + sensor + eval
-12. **Outro** — links + npm install CTA
+5. **DynamicStatusBar** — status bar shape + state mutating live as commands run
+6. **CommandPRD** — `/product-manager:prd` running: guides + refs loaded, sensors pass, evals score
+7. **CommandPRP** — `/product-manager:prp` running
+8. **CommandPlan** — `/sse:plan` running
+9. **CommandDev** — `/sse:dev` running: edits, commits, `code-conventions` + `dev-structure` sensors, `dev-quality` eval
+10. **CommandTest** — `/sse:test` running: suite + `test-coverage` + `test-structure` sensors, `test-quality` eval
+11. **CommandPR** — `/sse:pr` opens draft PR, `pr-structure` + `pr-quality` gates, then **pr-monitor armed** (auto-watch with 3→6→12→24→30min backoff until merged)
+12. **Summary** — final tally: every sensor, eval, guide, token spend per phase, named
+13. **Resume** — `/pipeline:continue` picks up at next pending stage
+14. **Anatomy** — every stage = guide + ref + sensor + eval
+15. **Outro** — links + npm install CTA
 
 ## Run
 

@@ -19,7 +19,9 @@ export const CommandDev = () => {
         { kind: 'guide',  name: 'commit-style.md',                 showFrame: 45 },
         { kind: 'ref',    name: 'outputs/plan/...billing.md',      showFrame: 65 },
         { kind: 'ref',    name: '.claude/conventions/backend.md',  showFrame: 85 },
-        { kind: 'sensor', name: 'code-conventions.md',             showFrame: 175 },
+        { kind: 'sensor', name: 'code-conventions.md',             showFrame: 155 },
+        { kind: 'sensor', name: 'dev-structure.md',                showFrame: 170 },
+        { kind: 'eval',   name: 'dev-quality.md',                  showFrame: 185 },
       ]}
       exitStart={220}
       exitEnd={240}
@@ -31,9 +33,11 @@ export const CommandDev = () => {
       {frame >= 100 && <Line dim>edit · src/billing/invoice_deadline.py</Line>}
       {frame >= 120 && <Line dim>edit · src/billing/timezone.py <span style={{ color: theme.color.success }}>(new)</span></Line>}
       {frame >= 140 && <Line dim>edit · tests/test_invoice_deadline.py</Line>}
-      {frame >= 165 && <Line dim>3 commits · conventional commits</Line>}
-      {frame >= 175 && <Sensor name="code-conventions" pass />}
-      {frame >= 195 && (
+      {frame >= 150 && <Line dim>3 commits · conventional commits</Line>}
+      {frame >= 155 && <Sensor name="code-conventions" pass />}
+      {frame >= 170 && <Sensor name="dev-structure" pass />}
+      {frame >= 185 && <Eval name="dev-quality" score="8.4/10" />}
+      {frame >= 205 && (
         <Line>
           <span style={{ color: theme.color.success }}>✓</span> dev complete · <span style={{ color: theme.color.textDim }}>5 files changed</span>
         </Line>
@@ -54,5 +58,12 @@ const Sensor = ({ name, pass }: { name: string; pass: boolean }) => (
     <span style={{ color: pass ? theme.color.success : theme.color.danger }}>
       {pass ? 'pass' : 'fail'}
     </span>
+  </Line>
+);
+
+const Eval = ({ name, score }: { name: string; score: string }) => (
+  <Line dim>
+    <span style={{ color: theme.color.warning }}>eval</span> {name}{' '}
+    <span style={{ color: theme.color.success }}>{score}</span>
   </Line>
 );

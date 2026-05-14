@@ -20,6 +20,7 @@ const BLOCKS: StageBlock[] = [
       { k: 'eval',    v: <Score>prd-quality 8.6/10</Score> },
       { k: 'guides',  v: <Mono>prd-guidelines.md, writing-style.md, templates/prd.md</Mono> },
       { k: 'refs',    v: <Mono>business-info.md, squads/billing/context.md</Mono> },
+      { k: 'tokens',  v: <Mono>in=12.4k out=3.1k cache_r=42.0k</Mono> },
     ],
   },
   {
@@ -31,6 +32,7 @@ const BLOCKS: StageBlock[] = [
       { k: 'eval',    v: <Score>prp-quality 8.4/10, prp-context-readiness 9.0/10</Score> },
       { k: 'guides',  v: <Mono>prp-guidelines.md, templates/prp.md</Mono> },
       { k: 'refs',    v: <Mono>prd/2026-05-13-billing-multi-currency.md</Mono> },
+      { k: 'tokens',  v: <Mono>in=15.8k out=4.2k cache_r=58.7k</Mono> },
     ],
   },
   {
@@ -42,6 +44,7 @@ const BLOCKS: StageBlock[] = [
       { k: 'eval',    v: <Score>plan-quality 8.3/10</Score> },
       { k: 'guides',  v: <Mono>pipeline.md, coding-style.md, skills/backend/SKILL.md</Mono> },
       { k: 'refs',    v: <Mono>prp/2026-05-13-billing-multi-currency.md, conventions/backend.md</Mono> },
+      { k: 'tokens',  v: <Mono>in=11.6k out=3.4k cache_r=39.2k</Mono> },
     ],
   },
   {
@@ -50,8 +53,10 @@ const BLOCKS: StageBlock[] = [
     artifact: 'branch feat/PROJ-123-multi-currency',
     rows: [
       { k: 'changes', v: <Mono>5 files, 3 commits (a1b2c3d, d4e5f6g, h7i8j9k)</Mono> },
-      { k: 'sensors', v: <Pass>code-conventions, test-coverage</Pass> },
+      { k: 'sensors', v: <Pass>code-conventions, test-coverage, dev-structure</Pass> },
+      { k: 'eval',    v: <Score>dev-quality 8.4/10</Score> },
       { k: 'guides',  v: <Mono>coding-style.md, commit-style.md, skills/backend/SKILL.md</Mono> },
+      { k: 'tokens',  v: <Mono>in=18.2k out=4.6k cache_r=51.3k</Mono> },
     ],
   },
   {
@@ -61,6 +66,8 @@ const BLOCKS: StageBlock[] = [
     rows: [
       { k: 'command', v: <Mono>./mvnw test</Mono> },
       { k: 'result',  v: <Pass>24 passed, 0 failed (12.4s)</Pass> },
+      { k: 'sensors', v: <Pass>test-structure</Pass> },
+      { k: 'eval',    v: <Score>test-quality 8.7/10</Score> },
     ],
   },
   {
@@ -68,9 +75,12 @@ const BLOCKS: StageBlock[] = [
     label: 'PR',
     artifact: 'github.com/your-org/billing-service/pull/567',
     rows: [
-      { k: 'title',  v: <Mono>feat(PROJ-123): timezone-aware deadline check</Mono> },
-      { k: 'draft',  v: <Mono>yes</Mono> },
-      { k: 'guides', v: <Mono>pr-template.md, commit-style.md</Mono> },
+      { k: 'title',   v: <Mono>feat(PROJ-123): timezone-aware deadline check</Mono> },
+      { k: 'draft',   v: <Mono>yes</Mono> },
+      { k: 'sensors', v: <Pass>pr-structure</Pass> },
+      { k: 'eval',    v: <Score>pr-quality 8.9/10</Score> },
+      { k: 'monitor', v: <Mono>armed · 3min → 30min cap, until merged</Mono> },
+      { k: 'guides',  v: <Mono>pr-template.md, commit-style.md</Mono> },
     ],
   },
 ];

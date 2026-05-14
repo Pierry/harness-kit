@@ -45,7 +45,7 @@ export const scenes: SceneSpec[] = [
   { id: 'plan',     component: CommandPlan,      duration: s(8),  status: { skill: 'sse:plan',             stage: 'plan drafting', next: '/sse:plan  →  approve' } },
   { id: 'dev',      component: CommandDev,       duration: s(8),  status: { skill: 'sse:dev (backend)',    stage: 'dev running',   next: '/sse:dev  →  approve' } },
   { id: 'test',     component: CommandTest,      duration: s(5),  status: { skill: 'sse:test',             stage: 'test running',  next: '/sse:test  →  approve' } },
-  { id: 'pr',       component: CommandPR,        duration: s(6),  status: { skill: 'sse:pr',               stage: 'pr opening',    next: '/sse:pr  →  done' } },
+  { id: 'pr',       component: CommandPR,        duration: s(7),  status: { skill: 'sse:pr + pr-monitor',  stage: 'pr opening',    next: 'auto-watch PR · 3min → 30min cap' } },
   { id: 'summary',  component: Summary,          duration: s(10), status: { skill: 'pipeline complete',    stage: 'summary',       next: 'every sensor · eval · guide named' } },
   { id: 'resume',   component: Resume,           duration: s(8),  status: { skill: 'pipeline:continue',    stage: 'resume',        next: 'next pending stage' } },
   { id: 'anatomy',  component: Anatomy,          duration: s(8),  status: { skill: 'anatomy of a stage',   stage: 'guide · sensor · eval · refs', next: 'every stage runs this loop' } },

@@ -70,9 +70,14 @@ function cmdUninstall(target) {
     '.claude/hooks/pipeline-postwrite.sh',
     '.claude/hooks/pipeline-postedit.sh',
     '.claude/hooks/pipeline-session-start.sh',
+    '.claude/hooks/activity-pre-read.sh',
     '.claude/scripts/pipeline.py',
+    '.claude/scripts/activity.py',
+    '.claude/scripts/pr-monitor.py',
     '.claude/scripts/stage-card.md',
     '.claude/.pipeline-state.json',
+    '.claude/.pr-monitor-state.json',
+    '.claude/.activity',
     '.claude/settings.json',
     '.claude/.hk-version',
   ];
@@ -121,7 +126,7 @@ usage:
 
 after install, restart Claude Code and use:
   /product-manager:prd | :prp | :run
-  /sse:plan | :dev | :test | :pr | :run
+  /sse:plan | :dev | :test | :pr | :pr-monitor | :run
   /pipeline:continue | :reset`);
 }
 

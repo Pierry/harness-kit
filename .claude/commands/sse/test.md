@@ -29,7 +29,11 @@ Save .claude/plugins/staff-software-engineer/outputs/test/{feature_id}.md with:
 - failing test names (if any)
 - duration
 
-Append approval marker when exit code is 0:
+Document gates (run on the saved report):
+- Sensor: .claude/plugins/staff-software-engineer/sensors/test-structure.md (auto-run by post-write hook)
+- Eval:   .claude/plugins/staff-software-engineer/evals/test-quality.md (you score it; threshold 8.0)
+
+Append approval marker only when exit code is 0 and test-quality eval is >= 8.0:
 
 ```
 <!-- approved: {YYYY-MM-DD} -->
@@ -45,6 +49,8 @@ Tests {passed|failed}.
   passed:   {N}
   failed:   {M}
   duration: {seconds}s
+  sensors:  test-structure ok
+  eval:     test-quality {N}/10
   output:   {path/to/test/output.md}
   next:     /sse:pr (if passed) | fix failing tests (if failed)
 ```

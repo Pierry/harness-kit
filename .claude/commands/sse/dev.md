@@ -28,7 +28,7 @@ Read 3+ similar files in the target repo before writing. Match conventions:
 
 Write code in small commits (1-4 files, < 100 lines ideal). Conventional Commits format.
 
-Gates (run after each implementation step):
+Code gates (run after each implementation step):
 - .claude/plugins/staff-software-engineer/sensors/code-conventions.md (lint, formatting, banned patterns)
 - .claude/plugins/staff-software-engineer/sensors/test-coverage.md (every feature/bugfix has tests)
 
@@ -40,19 +40,24 @@ After done, write `.claude/plugins/staff-software-engineer/outputs/dev/{feature_
 - gate results
 - blockers if any
 
-Append approval marker when all gates pass:
+Document gates (run on the saved summary):
+- Sensor: .claude/plugins/staff-software-engineer/sensors/dev-structure.md (auto-run by post-write hook)
+- Eval:   .claude/plugins/staff-software-engineer/evals/dev-quality.md (you score it; threshold 8.0)
+
+Append approval marker only when code gates pass and the dev-quality eval is >= 8.0:
 
 ```
 <!-- approved: {YYYY-MM-DD} -->
 ```
 
-After approval, reply with this exact shape (name the actual sensors/guides that ran):
+After approval, reply with this exact shape (name the actual sensors/evals/guides that ran):
 
 ```
 Dev complete. branch {branch}.
   files changed: {N}
   commits: {M} ({short-sha}, {short-sha}, ...)
-  sensors: code-conventions ok, test-coverage ok
+  sensors: code-conventions ok, test-coverage ok, dev-structure ok
+  eval:    dev-quality {N}/10
   guides:  coding-style.md, commit-style.md, skills/{area}/SKILL.md
   refs:    plan/{feature_id}.md, conventions/{area}.md
   next:    /sse:test

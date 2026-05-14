@@ -66,18 +66,20 @@ for plugin in product-manager staff-software-engineer; do
          "$TARGET/.claude/plugins/$plugin/.claude-plugin"
 done
 
-# Copy harness-kit hooks (status-line + pipeline tracking)
+# Copy harness-kit hooks (status-line + pipeline tracking + live activity)
 mkdir -p "$TARGET/.claude/hooks"
-for h in status-line.sh pipeline-prompt.sh pipeline-postwrite.sh pipeline-postedit.sh pipeline-session-start.sh; do
+for h in status-line.sh pipeline-prompt.sh pipeline-postwrite.sh pipeline-postedit.sh pipeline-session-start.sh activity-pre-read.sh; do
   cp "$SOURCE_ROOT/.claude/hooks/$h" "$TARGET/.claude/hooks/$h"
   chmod +x "$TARGET/.claude/hooks/$h"
 done
 
-# Copy harness-kit scripts (pipeline state manager + stage-card convention)
+# Copy harness-kit scripts (pipeline state, activity tracker, PR monitor, stage-card)
 mkdir -p "$TARGET/.claude/scripts"
-cp "$SOURCE_ROOT/.claude/scripts/pipeline.py" "$TARGET/.claude/scripts/pipeline.py"
+for s in pipeline.py activity.py pr-monitor.py; do
+  cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
+  chmod +x "$TARGET/.claude/scripts/$s"
+done
 cp "$SOURCE_ROOT/.claude/scripts/stage-card.md" "$TARGET/.claude/scripts/stage-card.md"
-chmod +x "$TARGET/.claude/scripts/pipeline.py"
 
 # Settings.json (back up existing if content differs)
 if [ -f "$TARGET/.claude/settings.json" ]; then
@@ -128,6 +130,12 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         "hooks": [
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/pre-prp-check.sh ] && bash .claude/plugins/product-manager/hooks/pre-prp-check.sh; exit 0" }
         ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/activity-pre-read.sh ] && bash .claude/hooks/activity-pre-read.sh; exit 0" }
+        ]
       }
     ],
     "PostToolUse": [
@@ -136,7 +144,7 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         "hooks": [
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prd.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-plan.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postwrite.sh ] && bash .claude/hooks/pipeline-postwrite.sh; exit 0" }
         ]
       },
@@ -145,7 +153,7 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         "hooks": [
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prd.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-plan.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postedit.sh ] && bash .claude/hooks/pipeline-postedit.sh; exit 0" }
         ]
       }
@@ -182,5 +190,5 @@ echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
 echo "done. restart Claude Code to load."
 echo "  /product-manager:prd | :prp | :run"
-echo "  /sse:plan | :dev | :test | :pr | :run"
+echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run"
 echo "  /pipeline:continue | :reset"

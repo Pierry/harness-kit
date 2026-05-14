@@ -1,0 +1,74 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(./gradlew:*)",
+      "Bash(./mvnw:*)",
+      "Bash(npm:*)",
+      "Bash(gh:*)",
+      "Bash(jq:*)",
+      "Read(outputs/**)",
+      "Write(outputs/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-prompt.sh ] && bash .claude/hooks/pipeline-prompt.sh; exit 0" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/pre-prp-check.sh ] && bash .claude/plugins/product-manager/hooks/pre-prp-check.sh; exit 0" }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/hooks/activity-pre-read.sh ] && bash .claude/hooks/activity-pre-read.sh; exit 0" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-postwrite.sh ] && bash .claude/hooks/pipeline-postwrite.sh; exit 0" }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-postedit.sh ] && bash .claude/hooks/pipeline-postedit.sh; exit 0" }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "[ -x .claude/hooks/status-line.sh ] && bash .claude/hooks/status-line.sh || printf 'harness-kit not installed'"
+  }
+}
