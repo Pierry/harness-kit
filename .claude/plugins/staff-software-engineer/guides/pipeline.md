@@ -40,11 +40,15 @@ Triggers hooks/post-eval-{stage}.sh.
 
 Phases tracked per feature_id (matches PRD/PRP feature_id from PM plugin):
 - plan-generate, plan-validate
-- dev
-- test
-- pr
+- dev-generate, dev-validate
+- test-generate, test-validate
+- pr-generate, pr-validate
 
-Markers in outputs/.markers/{feature_id}.{phase}.{start|end}, each `{"timestamp": ISO, "session_id": ""}`. Skills write .start; hooks write .end. After each phase ends, publish hook calls scripts/token-phase.py.
+Markers in outputs/.markers/{feature_id}.{phase}.{start|end}, each `{"timestamp": ISO, "session_id": ""}`.
+Flow per stage:
+1. Skill writes `{stage}-generate.start` before drafting artifact.
+2. Write tool fires post-write-sse.sh → writes `{stage}-generate.end` + `{stage}-validate.start`.
+3. Skill appends approval marker via Edit → fires post-eval-sse.sh → writes `{stage}-validate.end` + runs scripts/token-phase.py for both phases.
 
 Tokens land in shared file with PM plugin: `outputs/tokens/{feature_id}.json`. Same file collects PM phases (prd-generate, prd-validate, prp-generate, prp-validate) and SSE phases (plan-generate, plan-validate, dev, test, pr). Totals cover full feature lifecycle.
 

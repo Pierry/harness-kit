@@ -28,6 +28,10 @@ PRP: .claude/plugins/product-manager/outputs/prp/{path}
   guides:  prp-guidelines.md, writing-style.md, templates/prp.md
   refs:    prd/{feature_id}.md, target repo paths probed
 
+Tokens: outputs/tokens/{feature_id}.json
+  totals: in={N} out={N} cache_r={N}
+  phases: prd-generate, prd-validate, prp-generate, prp-validate
+
 Confluence: {published to {space-key}: {url} | skipped, reason}
 
 Blockers:

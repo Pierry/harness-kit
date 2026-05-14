@@ -11,7 +11,7 @@ Source plan: latest in .claude/plugins/staff-software-engineer/outputs/plan/ wit
 Before coding, write phase start marker:
 
 ```
-.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.dev.start
+.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.dev-generate.start
 ```
 
 Read:

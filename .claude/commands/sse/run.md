@@ -8,7 +8,8 @@ Run end to end.
 2. Invoke /sse:dev. Implements plan in code.
 3. Invoke /sse:test. Runs project test suite.
 4. Invoke /sse:pr. Opens pull request.
-5. Return summary.
+5. Invoke /sse:pr-monitor. Arms backoff polling, auto-clears pipeline state on merge. Skip if user passed `--no-monitor` or `gh pr view` already returns MERGED.
+6. Return summary.
 
 Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
 
@@ -40,6 +41,12 @@ PR: {url}
   draft: yes|no
   guides: pr-template.md, commit-style.md
   refs:   plan/{feature_id}.md, dev/{feature_id}.md
+
+Monitor: {armed, first check in 3min, escalates to 30min cap | skipped, reason}
+
+Tokens: outputs/tokens/{feature_id}.json
+  totals: in={N} out={N} cache_r={N}
+  phases: plan-generate, plan-validate, dev-generate, dev-validate, test-generate, test-validate, pr-generate, pr-validate
 
 Confluence: {published to {space-key}: {url} | skipped, reason}
 

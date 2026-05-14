@@ -13,7 +13,7 @@ Prerequisites:
 Before opening, write phase start marker:
 
 ```
-.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.pr.start
+.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.pr-generate.start
 ```
 
 Read:
