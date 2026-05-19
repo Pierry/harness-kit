@@ -7,10 +7,12 @@
 set -euo pipefail
 
 FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
-PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+AGENT_DIR=".claude/agents/product-manager"
+OUTPUTS_DIR=".claude/runtime/outputs/pm"
+SCRIPTS_DIR=".claude/runtime/scripts/product-manager"
 
 case "$FILE_PATH" in
-  *.claude/plugins/product-manager/outputs/prp/*.md) ;;
+  *.claude/runtime/outputs/pm/prp/*.md) ;;
   *) exit 0 ;;
 esac
 
@@ -30,7 +32,7 @@ fi
 
 # Look for any approved PRD matching the slug
 MATCHED=""
-for prd in "$PLUGIN_DIR"/outputs/prd/*"-${SLUG}.md"; do
+for prd in "$OUTPUTS_DIR"/prd/*"-${SLUG}.md"; do
   [ -f "$prd" ] || continue
   if grep -q "<!-- approved:" "$prd"; then
     MATCHED="$prd"

@@ -42,7 +42,7 @@ def main() -> int:
         candidates = [
             args.repo_root / prd_rel,
             args.artifact.parent / prd_rel,
-            args.repo_root / ".claude/plugins/product-manager" / prd_rel,
+            args.repo_root / ".claude/agents/product-manager" / prd_rel,
         ]
         if not any(c.exists() for c in candidates):
             failures.append(f"Source PRD path does not resolve: {prd_rel}")

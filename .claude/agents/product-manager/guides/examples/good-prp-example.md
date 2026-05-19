@@ -1,6 +1,6 @@
 # PRP: Invoice Deadline Timezone Fix
 
-**Source PRD:** `outputs/prd/2026-05-08-billing-invoice-deadline-tz-fix.md`
+**Source PRD:** `.claude/runtime/outputs/pm/prd/2026-05-08-billing-invoice-deadline-tz-fix.md`
 **Target executor:** coding-agent
 **Squad:** Billing | **Tech lead:** @tech-lead | **Date:** 2026-05-10
 
@@ -122,7 +122,7 @@ psql $STAGING_DB_URL -f src/main/resources/scripts/backfill/invoice_deadline_tz_
 
 ## 9) References
 
-- PRD: `outputs/prd/2026-05-08-billing-invoice-deadline-tz-fix.md`
+- PRD: `.claude/runtime/outputs/pm/prd/2026-05-08-billing-invoice-deadline-tz-fix.md`
 - ADR feature flags: `docs/adr/0014-feature-flags.md`
 - Deadline dashboard: https://grafana.example.com/d/billing-deadline-health
 - Pattern reference: `billing-service/src/main/java/com/example/billing/dunning/DunningService.java:67`

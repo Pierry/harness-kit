@@ -36,7 +36,7 @@
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/pre-prp-check.sh ] && bash .claude/plugins/product-manager/hooks/pre-prp-check.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/pre-prp-check.sh ] && bash .claude/runtime/hooks/product-manager/pre-prp-check.sh; exit 0" }
         ]
       },
       {
@@ -50,8 +50,8 @@
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prd.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-write-prd.sh ] && bash .claude/runtime/hooks/product-manager/post-write-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-write-prp.sh ] && bash .claude/runtime/hooks/product-manager/post-write-prp.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postwrite.sh ] && bash .claude/hooks/pipeline-postwrite.sh; exit 0" }
         ]
@@ -59,8 +59,8 @@
       {
         "matcher": "Edit",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prd.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-eval-prd.sh ] && bash .claude/runtime/hooks/product-manager/post-eval-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-eval-prp.sh ] && bash .claude/runtime/hooks/product-manager/post-eval-prp.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postedit.sh ] && bash .claude/hooks/pipeline-postedit.sh; exit 0" }
         ]

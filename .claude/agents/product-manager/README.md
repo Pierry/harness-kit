@@ -1,6 +1,8 @@
-# Product Manager Plugin
+# Product Manager Agent
 
-Native Claude Code plugin for the product team. Drafts PRDs and PRPs with sensor + eval gates, retry loop, token accounting per phase, and optional Confluence publish via hooks.
+Drafts PRDs and PRPs with sensor + eval gates, retry loop, token accounting per phase, and optional Confluence publish via hooks.
+
+Registered in [`AGENTS.md`](../../../AGENTS.md). Agent definition: [`product-manager.md`](../product-manager.md).
 
 ## Slash commands
 
@@ -13,30 +15,30 @@ Also invokable as sub-agent via Task tool with `subagent_type: "product-manager"
 ## Tree
 
 ```
-.claude/plugins/product-manager/
-├── .claude-plugin/plugin.json
-├── agents/product-manager.md sub-agent
-├── commands/run.md orchestrator (calls the two skills)
+.claude/agents/product-manager/      ← definitions
+├── README.md                          this file
 ├── skills/
-│ ├── prd/SKILL.md workflow PRD
-│ └── prp/SKILL.md workflow PRP
-├── hooks/ 5 .sh, registered in .claude/settings.json
-├── scripts/ 4 .py, called by hooks
+│   ├── prd/SKILL.md                   workflow PRD
+│   └── prp/SKILL.md                   workflow PRP
 ├── guides/
-│ ├── pipeline.md retry, approval marker, publish, token accounting
-│ ├── product-guidelines.md team product rules
-│ ├── prd-guidelines.md PRD-specific rules
-│ ├── prp-guidelines.md PRP-specific rules
-│ ├── writing-style.md voice, banned words
-│ ├── templates/{prd,prp}.md artifact templates
-│ └── examples/ reference PRDs and PRPs
-├── sensors/ deterministic checks (markdown)
-├── evals/ LLM-judge rubrics (markdown)
-└── outputs/
- ├── prd/ generated PRDs
- ├── prp/ generated PRPs
- ├── tokens/ per-feature phase tokens JSON
- └── .markers/ phase start/end markers (transient)
+│   ├── pipeline.md                    retry, approval marker, publish, token accounting
+│   ├── product-guidelines.md          team product rules
+│   ├── prd-guidelines.md              PRD-specific rules
+│   ├── prp-guidelines.md              PRP-specific rules
+│   ├── writing-style.md               voice, banned words
+│   ├── templates/{prd,prp}.md         artifact templates
+│   └── examples/                      reference PRDs and PRPs
+├── sensors/                           deterministic checks (markdown)
+└── evals/                             LLM-judge rubrics (markdown)
+
+.claude/runtime/                     ← state + outputs
+├── hooks/product-manager/             5 .sh, registered in .claude/settings.json
+├── scripts/product-manager/           4 .py, called by hooks
+└── outputs/pm/
+    ├── prd/                           generated PRDs
+    ├── prp/                           generated PRPs
+    ├── tokens/                        per-feature phase tokens JSON
+    └── .markers/                      phase start/end markers (transient)
 ```
 
 ## Where to edit
@@ -63,30 +65,30 @@ Also invokable as sub-agent via Task tool with `subagent_type: "product-manager"
 4. PostToolUse hook fires sensor-runner.py with real regex. Blocks on failure, returns feedback. On pass, writes `prd-generate.end` and `prd-validate.start` markers.
 5. Claude applies eval rubric. Retry up to 3 times if score below threshold (rules in guides/pipeline.md).
 6. On pass, Claude appends approval marker. Hook fires: writes `prd-validate.end`, calls token-phase.py for both phases, then confluence-publish.py if creds set.
-7. Token data lands in outputs/tokens/{feature_id}.json. Inline summary comment is appended to the artifact.
+7. Token data lands in .claude/runtime/outputs/pm/tokens/{feature_id}.json. Inline summary comment is appended to the artifact.
 
 ## Token accounting
 
 Per phase: prd-generate, prd-validate, prp-generate, prp-validate.
 
-Per feature, a single file `outputs/tokens/{feature_id}.json` collects all phase entries, with `totals` aggregated. Future workflows (dev, code review) can append their own phases to the same file by reusing feature_id.
+Per feature, a single file `.claude/runtime/outputs/pm/tokens/{feature_id}.json` collects all phase entries, with `totals` aggregated. Future workflows (dev, code review) can append their own phases to the same file by reusing feature_id.
 
 Query examples:
 
 ```
 # total tokens across all features
-jq -s 'map(.totals.input + .totals.output) | add' outputs/tokens/*.json
+jq -s 'map(.totals.input + .totals.output) | add' .claude/runtime/outputs/pm/tokens/*.json
 
 # tokens for one feature, by phase
-jq '.phases[] | {phase, tokens}' outputs/tokens/2026-05-12-billing-tz-fix.json
+jq '.phases[] | {phase, tokens}' .claude/runtime/outputs/pm/tokens/2026-05-12-billing-tz-fix.json
 
 # features touched by dispatch squad
-jq -s '.[] | select(.feature_id | contains("dispatch"))' outputs/tokens/*.json
+jq -s '.[] | select(.feature_id | contains("dispatch"))' .claude/runtime/outputs/pm/tokens/*.json
 ```
 
 ## Engineering handoff
 
-After a PRP is approved, engineering picks it up via the [staff-software-engineer plugin](../staff-software-engineer/README.md). The SSE plugin reads `outputs/prp/{feature_id}.md` and runs plan → dev → test → pr stages, all writing to the same `outputs/tokens/{feature_id}.json` file. Full feature lifecycle in one token log.
+After a PRP is approved, engineering picks it up via the [staff-software-engineer plugin](../staff-software-engineer/README.md). The SSE plugin reads `.claude/runtime/outputs/pm/prp/{feature_id}.md` and runs plan → dev → test → pr stages, all writing to the same `.claude/runtime/outputs/pm/tokens/{feature_id}.json` file. Full feature lifecycle in one token log.
 
 ## Status bar
 

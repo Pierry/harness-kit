@@ -7,7 +7,7 @@ Implemented in scripts/link-validator.py. Same rules when agent self-checks.
 
 ## Hard checks (block)
 
-Source PRD resolvable. "Source PRD:" line must point to path existing under outputs/prd/, relative to PRP file, or relative to repo root.
+Source PRD resolvable. "Source PRD:" line must point to path existing under .claude/runtime/outputs/pm/prd/, relative to PRP file, or relative to repo root.
 
 No localhost URLs. `http://localhost` or `http://127.0.0.1` not allowed as pinned references.
 

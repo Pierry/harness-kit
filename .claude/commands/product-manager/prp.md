@@ -2,37 +2,37 @@
 description: Generate a Product Requirements Prompt for engineering handoff. Needs an approved PRD. Sensors, link validation, and eval gates.
 ---
 
-Generate PRP. Follow .claude/plugins/product-manager/guides/pipeline.md for retry, approval, publish.
+Generate PRP. Follow .claude/agents/product-manager/guides/pipeline.md for retry, approval, publish.
 
 Print header card before drafting and footer card after gates run. Format: .claude/scripts/stage-card.md.
 
-Source PRD: user passes path, use it. Else pick most recent in .claude/plugins/product-manager/outputs/prd/. None found, abort. Tell user to run /product-manager:prd first. .claude/plugins/product-manager/hooks/pre-prp-check.sh blocks if PRD lacks approved marker.
+Source PRD: user passes path, use it. Else pick most recent in .claude/runtime/outputs/pm/prd/. None found, abort. Tell user to run /product-manager:prd first. .claude/runtime/hooks/product-manager/pre-prp-check.sh blocks if PRD lacks approved marker.
 
-Compute feature_id from source PRD filename (basename without .md). Save PRP to .claude/plugins/product-manager/outputs/prp/{feature_id}.md so it matches.
+Compute feature_id from source PRD filename (basename without .md). Save PRP to .claude/runtime/outputs/pm/prp/{feature_id}.md so it matches.
 
 Before generating, write phase start marker:
 
 ```
-.claude/plugins/product-manager/outputs/.markers/{feature_id}.prp-generate.start
+.claude/runtime/outputs/pm/.markers/{feature_id}.prp-generate.start
 ```
 
 Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
 - source PRD
-- .claude/plugins/product-manager/guides/prp-guidelines.md
-- .claude/plugins/product-manager/guides/writing-style.md
-- .claude/plugins/product-manager/guides/templates/prp.md
-- .claude/plugins/product-manager/guides/pipeline.md
-- .claude/plugins/product-manager/guides/examples/good-prp-example.md
+- .claude/agents/product-manager/guides/prp-guidelines.md
+- .claude/agents/product-manager/guides/writing-style.md
+- .claude/agents/product-manager/guides/templates/prp.md
+- .claude/agents/product-manager/guides/pipeline.md
+- .claude/agents/product-manager/guides/examples/good-prp-example.md
 
 Explore target repos. Ask user for repo paths if not provided. Use Grep and Read to map files. Capture file:line. Never invent paths.
 
-Save to .claude/plugins/product-manager/outputs/prp/{feature_id}.md.
+Save to .claude/runtime/outputs/pm/prp/{feature_id}.md.
 
-Sensors: .claude/plugins/product-manager/sensors/prp-structure.md, .claude/plugins/product-manager/sensors/prp-context-quality.md, .claude/plugins/product-manager/sensors/prp-links.md.
+Sensors: .claude/agents/product-manager/sensors/prp-structure.md, .claude/agents/product-manager/sensors/prp-context-quality.md, .claude/agents/product-manager/sensors/prp-links.md.
 
-Evals: .claude/plugins/product-manager/evals/prp-quality.md, .claude/plugins/product-manager/evals/prp-context-readiness.md.
+Evals: .claude/agents/product-manager/evals/prp-quality.md, .claude/agents/product-manager/evals/prp-context-readiness.md.
 
 After save, reply with this exact shape (name actual sensors/evals/guides that ran):
 

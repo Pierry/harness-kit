@@ -30,7 +30,7 @@ fi
 
 # --- Fallback: original file-scan logic ---
 
-PM_DIR=".claude/plugins/product-manager"
+PM_DIR=".claude/agents/product-manager"
 SSE_DIR=".claude/plugins/staff-software-engineer"
 
 render() {

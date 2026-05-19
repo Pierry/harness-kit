@@ -40,7 +40,7 @@ Triggers hooks/post-eval-{prd|prp}.sh.
 
 ## Publish
 
-Local: file stays in outputs/{prd|prp}/.
+Local: file stays in .claude/runtime/outputs/pm/{prd|prp}/.
 
 Confluence: fires if JIRA_USERNAME and JIRA_API_TOKEN set. Calls scripts/confluence-publish.py. Missing creds skips silently.
 
@@ -52,21 +52,21 @@ After publish, hook appends:
 ## Token accounting
 
 Each phase brackets measurable token window. Phases:
-- prd-generate: from skill invocation to first save in outputs/prd/
+- prd-generate: from skill invocation to first save in .claude/runtime/outputs/pm/prd/
 - prd-validate: from first save to approval marker (sensors + evals)
-- prp-generate: from skill invocation to first save in outputs/prp/
+- prp-generate: from skill invocation to first save in .claude/runtime/outputs/pm/prp/
 - prp-validate: from first save to approval marker
 
-Markers in outputs/.markers/{feature_id}.{phase}.{start|end}, each `{"timestamp": ISO, "session_id": ""}`. Skill writes .start; hooks write .end.
+Markers in .claude/runtime/outputs/pm/.markers/{feature_id}.{phase}.{start|end}, each `{"timestamp": ISO, "session_id": ""}`. Skill writes .start; hooks write .end.
 
-After eval passes, publish hook runs scripts/token-phase.py for both phases. Script reads Claude transcript JSONL, sums usage tokens (input, output, cache_read, cache_creation) within each window, appends phase entry to outputs/tokens/{feature_id}.json. Markers deleted after consumption.
+After eval passes, publish hook runs scripts/token-phase.py for both phases. Script reads Claude transcript JSONL, sums usage tokens (input, output, cache_read, cache_creation) within each window, appends phase entry to .claude/runtime/outputs/pm/tokens/{feature_id}.json. Markers deleted after consumption.
 
 Post-eval hook also appends inline summary to artifact:
 ```
-<!-- tokens: outputs/tokens/{feature_id}.json in={N} out={N} cache_r={N} -->
+<!-- tokens: .claude/runtime/outputs/pm/tokens/{feature_id}.json in={N} out={N} cache_r={N} -->
 ```
 
-Future phases (dev, code review, launch) append entries to same outputs/tokens/{feature_id}.json by reusing feature_id slug.
+Future phases (dev, code review, launch) append entries to same .claude/runtime/outputs/pm/tokens/{feature_id}.json by reusing feature_id slug.
 
 If transcript not readable, script logs warning and exits 0. Token accounting never blocks publish.
 

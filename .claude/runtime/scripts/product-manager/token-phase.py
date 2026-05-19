@@ -137,7 +137,7 @@ def main() -> int:
     parser.add_argument("--details", default="{}")
     args = parser.parse_args()
 
-    markers_dir = args.plugin_dir / "outputs" / ".markers"
+    markers_dir = args.plugin_dir / ".markers"
     start_marker = markers_dir / f"{args.feature_id}.{args.phase}.start"
     end_marker = markers_dir / f"{args.feature_id}.{args.phase}.end"
 
@@ -187,7 +187,7 @@ def main() -> int:
         files["prp"] = args.prp_path
 
     tokens_path = (
-        args.plugin_dir / "outputs" / "tokens" / f"{args.feature_id}.json"
+        args.plugin_dir / "tokens" / f"{args.feature_id}.json"
     )
     update_tokens_json(tokens_path, args.feature_id, files, phase_entry)
 

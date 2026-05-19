@@ -6,7 +6,7 @@ Generate technical plan. Follow .claude/plugins/staff-software-engineer/guides/p
 
 Print header card before drafting and footer card after gates run. Format: .claude/scripts/stage-card.md.
 
-Source PRP: user passes path, use it. Else pick most recent in .claude/plugins/product-manager/outputs/prp/. None found, abort. Tell user to run /product-manager:prp first.
+Source PRP: user passes path, use it. Else pick most recent in .claude/runtime/outputs/pm/prp/. None found, abort. Tell user to run /product-manager:prp first.
 
 Compute feature_id from source PRP filename (basename without .md). Save plan to .claude/plugins/staff-software-engineer/outputs/plan/{feature_id}.md so it matches.
 

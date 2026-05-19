@@ -79,7 +79,7 @@ Plugin skills read both. Project rules win. See `guides/conventions-override.md`
 
 ## Connects to PM plugin
 
-`/sse:run` reads the latest approved PRP from `.claude/plugins/product-manager/outputs/prp/`. The feature_id flows through: PM plugin creates `2026-05-12-billing-tz-fix`, SSE plugin reuses the same id and writes its phases to the same `outputs/tokens/{feature_id}.json` file (per `guides/pipeline.md`).
+`/sse:run` reads the latest approved PRP from `.claude/runtime/outputs/pm/prp/`. The feature_id flows through: PM plugin creates `2026-05-12-billing-tz-fix`, SSE plugin reuses the same id and writes its phases to the same `outputs/tokens/{feature_id}.json` file (per `guides/pipeline.md`).
 
 Full lifecycle in one JSON: PRD generate, PRD validate, PRP generate, PRP validate, plan generate, plan validate, dev, test, pr.
 

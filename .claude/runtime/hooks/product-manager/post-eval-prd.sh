@@ -7,10 +7,12 @@
 set -euo pipefail
 
 FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
-PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+AGENT_DIR=".claude/agents/product-manager"
+OUTPUTS_DIR=".claude/runtime/outputs/pm"
+SCRIPTS_DIR=".claude/runtime/scripts/product-manager"
 
 case "$FILE_PATH" in
-  *.claude/plugins/product-manager/outputs/prd/*.md) ;;
+  *.claude/runtime/outputs/pm/prd/*.md) ;;
   *) exit 0 ;;
 esac
 
@@ -25,7 +27,7 @@ fi
 echo "[hook] PRD approved, publishing $(basename "$FILE_PATH")" >&2
 
 FEATURE_ID="$(basename "$FILE_PATH" .md)"
-MARKERS_DIR="$PLUGIN_DIR/outputs/.markers"
+MARKERS_DIR="$OUTPUTS_DIR/.markers"
 mkdir -p "$MARKERS_DIR"
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -35,21 +37,21 @@ if [ -f "$MARKERS_DIR/${FEATURE_ID}.prd-validate.start" ]; then
 fi
 
 # Token accounting for both phases
-python3 "$PLUGIN_DIR/scripts/token-phase.py" \
+python3 "$SCRIPTS_DIR/token-phase.py" \
   --feature-id "$FEATURE_ID" \
   --phase "prd-generate" \
-  --plugin-dir "$PLUGIN_DIR" \
+  --plugin-dir "$OUTPUTS_DIR" \
   --prd-path "$FILE_PATH" >&2 || true
 
-python3 "$PLUGIN_DIR/scripts/token-phase.py" \
+python3 "$SCRIPTS_DIR/token-phase.py" \
   --feature-id "$FEATURE_ID" \
   --phase "prd-validate" \
-  --plugin-dir "$PLUGIN_DIR" \
+  --plugin-dir "$OUTPUTS_DIR" \
   --prd-path "$FILE_PATH" >&2 || true
 
 # Confluence (optional)
 if [ -n "${JIRA_USERNAME:-}" ] && [ -n "${JIRA_API_TOKEN:-}" ]; then
-  python3 "$PLUGIN_DIR/scripts/confluence-publish.py" \
+  python3 "$SCRIPTS_DIR/confluence-publish.py" \
     --artifact "$FILE_PATH" \
     --kind prd >&2 || {
       echo "[hook] Confluence publish failed but local copy is saved" >&2
@@ -59,7 +61,7 @@ else
 fi
 
 # Append published marker + inline tokens reference
-TOKENS_FILE="$PLUGIN_DIR/outputs/tokens/${FEATURE_ID}.json"
+TOKENS_FILE="$OUTPUTS_DIR/tokens/${FEATURE_ID}.json"
 if [ -f "$TOKENS_FILE" ]; then
   TOKENS_LINE=$(python3 -c "
 import json,sys

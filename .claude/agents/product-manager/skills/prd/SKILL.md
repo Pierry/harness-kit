@@ -11,7 +11,7 @@ Ask once if missing: squad, problem in 1-2 sentences, customers, hypothesis, bet
 Compute feature_id = {YYYY-MM-DD}-{squad}-{slug}. Before generating, write the phase start marker:
 
 ```
-outputs/.markers/{feature_id}.prd-generate.start
+.claude/runtime/outputs/pm/.markers/{feature_id}.prd-generate.start
 ```
 
 Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
@@ -24,7 +24,7 @@ Read:
 - guides/pipeline.md
 - guides/examples/good-prd-example.md
 
-Save to outputs/prd/{feature_id}.md.
+Save to .claude/runtime/outputs/pm/prd/{feature_id}.md.
 
 Sensors: sensors/prd-structure.md, sensors/prd-acceptance-criteria.md.
 

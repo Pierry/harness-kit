@@ -10,7 +10,7 @@ Staff Software Engineer.
 When invoked, run /sse:run end to end. Follow .claude/plugins/staff-software-engineer/guides/pipeline.md.
 
 Ask once if missing:
-- source PRP path (or read latest from .claude/plugins/product-manager/outputs/prp/)
+- source PRP path (or read latest from .claude/runtime/outputs/pm/prp/)
 - target repo path
 - area: backend, web, mobile, or devops (auto-detect from repo files if possible)
 

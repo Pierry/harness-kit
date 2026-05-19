@@ -7,10 +7,12 @@
 set -euo pipefail
 
 FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
-PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+AGENT_DIR=".claude/agents/product-manager"
+OUTPUTS_DIR=".claude/runtime/outputs/pm"
+SCRIPTS_DIR=".claude/runtime/scripts/product-manager"
 
 case "$FILE_PATH" in
-  *.claude/plugins/product-manager/outputs/prd/*.md) ;;
+  *.claude/runtime/outputs/pm/prd/*.md) ;;
   *) exit 0 ;;
 esac
 
@@ -22,9 +24,9 @@ fi
 echo "[hook] Running PRD sensors on $(basename "$FILE_PATH")" >&2
 
 FAILURES=()
-for sensor in "$PLUGIN_DIR"/sensors/prd-*.md; do
+for sensor in "$AGENT_DIR"/sensors/prd-*.md; do
   [ -f "$sensor" ] || continue
-  if ! python3 "$PLUGIN_DIR/scripts/sensor-runner.py" \
+  if ! python3 "$SCRIPTS_DIR/sensor-runner.py" \
         --sensor "$sensor" \
         --artifact "$FILE_PATH" >&2; then
     FAILURES+=("$(basename "$sensor")")
@@ -42,7 +44,7 @@ echo "[hook] PRD sensors passed" >&2
 
 # Token phase markers: only on first save (no validate.start yet)
 FEATURE_ID="$(basename "$FILE_PATH" .md)"
-MARKERS_DIR="$PLUGIN_DIR/outputs/.markers"
+MARKERS_DIR="$OUTPUTS_DIR/.markers"
 mkdir -p "$MARKERS_DIR"
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
