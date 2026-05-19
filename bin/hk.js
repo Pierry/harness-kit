@@ -58,13 +58,18 @@ function cmdUninstall(target) {
     process.exit(1);
   }
   const toRemove = [
-    '.claude/plugins/product-manager',
-    '.claude/plugins/staff-software-engineer',
+    'AGENTS.md',
+    '.claude/agents/product-manager',
+    '.claude/agents/staff-software-engineer',
+    '.claude/agents/product-manager.md',
+    '.claude/agents/staff-software-engineer.md',
     '.claude/commands/product-manager',
     '.claude/commands/sse',
     '.claude/commands/pipeline',
-    '.claude/agents/product-manager.md',
-    '.claude/agents/staff-software-engineer.md',
+    '.claude/runtime/hooks/product-manager',
+    '.claude/runtime/hooks/staff-software-engineer',
+    '.claude/runtime/scripts/product-manager',
+    '.claude/runtime/scripts/staff-software-engineer',
     '.claude/hooks/status-line.sh',
     '.claude/hooks/pipeline-prompt.sh',
     '.claude/hooks/pipeline-postwrite.sh',
@@ -80,6 +85,9 @@ function cmdUninstall(target) {
     '.claude/.activity',
     '.claude/settings.json',
     '.claude/.hk-version',
+    // legacy v3.x layout (best-effort cleanup if still present)
+    '.claude/plugins/product-manager',
+    '.claude/plugins/staff-software-engineer',
   ];
   for (const rel of toRemove) {
     const p = path.join(target, rel);
@@ -89,7 +97,7 @@ function cmdUninstall(target) {
     }
   }
   console.log(`uninstalled harness-kit v${v} from ${target}`);
-  console.log(`note: .claude/conventions/ and outputs/ kept. delete manually if desired.`);
+  console.log(`note: CLAUDE.md, .claude/conventions/, .claude/runtime/outputs/, and .claude/.legacy-v3-backup/ kept. delete manually if desired.`);
 }
 
 function cmdStatus(target) {
@@ -117,9 +125,9 @@ function cmdHelp() {
   console.log(`hk - harness-kit CLI (v${pkgVersion()})
 
 usage:
-  hk install [target]     install plugins into target repo (default: cwd)
-  hk update  [target]     pull latest source and reinstall
-  hk uninstall [target]   remove installed plugins from target
+  hk install [target]     install harness into target repo (default: cwd)
+  hk update  [target]     pull latest source and reinstall (auto-backs up v3.x plugins/)
+  hk uninstall [target]   remove installed harness from target
   hk status  [target]     show installed version + active pipeline stage
   hk version              source version
   hk help                 this message

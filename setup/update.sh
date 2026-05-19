@@ -3,6 +3,11 @@
 # the installer. For npm installs, you must upgrade the package first:
 #   npm i -g @pieerry/harness-kit@latest
 #
+# v3.x → v4.x migration: install.sh detects a legacy .claude/plugins/ tree in
+# the target and backs it up to .claude/.legacy-v3-backup/ before laying down
+# the v4 structure (.claude/agents/, .claude/runtime/, AGENTS.md). Custom
+# edits inside the legacy tree are preserved in the backup for manual merge.
+#
 # Usage:
 #   bash /path/to/harness-kit/setup/update.sh [target-dir]
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# harness-kit installer. Copies plugins, status-line hook, and
-# settings.json into a target repo. Reads VERSION at the repo root and records
-# it in the target.
+# harness-kit installer (v4). Copies agents, runtime hooks/scripts,
+# root hooks/scripts, slash commands, AGENTS.md/CLAUDE.md, and writes
+# the wiring settings.json into a target repo. Reads VERSION at the
+# repo root and records it in the target.
 #
 # Usage:
 #   bash /path/to/harness-kit/setup/install.sh [target-dir]
@@ -14,8 +15,8 @@ TARGET="${1:-${TARGET:-$(pwd)}}"
 
 VERSION="$(cat "$SOURCE_ROOT/VERSION" 2>/dev/null || echo "0.0.0")"
 
-if [ ! -d "$SOURCE_ROOT/.claude/plugins/product-manager" ]; then
-  echo "missing plugins at $SOURCE_ROOT/.claude/plugins/"
+if [ ! -d "$SOURCE_ROOT/.claude/agents/product-manager" ]; then
+  echo "missing agents at $SOURCE_ROOT/.claude/agents/"
   echo "clone the repo first, then re-run: git clone https://github.com/Pierry/harness-kit ~/.harness-kit"
   exit 1
 fi
@@ -33,47 +34,61 @@ else
   echo "harness-kit v$VERSION installing at $TARGET"
 fi
 
-# Copy plugin support code (hooks, scripts, guides, sensors, evals, skills, outputs)
-mkdir -p "$TARGET/.claude/plugins"
-for plugin in product-manager staff-software-engineer; do
-  rm -rf "$TARGET/.claude/plugins/$plugin"
-  cp -R "$SOURCE_ROOT/.claude/plugins/$plugin" "$TARGET/.claude/plugins/$plugin"
+# Migrate legacy v3.x layout if detected. Backs up to .claude/.legacy-v3-backup/.
+if [ -d "$TARGET/.claude/plugins" ]; then
+  echo "  detected legacy v3.x plugins/ — backing up to .claude/.legacy-v3-backup/"
+  STAMP="$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$TARGET/.claude/.legacy-v3-backup"
+  mv "$TARGET/.claude/plugins" "$TARGET/.claude/.legacy-v3-backup/plugins.$STAMP"
+fi
+
+# 1) AGENTS.md + CLAUDE.md at the repo root.
+cp "$SOURCE_ROOT/AGENTS.md" "$TARGET/AGENTS.md"
+if [ ! -f "$TARGET/CLAUDE.md" ]; then
+  cp "$SOURCE_ROOT/CLAUDE.md" "$TARGET/CLAUDE.md"
+fi
+
+# 2) Agent definitions (sensors, evals, guides, skills, README + orchestrator .md)
+mkdir -p "$TARGET/.claude/agents"
+for agent in product-manager staff-software-engineer; do
+  rm -rf "$TARGET/.claude/agents/$agent"
+  cp -R "$SOURCE_ROOT/.claude/agents/$agent" "$TARGET/.claude/agents/$agent"
+  cp "$SOURCE_ROOT/.claude/agents/$agent.md" "$TARGET/.claude/agents/$agent.md"
 done
 
-# Re-resolve symlinks in SSE scripts
-for f in "$TARGET/.claude/plugins/staff-software-engineer/scripts/"*; do
+# 3) Per-agent runtime hooks + scripts (NOT outputs — that's target-side state)
+mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TARGET/.claude/runtime/outputs/pm/.markers" "$TARGET/.claude/runtime/outputs/sse/.markers"
+for agent in product-manager staff-software-engineer; do
+  rm -rf "$TARGET/.claude/runtime/hooks/$agent"
+  cp -R "$SOURCE_ROOT/.claude/runtime/hooks/$agent" "$TARGET/.claude/runtime/hooks/$agent"
+  rm -rf "$TARGET/.claude/runtime/scripts/$agent"
+  cp -R "$SOURCE_ROOT/.claude/runtime/scripts/$agent" "$TARGET/.claude/runtime/scripts/$agent"
+done
+
+# Re-resolve symlinks in SSE scripts (point at PM's shared utilities)
+for f in "$TARGET/.claude/runtime/scripts/staff-software-engineer/"*; do
   if [ -L "$f" ]; then
     name="$(basename "$f")"
     rm "$f"
-    ln -sf "../../product-manager/scripts/$name" "$f"
+    ln -sf "../product-manager/$name" "$f"
   fi
 done
 
-# Copy slash commands and Task-invokable agents
-mkdir -p "$TARGET/.claude/commands" "$TARGET/.claude/agents"
+# 4) Slash commands
+mkdir -p "$TARGET/.claude/commands"
 for ns in product-manager sse pipeline; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
-for agent in product-manager staff-software-engineer; do
-  cp "$SOURCE_ROOT/.claude/agents/$agent.md" "$TARGET/.claude/agents/$agent.md"
-done
 
-# Clean up legacy plugin layout from older installs
-for plugin in product-manager staff-software-engineer; do
-  rm -rf "$TARGET/.claude/plugins/$plugin/commands" \
-         "$TARGET/.claude/plugins/$plugin/agents" \
-         "$TARGET/.claude/plugins/$plugin/.claude-plugin"
-done
-
-# Copy harness-kit hooks (status-line + pipeline tracking + live activity)
+# 5) Root harness hooks (status-line + pipeline tracking + live activity)
 mkdir -p "$TARGET/.claude/hooks"
 for h in status-line.sh pipeline-prompt.sh pipeline-postwrite.sh pipeline-postedit.sh pipeline-session-start.sh activity-pre-read.sh; do
   cp "$SOURCE_ROOT/.claude/hooks/$h" "$TARGET/.claude/hooks/$h"
   chmod +x "$TARGET/.claude/hooks/$h"
 done
 
-# Copy harness-kit scripts (pipeline state, activity tracker, PR monitor, stage-card)
+# 6) Root harness scripts (pipeline state, activity, PR monitor, stage-card)
 mkdir -p "$TARGET/.claude/scripts"
 for s in pipeline.py activity.py pr-monitor.py; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
@@ -81,7 +96,7 @@ for s in pipeline.py activity.py pr-monitor.py; do
 done
 cp "$SOURCE_ROOT/.claude/scripts/stage-card.md" "$TARGET/.claude/scripts/stage-card.md"
 
-# Settings.json (back up existing if content differs)
+# 7) settings.json (back up existing if content differs)
 if [ -f "$TARGET/.claude/settings.json" ]; then
   STAMP="$(date +%Y%m%d-%H%M%S)"
   BACKUP="$TARGET/.claude/settings.json.bak.$STAMP"
@@ -99,8 +114,8 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
       "Bash(npm:*)",
       "Bash(gh:*)",
       "Bash(jq:*)",
-      "Read(outputs/**)",
-      "Write(outputs/**)"
+      "Read(.claude/runtime/outputs/**)",
+      "Write(.claude/runtime/outputs/**)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
@@ -128,7 +143,7 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/pre-prp-check.sh ] && bash .claude/plugins/product-manager/hooks/pre-prp-check.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/pre-prp-check.sh ] && bash .claude/runtime/hooks/product-manager/pre-prp-check.sh; exit 0" }
         ]
       },
       {
@@ -142,18 +157,18 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prd.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-write-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-write-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-write-sse.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-write-prd.sh ] && bash .claude/runtime/hooks/product-manager/post-write-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-write-prp.sh ] && bash .claude/runtime/hooks/product-manager/post-write-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/staff-software-engineer/post-write-sse.sh ] && bash .claude/runtime/hooks/staff-software-engineer/post-write-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postwrite.sh ] && bash .claude/hooks/pipeline-postwrite.sh; exit 0" }
         ]
       },
       {
         "matcher": "Edit",
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prd.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prd.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/product-manager/hooks/post-eval-prp.sh ] && bash .claude/plugins/product-manager/hooks/post-eval-prp.sh; exit 0" },
-          { "type": "command", "command": "[ -x .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh ] && bash .claude/plugins/staff-software-engineer/hooks/post-eval-sse.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-eval-prd.sh ] && bash .claude/runtime/hooks/product-manager/post-eval-prd.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/product-manager/post-eval-prp.sh ] && bash .claude/runtime/hooks/product-manager/post-eval-prp.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/runtime/hooks/staff-software-engineer/post-eval-sse.sh ] && bash .claude/runtime/hooks/staff-software-engineer/post-eval-sse.sh; exit 0" },
           { "type": "command", "command": "[ -x .claude/hooks/pipeline-postedit.sh ] && bash .claude/hooks/pipeline-postedit.sh; exit 0" }
         ]
       }
@@ -172,16 +187,16 @@ if [ ! -f "$TARGET/.claude/conventions/README.md" ]; then
   cat > "$TARGET/.claude/conventions/README.md" <<'EOF'
 # Project Conventions
 
-Override staff-software-engineer plugin defaults for this repo. Create files as needed:
+Override staff-software-engineer defaults for this repo. Create files as needed:
 
 - backend.md
 - web.md
 - mobile.md
 - devops.md
 
-When a file exists here, plugin reads it on top of defaults. Rules in this folder win.
+When a file exists here, the agent reads it on top of defaults. Rules in this folder win.
 
-See `.claude/plugins/staff-software-engineer/guides/conventions-override.md` for the full reference.
+See `.claude/agents/staff-software-engineer/guides/conventions-override.md` for the full reference.
 EOF
 fi
 
