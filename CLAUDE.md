@@ -2,6 +2,8 @@
 
 Read by Claude Code on every session. Defines how to work in this harness-kit workspace.
 
+**See [`AGENTS.md`](./AGENTS.md) for the full agent registry, routing table, and runtime paths.** Consult it whenever you need to decide which agent handles a request, where assets live, or how stages flow.
+
 ## Response Style
 
 - **Language:** match the user. Default English. Domain terms stay native.
@@ -29,9 +31,9 @@ AI copilot for product + engineering delivery. Thinking partner and execution as
 
 Configurable per consumer. Fill `context-library/business-info.md` and `context-library/squads/{slug}/` with your own structure. Ask which squad the work belongs to when not clear.
 
-## Plugins
+## Agents
 
-This workspace ships two Claude Code plugins under `.claude/plugins/`. Both have their own README with full detail.
+Two orchestrator agents, registered in [`AGENTS.md`](./AGENTS.md). Each lives under `.claude/agents/<name>/` with its own README, sensors, evals, guides, and skills.
 
 ### product-manager
 
@@ -40,7 +42,7 @@ PRD and PRP generation. Slash commands:
 - `/product-manager:prp` draft a PRP (engineering-ready spec)
 - `/product-manager:run` full PM pipeline
 
-Sub-agent `product-manager` is also Task-tool-invokable for delegation.
+Sub-agent `product-manager` is also Task-tool-invokable for delegation. Assets: `.claude/agents/product-manager/`.
 
 ### staff-software-engineer
 
@@ -51,13 +53,13 @@ Engineering pipeline. Slash commands:
 - `/sse:pr` open the draft PR
 - `/sse:run` full SSE pipeline
 
-Sub-agent `staff-software-engineer` is also Task-tool-invokable.
+Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claude/agents/staff-software-engineer/`.
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
 
 ## Project conventions override
 
-Each target repo can override SSE plugin defaults with files in `.claude/conventions/`:
+Each target repo can override SSE defaults with files in `.claude/conventions/`:
 
 ```
 {repo}/.claude/conventions/
@@ -67,11 +69,11 @@ Each target repo can override SSE plugin defaults with files in `.claude/convent
 └── devops.md
 ```
 
-When a file exists, plugin reads it on top of defaults. Project wins. Reference: `.claude/plugins/staff-software-engineer/guides/conventions-override.md`.
+When a file exists, the agent reads it on top of defaults. Project wins. Reference: `.claude/agents/staff-software-engineer/guides/conventions-override.md`.
 
 ## Token accounting and status bar
 
-After approval, hooks compute tokens used per phase from the Claude transcript and append to `outputs/tokens/{feature_id}.json` (per plugin). One JSON collects phases across the full lifecycle.
+After approval, hooks compute tokens used per phase from the Claude transcript and append to `.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json` (per agent). One JSON per agent collects phases across the full lifecycle.
 
 The status bar follows the active feature through the 6-stage pipeline. See `.claude/hooks/status-line.sh`.
 
