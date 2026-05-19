@@ -5,9 +5,9 @@
 Claude Code harness for product + engineering delivery.
 From idea to merged PR, one pipeline.
 
-[![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)](VERSION)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
-[![Plugins](https://img.shields.io/badge/plugins-2-success.svg)](#layout)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](VERSION)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-AGENTS.md-8b5cf6.svg)](https://claude.ai/code)
+[![Agents](https://img.shields.io/badge/agents-2-success.svg)](#layout)
 [![Pipeline](https://img.shields.io/badge/stages-6-informational.svg)](#usage)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
@@ -25,7 +25,7 @@ From idea to merged PR, one pipeline.
 
 harness-kit turns a target repo into a Claude Code workspace where **product and engineering share one pipeline**. You go from a problem statement to a merged PR through six gated stages — `prd → prp → plan → dev → test → pr` — each producing a markdown artifact, each gated by deterministic sensors and an LLM-judged eval, each accounting for its own token spend.
 
-The pipeline is two Claude Code plugins (`product-manager`, `staff-software-engineer`) wired together by a small shell+python harness that tracks state, runs gates, and renders a live status bar. After a PR opens, an in-session monitor polls GitHub on backoff until the PR merges, then auto-clears state so the next feature starts clean.
+The pipeline is two Claude Code agents (`product-manager`, `staff-software-engineer`) registered in [`AGENTS.md`](./AGENTS.md), wired together by a small shell+python harness that tracks state, runs gates, and renders a live status bar. After a PR opens, an in-session monitor polls GitHub on backoff until the PR merges, then auto-clears state so the next feature starts clean.
 
 **Who it's for:** PMs and engineers who want their `/`-commands to (1) produce real artifacts with named gates, (2) survive session restarts via persisted state, (3) record per-phase token spend so usage is auditable.
 
@@ -66,7 +66,9 @@ npm i -g @pieerry/harness-kit
 hk install
 ```
 
-`hk install` writes plugins into `.claude/plugins/`, drops hooks in `.claude/hooks/` (status-line, pipeline tracking, activity tracker), copies state managers to `.claude/scripts/` (`pipeline.py`, `activity.py`, `pr-monitor.py`), registers slash commands under `.claude/commands/`, generates `.claude/settings.json`, and scaffolds `.claude/conventions/` for your project overrides. Run from the target repo or pass `[target]`. Restart Claude Code after.
+`hk install` writes `AGENTS.md` + `CLAUDE.md` to the target root, installs agent definitions to `.claude/agents/` (`product-manager/`, `staff-software-engineer/` and their orchestrator `.md` files), per-agent runtime hooks and scripts to `.claude/runtime/`, root hooks to `.claude/hooks/` (status-line, pipeline tracking, activity tracker), state managers to `.claude/scripts/` (`pipeline.py`, `activity.py`, `pr-monitor.py`), slash commands under `.claude/commands/`, generates `.claude/settings.json`, and scaffolds `.claude/conventions/` for your project overrides. Run from the target repo or pass `[target]`. Restart Claude Code after.
+
+**v3 → v4 migration:** if an existing `.claude/plugins/` tree is detected at the target, it is moved to `.claude/.legacy-v3-backup/plugins.<timestamp>/` before the v4 layout is laid down. Re-apply custom edits manually from the backup.
 
 Reinstalling on top of an existing setup backs up the previous `settings.json` to `.claude/settings.json.bak.{timestamp}` before overwriting, so manual customizations are recoverable.
 
@@ -74,9 +76,9 @@ CLI subcommands:
 
 | Command | What it does |
 |---------|--------------|
-| `hk install [target]` | install plugins into target repo (default: cwd) |
-| `hk update [target]` | pull latest source and reinstall |
-| `hk uninstall [target]` | remove plugins, hooks, settings, agents (keeps `outputs/` and `conventions/`) |
+| `hk install [target]` | install harness into target repo (default: cwd) |
+| `hk update [target]` | pull latest source and reinstall (v3→v4 auto-backup) |
+| `hk uninstall [target]` | remove agents, hooks, settings, scripts (keeps `outputs/`, `conventions/`, `CLAUDE.md`) |
 | `hk status [target]` | installed version + active pipeline stage |
 | `hk version` | source version |
 
@@ -192,14 +194,14 @@ PR opened: https://github.com/your-org/billing-service/pull/567
 PR monitor armed for #567. First check in 3min, escalates to 30min cap.
 ```
 
-Every reply names the actual sensors that ran, evals with scores, and guides loaded — no generic "ok" lines. The `/sse:run` and `/product-manager:run` summaries aggregate the same shape across phases, plus per-phase token totals from `outputs/tokens/{feature_id}.json`.
+Every reply names the actual sensors that ran, evals with scores, and guides loaded — no generic "ok" lines. The `/sse:run` and `/product-manager:run` summaries aggregate the same shape across phases, plus per-phase token totals from `.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json`.
 
 ### Samples
 
-Reference artifacts ship inside the plugins:
+Reference artifacts ship inside the agents:
 
-- [good PRD example](.claude/plugins/product-manager/guides/examples/good-prd-example.md)
-- [good PRP example](.claude/plugins/product-manager/guides/examples/good-prp-example.md)
+- [good PRD example](.claude/agents/product-manager/guides/examples/good-prd-example.md)
+- [good PRP example](.claude/agents/product-manager/guides/examples/good-prp-example.md)
 
 ---
 
@@ -229,7 +231,7 @@ Sensors are pass/fail. Evals are scored. Approval markers (`<!-- approved: -->`)
 | `test` | `test-structure` | `test-quality` |
 | `pr` | `pr-structure` | `pr-quality` |
 
-Document sensors (`*-structure`) are auto-run by the post-write hook when the artifact lands on disk. Code sensors (`code-conventions`, `test-coverage`) are invoked by `/sse:dev` after each commit. Evals are scored by Claude inside the slash command. Convention: sensor files live at `plugins/{plugin}/sensors/{phase}-*.md`; evals at `plugins/{plugin}/evals/{phase}-quality.md`.
+Document sensors (`*-structure`) are auto-run by the post-write hook when the artifact lands on disk. Code sensors (`code-conventions`, `test-coverage`) are invoked by `/sse:dev` after each commit. Evals are scored by Claude inside the slash command. Convention: sensor files live at `.claude/agents/{agent}/sensors/{phase}-*.md`; evals at `.claude/agents/{agent}/evals/{phase}-quality.md`.
 
 ### Status bar
 
@@ -246,7 +248,7 @@ multi-currency · complete (prd+prp+plan+dev+test+pr)
 
 The bracketed list is the pipeline shape — the stages this run will execute. The shape is inferred from the slash command you invoked and extended when you chain commands (e.g. running `/sse:run` after `/product-manager:run` appends `plan+dev+test+pr` to the existing `prd+prp`).
 
-State lives at `.claude/.pipeline-state.json`. Close the session and reopen — the `SessionStart` hook prints a one-line resume hint, and `/pipeline:continue` invokes the next pending stage. `/pipeline:reset` clears the file. Output artifacts under `.claude/plugins/*/outputs/` are never deleted by reset.
+State lives at `.claude/.pipeline-state.json`. Close the session and reopen — the `SessionStart` hook prints a one-line resume hint, and `/pipeline:continue` invokes the next pending stage. `/pipeline:reset` clears the file. Output artifacts under `.claude/runtime/outputs/{pm,sse}/` are never deleted by reset.
 
 ### Live activity indicator
 
@@ -258,7 +260,7 @@ multi-currency [plan+dev+test+pr] · dev drafting · next /sse:dev · guide: cod
 multi-currency [plan+dev+test+pr] · plan drafting · next /sse:plan · eval: plan-quality
 ```
 
-Mechanism: a `PreToolUse` Read hook (`activity-pre-read.sh`) detects when Claude reads a file under `plugins/*/sensors/`, `plugins/*/evals/`, or `plugins/*/guides/` and writes the activity to `.claude/.activity` with a 60s TTL. The status-line reads it on each render and clears stale entries. The Claude Code top-of-screen "thinking…" indicator is rendered by the CLI itself and cannot be augmented; the bottom status bar is the available channel.
+Mechanism: a `PreToolUse` Read hook (`activity-pre-read.sh`) detects when Claude reads a file under `.claude/agents/*/sensors/`, `.claude/agents/*/evals/`, or `.claude/agents/*/guides/` and writes the activity to `.claude/.activity` with a 60s TTL. The status-line reads it on each render and clears stale entries. The Claude Code top-of-screen "thinking…" indicator is rendered by the CLI itself and cannot be augmented; the bottom status bar is the available channel.
 
 ### PR monitor
 
@@ -278,14 +280,14 @@ State: `.claude/.pr-monitor-state.json` records PR number, URL, branch, current 
 
 ### Token accounting
 
-Every phase has its own start/end marker written to `outputs/.markers/{feature_id}.{phase}-{generate|validate}.{start|end}`. When the artifact is approved, the post-eval hook runs `scripts/token-phase.py` for both phases — it reads the Claude session transcript JSONL, sums input/output/cache-read/cache-creation tokens within each window, and appends an entry to `outputs/tokens/{feature_id}.json`.
+Every phase has its own start/end marker written to `.claude/runtime/outputs/{pm,sse}/.markers/{feature_id}.{phase}-{generate|validate}.{start|end}`. When the artifact is approved, the post-eval hook runs `.claude/runtime/scripts/<agent>/token-phase.py` for both phases — it reads the Claude session transcript JSONL, sums input/output/cache-read/cache-creation tokens within each window, and appends an entry to `.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json`.
 
 Schema:
 
 ```json
 {
   "feature_id": "2026-05-12-billing-multi-currency",
-  "files": { "prd": "outputs/prd/...md", "prp": "outputs/prp/...md" },
+  "files": { "prd": ".claude/runtime/outputs/pm/prd/...md", "prp": ".claude/runtime/outputs/pm/prp/...md" },
   "phases": [
     { "phase": "prd-generate", "started_at": "...", "ended_at": "...", "tokens": { "input": 1234, "output": 567, "cache_read": 8910, "cache_creation": 234 }, "attempts": 1 }
   ],
@@ -293,7 +295,7 @@ Schema:
 }
 ```
 
-Each plugin keeps its own `outputs/tokens/{feature_id}.json`. The artifact gets an inline `<!-- tokens: outputs/tokens/{feature_id}.json in=N out=N cache_r=N -->` reference appended after approval so the totals are visible from the artifact itself. Query examples in the [product-manager README](.claude/plugins/product-manager/README.md#token-accounting).
+Each agent keeps its own `.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json`. The artifact gets an inline `<!-- tokens: ... in=N out=N cache_r=N -->` reference appended after approval so the totals are visible from the artifact itself. Query examples in the [product-manager README](.claude/agents/product-manager/README.md#token-accounting).
 
 ### Session-start auto-clear
 
@@ -312,45 +314,53 @@ This avoids the stale `next /sse:plan` nag after work has already shipped.
 
 ```
 .
+├── AGENTS.md                          agent registry + routing
+├── CLAUDE.md                          workspace context
 ├── .claude/
-│   ├── plugins/
-│   │   ├── product-manager/          PRD + PRP plugin
-│   │   └── staff-software-engineer/  plan, dev, test, pr plugin
-│   ├── commands/                     slash commands per plugin namespace
-│   ├── agents/                       Task-tool-invokable orchestrators
+│   ├── agents/
+│   │   ├── product-manager/           PRD + PRP definitions (sensors, evals, guides, skills)
+│   │   ├── staff-software-engineer/   plan/dev/test/pr definitions (sensors, evals, guides, skills)
+│   │   ├── product-manager.md         orchestrator agent file
+│   │   └── staff-software-engineer.md orchestrator agent file
+│   ├── commands/                      slash commands per namespace
 │   ├── hooks/
-│   │   ├── status-line.sh            pipeline status indicator (with cyan activity)
-│   │   ├── pipeline-prompt.sh        slash-command intent tracking
-│   │   ├── pipeline-postwrite.sh     stage-state from artifact writes
-│   │   ├── pipeline-postedit.sh      stage-state from approval marker
-│   │   ├── pipeline-session-start.sh resume hint + PR-merged auto-clear
-│   │   └── activity-pre-read.sh      surfaces current sensor/eval/guide
+│   │   ├── status-line.sh             pipeline status indicator (with cyan activity)
+│   │   ├── pipeline-prompt.sh         slash-command intent tracking
+│   │   ├── pipeline-postwrite.sh      stage-state from artifact writes
+│   │   ├── pipeline-postedit.sh       stage-state from approval marker
+│   │   ├── pipeline-session-start.sh  resume hint + PR-merged auto-clear
+│   │   └── activity-pre-read.sh       surfaces current sensor/eval/guide
 │   ├── scripts/
-│   │   ├── pipeline.py               pipeline state CRUD
-│   │   ├── activity.py               live activity CRUD (60s TTL)
-│   │   ├── pr-monitor.py             PR-watch state + backoff schedule
-│   │   └── stage-card.md             header/footer card convention
-│   ├── .pipeline-state.json          active feature + per-stage state
-│   ├── .pr-monitor-state.json        PR being watched
-│   ├── .activity                     current sensor/eval/guide being touched
-│   └── settings.json                 hooks wiring + permissions
-├── context-library/                  reusable org/squad context
+│   │   ├── pipeline.py                pipeline state CRUD
+│   │   ├── activity.py                live activity CRUD (60s TTL)
+│   │   ├── pr-monitor.py              PR-watch state + backoff schedule
+│   │   └── stage-card.md              header/footer card convention
+│   ├── runtime/
+│   │   ├── hooks/<agent>/             per-agent lifecycle hooks (post-write, post-eval, pre-prp-check)
+│   │   ├── scripts/<agent>/           per-agent utilities (sensor-runner, token-phase, link-validator)
+│   │   └── outputs/{pm,sse}/          generated artifacts, markers, tokens
+│   ├── conventions/                   per-repo overrides
+│   ├── .pipeline-state.json           active feature + per-stage state
+│   ├── .pr-monitor-state.json         PR being watched
+│   ├── .activity                      current sensor/eval/guide being touched
+│   └── settings.json                  hooks wiring + permissions
+├── context-library/                   reusable org/squad context
 ├── setup/
-│   ├── install.sh                    target-repo installer
-│   └── update.sh                     pull + reinstall
-└── VERSION                           source of truth for installer
+│   ├── install.sh                     target-repo installer (with v3→v4 backup)
+│   └── update.sh                      pull + reinstall
+└── VERSION                            source of truth for installer
 ```
 
-Plugin documentation:
+Agent documentation:
 
-- [product-manager](.claude/plugins/product-manager/README.md): PRD and PRP generation, sensor and eval gates, retry loop, token accounting, optional Confluence publish.
-- [staff-software-engineer](.claude/plugins/staff-software-engineer/README.md): plan, dev, test, pr stages with per-project conventions override, document + code sensors, quality evals, PR monitor.
+- [product-manager](.claude/agents/product-manager/README.md): PRD and PRP generation, sensor and eval gates, retry loop, token accounting, optional Confluence publish.
+- [staff-software-engineer](.claude/agents/staff-software-engineer/README.md): plan, dev, test, pr stages with per-project conventions override, document + code sensors, quality evals, PR monitor.
 
 ---
 
 ## Project conventions
 
-Each target repo can override the SSE plugin defaults with its own files:
+Each target repo can override the SSE agent defaults with its own files:
 
 ```
 {repo}/.claude/conventions/
@@ -360,7 +370,7 @@ Each target repo can override the SSE plugin defaults with its own files:
 └── devops.md
 ```
 
-The installer scaffolds `.claude/conventions/README.md` to remind you of the contract. Fill only the area files relevant to the repo. Plugin reads them on top of its defaults. See [conventions-override.md](.claude/plugins/staff-software-engineer/guides/conventions-override.md) for the override mechanics and examples.
+The installer scaffolds `.claude/conventions/README.md` to remind you of the contract. Fill only the area files relevant to the repo. The agent reads them on top of its defaults. See [conventions-override.md](.claude/agents/staff-software-engineer/guides/conventions-override.md) for the override mechanics and examples.
 
 ---
 
@@ -376,4 +386,4 @@ The installer scaffolds `.claude/conventions/README.md` to remind you of the con
 Optional:
 
 - [jq](https://stedolan.github.io/jq/) for querying the token JSON files
-- `JIRA_USERNAME` and `JIRA_API_TOKEN` env vars to enable Confluence publish (details in the [product-manager README](.claude/plugins/product-manager/README.md#confluence-publish))
+- `JIRA_USERNAME` and `JIRA_API_TOKEN` env vars to enable Confluence publish (details in the [product-manager README](.claude/agents/product-manager/README.md#confluence-publish))
