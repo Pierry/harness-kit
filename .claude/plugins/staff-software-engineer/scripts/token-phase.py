@@ -1,1 +1,0 @@
-../../product-manager/scripts/token-phase.py

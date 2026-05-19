@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates test report at `outputs/test/{feature_id}.md`.
+Validates test report at `.claude/runtime/outputs/sse/test/{feature_id}.md`.
 
 ## Required sections
 
@@ -28,7 +28,7 @@ Validates test report at `outputs/test/{feature_id}.md`.
 ## Required metadata
 
 Header must declare:
-- Source dev (path to `outputs/dev/{feature_id}.md`)
+- Source dev (path to `.claude/runtime/outputs/sse/dev/{feature_id}.md`)
 - Framework (maven | gradle | npm | pytest | other)
 - Date
 

@@ -11,14 +11,14 @@ Run end to end.
 5. Invoke /sse:pr-monitor. Arms backoff polling, auto-clears pipeline state on merge. Skip if user passed `--no-monitor` or `gh pr view` already returns MERGED.
 6. Return summary.
 
-Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
+Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
 
 Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so user sees what was checked and loaded.
 
 ```
 Engineering pipeline complete.
 
-Plan: .claude/plugins/staff-software-engineer/outputs/plan/{path}
+Plan: .claude/runtime/outputs/sse/plan/{path}
   sensors: {sensor-name} ok ({sub-check, sub-check, ...}), {sensor-name} ok
   eval:    {eval-name} {score}/10 (attempts: N)
   guides:  {guide-1.md}, {guide-2.md}, skills/{area}/SKILL.md
@@ -31,7 +31,7 @@ Dev: branch {branch}
   guides:  coding-style.md, commit-style.md, skills/{area}/SKILL.md
   refs:    plan/{feature_id}.md, conventions/{area}.md
 
-Test: .claude/plugins/staff-software-engineer/outputs/test/{path}
+Test: .claude/runtime/outputs/sse/test/{path}
   command: {detected-test-command}
   passed:  N, failed: M
   duration: {seconds}s

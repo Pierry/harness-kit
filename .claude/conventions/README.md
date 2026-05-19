@@ -9,4 +9,4 @@ Override staff-software-engineer plugin defaults for this repo. Create files as 
 
 When a file exists here, plugin reads it on top of defaults. Rules in this folder win.
 
-See `.claude/plugins/staff-software-engineer/guides/conventions-override.md` for the full reference.
+See `.claude/agents/staff-software-engineer/guides/conventions-override.md` for the full reference.

@@ -57,10 +57,10 @@ STAGE_TO_COMMAND = {
 STAGE_TO_OUTPUT_DIR = {
     "prd": ".claude/runtime/outputs/pm/prd",
     "prp": ".claude/runtime/outputs/pm/prp",
-    "plan": ".claude/plugins/staff-software-engineer/outputs/plan",
-    "dev": ".claude/plugins/staff-software-engineer/outputs/dev",
-    "test": ".claude/plugins/staff-software-engineer/outputs/test",
-    "pr": ".claude/plugins/staff-software-engineer/outputs/pr",
+    "plan": ".claude/runtime/outputs/sse/plan",
+    "dev": ".claude/runtime/outputs/sse/dev",
+    "test": ".claude/runtime/outputs/sse/test",
+    "pr": ".claude/runtime/outputs/sse/pr",
 }
 
 

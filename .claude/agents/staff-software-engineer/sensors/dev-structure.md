@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates dev summary doc at `outputs/dev/{feature_id}.md`.
+Validates dev summary doc at `.claude/runtime/outputs/sse/dev/{feature_id}.md`.
 
 ## Required sections
 
@@ -30,7 +30,7 @@ Validates dev summary doc at `outputs/dev/{feature_id}.md`.
 ## Required metadata
 
 Header must declare:
-- Source plan (path to `outputs/plan/{feature_id}.md`)
+- Source plan (path to `.claude/runtime/outputs/sse/plan/{feature_id}.md`)
 - Branch
 - Area (backend | web | mobile | devops)
 - Date

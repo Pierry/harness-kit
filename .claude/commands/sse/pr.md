@@ -13,12 +13,12 @@ Prerequisites:
 Before opening, write phase start marker:
 
 ```
-.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.pr-generate.start
+.claude/runtime/outputs/sse/.markers/{feature_id}.pr-generate.start
 ```
 
 Read:
-- .claude/plugins/staff-software-engineer/guides/pr-template.md
-- .claude/plugins/staff-software-engineer/guides/commit-style.md
+- .claude/agents/staff-software-engineer/guides/pr-template.md
+- .claude/agents/staff-software-engineer/guides/commit-style.md
 - latest plan and dev outputs (for body content)
 
 Detect ticket id from branch name (e.g., `feat/PROJ-123-foo` -> `PROJ-123`). Branch has none, ask user once. Never call Jira API.
@@ -30,7 +30,7 @@ Compose:
 
 Open via `gh pr create --draft --title "..." --body "..."`.
 
-Save .claude/plugins/staff-software-engineer/outputs/pr/{feature_id}.md with:
+Save .claude/runtime/outputs/sse/pr/{feature_id}.md with:
 - pr url
 - title
 - draft status
@@ -39,8 +39,8 @@ Save .claude/plugins/staff-software-engineer/outputs/pr/{feature_id}.md with:
 - refs (plan + dev paths)
 
 Document gates (run on saved record):
-- Sensor: .claude/plugins/staff-software-engineer/sensors/pr-structure.md (auto-run by post-write hook)
-- Eval:   .claude/plugins/staff-software-engineer/evals/pr-quality.md (you score it; threshold 8.0)
+- Sensor: .claude/agents/staff-software-engineer/sensors/pr-structure.md (auto-run by post-write hook)
+- Eval:   .claude/agents/staff-software-engineer/evals/pr-quality.md (you score it; threshold 8.0)
 
 Append approval marker only when sensor passes and pr-quality eval is >= 8.0:
 

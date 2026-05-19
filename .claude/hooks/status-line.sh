@@ -30,14 +30,14 @@ fi
 
 # --- Fallback: original file-scan logic ---
 
-PM_DIR=".claude/agents/product-manager"
-SSE_DIR=".claude/plugins/staff-software-engineer"
+PM_DIR=".claude/runtime/outputs/pm"
+SSE_DIR=".claude/runtime/outputs/sse"
 
 render() {
   LATEST=""
-  for f in "$PM_DIR/outputs/prd/"*.md "$PM_DIR/outputs/prp/"*.md \
-           "$SSE_DIR/outputs/plan/"*.md "$SSE_DIR/outputs/dev/"*.md \
-           "$SSE_DIR/outputs/test/"*.md "$SSE_DIR/outputs/pr/"*.md; do
+  for f in "$PM_DIR/prd/"*.md "$PM_DIR/prp/"*.md \
+           "$SSE_DIR/plan/"*.md "$SSE_DIR/dev/"*.md \
+           "$SSE_DIR/test/"*.md "$SSE_DIR/pr/"*.md; do
     [ -f "$f" ] || continue
     if [ -z "$LATEST" ] || [ "$f" -nt "$LATEST" ]; then
       LATEST="$f"
@@ -74,12 +74,12 @@ render() {
   current_state=""
   for stage in prd prp plan dev test pr; do
     case $stage in
-      prd)  f="$PM_DIR/outputs/prd/${FID}.md"  ;;
-      prp)  f="$PM_DIR/outputs/prp/${FID}.md"  ;;
-      plan) f="$SSE_DIR/outputs/plan/${FID}.md" ;;
-      dev)  f="$SSE_DIR/outputs/dev/${FID}.md"  ;;
-      test) f="$SSE_DIR/outputs/test/${FID}.md" ;;
-      pr)   f="$SSE_DIR/outputs/pr/${FID}.md"   ;;
+      prd)  f="$PM_DIR/prd/${FID}.md"  ;;
+      prp)  f="$PM_DIR/prp/${FID}.md"  ;;
+      plan) f="$SSE_DIR/plan/${FID}.md" ;;
+      dev)  f="$SSE_DIR/dev/${FID}.md"  ;;
+      test) f="$SSE_DIR/test/${FID}.md" ;;
+      pr)   f="$SSE_DIR/pr/${FID}.md"   ;;
     esac
     s=$(check_state "$f")
     if [ "$s" = "approved" ]; then

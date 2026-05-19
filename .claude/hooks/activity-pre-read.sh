@@ -1,15 +1,15 @@
 #!/bin/sh
 # PreToolUse hook on Read. If the file being read is a sensor/eval/guide
-# under any plugin, mark current activity so status-line.sh can surface it.
+# under any agent, mark current activity so status-line.sh can surface it.
 
 FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
 [ -z "$FILE_PATH" ] && exit 0
 
 KIND=""
 case "$FILE_PATH" in
-  */plugins/*/sensors/*.md) KIND=sensor ;;
-  */plugins/*/evals/*.md)   KIND=eval ;;
-  */plugins/*/guides/*.md)  KIND=guide ;;
+  */agents/*/sensors/*.md) KIND=sensor ;;
+  */agents/*/evals/*.md)   KIND=eval ;;
+  */agents/*/guides/*.md)  KIND=guide ;;
   *) exit 0 ;;
 esac
 

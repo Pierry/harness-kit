@@ -3,7 +3,7 @@
 Type: deterministic
 Mode: hard gate
 
-Validates PR record at `outputs/pr/{feature_id}.md`.
+Validates PR record at `.claude/runtime/outputs/sse/pr/{feature_id}.md`.
 
 ## Required sections
 
@@ -29,8 +29,8 @@ Validates PR record at `outputs/pr/{feature_id}.md`.
 ## Required metadata
 
 Header must declare:
-- Source plan (path to `outputs/plan/{feature_id}.md`)
-- Source dev (path to `outputs/dev/{feature_id}.md`)
+- Source plan (path to `.claude/runtime/outputs/sse/plan/{feature_id}.md`)
+- Source dev (path to `.claude/runtime/outputs/sse/dev/{feature_id}.md`)
 - Branch
 - Date
 

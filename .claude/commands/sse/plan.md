@@ -2,35 +2,35 @@
 description: Generate an implementation plan from an approved PRP. Sensors and evals gate.
 ---
 
-Generate technical plan. Follow .claude/plugins/staff-software-engineer/guides/pipeline.md for retry, approval, publish.
+Generate technical plan. Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval, publish.
 
 Print header card before drafting and footer card after gates run. Format: .claude/scripts/stage-card.md.
 
 Source PRP: user passes path, use it. Else pick most recent in .claude/runtime/outputs/pm/prp/. None found, abort. Tell user to run /product-manager:prp first.
 
-Compute feature_id from source PRP filename (basename without .md). Save plan to .claude/plugins/staff-software-engineer/outputs/plan/{feature_id}.md so it matches.
+Compute feature_id from source PRP filename (basename without .md). Save plan to .claude/runtime/outputs/sse/plan/{feature_id}.md so it matches.
 
 Before generating, write phase start marker:
 
 ```
-.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.plan-generate.start
+.claude/runtime/outputs/sse/.markers/{feature_id}.plan-generate.start
 ```
 
 Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
 - source PRP
-- .claude/plugins/staff-software-engineer/guides/pipeline.md
-- .claude/plugins/staff-software-engineer/guides/coding-style.md
-- .claude/plugins/staff-software-engineer/guides/examples/good-plan-example.md
-- area-specific skill: .claude/plugins/staff-software-engineer/skills/{area}/SKILL.md (area = backend, web, mobile, devops)
-- project conventions if present: {repo}/.claude/conventions/{area}.md (see .claude/plugins/staff-software-engineer/guides/conventions-override.md)
+- .claude/agents/staff-software-engineer/guides/pipeline.md
+- .claude/agents/staff-software-engineer/guides/coding-style.md
+- .claude/agents/staff-software-engineer/guides/examples/good-plan-example.md
+- area-specific skill: .claude/agents/staff-software-engineer/skills/{area}/SKILL.md (area = backend, web, mobile, devops)
+- project conventions if present: {repo}/.claude/conventions/{area}.md (see .claude/agents/staff-software-engineer/guides/conventions-override.md)
 
-Save to .claude/plugins/staff-software-engineer/outputs/plan/{feature_id}.md.
+Save to .claude/runtime/outputs/sse/plan/{feature_id}.md.
 
-Sensors: .claude/plugins/staff-software-engineer/sensors/plan-structure.md.
+Sensors: .claude/agents/staff-software-engineer/sensors/plan-structure.md.
 
-Evals: .claude/plugins/staff-software-engineer/evals/plan-quality.md.
+Evals: .claude/agents/staff-software-engineer/evals/plan-quality.md.
 
 After save, reply with this exact shape (name actual sensors/evals/guides that ran):
 

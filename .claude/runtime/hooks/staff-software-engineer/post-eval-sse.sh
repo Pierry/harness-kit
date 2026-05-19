@@ -10,14 +10,16 @@
 set -euo pipefail
 
 FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
-PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+AGENT_DIR=".claude/agents/staff-software-engineer"
+OUTPUTS_DIR=".claude/runtime/outputs/sse"
+SCRIPTS_DIR=".claude/runtime/scripts/staff-software-engineer"
 
 PHASE=""
 case "$FILE_PATH" in
-  *.claude/plugins/staff-software-engineer/outputs/plan/*.md) PHASE=plan ;;
-  *.claude/plugins/staff-software-engineer/outputs/dev/*.md)  PHASE=dev  ;;
-  *.claude/plugins/staff-software-engineer/outputs/test/*.md) PHASE=test ;;
-  *.claude/plugins/staff-software-engineer/outputs/pr/*.md)   PHASE=pr   ;;
+  *.claude/runtime/outputs/sse/plan/*.md) PHASE=plan ;;
+  *.claude/runtime/outputs/sse/dev/*.md)  PHASE=dev  ;;
+  *.claude/runtime/outputs/sse/test/*.md) PHASE=test ;;
+  *.claude/runtime/outputs/sse/pr/*.md)   PHASE=pr   ;;
   *) exit 0 ;;
 esac
 
@@ -30,7 +32,7 @@ if grep -q "<!-- published:" "$FILE_PATH"; then
 fi
 
 FEATURE_ID="$(basename "$FILE_PATH" .md)"
-MARKERS_DIR="$PLUGIN_DIR/outputs/.markers"
+MARKERS_DIR="$OUTPUTS_DIR/.markers"
 mkdir -p "$MARKERS_DIR"
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -38,17 +40,17 @@ if [ -f "$MARKERS_DIR/${FEATURE_ID}.${PHASE}-validate.start" ]; then
   printf '{"timestamp":"%s"}\n' "$NOW" > "$MARKERS_DIR/${FEATURE_ID}.${PHASE}-validate.end"
 fi
 
-python3 "$PLUGIN_DIR/scripts/token-phase.py" \
+python3 "$SCRIPTS_DIR/token-phase.py" \
   --feature-id "$FEATURE_ID" \
   --phase "${PHASE}-generate" \
-  --plugin-dir "$PLUGIN_DIR" >&2 || true
+  --plugin-dir "$OUTPUTS_DIR" >&2 || true
 
-python3 "$PLUGIN_DIR/scripts/token-phase.py" \
+python3 "$SCRIPTS_DIR/token-phase.py" \
   --feature-id "$FEATURE_ID" \
   --phase "${PHASE}-validate" \
-  --plugin-dir "$PLUGIN_DIR" >&2 || true
+  --plugin-dir "$OUTPUTS_DIR" >&2 || true
 
-TOKENS_FILE="$PLUGIN_DIR/outputs/tokens/${FEATURE_ID}.json"
+TOKENS_FILE="$OUTPUTS_DIR/tokens/${FEATURE_ID}.json"
 if [ -f "$TOKENS_FILE" ]; then
   TOKENS_LINE=$(python3 -c "
 import json

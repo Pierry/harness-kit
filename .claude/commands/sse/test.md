@@ -1,5 +1,5 @@
 ---
-description: Run the project test suite. Reports results to .claude/plugins/staff-software-engineer/outputs/test/.
+description: Run the project test suite. Reports results to .claude/runtime/outputs/sse/test/.
 ---
 
 Run test suite for current repo.
@@ -17,12 +17,12 @@ Detect project test command (in order):
 Before running, write phase start marker:
 
 ```
-.claude/plugins/staff-software-engineer/outputs/.markers/{feature_id}.test-generate.start
+.claude/runtime/outputs/sse/.markers/{feature_id}.test-generate.start
 ```
 
 Run test command. Capture stdout and stderr.
 
-Save .claude/plugins/staff-software-engineer/outputs/test/{feature_id}.md with:
+Save .claude/runtime/outputs/sse/test/{feature_id}.md with:
 - command run
 - exit code
 - passed, failed counts
@@ -30,8 +30,8 @@ Save .claude/plugins/staff-software-engineer/outputs/test/{feature_id}.md with:
 - duration
 
 Document gates (run on saved report):
-- Sensor: .claude/plugins/staff-software-engineer/sensors/test-structure.md (auto-run by post-write hook)
-- Eval:   .claude/plugins/staff-software-engineer/evals/test-quality.md (you score it; threshold 8.0)
+- Sensor: .claude/agents/staff-software-engineer/sensors/test-structure.md (auto-run by post-write hook)
+- Eval:   .claude/agents/staff-software-engineer/evals/test-quality.md (you score it; threshold 8.0)
 
 Append approval marker only when exit code is 0 and test-quality eval is >= 8.0:
 
