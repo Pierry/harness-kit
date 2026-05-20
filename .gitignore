@@ -10,16 +10,29 @@ context-library/stakeholder-*.md
 context-library/writing-style-*.md
 
 # -------------------------------------------
-# Plugin outputs (artifacts of work)
+# Runtime outputs (per-session artifacts)
 # -------------------------------------------
-.claude/plugins/*/outputs/prd/
-.claude/plugins/*/outputs/prp/
-.claude/plugins/*/outputs/plan/
-.claude/plugins/*/outputs/dev/
-.claude/plugins/*/outputs/test/
-.claude/plugins/*/outputs/pr/
-.claude/plugins/*/outputs/tokens/
-!.claude/plugins/*/outputs/.markers/
+.claude/runtime/outputs/pm/prd/
+.claude/runtime/outputs/pm/prp/
+.claude/runtime/outputs/pm/tokens/
+.claude/runtime/outputs/pm/.markers/
+.claude/runtime/outputs/sse/plan/
+.claude/runtime/outputs/sse/dev/
+.claude/runtime/outputs/sse/test/
+.claude/runtime/outputs/sse/pr/
+.claude/runtime/outputs/sse/tokens/
+.claude/runtime/outputs/sse/.markers/
+
+# Pipeline / monitor state
+.claude/.pipeline-state.json
+.claude/.pr-monitor-state.json
+
+# -------------------------------------------
+# Python bytecode caches
+# -------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
 
 # -------------------------------------------
 # Claude Code local settings

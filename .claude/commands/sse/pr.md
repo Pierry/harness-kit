@@ -17,7 +17,6 @@ Before opening, write phase start marker:
 ```
 
 Read:
-- .claude/agents/staff-software-engineer/guides/pr-template.md
 - .claude/agents/staff-software-engineer/guides/commit-style.md
 - latest plan and dev outputs (for body content)
 
@@ -56,7 +55,7 @@ PR opened: {url}
   draft:   {yes|no}
   sensors: pr-structure ok
   eval:    pr-quality {N}/10
-  guides:  pr-template.md, commit-style.md
+  guides:  commit-style.md
   refs:    plan/{feature_id}.md, dev/{feature_id}.md
   next:    request review (if draft, mark ready when checks pass)
 ```

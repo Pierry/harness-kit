@@ -70,4 +70,4 @@ To merge with PM tokens file, SSE token-phase.py writes to same path under this 
 
 ## Conventions override
 
-Before any code generation, read `guides/conventions-override.md` and check `cwd/.claude/conventions/{area}.md`. Project-specific rules win over plugin defaults.
+Before any code generation, read `guides/conventions-override.md` and check `cwd/.claude/conventions/{area}.md`. Project-specific rules win over agent defaults.

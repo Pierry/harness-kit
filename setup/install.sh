@@ -96,6 +96,10 @@ for s in pipeline.py activity.py pr-monitor.py; do
 done
 cp "$SOURCE_ROOT/.claude/scripts/stage-card.md" "$TARGET/.claude/scripts/stage-card.md"
 
+# 6.5) Strip any __pycache__/.pyc that hitched a ride from the source repo
+find "$TARGET/.claude" -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
+find "$TARGET/.claude" -name "*.pyc" -type f -delete 2>/dev/null || true
+
 # 7) settings.json (back up existing if content differs)
 if [ -f "$TARGET/.claude/settings.json" ]; then
   STAMP="$(date +%Y%m%d-%H%M%S)"

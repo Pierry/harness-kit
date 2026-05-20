@@ -38,7 +38,7 @@ export const Intro = () => {
           }}
         >
           <span style={{ width: 8, height: 8, borderRadius: 999, background: theme.color.accent }} />
-          claude code · plugin harness · v3.0.0
+          claude code · AGENTS.md harness · v4.0.0
         </div>
         <div
           style={{

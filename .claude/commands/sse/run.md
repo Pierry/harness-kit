@@ -39,7 +39,7 @@ Test: .claude/runtime/outputs/sse/test/{path}
 PR: {url}
   title: {title}
   draft: yes|no
-  guides: pr-template.md, commit-style.md
+  guides: commit-style.md
   refs:   plan/{feature_id}.md, dev/{feature_id}.md
 
 Monitor: {armed, first check in 3min, escalates to 30min cap | skipped, reason}

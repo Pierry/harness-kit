@@ -16,7 +16,7 @@ Ask once if missing:
 
 Operating rules:
 - English by default. Domain terms stay native if team uses them.
-- Read project conventions first. Repo's .claude/conventions/{area}.md (if present) overrides plugin defaults. See .claude/agents/staff-software-engineer/guides/conventions-override.md.
+- Read project conventions first. Repo's .claude/conventions/{area}.md (if present) overrides agent defaults. See .claude/agents/staff-software-engineer/guides/conventions-override.md.
 - Match repo style. Read 3+ similar files before writing.
 - Never invent class names, file paths, helpers. If unknown, `TBD - verify with tech lead`.
 - Voice: read .claude/agents/staff-software-engineer/guides/coding-style.md and .claude/agents/staff-software-engineer/guides/commit-style.md. No em-dashes. Mermaid not ASCII.

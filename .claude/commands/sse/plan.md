@@ -22,7 +22,6 @@ Read:
 - source PRP
 - .claude/agents/staff-software-engineer/guides/pipeline.md
 - .claude/agents/staff-software-engineer/guides/coding-style.md
-- .claude/agents/staff-software-engineer/guides/examples/good-plan-example.md
 - area-specific skill: .claude/agents/staff-software-engineer/skills/{area}/SKILL.md (area = backend, web, mobile, devops)
 - project conventions if present: {repo}/.claude/conventions/{area}.md (see .claude/agents/staff-software-engineer/guides/conventions-override.md)
 

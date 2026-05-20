@@ -1,6 +1,6 @@
 # Conventions Override
 
-How project-specific conventions override plugin defaults.
+How project-specific conventions override agent defaults.
 
 ## Path
 
@@ -26,7 +26,7 @@ When skill or command generates code:
 2. Check if `cwd/.claude/conventions/{area}.md` exists.
 3. If yes, read it. Rules override or add to defaults.
 4. On conflict, project wins.
-5. No project file, use plugin defaults only.
+5. No project file, use agent defaults only.
 
 ## What goes in project conventions file
 
@@ -58,7 +58,7 @@ Keep short. Document what is DIFFERENT, not what is shared with defaults.
 
 ## Avoiding drift
 
-If convention you wrote for repo applies to others, consider promoting to plugin defaults (skills/{area}/SKILL.md). Per-repo files hold genuine repo-specific decisions.
+If convention you wrote for repo applies to others, consider promoting to agent defaults (skills/{area}/SKILL.md). Per-repo files hold genuine repo-specific decisions.
 
 ## Versioning
 

@@ -4,6 +4,8 @@ import { loadFont as loadMono } from '@remotion/google-fonts/JetBrainsMono';
 import { theme } from './theme';
 import { Intro } from './scenes/Intro';
 import { Pipeline } from './scenes/Pipeline';
+import { Agents } from './scenes/Agents';
+import { Skills } from './scenes/Skills';
 import { Install } from './scenes/Install';
 import { StatusBarExplain } from './scenes/StatusBarExplain';
 import { DynamicStatusBar } from './scenes/DynamicStatusBar';
@@ -13,6 +15,7 @@ import { CommandPlan } from './scenes/CommandPlan';
 import { CommandDev } from './scenes/CommandDev';
 import { CommandTest } from './scenes/CommandTest';
 import { CommandPR } from './scenes/CommandPR';
+import { SensorsEvalsMatrix } from './scenes/SensorsEvalsMatrix';
 import { Summary } from './scenes/Summary';
 import { Resume } from './scenes/Resume';
 import { Anatomy } from './scenes/Anatomy';
@@ -35,21 +38,24 @@ type SceneSpec = {
 const s = (sec: number) => sec * FPS;
 
 export const scenes: SceneSpec[] = [
-  { id: 'intro',    component: Intro,            duration: s(4),  status: null },
-  { id: 'pipeline', component: Pipeline,         duration: s(7),  status: { skill: '—', stage: 'overview', next: '—' } },
-  { id: 'install',  component: Install,          duration: s(8),  status: { skill: 'installer', stage: 'install', next: 'restart claude code' } },
-  { id: 'sb',       component: StatusBarExplain, duration: s(5),  status: { skill: '—', stage: 'idle', next: '/product-manager:run · /sse:run · /pipeline:continue' } },
-  { id: 'sbdyn',    component: DynamicStatusBar, duration: s(9),  status: { skill: 'status bar', stage: 'live shape · live state', next: 'reflects every action' } },
-  { id: 'prd',      component: CommandPRD,       duration: s(10), status: { skill: 'product-manager:prd',  stage: 'prd drafting',  next: '/product-manager:prd  →  approve' } },
-  { id: 'prp',      component: CommandPRP,       duration: s(10), status: { skill: 'product-manager:prp',  stage: 'prp drafting',  next: '/product-manager:prp  →  approve' } },
-  { id: 'plan',     component: CommandPlan,      duration: s(8),  status: { skill: 'sse:plan',             stage: 'plan drafting', next: '/sse:plan  →  approve' } },
-  { id: 'dev',      component: CommandDev,       duration: s(8),  status: { skill: 'sse:dev (backend)',    stage: 'dev running',   next: '/sse:dev  →  approve' } },
-  { id: 'test',     component: CommandTest,      duration: s(5),  status: { skill: 'sse:test',             stage: 'test running',  next: '/sse:test  →  approve' } },
-  { id: 'pr',       component: CommandPR,        duration: s(7),  status: { skill: 'sse:pr + pr-monitor',  stage: 'pr opening',    next: 'auto-watch PR · 3min → 30min cap' } },
-  { id: 'summary',  component: Summary,          duration: s(10), status: { skill: 'pipeline complete',    stage: 'summary',       next: 'every sensor · eval · guide named' } },
-  { id: 'resume',   component: Resume,           duration: s(8),  status: { skill: 'pipeline:continue',    stage: 'resume',        next: 'next pending stage' } },
-  { id: 'anatomy',  component: Anatomy,          duration: s(8),  status: { skill: 'anatomy of a stage',   stage: 'guide · sensor · eval · refs', next: 'every stage runs this loop' } },
-  { id: 'outro',    component: Outro,            duration: s(5),  status: null },
+  { id: 'intro',    component: Intro,             duration: s(4),  status: null },
+  { id: 'pipeline', component: Pipeline,          duration: s(7),  status: { skill: '—', stage: 'overview', next: '—' } },
+  { id: 'agents',   component: Agents,            duration: s(6),  status: { skill: 'AGENTS.md', stage: 'registry', next: 'product-manager · staff-software-engineer' } },
+  { id: 'skills',   component: Skills,            duration: s(6),  status: { skill: 'agent skills', stage: 'area + role', next: 'loaded per stage' } },
+  { id: 'install',  component: Install,           duration: s(8),  status: { skill: 'installer', stage: 'install', next: 'restart claude code' } },
+  { id: 'sb',       component: StatusBarExplain,  duration: s(5),  status: { skill: '—', stage: 'idle', next: '/product-manager:run · /sse:run · /pipeline:continue' } },
+  { id: 'sbdyn',    component: DynamicStatusBar,  duration: s(9),  status: { skill: 'status bar', stage: 'live shape · live state', next: 'reflects every action' } },
+  { id: 'prd',      component: CommandPRD,        duration: s(10), status: { skill: 'product-manager:prd',  stage: 'prd drafting',  next: '/product-manager:prd  →  approve' } },
+  { id: 'prp',      component: CommandPRP,        duration: s(10), status: { skill: 'product-manager:prp',  stage: 'prp drafting',  next: '/product-manager:prp  →  approve' } },
+  { id: 'plan',     component: CommandPlan,       duration: s(8),  status: { skill: 'sse:plan',             stage: 'plan drafting', next: '/sse:plan  →  approve' } },
+  { id: 'dev',      component: CommandDev,        duration: s(8),  status: { skill: 'sse:dev (backend)',    stage: 'dev running',   next: '/sse:dev  →  approve' } },
+  { id: 'test',     component: CommandTest,       duration: s(5),  status: { skill: 'sse:test',             stage: 'test running',  next: '/sse:test  →  approve' } },
+  { id: 'pr',       component: CommandPR,         duration: s(7),  status: { skill: 'sse:pr + pr-monitor',  stage: 'pr opening',    next: 'auto-watch PR · 3min → 30min cap' } },
+  { id: 'matrix',   component: SensorsEvalsMatrix,duration: s(7),  status: { skill: 'gates', stage: 'sensors + evals per stage', next: 'pass/fail + score ≥ 8.0' } },
+  { id: 'summary',  component: Summary,           duration: s(10), status: { skill: 'pipeline complete',    stage: 'summary',       next: 'every sensor · eval · guide named' } },
+  { id: 'resume',   component: Resume,            duration: s(8),  status: { skill: 'pipeline:continue',    stage: 'resume',        next: 'next pending stage' } },
+  { id: 'anatomy',  component: Anatomy,           duration: s(8),  status: { skill: 'anatomy of a stage',   stage: 'guide · sensor · eval · refs', next: 'every stage runs this loop' } },
+  { id: 'outro',    component: Outro,             duration: s(5),  status: null },
 ];
 
 export const DURATION_FRAMES = scenes.reduce((acc, x) => acc + x.duration, 0);
