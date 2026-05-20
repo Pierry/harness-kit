@@ -4,7 +4,7 @@
 
 From idea to merged PR. One pipeline. Six stages.
 
-[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.0.1-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-AGENTS.md-8b5cf6.svg)](https://claude.ai/code)
 [![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -48,6 +48,61 @@ bash ~/.harness-kit/setup/install.sh
 ```
 
 CLI: `hk install` · `hk update` · `hk uninstall` · `hk status` · `hk version`.
+
+---
+
+## Getting started
+
+Pick the flow that matches the task. All of them share the same pipeline state, so you can switch between them mid-feature.
+
+### Big task — full pipeline (PM + Eng)
+
+A new feature with stakes, ambiguity, or a Jira ticket attached. You want a written PRD, a thought-through PRP, a plan, code, tests, and a PR.
+
+```
+/product-manager:run     # drafts PRD then PRP, with sensor + eval gates
+/sse:run                 # plans, implements, tests, opens PR, watches for merge
+```
+
+Approve each artifact when prompted. The status bar tracks where you are in the six stages.
+
+### Spec only — no code yet
+
+You need the PRD and PRP to align with stakeholders before any engineering work. Stop after the PRP.
+
+```
+/product-manager:run
+```
+
+When eng is ready, hand them the repo and they run `/sse:run` against the approved PRP.
+
+### Dev only — small change, plan in your head
+
+A bug fix, a small enhancement, or a refactor where writing a PRD would be theatre. Skip PM, run engineering directly.
+
+```
+/sse:run                 # plan → dev → test → PR
+```
+
+Or run a single stage if that's all you need:
+
+```
+/sse:plan                # just the plan
+/sse:dev                 # just the code (against an approved plan)
+/sse:test                # just the tests
+/sse:pr                  # just open the PR
+```
+
+### Resume — pick up where you left off
+
+Closed the session, restarted Claude Code, or got interrupted. State persists at `.claude/.pipeline-state.json`.
+
+```
+/pipeline:continue       # next pending stage for the active feature
+/pipeline:reset          # abandon the active run and start fresh
+```
+
+When the PR merges, the in-session monitor clears state automatically.
 
 ---
 

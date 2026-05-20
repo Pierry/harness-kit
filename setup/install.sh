@@ -61,17 +61,17 @@ mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TAR
 for agent in product-manager staff-software-engineer; do
   rm -rf "$TARGET/.claude/runtime/hooks/$agent"
   cp -R "$SOURCE_ROOT/.claude/runtime/hooks/$agent" "$TARGET/.claude/runtime/hooks/$agent"
-  rm -rf "$TARGET/.claude/runtime/scripts/$agent"
-  cp -R "$SOURCE_ROOT/.claude/runtime/scripts/$agent" "$TARGET/.claude/runtime/scripts/$agent"
 done
 
-# Re-resolve symlinks in SSE scripts (point at PM's shared utilities)
-for f in "$TARGET/.claude/runtime/scripts/staff-software-engineer/"*; do
-  if [ -L "$f" ]; then
-    name="$(basename "$f")"
-    rm "$f"
-    ln -sf "../product-manager/$name" "$f"
-  fi
+# PM scripts: copy real files. SSE scripts: build dir of symlinks → PM's shared utilities.
+# (SSE scripts in source repo are symlinks; npm pack drops symlinks, so we recreate target-side.)
+rm -rf "$TARGET/.claude/runtime/scripts/product-manager"
+cp -R "$SOURCE_ROOT/.claude/runtime/scripts/product-manager" "$TARGET/.claude/runtime/scripts/product-manager"
+
+rm -rf "$TARGET/.claude/runtime/scripts/staff-software-engineer"
+mkdir -p "$TARGET/.claude/runtime/scripts/staff-software-engineer"
+for name in sensor-runner.py token-phase.py; do
+  ln -sf "../product-manager/$name" "$TARGET/.claude/runtime/scripts/staff-software-engineer/$name"
 done
 
 # 4) Slash commands
