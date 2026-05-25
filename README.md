@@ -13,7 +13,7 @@ From idea to merged PR. One pipeline. Six stages. Or spec-driven loop until the 
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>~2min walkthrough · agents · skills · install · 6 commands · sensors+evals matrix · auto-watch PR until merged.</sub>
+<sub>70s walkthrough · three ways to ship · SDD loop · context tools · install. Based on Claude Code <code>/goal</code> pattern.</sub>
 
 </div>
 

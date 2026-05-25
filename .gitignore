@@ -33,6 +33,7 @@ context-library/writing-style-*.md
 # Pipeline / monitor state
 .claude/.pipeline-state.json
 .claude/.pr-monitor-state.json
+.claude/scheduled_tasks.lock
 
 # -------------------------------------------
 # Python bytecode caches
