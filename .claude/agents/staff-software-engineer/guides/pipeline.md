@@ -9,6 +9,12 @@ Shared rules for plan, dev, test, pr stages. Edit retry, approval, publish, toke
 3. test: run project test suite. Capture results.
 4. pr: open draft PR with standard template.
 
+### Variants
+
+- `/sse:run` runs 1→4 sequentially.
+- `/sse:run --local` runs 1→3, skips 4. Use for local dev+test without push.
+- `/sse:sdd` replaces 2+3 with goal-loop: dev↔test↔spec-satisfied eval, cap 3 iters, predicate from PRP. Stops local. See `sdd-loop.md`.
+
 ## Retry policy
 
 Max attempts per stage: 3.
@@ -67,6 +73,7 @@ To merge with PM tokens file, SSE token-phase.py writes to same path under this 
 - tests fail after dev
 - gh CLI not available for pr stage
 - missing required input after one clarification
+- SDD: 3 loop iters complete without spec-satisfied PASS verdict
 
 ## Conventions override
 

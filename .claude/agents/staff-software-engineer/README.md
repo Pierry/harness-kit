@@ -10,9 +10,12 @@ Registered in [`AGENTS.md`](../../../AGENTS.md). Agent definition: [`staff-softw
 - `/sse:dev`: implement the plan in code, run convention gates
 - `/sse:test`: run the project test suite
 - `/sse:pr`: open the draft PR
-- `/sse:run`: full pipeline, plan to pr
+- `/sse:run`: full pipeline, plan to pr. Flags: `--local` (stop before PR), `--sdd` (hand off to spec-driven loop), `--no-monitor` (skip PR monitor only)
+- `/sse:sdd`: spec-driven dev loop. Plan once, then dev↔test↔spec-satisfied eval until PRP spec met. Cap 3 iters. Local only — never auto-opens PR.
 
 Also invokable as sub-agent via Task tool with `subagent_type: "staff-software-engineer"`.
+
+Optional context helpers (separate namespace, manual): `/context:pack <feature_id>` and `/context:graph [repo]`. Plan stage + SDD supervisor eval consult the cache when present. See [`.claude/shared/context-strategy.md`](../../../.claude/shared/context-strategy.md).
 
 ## Tree
 
@@ -25,23 +28,28 @@ Also invokable as sub-agent via Task tool with `subagent_type: "staff-software-e
 │   ├── mobile/SKILL.md                    iOS/Android defaults
 │   └── devops/SKILL.md                    CI/IaC defaults
 ├── guides/
-│   ├── pipeline.md                        retry, approval, token accounting
+│   ├── pipeline.md                        retry, approval, token accounting, variants (--local, sdd)
+│   ├── sdd-loop.md                        spec-driven loop algorithm, predicate from PRP
 │   ├── coding-style.md                    team code style
 │   ├── commit-style.md                    Conventional Commits with TICKET
 │   └── conventions-override.md            how project overrides work
-├── sensors/                               plan, dev, test, pr structure + conventions
-└── evals/                                 plan/dev/test/pr quality rubrics
+├── sensors/                               plan, dev, test, pr structure + conventions + prp-has-acceptance-criteria (sdd pre-flight)
+└── evals/                                 plan/dev/test/pr quality rubrics + spec-satisfied (sdd supervisor)
 
 .claude/runtime/                          ← state + outputs
 ├── hooks/staff-software-engineer/         phase markers, sensor gates
 ├── scripts/staff-software-engineer/       symlinks to PM scripts (sensor-runner, token-phase)
-└── outputs/sse/
-    ├── plan/                              generated plans
-    ├── dev/                               dev summaries
-    ├── test/                              test results
-    ├── pr/                                opened PR records
-    ├── tokens/                            per-feature phase tokens JSON
-    └── .markers/                          phase start/end markers (transient)
+├── outputs/sse/
+│   ├── plan/                              generated plans
+│   ├── dev/                               dev summaries
+│   ├── test/                              test results
+│   ├── pr/                                opened PR records
+│   ├── sdd/                               sdd-loop transcripts (per-iter eval verdicts)
+│   ├── tokens/                            per-feature phase tokens JSON
+│   └── .markers/                          phase start/end markers (transient)
+└── cache/                                 optional context tools (gitignored)
+    ├── repomix/{feature_id}.xml           per-feature snapshot (ephemeral, cleared on /pipeline:reset)
+    └── graphify/{slug}/graphify-out/      per-repo knowledge graph (long-lived, manual rebuild)
 ```
 
 ## How conventions work
@@ -73,6 +81,12 @@ Plugin skills read both. Project rules win. See `guides/conventions-override.md`
 | Test command detection | commands/test.md |
 | PR template | commands/pr.md, hooks/post-eval-pr.sh |
 | Sensors | sensors/*.md |
+| SDD loop algorithm | guides/sdd-loop.md |
+| SDD iter cap | guides/sdd-loop.md + commands/sdd.md |
+| SDD predicate rubric | evals/spec-satisfied.md |
+| SDD pre-flight check | sensors/prp-has-acceptance-criteria.md |
+| --local behavior | commands/run.md (## Flags) |
+| Context tier order | ../../shared/context-strategy.md |
 
 ## Connects to PM plugin
 

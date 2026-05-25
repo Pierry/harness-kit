@@ -31,8 +31,10 @@ CLAUDE.md                          ← project context (style, role, conventions
 │   └── staff-software-engineer.md orchestrator agent
 ├── commands/                      ← slash-command entry points
 │   ├── product-manager/           /product-manager:{prd,prp,run}
-│   ├── sse/                       /sse:{plan,dev,test,pr,run}
+│   ├── sse/                       /sse:{plan,dev,test,pr,run,sdd}
+│   ├── context/                   /context:{pack,graph}
 │   └── pipeline/                  /pipeline:{continue,reset}
+├── shared/                        ← cross-agent guides (context-strategy.md)
 ├── conventions/                   ← generic conventions (overridable per repo)
 ├── hooks/                         ← root lifecycle hooks (session-start, prompt, postedit, postwrite, status-line, activity-pre-read)
 ├── scripts/                       ← root utilities (pipeline.py, activity.py, pr-monitor.py)
@@ -58,6 +60,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 |---|---|---|---|
 | `product-manager` | Generate PRD then PRP for a squad/feature | `/product-manager:run` | `.claude/agents/product-manager.md` |
 | `staff-software-engineer` | Full engineering pipeline: plan → dev → test → pr | `/sse:run` | `.claude/agents/staff-software-engineer.md` |
+| `staff-software-engineer` (sdd) | Spec-driven dev loop, local only: plan once + dev↔test↔eval until PRP spec met | `/sse:sdd` | `.claude/agents/staff-software-engineer/guides/sdd-loop.md` |
 
 ---
 
@@ -75,6 +78,10 @@ When the user types a slash command, the entry point is unambiguous. When the us
 | "implement the plan" | `/sse:dev` |
 | "run tests" | `/sse:test` |
 | "open the PR" | `/sse:pr` |
+| "dev + test locally, no PR" | `/sse:run --local` |
+| "spec-driven loop until PRP met" | `/sse:sdd` |
+| "snapshot a repo for AI context" | `/context:pack <feature_id>` |
+| "build knowledge graph of a repo" | `/context:graph` |
 | "continue the active pipeline" | `/pipeline:continue` |
 | "abandon active feature" | `/pipeline:reset` |
 
@@ -94,6 +101,21 @@ Each stage:
 
 Phase markers under `.claude/runtime/outputs/{pm,sse}/.markers/` track stage boundaries (`{feature}.{phase}.{start,end}`) for token accounting and pipeline status.
 
+### SDD variant
+
+`/sse:sdd` adds a spec-driven loop replacing the single-shot `dev → test`:
+
+```
+prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval]  →  [user gate]  →  pr
+                          ↑ loop, cap 3 iters             stops local
+```
+
+- Predicate built from PRP `## 3) What → Success criteria (verifiable)` + `## 6) Validation gates`.
+- Pre-flight sensor `prp-has-acceptance-criteria` blocks if PRP not testable.
+- Per-iter supervisor eval `spec-satisfied` runs in fresh session (no worker context).
+- Transcript at `.claude/runtime/outputs/sse/sdd/{feature_id}.md`.
+- PR never auto-opened. User triggers `/sse:pr` after reviewing transcript.
+
 ---
 
 ## Runtime (state, outputs, hooks)
@@ -103,7 +125,8 @@ Generated artifacts and lifecycle hooks live under `.claude/runtime/`.
 | Path | Contents |
 |---|---|
 | `runtime/outputs/pm/{prd,prp,tokens,.markers}/` | PRD/PRP artifacts, token JSONs, phase markers |
-| `runtime/outputs/sse/{plan,dev,test,pr,tokens,.markers}/` | Plan/dev/test/pr artifacts, token JSONs, phase markers |
+| `runtime/outputs/sse/{plan,dev,test,pr,sdd,tokens,.markers}/` | Plan/dev/test/pr/sdd-loop artifacts, token JSONs, phase markers |
+| `runtime/cache/{repomix,graphify}/` | Optional context cache: repomix snapshots (per feature_id) + graphify graphs (per repo). See `.claude/shared/context-strategy.md` |
 | `runtime/hooks/<agent>/` | Per-agent lifecycle hooks (post-write, post-eval, pre-prp-check) |
 | `runtime/scripts/<agent>/` | Per-agent utilities (sensor-runner, token-phase, link-validator, confluence-publish) |
 

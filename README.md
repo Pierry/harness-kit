@@ -2,9 +2,9 @@
 
 # harness-kit
 
-From idea to merged PR. One pipeline. Six stages.
+From idea to merged PR. One pipeline. Six stages. Or spec-driven loop until the spec is met.
 
-[![Version](https://img.shields.io/badge/version-4.0.1-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-AGENTS.md-8b5cf6.svg)](https://claude.ai/code)
 [![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -28,6 +28,15 @@ prd → prp → plan → dev → test → pr
 ```
 
 Each stage produces a markdown artifact, gated by **deterministic sensors** (pass/fail) and a **scored eval** (≥ 8.0). After the PR opens, an in-session monitor watches for merge.
+
+For local-only work, two extra modes skip the PR stage:
+
+```
+/sse:run --local          plan → dev → test → STOP            (single shot, no loop)
+/sse:sdd                  plan → [dev↔test↔eval]×3 → STOP     (spec-driven goal loop)
+```
+
+`/sse:sdd` is the SDD variant: the PRP is the spec, and an independent supervisor session re-checks the repo against `Success criteria (verifiable)` + `Validation gates` after every dev↔test iteration. PR is never auto-opened — user runs `/sse:pr` after reviewing the loop transcript.
 
 ---
 
@@ -82,6 +91,7 @@ A bug fix, a small enhancement, or a refactor where writing a PRD would be theat
 
 ```
 /sse:run                 # plan → dev → test → PR
+/sse:run --local         # plan → dev → test, stop before PR (push manually later)
 ```
 
 Or run a single stage if that's all you need:
@@ -92,6 +102,18 @@ Or run a single stage if that's all you need:
 /sse:test                # just the tests
 /sse:pr                  # just open the PR
 ```
+
+### Spec-driven loop — iterate locally until the PRP is satisfied
+
+You have an approved PRP and want Claude to loop dev↔test until the spec actually passes, judged by an independent supervisor session. No PR until you say so.
+
+```
+/sse:sdd                 # plan once + dev↔test↔spec-satisfied eval, cap 3 iters
+# review .claude/runtime/outputs/sse/sdd/{feature_id}.md
+/sse:pr                  # manual gate when ready
+```
+
+The loop predicate is built from the PRP's `Success criteria (verifiable)` and `Validation gates` sections — both must be present and concrete, or the `prp-has-acceptance-criteria` sensor blocks before the first iteration runs. Cap hit without a PASS verdict returns a blocker listing the unmet criteria.
 
 ### Resume — pick up where you left off
 
@@ -111,6 +133,10 @@ When the PR merges, the in-session monitor clears state automatically.
 ```
 /product-manager:run           draft PRD then PRP
 /sse:run                       plan, dev, test, open PR, watch for merge
+/sse:run --local               plan, dev, test — stop before PR
+/sse:sdd                       spec-driven loop: dev↔test↔eval until PRP met, no PR
+/context:pack <feature_id>     repomix snapshot of target repo (per-feature cache)
+/context:graph [repo]          graphify knowledge graph of a target repo (per-repo cache)
 /pipeline:continue             resume next pending stage
 /pipeline:reset                abandon active run
 ```
@@ -125,8 +151,9 @@ Need just one stage? Each is its own slash command:
 | `dev` | `/sse:dev` | `code-conventions`, `test-coverage`, `dev-structure` · `dev-quality` |
 | `test` | `/sse:test` | `test-structure` · `test-quality` |
 | `pr` | `/sse:pr` | `pr-structure` · `pr-quality` · auto-arms `/sse:pr-monitor` |
+| `sdd` | `/sse:sdd` | `prp-has-acceptance-criteria` (pre-flight) · `spec-satisfied` per iter (fresh session) · cap 3 iters |
 
-Sensors block on failure (Claude regenerates). Evals score; threshold 8.0; retried up to 3 times.
+Sensors block on failure (Claude regenerates). Evals score; threshold 8.0; retried up to 3 times. SDD eval returns PASS/FAIL — FAIL re-enters the loop with a `next_iter_focus` hint.
 
 ---
 
@@ -142,12 +169,13 @@ Registered in [`AGENTS.md`](./AGENTS.md) at the repo root. Each ships its own se
 - Guides: `pipeline.md`, `prd-guidelines.md`, `prp-guidelines.md`, `writing-style.md`, `templates/`, `examples/`
 - [Full docs →](.claude/agents/product-manager/README.md)
 
-### `staff-software-engineer` — turns an approved PRP into a merged PR
+### `staff-software-engineer` — turns an approved PRP into a merged PR (or a satisfied spec)
 
 - Skills: `backend`, `web`, `mobile`, `devops` (auto-detected from repo)
-- Sensors: 6 (`plan-structure`, `code-conventions`, `test-coverage`, `dev-structure`, `test-structure`, `pr-structure`)
-- Evals: 4 (`plan`, `dev`, `test`, `pr` quality)
-- Guides: `pipeline.md`, `coding-style.md`, `commit-style.md`, `conventions-override.md`
+- Sensors: 7 (`plan-structure`, `code-conventions`, `test-coverage`, `dev-structure`, `test-structure`, `pr-structure`, `prp-has-acceptance-criteria`)
+- Evals: 5 (`plan`, `dev`, `test`, `pr` quality; `spec-satisfied` supervisor for SDD loop)
+- Guides: `pipeline.md`, `coding-style.md`, `commit-style.md`, `conventions-override.md`, `sdd-loop.md`
+- Modes: `/sse:run` (full pipeline), `/sse:run --local` (skip PR), `/sse:sdd` (spec-driven loop)
 - [Full docs →](.claude/agents/staff-software-engineer/README.md)
 
 ---
@@ -201,13 +229,15 @@ What `hk install` lays down in your repo:
 ├── CLAUDE.md                    workspace style + role
 └── .claude/
     ├── agents/                  agent definitions (sensors, evals, guides, skills)
-    ├── commands/                slash command entry points
+    ├── commands/                slash command entry points (pm, sse, context, pipeline)
+    ├── shared/                  cross-agent guides (context-strategy.md)
     ├── hooks/                   status-line + lifecycle hooks
-    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py
+    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · pack-repo.sh · graph-repo.sh
     ├── runtime/
     │   ├── hooks/<agent>/       per-agent lifecycle (post-write, post-eval, pre-prp-check)
     │   ├── scripts/<agent>/     per-agent utilities (sensor-runner, token-phase, link-validator)
-    │   └── outputs/{pm,sse}/    generated artifacts, markers, tokens
+    │   ├── outputs/{pm,sse}/    generated artifacts, markers, tokens (incl. sse/sdd/ loop transcripts)
+    │   └── cache/               repomix packs + graphify graphs (optional, gitignored)
     ├── conventions/             your per-repo overrides
     └── settings.json            hook wiring
 ```
@@ -218,14 +248,25 @@ Full path-by-path map in [`AGENTS.md`](./AGENTS.md).
 
 ## Tooling
 
-| Tool | Why |
-|------|-----|
-| [Claude Code](https://claude.ai/code) | agent runtime |
-| python3 | sensors, token accounting, pipeline state |
-| [gh CLI](https://cli.github.com/) | opens PR, polls for merge |
-| git | branch + commit ops |
+| Tool | Why | Required |
+|------|-----|----------|
+| [Claude Code](https://claude.ai/code) | agent runtime | yes |
+| python3 | sensors, token accounting, pipeline state | yes |
+| [gh CLI](https://cli.github.com/) | opens PR, polls for merge | for `/sse:pr` |
+| git | branch + commit ops | yes |
+| [repomix](https://repomix.com) | snapshot target repo for AI context (`/context:pack`) | optional |
+| [graphify](https://github.com/safishamsi/graphify) | queryable knowledge graph of a repo (`/context:graph`) | optional |
 
-Optional: `jq` for token JSON queries. `JIRA_USERNAME` + `JIRA_API_TOKEN` to publish PRD/PRP to Confluence.
+Install optional tools:
+
+```bash
+npm i -g repomix           # or: brew install repomix
+uv tool install graphifyy  # or: pipx install graphifyy   (CLI cmd is `graphify`)
+```
+
+`hk install` detects both and prints a hint if missing — never auto-installs. See [`.claude/shared/context-strategy.md`](.claude/shared/context-strategy.md) for when each tier is worth it (grep vs pack vs graph).
+
+Other optional: `jq` for token JSON queries. `JIRA_USERNAME` + `JIRA_API_TOKEN` to publish PRD/PRP to Confluence.
 
 ---
 

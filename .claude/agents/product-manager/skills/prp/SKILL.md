@@ -25,8 +25,14 @@ Read:
 - guides/templates/prp.md
 - guides/pipeline.md
 - guides/examples/good-prp-example.md
+- .claude/shared/context-strategy.md — pick the right tier when exploring target repos
 
-Explore target repos. Ask user for repo paths if not provided. Use Grep and Read to map files. Capture file:line. Never invent paths.
+Explore target repos. Ask user for repo paths if not provided. Use the context-strategy tier order:
+1. Cached graphify graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → query for symbols/callers (much cheaper than grep)
+2. Cached repomix pack at `.claude/runtime/cache/repomix/*.xml` → read for full file content
+3. Fall back to Grep + Read on live repo
+
+Capture file:line. Never invent paths. If a target repo is large + uncached, suggest the user run `/context:graph {repo}` before continuing — don't auto-build.
 
 Save to .claude/runtime/outputs/pm/prp/{feature_id}.md.
 

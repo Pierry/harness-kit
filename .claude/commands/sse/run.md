@@ -1,15 +1,25 @@
 ---
-description: Run the full engineering pipeline. Plan, dev, test, pr in sequence.
+description: Run the full engineering pipeline. Plan, dev, test, pr in sequence. Pass --local to stop after test (no PR). Pass --sdd for spec-driven loop variant.
 ---
 
 Run end to end.
 
-1. Invoke /sse:plan. Wait for approval marker on plan.
-2. Invoke /sse:dev. Implements plan in code.
-3. Invoke /sse:test. Runs project test suite.
-4. Invoke /sse:pr. Opens pull request.
-5. Invoke /sse:pr-monitor. Arms backoff polling, auto-clears pipeline state on merge. Skip if user passed `--no-monitor` or `gh pr view` already returns MERGED.
-6. Return summary.
+## Flags
+
+- `--local`: skip /sse:pr + /sse:pr-monitor. Stop after /sse:test. Use when want dev+test locally without push.
+- `--sdd`: hand off to `/sse:sdd` instead (spec-driven loop, plan once + dev↔test↔eval loop, also local-only). See `.claude/commands/sse/sdd.md`. Mutually exclusive with `--local`.
+- `--no-monitor`: skip /sse:pr-monitor only. PR still opens.
+
+## Steps
+
+1. `--sdd` set → invoke /sse:sdd with same args (minus --sdd). Return its result. Skip rest.
+2. Invoke /sse:plan. Wait for approval marker on plan.
+3. Invoke /sse:dev. Implements plan in code.
+4. Invoke /sse:test. Runs project test suite.
+5. `--local` set → stop here. Print summary (omit PR + Monitor lines). Tell user `next: review diff, /sse:pr when ready`.
+6. Invoke /sse:pr. Opens pull request.
+7. Invoke /sse:pr-monitor. Arms backoff polling, auto-clears pipeline state on merge. Skip if user passed `--no-monitor` or `gh pr view` already returns MERGED.
+8. Return summary.
 
 Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
 

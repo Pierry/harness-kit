@@ -51,11 +51,23 @@ Engineering pipeline. Slash commands:
 - `/sse:dev` implement the plan, run convention gates
 - `/sse:test` run repo tests
 - `/sse:pr` open the draft PR
-- `/sse:run` full SSE pipeline
+- `/sse:run` full SSE pipeline. `--local` skip PR. `--sdd` use spec-driven loop variant.
+- `/sse:sdd` spec-driven dev loop. Plan once + dev↔test↔eval loop until PRP spec satisfied. Local only, no PR.
 
 Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claude/agents/staff-software-engineer/`.
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
+
+SDD variant: `prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] → [user gate] → pr`. Loop cap 3 iters. Predicate built from PRP "Success criteria (verifiable)" + "Validation gates". See `.claude/agents/staff-software-engineer/guides/sdd-loop.md`.
+
+### context tools (optional, manual)
+
+Two opt-in helpers for big target repos. Both bind to external CLIs; missing binary → cmd prints install hint.
+
+- `/context:pack <feature_id>` — `repomix` snapshot to `.claude/runtime/cache/repomix/{feature_id}.xml`. Ephemeral per feature. Cleared on `/pipeline:reset`.
+- `/context:graph [repo]` — `graphify` knowledge graph to `.claude/runtime/cache/graphify/{slug}/graphify-out/`. Long-lived per repo, code-only mode needs no API key (Tree-sitter local).
+
+PRP, plan, and SDD supervisor eval consult cache when present and fall back to grep otherwise. Tier order + when-to-use in `.claude/shared/context-strategy.md`.
 
 ## Project conventions override
 

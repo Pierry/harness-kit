@@ -20,8 +20,15 @@ context-library/writing-style-*.md
 .claude/runtime/outputs/sse/dev/
 .claude/runtime/outputs/sse/test/
 .claude/runtime/outputs/sse/pr/
+.claude/runtime/outputs/sse/sdd/
 .claude/runtime/outputs/sse/tokens/
 .claude/runtime/outputs/sse/.markers/
+
+# Context cache (repomix packs, graphify graphs)
+.claude/runtime/cache/repomix/*
+!.claude/runtime/cache/repomix/.gitkeep
+.claude/runtime/cache/graphify/*
+!.claude/runtime/cache/graphify/.gitkeep
 
 # Pipeline / monitor state
 .claude/.pipeline-state.json

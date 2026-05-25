@@ -24,6 +24,18 @@ fi
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 not found"; exit 1; }
 
+# Optional context tools (repomix snapshot, graphify knowledge graph).
+# Both are no-ops if missing — /context:pack and /context:graph will print install hints.
+if ! command -v repomix >/dev/null 2>&1; then
+  echo "  optional: repomix not found. /context:pack disabled until you install it."
+  echo "            npm i -g repomix   |   brew install repomix"
+fi
+if ! command -v graphify >/dev/null 2>&1; then
+  echo "  optional: graphify not found. /context:graph disabled until you install it."
+  echo "            uv tool install graphifyy   |   pipx install graphifyy   |   pip install graphifyy"
+  echo "            (PyPI pkg graphifyy, double y; CLI cmd graphify)"
+fi
+
 OLD_VERSION="$(cat "$TARGET/.claude/.hk-version" 2>/dev/null || echo "")"
 
 if [ -n "$OLD_VERSION" ] && [ "$OLD_VERSION" != "$VERSION" ]; then
@@ -57,7 +69,8 @@ for agent in product-manager staff-software-engineer; do
 done
 
 # 3) Per-agent runtime hooks + scripts (NOT outputs — that's target-side state)
-mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TARGET/.claude/runtime/outputs/pm/.markers" "$TARGET/.claude/runtime/outputs/sse/.markers"
+mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TARGET/.claude/runtime/outputs/pm/.markers" "$TARGET/.claude/runtime/outputs/sse/.markers" "$TARGET/.claude/runtime/outputs/sse/sdd" "$TARGET/.claude/runtime/cache/repomix" "$TARGET/.claude/runtime/cache/graphify"
+touch "$TARGET/.claude/runtime/cache/repomix/.gitkeep" "$TARGET/.claude/runtime/cache/graphify/.gitkeep"
 for agent in product-manager staff-software-engineer; do
   rm -rf "$TARGET/.claude/runtime/hooks/$agent"
   cp -R "$SOURCE_ROOT/.claude/runtime/hooks/$agent" "$TARGET/.claude/runtime/hooks/$agent"
@@ -76,10 +89,14 @@ done
 
 # 4) Slash commands
 mkdir -p "$TARGET/.claude/commands"
-for ns in product-manager sse pipeline; do
+for ns in product-manager sse pipeline context; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
+
+# 4.5) Shared cross-agent guides
+mkdir -p "$TARGET/.claude/shared"
+cp -R "$SOURCE_ROOT/.claude/shared/." "$TARGET/.claude/shared/"
 
 # 5) Root harness hooks (status-line + pipeline tracking + live activity)
 mkdir -p "$TARGET/.claude/hooks"
@@ -88,9 +105,13 @@ for h in status-line.sh pipeline-prompt.sh pipeline-postwrite.sh pipeline-posted
   chmod +x "$TARGET/.claude/hooks/$h"
 done
 
-# 6) Root harness scripts (pipeline state, activity, PR monitor, stage-card)
+# 6) Root harness scripts (pipeline state, activity, PR monitor, stage-card, context wrappers)
 mkdir -p "$TARGET/.claude/scripts"
 for s in pipeline.py activity.py pr-monitor.py; do
+  cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
+  chmod +x "$TARGET/.claude/scripts/$s"
+done
+for s in pack-repo.sh graph-repo.sh; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
@@ -209,5 +230,6 @@ echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
 echo "done. restart Claude Code to load."
 echo "  /product-manager:prd | :prp | :run"
-echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run"
+echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"
+echo "  /context:pack | :graph"
 echo "  /pipeline:continue | :reset"
