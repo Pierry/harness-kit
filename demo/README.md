@@ -30,10 +30,11 @@ npm run render        # MP4 to demo/out/demo.mp4
 npm run render:gif    # GIF to demo/out/demo.gif (raw, big)
 ```
 
-To build the compact README preview (`demo/preview.gif`):
+To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`: title → three ways to ship → SDD loop → based-on → context tools → **marketplace install** → **@agent usage** → outro):
 
 ```bash
-ffmpeg -y -i out/demo.mp4 \
+npm run render:v41        # MP4 to demo/out/demo-v41.mp4 (README preview source)
+ffmpeg -y -i out/demo-v41.mp4 \
   -vf "fps=10,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5" \
   -loop 0 preview.gif
 ```
