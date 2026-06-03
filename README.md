@@ -42,7 +42,7 @@ For local-only work, two extra modes skip the PR stage:
 
 ## Install
 
-**Claude Code marketplace** (recommended):
+Through the Claude Code plugin marketplace:
 
 ```
 /plugin marketplace add Pierry/harness-kit
@@ -50,25 +50,9 @@ For local-only work, two extra modes skip the PR stage:
 /harness-kit:install
 ```
 
-The plugin is a bootstrap — `/harness-kit:install` lays the full harness into your project (agents, commands, skills, hooks, status bar). Restart Claude Code. Update later with `/plugin update harness-kit` then `/harness-kit:update`.
+The plugin is a bootstrap — `/harness-kit:install` lays the full harness into your project (agents, commands, skills, hooks, status bar). Restart Claude Code. Done.
 
-**npm:**
-
-```bash
-npm i -g @pieerry/harness-kit
-hk install
-```
-
-Restart Claude Code. Done.
-
-**Without npm:**
-
-```bash
-git clone https://github.com/Pierry/harness-kit ~/.harness-kit
-bash ~/.harness-kit/setup/install.sh
-```
-
-CLI: `hk install` · `hk update` · `hk uninstall` · `hk status` · `hk version`.
+Update later: `/plugin update harness-kit` then `/harness-kit:update`.
 
 ---
 
@@ -233,7 +217,7 @@ Only the area files you need. The agent reads them on top of defaults. See [`con
 
 ## Layout
 
-What `hk install` lays down in your repo:
+What `/harness-kit:install` lays down in your repo:
 
 ```
 {your-repo}/
@@ -276,7 +260,7 @@ npm i -g repomix           # or: brew install repomix
 uv tool install graphifyy  # or: pipx install graphifyy   (CLI cmd is `graphify`)
 ```
 
-`hk install` detects both and prints a hint if missing — never auto-installs. See [`.claude/shared/context-strategy.md`](.claude/shared/context-strategy.md) for when each tier is worth it (grep vs pack vs graph).
+The installer detects both and prints a hint if missing — never auto-installs. See [`.claude/shared/context-strategy.md`](.claude/shared/context-strategy.md) for when each tier is worth it (grep vs pack vs graph).
 
 Other optional: `jq` for token JSON queries. `JIRA_USERNAME` + `JIRA_API_TOKEN` to publish PRD/PRP to Confluence.
 

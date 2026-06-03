@@ -8,6 +8,7 @@ import { SddLoop } from './v41/SddLoop';
 import { BasedOn } from './v41/BasedOn';
 import { ContextTools } from './v41/ContextTools';
 import { Install } from './v41/Install';
+import { Agents } from './v41/Agents';
 import { Outro } from './v41/Outro';
 
 loadInter();
@@ -28,6 +29,7 @@ export const v41Scenes: Scene[] = [
   { id: 'based',    component: BasedOn,      duration: s(6) },
   { id: 'context',  component: ContextTools, duration: s(13) },
   { id: 'install',  component: Install,      duration: s(9) },
+  { id: 'agents',   component: Agents,       duration: s(14) },
   { id: 'outro',    component: Outro,        duration: s(6) },
 ];
 
