@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "harness-kit",
+  "displayName": "Harness Kit",
+  "version": "4.1.0",
+  "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline. Run /harness-kit:install to set it up in your project.",
+  "author": {
+    "name": "Space Metrics AI",
+    "email": "pieerry@gmail.com",
+    "url": "https://github.com/Pierry/harness-kit"
+  },
+  "homepage": "https://github.com/Pierry/harness-kit",
+  "repository": "https://github.com/Pierry/harness-kit",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "harness",
+    "agent",
+    "prd",
+    "prp",
+    "engineering",
+    "product-management",
+    "delivery",
+    "pipeline",
+    "agents-md",
+    "subagent"
+  ]
+}

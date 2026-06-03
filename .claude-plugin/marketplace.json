@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "harness-kit",
+  "owner": {
+    "name": "Space Metrics AI",
+    "email": "pieerry@gmail.com"
+  },
+  "description": "Harness Kit — Claude Code harness for product + engineering delivery. From idea to merged PR through one consistent pipeline.",
+  "plugins": [
+    {
+      "name": "harness-kit",
+      "source": "./",
+      "description": "Installs the harness-kit pipeline (product-manager + staff-software-engineer agents, slash commands, skills, hooks, status bar) into your project via the bundled installer.",
+      "category": "workflow",
+      "tags": ["prd", "prp", "engineering", "product-management", "pipeline", "agents-md", "subagent"]
+    }
+  ]
+}

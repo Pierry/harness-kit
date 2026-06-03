@@ -4,7 +4,7 @@ Source of truth for every agent, skill, and runtime path in this workspace.
 
 This file is the **declarative spec**. Execution lives in `.claude/agents/` (definitions), `.claude/runtime/` (state, outputs), and `.claude/shared/` (cross-agent docs). Pipelines like `/sse:run` and `/product-manager:run` consult this registry when dispatching.
 
-Portable across tools (Claude Code, Cursor, Codex) — all read `AGENTS.md` at the repo root.
+Portable across tools (Claude Code, Cursor, Codex CLI, Gemini CLI, and others) — all read `AGENTS.md` at the repo root. See [Cross-tool compatibility](#cross-tool-compatibility) for what each tool consumes.
 
 ---
 
@@ -136,7 +136,15 @@ Generated artifacts and lifecycle hooks live under `.claude/runtime/`.
 
 ## Distribution
 
-This repo is **harness-kit**, the source-of-truth template. Consumer repos install the harness via `setup/install.sh`, which copies:
+This repo is **harness-kit**, the source-of-truth template. Three install paths, all landing the same `.claude/` tree:
+
+| Path | Command | Notes |
+|---|---|---|
+| Claude Code marketplace | `/plugin marketplace add Pierry/harness-kit` → `/plugin install harness-kit@harness-kit` → `/harness-kit:install` | Plugin is a **bootstrap**: it ships the full harness and the `/harness-kit:install` skill runs `setup/install.sh` into the project. See `.claude-plugin/`. |
+| npm | `npx @pieerry/harness-kit` (or `hk install`) | `bin/hk.js` wraps `setup/install.sh`. |
+| git clone | `git clone … && bash setup/install.sh <target>` | Direct. |
+
+`setup/install.sh` copies:
 
 - `AGENTS.md` and `CLAUDE.md` to the target root
 - `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/scripts/`, `.claude/conventions/` to the target `.claude/`
@@ -144,6 +152,28 @@ This repo is **harness-kit**, the source-of-truth template. Consumer repos insta
 - `.claude/settings.json` `hooks` block, merged with the consumer's existing settings
 
 `setup/update.sh` migrates v3.x consumers (which have `.claude/plugins/`) to v4.x layout in place. v3.x consumers were the **plugin-shaped** distribution.
+
+---
+
+## Cross-tool compatibility
+
+The harness targets Claude Code, but its assets are layered so other AI coding tools degrade gracefully rather than breaking.
+
+| Tool | Reads | Gets | Does NOT get |
+|---|---|---|---|
+| **Claude Code** | everything | agents, slash commands, skills, hooks, status bar, sensors/evals | — (full feature set) |
+| **Codex CLI** | `AGENTS.md` (+ nested) | the agent registry, routing table, pipeline spec as standing instructions | slash commands, hooks, status bar (Claude-Code-specific) |
+| **Gemini CLI** | `AGENTS.md`; optional Gemini *extensions* | same standing instructions; can wrap commands as extensions | Claude Code hooks/slash commands |
+| **Cursor / Windsurf / others** | `AGENTS.md` | registry + routing as project rules | hooks, slash commands |
+
+**What's portable vs Claude-Code-only:**
+
+- **Portable** (plain markdown, any tool reads): `AGENTS.md`, `CLAUDE.md`, every `guides/`, `sensors/`, `evals/`, and `skills/SKILL.md` body. These are instructions, not executables.
+- **Claude-Code-only**: `.claude/commands/*` (slash commands), `.claude/hooks/*` + `.claude/settings.json` `hooks` (lifecycle automation, status bar), the `Skill`/`Task` tool dispatch. Other tools ignore these silently.
+
+**Guidance for non-Claude tools:** point the tool at `AGENTS.md` as the entry rule. The registry + routing + pipeline-stages sections are written to be executed by any capable agent reading them as instructions — it follows the same `prd → prp → plan → dev → test → pr` flow manually, reading the same `guides/` and writing the same artifacts, just without the slash-command shortcuts and gate automation.
+
+There is no central registry that indexes one tool into all ecosystems. `AGENTS.md` is the de-facto cross-tool standard and is read directly from the repo on clone — no submission step exists or is needed.
 
 ---
 
