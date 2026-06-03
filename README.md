@@ -42,6 +42,18 @@ For local-only work, two extra modes skip the PR stage:
 
 ## Install
 
+**Claude Code marketplace** (recommended):
+
+```
+/plugin marketplace add Pierry/harness-kit
+/plugin install harness-kit@harness-kit
+/harness-kit:install
+```
+
+The plugin is a bootstrap — `/harness-kit:install` lays the full harness into your project (agents, commands, skills, hooks, status bar). Restart Claude Code. Update later with `/plugin update harness-kit` then `/harness-kit:update`.
+
+**npm:**
+
 ```bash
 npm i -g @pieerry/harness-kit
 hk install
@@ -49,7 +61,7 @@ hk install
 
 Restart Claude Code. Done.
 
-Without npm:
+**Without npm:**
 
 ```bash
 git clone https://github.com/Pierry/harness-kit ~/.harness-kit

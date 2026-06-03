@@ -32,9 +32,12 @@
     "bin",
     "setup",
     ".claude",
+    ".claude-plugin",
+    "skills",
     "context-library",
     "VERSION",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "CLAUDE.md",
     "AGENTS.md"
