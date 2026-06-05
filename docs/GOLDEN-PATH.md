@@ -25,6 +25,10 @@ One command. Idea → merged PR. Six gated stages:
 Runs `/product-manager:run` (prd → prp) then `/sse:run` (plan → dev → test → pr → monitor).
 Same six-stage `full-run` pipeline the status bar already tracks.
 
+**Start from a brief.** The idea-brief builder collects the inputs the PRD needs (squad,
+problem, hypothesis, customers, metric) in-standard and emits a paste-ready `/golden-path`
+kick: [`docs/brief/`](./brief/) (GitHub Pages: `https://pierry.github.io/harness-kit/brief/`).
+
 ```mermaid
 flowchart LR
     idea([idea]) --> prd[prd]
