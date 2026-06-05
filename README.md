@@ -79,6 +79,8 @@ Prefer to drive each half yourself? Same pipeline, two commands:
 
 You can step off the path any time — run any stage solo (`/sse:plan`, `/sse:dev`, …). Full reference: [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md).
 
+Not sure how to phrase the idea? The **[idea-brief builder](https://pierry.github.io/harness-kit/brief/)** collects the inputs in-standard and hands you a paste-ready `/golden-path` kick.
+
 ### Spec only — no code yet
 
 You need the PRD and PRP to align with stakeholders before any engineering work. Stop after the PRP.

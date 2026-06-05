@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>harness-kit · idea brief</title>
+<meta name="description" content="Write a product idea brief in the harness-kit standard, then paste it into the golden path: idea → merged PR." />
+<!--
+  Idea-brief builder for harness-kit.
+  Collects the minimal inputs the PRD generation needs (mirrors the
+  `prd` skill intake + templates/prd.md), validates against the prd
+  sensors, and emits a paste-ready /golden-path kick.
+  SOURCE OF TRUTH for fields/hints: .claude/agents/product-manager/guides/templates/prd.md
+  Keep this page in sync when that template changes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0b0e; --surface: #11141a; --elev: #161a22;
+    --border: #1f242e; --border-strong: #2c333f;
+    --text: #e8eaed; --dim: #8b95a7; --faint: #5a6578;
+    --accent: #a78bfa; --accent-dim: #7c6ad9; --gold: #fbbf24;
+    --success: #6ee7b7; --success-dim: #10b981; --danger: #f87171;
+    --code-bg: #0d0f14;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Inter", system-ui, sans-serif;
+    --r-sm: 8px; --r-md: 14px; --r-lg: 22px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 70% -10%, #a78bfa14, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 10% 110%, #10b98110, transparent 60%);
+    background-attachment: fixed;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 32px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+    background: #0a0b0ecc; backdrop-filter: blur(10px);
+  }
+  .wordmark { font-weight: 800; font-size: 18px; letter-spacing: -0.4px; }
+  .wordmark .dash { color: var(--accent); }
+  .wordmark .sub { color: var(--dim); font-family: var(--mono); font-weight: 500; font-size: 13px; margin-left: 12px; }
+  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 22px; align-items: center; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+  .hero { padding: 56px 0 36px; }
+  .pill {
+    display: inline-flex; gap: 12px; align-items: center; padding: 8px 18px;
+    border-radius: 999px; border: 1px solid var(--border-strong);
+    background: #11141acc; font-family: var(--mono); font-size: 13px; letter-spacing: 0.5px; color: var(--dim);
+  }
+  .pill b { color: var(--accent); font-weight: 700; }
+  h1 { font-size: 52px; line-height: 1.04; letter-spacing: -1.6px; font-weight: 800; margin: 22px 0 14px; }
+  h1 .gold { color: var(--gold); }
+  .lede { font-size: 19px; color: var(--dim); max-width: 640px; }
+  .lede code { font-family: var(--mono); color: var(--text); background: var(--code-bg); padding: 2px 7px; border-radius: 6px; font-size: 15px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; padding-bottom: 80px; align-items: start; }
+  @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } .hero h1 { font-size: 40px; } }
+
+  .field { margin-bottom: 26px; }
+  .field > label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .field .req { color: var(--gold); font-family: var(--mono); font-size: 11px; margin-left: 6px; vertical-align: middle; }
+  .field .opt { color: var(--faint); font-family: var(--mono); font-size: 11px; margin-left: 6px; vertical-align: middle; }
+  .hint { color: var(--faint); font-size: 13px; margin: 0 0 10px; font-family: var(--mono); }
+  input[type=text], input[type=url], textarea, select {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-sm); color: var(--text); font-family: var(--sans);
+    font-size: 15px; padding: 11px 13px; outline: none; transition: border-color .12s, box-shadow .12s;
+  }
+  textarea { resize: vertical; min-height: 78px; line-height: 1.5; }
+  select { font-family: var(--mono); font-size: 14px; appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+    background-position: right 16px center, right 11px center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #a78bfa22; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .row4 { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .row3, .row4 { grid-template-columns: 1fr; } }
+  .mini { font-family: var(--mono); font-size: 13px; padding: 9px 11px; }
+
+  .flag { font-family: var(--mono); font-size: 12px; margin-top: 7px; display: none; }
+  .flag.warn { color: var(--gold); display: block; }
+  .flag.ok { color: var(--success-dim); display: block; }
+
+  /* preview pane */
+  .preview { position: sticky; top: 92px; }
+  .terminal { background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: var(--r-lg);
+    box-shadow: 0 24px 80px rgba(0,0,0,.5); overflow: hidden; }
+  .term-bar { display: flex; align-items: center; gap: 8px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--elev); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .term-bar .title { margin-left: 14px; color: var(--dim); font-family: var(--mono); font-size: 13px; }
+  pre#out { margin: 0; padding: 22px; font-family: var(--mono); font-size: 13.5px; line-height: 1.62;
+    color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 60vh; overflow: auto; }
+  pre#out .cmd { color: var(--gold); font-weight: 700; }
+  pre#out .key { color: var(--accent); }
+  pre#out .muted { color: var(--faint); }
+
+  .actions { display: flex; gap: 12px; margin-top: 16px; align-items: center; }
+  button.copy {
+    font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--bg);
+    background: var(--accent); border: none; border-radius: var(--r-sm); padding: 12px 22px; cursor: pointer;
+    transition: transform .08s, background .12s;
+  }
+  button.copy:hover { background: #b9a3ff; }
+  button.copy:active { transform: translateY(1px); }
+  button.copy.done { background: var(--success); }
+  .copyhint { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+
+  .path { margin-top: 22px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .path .stage { padding: 4px 9px; border: 1px solid var(--border); border-radius: 999px; }
+  .path .stage.pm { color: var(--accent); border-color: #a78bfa44; }
+  .path .stage.sse { color: var(--gold); border-color: #fbbf2444; }
+  .path .arrow { color: var(--faint); }
+
+  footer { border-top: 1px solid var(--border); padding: 28px 0 60px; color: var(--faint); font-family: var(--mono); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">harness<span class="dash">-</span>kit<span class="sub">idea brief</span></div>
+  <nav>
+    <a href="../GOLDEN-PATH.md">golden path ↗</a>
+    <a href="https://github.com/Pierry/harness-kit">github ↗</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="pill">step <b>00</b> · the idea</span>
+    <h1>Write the brief.<br />Ship the <span class="gold">golden path</span>.</h1>
+    <p class="lede">Fill the fields in the harness-kit standard. Copy the result and paste it into Claude Code — it kicks <code>/golden-path</code>, turning your idea into a PRD, a plan, code, tests, and a merged PR.</p>
+  </section>
+
+  <div class="grid">
+    <!-- FORM -->
+    <form id="brief" autocomplete="off">
+      <div class="field">
+        <label for="squad">Squad <span class="req">required</span></label>
+        <p class="hint">Which team owns this. Sets context + the feature_id.</p>
+        <input type="text" id="squad" placeholder="checkout" />
+      </div>
+
+      <div class="field">
+        <label for="stage">Stage <span class="req">required</span></label>
+        <p class="hint">Where the idea sits in its lifecycle.</p>
+        <select id="stage">
+          <option>Team Kickoff</option>
+          <option>Planning Review</option>
+          <option>Solution Review</option>
+          <option>Launch Readiness</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="problem">Problem <span class="req">required</span></label>
+        <p class="hint">Max 2 sentences. Who suffers, how often, what it costs.</p>
+        <textarea id="problem" placeholder="Guests abandon checkout when a payment fails — no retry, just an error. ~8% of attempts hit it, ~R$120k/mo lost."></textarea>
+        <div class="flag" id="problem-flag"></div>
+      </div>
+
+      <div class="field">
+        <label>Hypothesis <span class="req">required</span></label>
+        <p class="hint">If we build X, then Y metric changes by Z, because assumption.</p>
+        <div class="row3">
+          <input type="text" id="hyp-if" class="mini" placeholder="If we add 1-tap retry" />
+          <input type="text" id="hyp-then" class="mini" placeholder="then completed checkouts +5%" />
+          <input type="text" id="hyp-because" class="mini" placeholder="because most fails are transient" />
+        </div>
+        <div class="flag" id="hyp-flag"></div>
+      </div>
+
+      <div class="field">
+        <label for="customers">Customers <span class="req">required</span></label>
+        <p class="hint">Who it's for + why it matters to them. One per line.</p>
+        <textarea id="customers" placeholder="Returning guests — lose the cart on a flaky card&#10;Support — fields refund tickets from double-charges"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Success metric <span class="opt">optional</span></label>
+        <p class="hint">The needle you'll move. Baseline → target over a horizon.</p>
+        <div class="row4">
+          <input type="text" id="m-name" class="mini" placeholder="checkout completion" />
+          <input type="text" id="m-base" class="mini" placeholder="baseline 71%" />
+          <input type="text" id="m-target" class="mini" placeholder="target 76%" />
+          <input type="text" id="m-horizon" class="mini" placeholder="30 days" />
+        </div>
+        <div class="flag" id="m-flag"></div>
+      </div>
+
+      <div class="field">
+        <label for="bet">Bet link <span class="opt">optional</span></label>
+        <p class="hint">Strategy doc, OKR, or Jira ticket this rolls up to.</p>
+        <input type="url" id="bet" placeholder="https://jira/PROJ-1234" />
+      </div>
+
+      <div class="field">
+        <label for="evidence">Evidence <span class="opt">optional</span></label>
+        <p class="hint">A user quote, a data point, a ticket id. One per line.</p>
+        <textarea id="evidence" placeholder="&quot;I gave up and bought it on Amazon&quot; — NPS verbatim&#10;PROJ-980: 142 retry tickets last quarter"></textarea>
+      </div>
+    </form>
+
+    <!-- PREVIEW -->
+    <div class="preview">
+      <div class="terminal">
+        <div class="term-bar">
+          <span class="dot" style="background:#ff5f57"></span>
+          <span class="dot" style="background:#febc2e"></span>
+          <span class="dot" style="background:#28c840"></span>
+          <span class="title">paste into claude code</span>
+        </div>
+        <pre id="out"></pre>
+      </div>
+      <div class="actions">
+        <button type="button" class="copy" id="copyBtn">Copy brief</button>
+        <span class="copyhint" id="copyHint">fill the required fields →</span>
+      </div>
+      <div class="path">
+        <span class="stage pm">prd</span><span class="stage pm">prp</span>
+        <span class="arrow">→</span>
+        <span class="stage sse">plan</span><span class="stage sse">dev</span><span class="stage sse">test</span><span class="stage sse">pr</span>
+        <span class="arrow">→</span>
+        <span style="color:var(--success-dim)">merged PR</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit · the golden path starts with a good brief</span>
+    <span><a href="../GOLDEN-PATH.md">docs/GOLDEN-PATH.md</a> · <a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fields = ['squad','stage','problem','hyp-if','hyp-then','hyp-because','customers','m-name','m-base','m-target','m-horizon','bet','evidence'];
+  var out = $('out'), copyBtn = $('copyBtn'), copyHint = $('copyHint');
+
+  function val(id) { return ($(id).value || '').trim(); }
+  function lines(id) { return val(id).split('\n').map(function (s){return s.trim();}).filter(Boolean); }
+
+  // sentence count: split on . ! ? that end a clause
+  function sentenceCount(t) {
+    if (!t) return 0;
+    var m = t.replace(/\s+/g, ' ').match(/[^.!?]+[.!?]*/g);
+    return m ? m.filter(function (s){ return s.trim().length; }).length : 0;
+  }
+
+  function validate() {
+    // problem ≤ 2 sentences (mirrors prd-structure expectations)
+    var p = val('problem'), pf = $('problem-flag');
+    var sc = sentenceCount(p);
+    if (!p) { pf.className = 'flag'; }
+    else if (sc > 2) { pf.className = 'flag warn'; pf.textContent = '⚠ ' + sc + ' sentences — trim to 2.'; }
+    else { pf.className = 'flag ok'; pf.textContent = '✓ ' + sc + ' sentence' + (sc===1?'':'s'); }
+
+    // hypothesis: all three parts
+    var hf = $('hyp-flag'), parts = [val('hyp-if'), val('hyp-then'), val('hyp-because')];
+    var filled = parts.filter(Boolean).length;
+    if (filled === 0) { hf.className = 'flag'; }
+    else if (filled < 3) { hf.className = 'flag warn'; hf.textContent = '⚠ fill all three: if · then · because'; }
+    else { hf.className = 'flag ok'; hf.textContent = '✓ if / then / because complete'; }
+
+    // metric: if started, encourage baseline+target+horizon
+    var mf = $('m-flag'), mname = val('m-name');
+    var mparts = [val('m-base'), val('m-target'), val('m-horizon')].filter(Boolean).length;
+    if (!mname && mparts === 0) { mf.className = 'flag'; }
+    else if (mname && mparts < 3) { mf.className = 'flag warn'; mf.textContent = '⚠ add baseline, target and horizon to make it verifiable'; }
+    else if (mname) { mf.className = 'flag ok'; mf.textContent = '✓ measurable'; }
+    else { mf.className = 'flag warn'; mf.textContent = '⚠ name the metric'; }
+
+    return { problemOk: !!p && sc <= 2, hypOk: filled === 3 };
+  }
+
+  function ready() {
+    var v = validate();
+    return val('squad') && v.problemOk && v.hypOk && val('customers');
+  }
+
+  function buildText() {
+    var L = [];
+    L.push('/golden-path');
+    L.push('');
+    L.push('Draft the PRD from this brief, then take it through to a merged PR.');
+    L.push('');
+    L.push('Squad: ' + (val('squad') || '{squad}'));
+    L.push('Stage: ' + val('stage'));
+    if (val('bet')) L.push('Bet: ' + val('bet'));
+    L.push('');
+    L.push('Problem: ' + (val('problem') || '{problem — who suffers, how often, what it costs}'));
+    L.push('');
+    var hif = val('hyp-if'), ht = val('hyp-then'), hb = val('hyp-because');
+    if (hif || ht || hb) {
+      L.push('Hypothesis: ' + (hif||'If we {X}') + ', ' + (ht||'then {Y}') + ', ' + (hb||'because {Z}') + '.');
+      L.push('');
+    }
+    var cust = lines('customers');
+    if (cust.length) { L.push('Customers:'); cust.forEach(function (c){ L.push('- ' + c); }); L.push(''); }
+    if (val('m-name')) {
+      var seg = val('m-name');
+      var det = [];
+      if (val('m-base')) det.push(val('m-base'));
+      if (val('m-target')) det.push(val('m-target'));
+      if (val('m-horizon')) det.push(val('m-horizon'));
+      L.push('Success metric: ' + seg + (det.length ? ' (' + det.join(' → ') + ')' : ''));
+      L.push('');
+    }
+    var ev = lines('evidence');
+    if (ev.length) { L.push('Evidence:'); ev.forEach(function (e){ L.push('- ' + e); }); L.push(''); }
+    // trim trailing blanks
+    while (L.length && L[L.length-1] === '') L.pop();
+    return L.join('\n');
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    var txt = buildText();
+    // light syntax highlight for the preview only
+    var html = esc(txt)
+      .replace(/^\/golden-path/, '<span class="cmd">/golden-path</span>')
+      .replace(/^(Squad|Stage|Bet|Problem|Hypothesis|Customers|Success metric|Evidence):/gm, '<span class="key">$1:</span>');
+    out.innerHTML = html;
+
+    if (ready()) {
+      copyBtn.disabled = false;
+      copyHint.textContent = 'ready · paste into claude code';
+    } else {
+      copyHint.textContent = 'fill the required fields →';
+    }
+  }
+
+  function copy() {
+    var txt = buildText();
+    navigator.clipboard.writeText(txt).then(function () {
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('done');
+      copyHint.textContent = 'now paste it into Claude Code';
+      setTimeout(function () { copyBtn.textContent = 'Copy brief'; copyBtn.classList.remove('done'); }, 1800);
+    }, function () {
+      // fallback
+      var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(function () { copyBtn.textContent = 'Copy brief'; }, 1800);
+    });
+  }
+
+  fields.forEach(function (id) { $(id).addEventListener('input', render); });
+  copyBtn.addEventListener('click', copy);
+  render();
+})();
+</script>
+</body>
+</html>
