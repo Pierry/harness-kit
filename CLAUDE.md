@@ -58,6 +58,10 @@ Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claud
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
 
+### golden path
+
+`/golden-path` is the end-to-end front door — one command runs all six stages, idea → merged PR (`full-run`: `/product-manager:run` then `/sse:run`, SSE flags pass through). Opinionated, supported, optional (step off any time, run stages solo). Reference: [`docs/GOLDEN-PATH.md`](./docs/GOLDEN-PATH.md), command `.claude/commands/golden-path.md`.
+
 SDD variant: `prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] → [user gate] → pr`. Loop cap 3 iters. Predicate built from PRP "Success criteria (verifiable)" + "Validation gates". See `.claude/agents/staff-software-engineer/guides/sdd-loop.md`.
 
 ### context tools (optional, manual)

@@ -5,6 +5,7 @@ import { theme } from './theme';
 import { Title } from './v41/Title';
 import { Install } from './v41/Install';
 import { Agents } from './v41/Agents';
+import { GoldenPath } from './v41/GoldenPath';
 import { Outro } from './v41/Outro';
 
 loadInter();
@@ -19,10 +20,11 @@ const s = (sec: number) => sec * V41_FPS;
 type Scene = { id: string; component: React.ComponentType; duration: number };
 
 export const v41Scenes: Scene[] = [
-  { id: 'title',    component: Title,    duration: s(7) },   // 01 · what it is
-  { id: 'install',  component: Install,  duration: s(9) },   // 02 · how to install
-  { id: 'agents',   component: Agents,   duration: s(14) },  // 03 · how to use
-  { id: 'outro',    component: Outro,    duration: s(5) },
+  { id: 'title',    component: Title,      duration: s(7) },   // 01 · what it is
+  { id: 'install',  component: Install,    duration: s(18) },  // 02 · how to install
+  { id: 'agents',   component: Agents,     duration: s(14) },  // 03 · how to use
+  { id: 'golden',   component: GoldenPath, duration: s(11) },  // 04 · the golden path
+  { id: 'outro',    component: Outro,      duration: s(5) },
 ];
 
 export const V41_DURATION_FRAMES = v41Scenes.reduce((acc, x) => acc + x.duration, 0);
