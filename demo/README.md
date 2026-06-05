@@ -30,7 +30,7 @@ npm run render        # MP4 to demo/out/demo.mp4
 npm run render:gif    # GIF to demo/out/demo.gif (raw, big)
 ```
 
-To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`: title → three ways to ship → SDD loop → based-on → context tools → **marketplace install** → **@agent usage** → outro):
+To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`), a ~35s walkthrough of three topics: **01 what it is** → **02 how to install** (marketplace) → **03 how to use** (`claude agents` + `@agent` mentions) → outro:
 
 ```bash
 npm run render:v41        # MP4 to demo/out/demo-v41.mp4 (README preview source)

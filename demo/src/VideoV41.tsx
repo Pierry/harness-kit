@@ -3,10 +3,6 @@ import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { loadFont as loadMono } from '@remotion/google-fonts/JetBrainsMono';
 import { theme } from './theme';
 import { Title } from './v41/Title';
-import { ThreeWays } from './v41/ThreeWays';
-import { SddLoop } from './v41/SddLoop';
-import { BasedOn } from './v41/BasedOn';
-import { ContextTools } from './v41/ContextTools';
 import { Install } from './v41/Install';
 import { Agents } from './v41/Agents';
 import { Outro } from './v41/Outro';
@@ -23,14 +19,10 @@ const s = (sec: number) => sec * V41_FPS;
 type Scene = { id: string; component: React.ComponentType; duration: number };
 
 export const v41Scenes: Scene[] = [
-  { id: 'title',    component: Title,        duration: s(7) },
-  { id: 'three',    component: ThreeWays,    duration: s(13) },
-  { id: 'sdd',      component: SddLoop,      duration: s(16) },
-  { id: 'based',    component: BasedOn,      duration: s(6) },
-  { id: 'context',  component: ContextTools, duration: s(13) },
-  { id: 'install',  component: Install,      duration: s(9) },
-  { id: 'agents',   component: Agents,       duration: s(14) },
-  { id: 'outro',    component: Outro,        duration: s(6) },
+  { id: 'title',    component: Title,    duration: s(7) },   // 01 · what it is
+  { id: 'install',  component: Install,  duration: s(9) },   // 02 · how to install
+  { id: 'agents',   component: Agents,   duration: s(14) },  // 03 · how to use
+  { id: 'outro',    component: Outro,    duration: s(5) },
 ];
 
 export const V41_DURATION_FRAMES = v41Scenes.reduce((acc, x) => acc + x.duration, 0);

@@ -2,6 +2,7 @@ import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } fr
 import { theme } from '../theme';
 import { Terminal } from '../components/Terminal';
 import { TypingText } from '../components/TypingText';
+import { SectionLabel } from './SectionLabel';
 
 const agents = [
   { at: '@product-manager', desc: 'PRD → PRP', accent: false },
@@ -12,41 +13,30 @@ export const Agents = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const headerOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
   const termOpacity = interpolate(frame, [20, 44], [0, 1], { extrapolateRight: 'clamp' });
   const exit = interpolate(frame, [350, 384], [1, 0], { extrapolateRight: 'clamp' });
 
-  const prompt = theme.color.accent;
-
   return (
-    <AbsoluteFill style={{ padding: theme.space.pad, justifyContent: 'center', opacity: exit }}>
-      <div
-        style={{
-          opacity: headerOpacity,
-          textAlign: 'center',
-          marginBottom: 36,
-          fontSize: theme.type.h3,
-          color: theme.color.textDim,
-        }}
-      >
-        start claude. mention an <span style={{ color: theme.color.accent }}>@agent</span>.
+    <AbsoluteFill style={{ padding: theme.space.pad, justifyContent: 'center', alignItems: 'center', opacity: exit }}>
+      <div style={{ marginBottom: 36 }}>
+        <SectionLabel n="03" label="how to use" />
       </div>
 
       <div style={{ maxWidth: 1500, margin: '0 auto', width: '100%', opacity: termOpacity }}>
         <Terminal title="~/your-repo">
-          {/* launch */}
+          {/* launch the agents view */}
           <div style={{ marginBottom: 10 }}>
             <span style={{ color: theme.color.success }}>$</span>{' '}
-            <TypingText text="claude" startFrame={40} cps={26} />
+            <TypingText text="claude agents" startFrame={40} cps={24} />
           </div>
-          <Output start={78} dim>
-            {'  '}Claude Code · 2 project agents loaded
+          <Output start={96} dim>
+            {'  '}Claude Code · agents view · 2 project agents
           </Output>
 
           {/* agent roster */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, margin: '20px 0 26px' }}>
             {agents.map((a, i) => {
-              const start = 96 + i * 22;
+              const start = 114 + i * 22;
               const op = interpolate(frame, [start, start + 18], [0, 1], { extrapolateRight: 'clamp' });
               const y = spring({ frame: frame - start, fps, config: { damping: 18 } });
               return (
@@ -90,19 +80,17 @@ export const Agents = () => {
           </div>
 
           {/* mention usage */}
-          <Mention start={172} text=" draft a PRD for checkout retry" at="@product-manager" />
-          <Output start={230} dim>
-            {'  '}→ /product-manager:run · sensors + eval gate each stage
+          <Mention start={184} at="@product-manager" text=" draft a PRD for checkout retry" />
+          <Output start={242} dim>
+            {'  '}→ runs /product-manager:run · sensors + eval gate each stage
           </Output>
 
           <div style={{ height: 16 }} />
 
-          <Mention start={262} text=" ship it end to end" at="@staff-software-engineer" accent />
-          <Output start={320} accent>
-            {'  '}→ /sse:run · plan → dev → test → pr · auto-watch merge
+          <Mention start={276} at="@staff-software-engineer" text=" ship it end to end" accent />
+          <Output start={334} accent>
+            {'  '}→ runs /sse:run · plan → dev → test → pr · auto-watch merge
           </Output>
-
-          <span style={{ color: prompt }} />
         </Terminal>
       </div>
     </AbsoluteFill>
