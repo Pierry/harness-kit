@@ -93,6 +93,8 @@ for ns in product-manager sse pipeline context; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
+# Top-level commands (no namespace): /golden-path
+cp "$SOURCE_ROOT/.claude/commands/golden-path.md" "$TARGET/.claude/commands/golden-path.md"
 
 # 4.5) Shared cross-agent guides
 mkdir -p "$TARGET/.claude/shared"
@@ -229,6 +231,7 @@ fi
 echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
 echo "done. restart Claude Code to load."
+echo "  /golden-path            idea -> merged PR (the golden path)"
 echo "  /product-manager:prd | :prp | :run"
 echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"
 echo "  /context:pack | :graph"

@@ -13,7 +13,7 @@ From idea to merged PR. One pipeline. Six stages. Or spec-driven loop until the 
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>70s walkthrough · three ways to ship · SDD loop · context tools · install. Based on Claude Code <code>/goal</code> pattern.</sub>
+<sub>55s walkthrough · what it is · install · <code>@agent</code> mentions · the golden path (idea → merged PR). Based on Claude Code <code>/goal</code> pattern.</sub>
 
 </div>
 
@@ -60,16 +60,24 @@ Update later: `/plugin update harness-kit` then `/harness-kit:update`.
 
 Pick the flow that matches the task. All of them share the same pipeline state, so you can switch between them mid-feature.
 
-### Big task — full pipeline (PM + Eng)
+### The golden path — idea to merged PR (one command)
 
-A new feature with stakes, ambiguity, or a Jira ticket attached. You want a written PRD, a thought-through PRP, a plan, code, tests, and a PR.
+A new feature with stakes, ambiguity, or a Jira ticket attached. You want a written PRD, a thought-through PRP, a plan, code, tests, and a PR. The **golden path** runs all six stages from one front door:
+
+```
+/golden-path             # PM (prd → prp) then Eng (plan → dev → test → pr → monitor)
+```
+
+Opinionated, supported, optional. Approve each artifact when prompted; the status bar tracks where you are in the six stages. Pass SSE flags straight through — `/golden-path --local`, `--sdd`, `--no-monitor`.
+
+Prefer to drive each half yourself? Same pipeline, two commands:
 
 ```
 /product-manager:run     # drafts PRD then PRP, with sensor + eval gates
 /sse:run                 # plans, implements, tests, opens PR, watches for merge
 ```
 
-Approve each artifact when prompted. The status bar tracks where you are in the six stages.
+You can step off the path any time — run any stage solo (`/sse:plan`, `/sse:dev`, …). Full reference: [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md).
 
 ### Spec only — no code yet
 

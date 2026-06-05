@@ -35,6 +35,7 @@ Relay installer output verbatim. On `missing agents` / `git not found` / `python
 
 Tell user: **restart Claude Code** to load agents, commands, hooks, status bar. Then:
 
+- `/golden-path` — the golden path: idea → merged PR in one command
 - `/product-manager:prd | :prp | :run`
 - `/sse:plan | :dev | :test | :pr | :run | :sdd`
 - `/pipeline:continue | :reset`

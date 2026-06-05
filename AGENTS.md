@@ -30,6 +30,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 │   ├── product-manager.md         orchestrator agent
 │   └── staff-software-engineer.md orchestrator agent
 ├── commands/                      ← slash-command entry points
+│   ├── golden-path.md             /golden-path  (front door: idea → merged PR)
 │   ├── product-manager/           /product-manager:{prd,prp,run}
 │   ├── sse/                       /sse:{plan,dev,test,pr,run,sdd}
 │   ├── context/                   /context:{pack,graph}
@@ -70,7 +71,8 @@ When the user types a slash command, the entry point is unambiguous. When the us
 
 | User intent | Route |
 |---|---|
-| "ship a new feature end-to-end" | `staff-software-engineer` (`/sse:run` full pipeline) |
+| "go from idea to merged PR" (the golden path) | `/golden-path` (full-run: PM then SSE) |
+| "ship a new feature end-to-end" (spec in hand) | `staff-software-engineer` (`/sse:run` full pipeline) |
 | "draft a PRD" | `product-manager` → `/product-manager:prd` |
 | "draft a PRP" | `product-manager` → `/product-manager:prp` |
 | "full PM pipeline" | `product-manager` → `/product-manager:run` |
@@ -92,6 +94,21 @@ When the user types a slash command, the entry point is unambiguous. When the us
 ## Pipeline stages
 
 Six gated stages, one feature: `prd → prp → plan → dev → test → pr`.
+
+### Golden path
+
+`/golden-path` is the front door — one command runs all six stages, idea → merged PR
+(`full-run` shape: `/product-manager:run` then `/sse:run`). It is the **opinionated,
+supported, optional, self-serviceable, transparent** way through the harness:
+
+- **Opinionated/supported** — one pipeline; sensors + evals gate every stage.
+- **Optional** — step off any time, run stages solo. No enforcement.
+- **Self-serviceable** — one command, no tickets.
+- **Transparent/extensible** — each stage names the sensors/evals/guides that ran; per-repo
+  `conventions/{backend,web,mobile,devops}.md` override the dev stage (the per-discipline paving).
+
+Full reference: [`docs/GOLDEN-PATH.md`](./docs/GOLDEN-PATH.md). Command:
+[`.claude/commands/golden-path.md`](./.claude/commands/golden-path.md).
 
 Each stage:
 1. Writes a markdown artifact to `.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md`.
