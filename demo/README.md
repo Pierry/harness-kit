@@ -30,7 +30,7 @@ npm run render        # MP4 to demo/out/demo.mp4
 npm run render:gif    # GIF to demo/out/demo.gif (raw, big)
 ```
 
-To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`), a ~55s walkthrough of four topics: **01 what it is** → **02 how to install** (marketplace add + plugin install + `/harness-kit:install`, with a streamed timeline of what the installer lays down: agents · sensors · guides · evals · commands · hooks · AGENTS.md) → **03 how to use** (`claude agents` + `@agent` mentions) → **04 the golden path** (`/golden-path`: idea → merged PR through six gated stages, prd·prp via `/product-manager:run` then plan·dev·test·pr via `/sse:run`) → outro:
+To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`), a ~70s walkthrough of five topics: **01 what it is** → **02 how to install** (marketplace add + plugin install + `/harness-kit:install`, with a streamed timeline of what the installer lays down: agents · sensors · guides · evals · commands · hooks · AGENTS.md) → **03 the agents** (`claude agents` + `@agent` mentions) → **04 the golden path** (`/golden-path`: idea → merged PR through six gated stages, prd·prp via `/product-manager:run` then plan·dev·test·pr via `/sse:run`) → **05 how to use** (write the idea brief on the [Pages site](https://pierry.github.io/harness-kit/brief/), copy it, paste `/golden-path` into Claude Code, watch the six stages run to a merged PR) → outro. Type: Bricolage Grotesque · Hanken Grotesk · JetBrains Mono:
 
 ```bash
 npm run render:v41        # MP4 to demo/out/demo-v41.mp4 (README preview source)
