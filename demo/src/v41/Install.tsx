@@ -2,11 +2,11 @@ import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
 import { theme } from '../theme';
 import { Terminal } from '../components/Terminal';
 import { TypingText } from '../components/TypingText';
+import { SectionLabel } from './SectionLabel';
 
 export const Install = () => {
   const frame = useCurrentFrame();
 
-  const headerOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
   const termOpacity = interpolate(frame, [20, 44], [0, 1], { extrapolateRight: 'clamp' });
   const exit = interpolate(frame, [232, 252], [1, 0], { extrapolateRight: 'clamp' });
 
@@ -17,19 +17,12 @@ export const Install = () => {
       style={{
         padding: theme.space.pad,
         justifyContent: 'center',
+        alignItems: 'center',
         opacity: exit,
       }}
     >
-      <div
-        style={{
-          opacity: headerOpacity,
-          textAlign: 'center',
-          marginBottom: 36,
-          fontSize: theme.type.h3,
-          color: theme.color.textDim,
-        }}
-      >
-        install from the <span style={{ color: theme.color.text }}>marketplace</span>.
+      <div style={{ marginBottom: 36 }}>
+        <SectionLabel n="02" label="how to install" />
       </div>
 
       <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', opacity: termOpacity }}>

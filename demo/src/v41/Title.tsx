@@ -1,16 +1,16 @@
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { theme } from '../theme';
+import { SectionLabel } from './SectionLabel';
 
 export const Title = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const titleY = spring({ frame, fps, config: { damping: 14, mass: 0.7 } });
-  const titleOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
-  const subOpacity = interpolate(frame, [28, 52], [0, 1], { extrapolateRight: 'clamp' });
-  const subY = spring({ frame: frame - 28, fps, config: { damping: 16 } });
-  const chipOpacity = interpolate(frame, [54, 76], [0, 1], { extrapolateRight: 'clamp' });
-  const exitOpacity = interpolate(frame, [150, 180], [1, 0], { extrapolateRight: 'clamp' });
+  const titleY = spring({ frame: frame - 12, fps, config: { damping: 14, mass: 0.7 } });
+  const titleOpacity = interpolate(frame, [12, 30], [0, 1], { extrapolateRight: 'clamp' });
+  const subOpacity = interpolate(frame, [40, 64], [0, 1], { extrapolateRight: 'clamp' });
+  const subY = spring({ frame: frame - 40, fps, config: { damping: 16 } });
+  const exitOpacity = interpolate(frame, [180, 210], [1, 0], { extrapolateRight: 'clamp' });
 
   return (
     <AbsoluteFill
@@ -21,7 +21,8 @@ export const Title = () => {
         opacity: exitOpacity,
       }}
     >
-      <div style={{ textAlign: 'center', maxWidth: 1500 }}>
+      <SectionLabel n="01" label="what it is" />
+      <div style={{ textAlign: 'center', maxWidth: 1500, marginTop: 30 }}>
         <div
           style={{
             opacity: titleOpacity,
@@ -38,35 +39,17 @@ export const Title = () => {
         </div>
         <div
           style={{
-            marginTop: 32,
+            marginTop: 36,
             opacity: subOpacity,
             transform: `translateY(${(1 - subY) * 30}px)`,
             fontSize: theme.type.h3,
             fontWeight: 400,
             color: theme.color.textDim,
-            lineHeight: 1.3,
+            lineHeight: 1.35,
           }}
         >
-          From idea to <span style={{ color: theme.color.text }}>spec-satisfied code</span>.
-        </div>
-        <div
-          style={{
-            marginTop: 44,
-            opacity: chipOpacity,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 14,
-            padding: '12px 24px',
-            borderRadius: 999,
-            border: `1px solid ${theme.color.borderStrong}`,
-            background: `${theme.color.surface}cc`,
-            color: theme.color.textDim,
-            fontSize: theme.type.label,
-            fontFamily: theme.font.mono,
-          }}
-        >
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: theme.color.accent }} />
-          v4.1.0 · SDD loop · context tools
+          Two Claude Code agents.{' '}
+          <span style={{ color: theme.color.text }}>From idea to merged PR, one pipeline.</span>
         </div>
       </div>
     </AbsoluteFill>
