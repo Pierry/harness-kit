@@ -1,0 +1,91 @@
+# Architecture
+
+How a stage is built, what the status bar shows, what gets laid into your repo, and which tools the
+harness leans on.
+
+## Anatomy of every stage
+
+```
+GUIDE       how to write it           pipeline.md · coding-style.md
+REF         context to pull in        AGENTS.md · prp/<feature>.md · conventions/{area}.md
+SENSOR      must-pass structure       deterministic, blocks approval
+EVAL        scored rubric             LLM-judge, threshold 8.0
+```
+
+An approval marker (`<!-- approved: -->`) gates the next stage. Token spend per phase is appended as
+an inline `<!-- tokens: ... -->` comment. See [Commands & gates](COMMANDS.md) for the sensor and eval
+list per stage.
+
+## Status bar
+
+A live indicator at the bottom of every Claude Code session:
+
+```
+idle · /product-manager:run · /sse:run · /pipeline:continue
+billing-fix [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next /sse:plan · sensor: plan-structure
+billing-fix · complete (prd/prp/plan/dev/test/pr)
+```
+
+State persists at `.claude/.pipeline-state.json`. Close the session and reopen — `/pipeline:continue`
+picks up at the next pending stage. When the PR merges, state auto-clears.
+
+## Project conventions
+
+The SSE agent has defaults per area. Override them per repo:
+
+```
+{your-repo}/.claude/conventions/{backend,web,mobile,devops}.md
+```
+
+Add only the area files you need; the agent reads them on top of its defaults. Reference:
+[`conventions-override.md`](../.claude/agents/staff-software-engineer/guides/conventions-override.md).
+
+## Layout
+
+What `/harness-kit:install` lays down in your repo:
+
+```
+{your-repo}/
+├── AGENTS.md                    agent registry + routing
+├── CLAUDE.md                    workspace style + role
+└── .claude/
+    ├── agents/                  agent definitions (sensors, evals, guides, skills)
+    ├── commands/                slash command entry points (pm, sse, context, pipeline)
+    ├── shared/                  cross-agent guides (context-strategy.md)
+    ├── hooks/                   status-line + lifecycle hooks
+    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · pack-repo.sh · graph-repo.sh
+    ├── runtime/
+    │   ├── hooks/<agent>/       per-agent lifecycle (post-write, post-eval, pre-prp-check)
+    │   ├── scripts/<agent>/     per-agent utilities (sensor-runner, token-phase, link-validator)
+    │   ├── outputs/{pm,sse}/    generated artifacts, markers, tokens (incl. sse/sdd/ loop transcripts)
+    │   └── cache/               repomix packs + graphify graphs (optional, gitignored)
+    ├── conventions/             your per-repo overrides
+    └── settings.json            hook wiring
+```
+
+Full path-by-path map in [`AGENTS.md`](../AGENTS.md).
+
+## Tooling
+
+| Tool | Why | Required |
+|------|-----|----------|
+| [Claude Code](https://claude.ai/code) | agent runtime | yes |
+| `python3` | sensors, token accounting, pipeline state | yes |
+| `git` | branch + commit ops | yes |
+| [gh CLI](https://cli.github.com/) | opens PR, polls for merge | for `/sse:pr` |
+| [repomix](https://repomix.com) | snapshot the target repo for AI context (`/context:pack`) | optional |
+| [graphify](https://github.com/safishamsi/graphify) | queryable knowledge graph of a repo (`/context:graph`) | optional |
+
+Install the optional tools:
+
+```bash
+npm i -g repomix           # or: brew install repomix
+uv tool install graphifyy  # or: pipx install graphifyy   (CLI cmd is `graphify`)
+```
+
+The installer detects both and prints a hint if missing — it never auto-installs. See
+[`context-strategy.md`](../.claude/shared/context-strategy.md) for when each tier is worth it
+(grep vs pack vs graph).
+
+Other optional: `jq` for token JSON queries; `JIRA_USERNAME` + `JIRA_API_TOKEN` to publish PRD/PRP to
+Confluence.
