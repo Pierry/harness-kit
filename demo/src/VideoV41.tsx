@@ -1,15 +1,20 @@
 import { AbsoluteFill, Sequence } from 'remotion';
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { loadFont as loadMono } from '@remotion/google-fonts/JetBrainsMono';
+import { loadFont as loadBricolage } from '@remotion/google-fonts/BricolageGrotesque';
+import { loadFont as loadHanken } from '@remotion/google-fonts/HankenGrotesk';
 import { theme } from './theme';
 import { Title } from './v41/Title';
 import { Install } from './v41/Install';
 import { Agents } from './v41/Agents';
 import { GoldenPath } from './v41/GoldenPath';
+import { UseIt } from './v41/UseIt';
 import { Outro } from './v41/Outro';
 
 loadInter();
 loadMono();
+loadBricolage();
+loadHanken();
 
 export const V41_FPS = 30;
 export const V41_WIDTH = 1920;
@@ -22,8 +27,9 @@ type Scene = { id: string; component: React.ComponentType; duration: number };
 export const v41Scenes: Scene[] = [
   { id: 'title',    component: Title,      duration: s(7) },   // 01 · what it is
   { id: 'install',  component: Install,    duration: s(18) },  // 02 · how to install
-  { id: 'agents',   component: Agents,     duration: s(14) },  // 03 · how to use
+  { id: 'agents',   component: Agents,     duration: s(14) },  // 03 · the agents
   { id: 'golden',   component: GoldenPath, duration: s(11) },  // 04 · the golden path
+  { id: 'useit',    component: UseIt,      duration: s(15) },  // 05 · how to use (brief → terminal)
   { id: 'outro',    component: Outro,      duration: s(5) },
 ];
 

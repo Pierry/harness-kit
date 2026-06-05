@@ -13,7 +13,7 @@ From idea to merged PR. One pipeline. Six stages. Or spec-driven loop until the 
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>55s walkthrough · what it is · install · <code>@agent</code> mentions · the golden path (idea → merged PR). Based on Claude Code <code>/goal</code> pattern.</sub>
+<sub>70s walkthrough · what it is · install · <code>@agent</code> mentions · the golden path · how to use it (brief → <code>/golden-path</code> → merged PR). Based on Claude Code <code>/goal</code> pattern.</sub>
 
 </div>
 
@@ -60,24 +60,28 @@ Update later: `/plugin update harness-kit` then `/harness-kit:update`.
 
 Pick the flow that matches the task. All of them share the same pipeline state, so you can switch between them mid-feature.
 
-### The golden path — idea to merged PR (one command)
+### The golden path — idea to merged PR
 
-A new feature with stakes, ambiguity, or a Jira ticket attached. You want a written PRD, a thought-through PRP, a plan, code, tests, and a PR. The **golden path** runs all six stages from one front door:
+The paved route for a feature with stakes, ambiguity, or a Jira ticket attached. Three steps from a raw idea to a merged PR:
 
-```
-/golden-path             # PM (prd → prp) then Eng (plan → dev → test → pr → monitor)
-```
+**1. Write the brief.** Open the **[idea-brief builder](https://pierry.github.io/harness-kit/brief/)** and fill the fields in-standard — squad, problem, hypothesis, customers, metric. Inline validation keeps you to the PRD conventions (problem ≤ 2 sentences, hypothesis as *if / then / because*, metrics with baseline + target + horizon).
 
-Opinionated, supported, optional. Approve each artifact when prompted; the status bar tracks where you are in the six stages. Pass SSE flags straight through — `/golden-path --local`, `--sdd`, `--no-monitor`.
-
-Prefer to drive each half yourself? Same pipeline, two commands:
+**2. Copy + paste.** Hit **Copy brief**. It hands you a paste-ready `/golden-path` kick with your idea as structured context. Paste it into Claude Code:
 
 ```
-/product-manager:run     # drafts PRD then PRP, with sensor + eval gates
-/sse:run                 # plans, implements, tests, opens PR, watches for merge
+/golden-path
+
+Squad: checkout
+Problem: Returning guests abandon checkout when a card is declined once …
+Hypothesis: If we add one-tap retry, then completion rises 5 points, because …
+Customers:
+- Returning guests — lose the cart on a one-off decline
+Success metric: checkout completion rate — from 71% to 76% within 30 days
 ```
 
-You can step off the path any time — run any stage solo (`/sse:plan`, `/sse:dev`, …). Full reference: [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md).
+**3. Approve and ship.** `/golden-path` runs all six gated stages — PM (`prd → prp`) then Eng (`plan → dev → test → pr → monitor`). Approve each artifact when prompted; the status bar tracks where you are. Pass SSE flags straight through: `/golden-path --local`, `--sdd`, `--no-monitor`.
+
+Already know the idea cold? Skip the builder and type `/golden-path` with the brief yourself — or drive each half: `/product-manager:run` then `/sse:run`. You can step off the path any time and run any stage solo (`/sse:plan`, `/sse:dev`, …). Full reference: [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md).
 
 ### Spec only — no code yet
 

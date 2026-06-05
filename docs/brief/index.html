@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>harness-kit · idea brief</title>
+<meta name="description" content="Write a product idea brief in the harness-kit standard, then paste it into the golden path: idea → merged PR." />
+<!--
+  Idea-brief builder for harness-kit.
+  Collects the minimal inputs the PRD generation needs (mirrors the
+  `prd` skill intake + templates/prd.md), validates against the prd
+  sensors, and emits a paste-ready /golden-path kick.
+  SOURCE OF TRUTH for fields/hints: .claude/agents/product-manager/guides/templates/prd.md
+  Type: Bricolage Grotesque (display) · Hanken Grotesk (body) · JetBrains Mono (code).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08090c; --bg-2: #0b0d11; --surface: #101319; --elev: #161a22;
+    --border: #1d222c; --border-strong: #2b323e;
+    --text: #edeff3; --dim: #9aa3b2; --faint: #5e6776;
+    --accent: #a78bfa; --accent-2: #c4b3ff; --accent-dim: #7c6ad9;
+    --gold: #fcc04a; --gold-deep: #e0a020;
+    --success: #6ee7b7; --success-dim: #34d399; --danger: #fb7185;
+    --code-bg: #0a0c10;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sans: "Hanken Grotesk", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 28px;
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+    font-size: 16px; line-height: 1.55; letter-spacing: -0.1px;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  /* atmosphere: layered meshes */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
+      radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
+      radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
+      linear-gradient(180deg, var(--bg), var(--bg-2));
+  }
+  /* atmosphere: fine grain */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { color: #fff; }
+
+  ::selection { background: #a78bfa44; }
+
+  /* header */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 40px; position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, #08090ce8, #08090cb0); backdrop-filter: blur(14px);
+    border-bottom: 1px solid #ffffff0a;
+  }
+  .wordmark { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: -0.5px; display: flex; align-items: baseline; gap: 12px; }
+  .wordmark .dash { color: var(--gold); }
+  .wordmark .sub { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0; }
+  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 26px; }
+
+  .wrap { max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+
+  /* hero */
+  .hero { padding: 72px 0 52px; max-width: 760px; }
+  .eyebrow {
+    display: inline-flex; gap: 12px; align-items: center; padding: 8px 16px 8px 14px;
+    border-radius: 999px; border: 1px solid var(--border-strong);
+    background: #ffffff06; font-family: var(--mono); font-size: 12px; letter-spacing: 0.4px; color: var(--dim);
+    margin-bottom: 26px;
+  }
+  .eyebrow b { color: var(--gold); font-weight: 700; }
+  .eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: var(--success-dim); box-shadow: 0 0 0 0 #34d39966; animation: pulse 2.4s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 #34d39955} 70%{box-shadow:0 0 0 7px #34d39900} 100%{box-shadow:0 0 0 0 #34d39900} }
+  h1 {
+    font-family: var(--display); font-weight: 800; font-size: clamp(40px, 6vw, 68px);
+    line-height: 0.98; letter-spacing: -2px; margin: 0 0 18px;
+  }
+  h1 .gold { background: linear-gradient(100deg, var(--gold), var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 19px; color: var(--dim); max-width: 580px; font-weight: 400; }
+  .lede code { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 8px; border-radius: 7px; font-size: 15px; }
+
+  /* layout */
+  .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; padding-bottom: 100px; align-items: start; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  /* section heads */
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 26px; }
+  .sec-head .n { font-family: var(--mono); font-size: 13px; color: var(--gold); font-weight: 700; }
+  .sec-head h2 { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin: 0; }
+
+  /* fields */
+  .field { margin-bottom: 30px; }
+  .field > label { display: block; font-weight: 600; font-size: 16px; margin-bottom: 5px; letter-spacing: -0.2px; }
+  .req, .opt { font-family: var(--mono); font-size: 10.5px; margin-left: 9px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 6px; }
+  .req { color: var(--gold); background: #fcc04a16; }
+  .opt { color: var(--faint); background: #ffffff08; }
+  .hint { color: var(--faint); font-size: 14px; margin: 0 0 12px; font-weight: 400; }
+
+  input[type=text], input[type=url], textarea, select {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-sm); color: var(--text); font-family: var(--sans);
+    font-size: 16px; padding: 14px 16px; outline: none; transition: border-color .15s var(--ease), box-shadow .15s var(--ease), background .15s;
+  }
+  input::placeholder, textarea::placeholder { color: #4d5666; }
+  textarea { resize: none; overflow: hidden; min-height: 96px; line-height: 1.55; }
+
+  /* thin, themed scrollbars (preview pane only really needs them) */
+  pre#out::-webkit-scrollbar { width: 10px; height: 10px; }
+  pre#out::-webkit-scrollbar-thumb { background: #2b323e; border-radius: 999px; border: 3px solid var(--code-bg); }
+  pre#out::-webkit-scrollbar-thumb:hover { background: #3a4250; }
+  pre#out::-webkit-scrollbar-track { background: transparent; }
+  pre#out { scrollbar-width: thin; scrollbar-color: #2b323e transparent; }
+  select { font-family: var(--mono); font-size: 15px; appearance: none; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+    background-position: right 18px center, right 13px center; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; }
+  input:hover, textarea:hover, select:hover { border-color: var(--border-strong); }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--elev); box-shadow: 0 0 0 4px #a78bfa1f; }
+
+  /* guided builder — the criteria boxes, now generous */
+  .builder {
+    border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00);
+    padding: 8px; position: relative; overflow: hidden;
+  }
+  .builder::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
+  .brow { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 14px; padding: 8px 12px; }
+  .brow + .brow { border-top: 1px dashed #ffffff10; }
+  .btag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent-2); }
+  .brow input { background: transparent; border: none; border-radius: 8px; padding: 12px 12px; font-size: 16px; }
+  .brow input:hover { background: #ffffff06; }
+  .brow input:focus { background: var(--elev); box-shadow: 0 0 0 1px var(--border-strong); }
+
+  /* metric sentence builder */
+  .metric { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); font-family: var(--sans); font-size: 16px; color: var(--dim); }
+  .metric .word { color: var(--faint); font-family: var(--mono); font-size: 13px; letter-spacing: 0.3px; }
+  .metric input { flex: 1 1 130px; min-width: 90px; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; font-size: 15px; }
+  .metric input.wide { flex: 2 1 200px; }
+
+  .flag { font-family: var(--mono); font-size: 12.5px; margin-top: 10px; display: none; align-items: center; gap: 7px; }
+  .flag.warn { color: var(--gold); display: flex; }
+  .flag.ok { color: var(--success-dim); display: flex; }
+
+  /* preview pane */
+  .preview { position: sticky; top: 100px; }
+  .terminal {
+    background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: var(--r-lg);
+    box-shadow: 0 30px 90px #00000080, 0 2px 0 #ffffff08 inset; overflow: hidden; position: relative;
+  }
+  .terminal::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; background: linear-gradient(90deg, transparent, #fcc04a55, transparent); }
+  .term-bar { display: flex; align-items: center; gap: 9px; padding: 15px 20px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--elev), #12151c); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .term-bar .title { margin-left: 14px; color: var(--dim); font-family: var(--mono); font-size: 13px; }
+  pre#out { margin: 0; padding: 26px; font-family: var(--mono); font-size: 14px; line-height: 1.72;
+    color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 56vh; overflow: auto; }
+  pre#out .cmd { color: var(--gold); font-weight: 700; }
+  pre#out .key { color: var(--accent-2); }
+
+  .actions { display: flex; gap: 14px; margin-top: 18px; align-items: center; }
+  button.copy {
+    font-family: var(--mono); font-size: 14px; font-weight: 700; color: #1a1205;
+    background: linear-gradient(100deg, var(--gold), var(--gold-deep)); border: none; border-radius: var(--r-sm); padding: 14px 26px; cursor: pointer;
+    transition: transform .1s var(--ease), filter .15s, box-shadow .2s; box-shadow: 0 8px 24px #fcc04a22;
+  }
+  button.copy:hover { filter: brightness(1.06); box-shadow: 0 10px 30px #fcc04a38; }
+  button.copy:active { transform: translateY(1px); }
+  button.copy.done { background: linear-gradient(100deg, var(--success), var(--success-dim)); color: #052e22; box-shadow: 0 8px 24px #34d39933; }
+  .copyhint { font-family: var(--mono); font-size: 12.5px; color: var(--faint); }
+
+  .path { margin-top: 26px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .path .stage { padding: 5px 11px; border: 1px solid var(--border); border-radius: 999px; background: #ffffff04; }
+  .path .stage.pm { color: var(--accent-2); border-color: #a78bfa3a; }
+  .path .stage.sse { color: var(--gold); border-color: #fcc04a3a; }
+  .path .arrow { color: #3a4250; }
+  .path .end { color: var(--success-dim); font-weight: 700; }
+
+  footer { border-top: 1px solid #ffffff0a; padding: 32px 0 64px; color: var(--faint); font-family: var(--mono); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub">idea brief</span></div>
+  <nav>
+    <a href="../GOLDEN-PATH.md">golden path ↗</a>
+    <a href="https://github.com/Pierry/harness-kit">github ↗</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow"><span class="live"></span> step <b>00</b> · the idea</span>
+    <h1>Write the brief.<br />Ship the <span class="gold">golden path</span>.</h1>
+    <p class="lede">Shape your idea in the harness-kit standard, then copy a paste-ready <code>/golden-path</code> kick into Claude Code — it turns the brief into a PRD, a plan, code, tests, and a merged PR.</p>
+  </section>
+
+  <div class="grid">
+    <!-- FORM -->
+    <form id="brief" autocomplete="off">
+      <div class="sec-head"><span class="n">01</span><h2>The shape of it</h2></div>
+
+      <div class="field">
+        <label for="squad">Squad <span class="req">required</span></label>
+        <p class="hint">Which team owns this. Sets context and the feature_id.</p>
+        <input type="text" id="squad" placeholder="checkout" />
+      </div>
+
+      <div class="field">
+        <label for="stage">Stage <span class="req">required</span></label>
+        <p class="hint">Where the idea sits in its lifecycle.</p>
+        <select id="stage">
+          <option>Team Kickoff</option>
+          <option>Planning Review</option>
+          <option>Solution Review</option>
+          <option>Launch Readiness</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="problem">Problem <span class="req">required</span></label>
+        <p class="hint">Two sentences, tops. Who suffers, how often, what it costs.</p>
+        <textarea id="problem" placeholder="Returning guests abandon checkout when a card is declined once — there's no retry, just an error. It hits ~8% of attempts and costs ~R$120k/month in lost orders."></textarea>
+        <div class="flag" id="problem-flag"></div>
+      </div>
+
+      <div class="sec-head" style="margin-top:44px"><span class="n">02</span><h2>The bet</h2></div>
+
+      <div class="field">
+        <label>Hypothesis <span class="req">required</span></label>
+        <p class="hint">A testable claim. Fill all three — it reads as one sentence.</p>
+        <div class="builder">
+          <div class="brow"><span class="btag">If we</span><input type="text" id="hyp-if" placeholder="add one-tap payment retry" /></div>
+          <div class="brow"><span class="btag">then</span><input type="text" id="hyp-then" placeholder="checkout completion rises 5 points" /></div>
+          <div class="brow"><span class="btag">because</span><input type="text" id="hyp-because" placeholder="most first-attempt declines are transient" /></div>
+        </div>
+        <div class="flag" id="hyp-flag"></div>
+      </div>
+
+      <div class="field">
+        <label>Success metric <span class="opt">optional</span></label>
+        <p class="hint">The needle you'll move. Make it verifiable.</p>
+        <div class="metric">
+          <span class="word">move</span>
+          <input type="text" id="m-name" class="wide" placeholder="checkout completion rate" />
+          <span class="word">from</span>
+          <input type="text" id="m-base" placeholder="71%" />
+          <span class="word">to</span>
+          <input type="text" id="m-target" placeholder="76%" />
+          <span class="word">within</span>
+          <input type="text" id="m-horizon" placeholder="30 days" />
+        </div>
+        <div class="flag" id="m-flag"></div>
+      </div>
+
+      <div class="sec-head" style="margin-top:44px"><span class="n">03</span><h2>Who & why</h2></div>
+
+      <div class="field">
+        <label for="customers">Customers <span class="req">required</span></label>
+        <p class="hint">Who it's for and why it matters to them. One per line.</p>
+        <textarea id="customers" placeholder="Returning guests — lose the cart when a good card is declined once&#10;Support — fields refund tickets from accidental double-charges"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="bet">Bet link <span class="opt">optional</span></label>
+        <p class="hint">Strategy doc, OKR, or Jira ticket this rolls up to.</p>
+        <input type="url" id="bet" placeholder="https://jira/CHECKOUT-1234" />
+      </div>
+
+      <div class="field">
+        <label for="evidence">Evidence <span class="opt">optional</span></label>
+        <p class="hint">A user quote, a data point, a ticket id. One per line.</p>
+        <textarea id="evidence" placeholder="&quot;I gave up and bought it on Amazon instead&quot; — NPS verbatim&#10;CHECKOUT-980: 142 retry-related tickets last quarter"></textarea>
+      </div>
+    </form>
+
+    <!-- PREVIEW -->
+    <div class="preview">
+      <div class="terminal">
+        <div class="term-bar">
+          <span class="dot" style="background:#ff5f57"></span>
+          <span class="dot" style="background:#febc2e"></span>
+          <span class="dot" style="background:#28c840"></span>
+          <span class="title">paste into claude code</span>
+        </div>
+        <pre id="out"></pre>
+      </div>
+      <div class="actions">
+        <button type="button" class="copy" id="copyBtn">Copy brief</button>
+        <span class="copyhint" id="copyHint">fill the required fields →</span>
+      </div>
+      <div class="path">
+        <span class="stage pm">prd</span><span class="stage pm">prp</span>
+        <span class="arrow">→</span>
+        <span class="stage sse">plan</span><span class="stage sse">dev</span><span class="stage sse">test</span><span class="stage sse">pr</span>
+        <span class="arrow">→</span>
+        <span class="end">merged PR</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit · the golden path starts with a good brief</span>
+    <span><a href="../GOLDEN-PATH.md">docs/GOLDEN-PATH.md</a> · <a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fields = ['squad','stage','problem','hyp-if','hyp-then','hyp-because','customers','m-name','m-base','m-target','m-horizon','bet','evidence'];
+  var out = $('out'), copyBtn = $('copyBtn'), copyHint = $('copyHint');
+
+  function val(id) { return ($(id).value || '').trim(); }
+  function lines(id) { return val(id).split('\n').map(function (s){return s.trim();}).filter(Boolean); }
+
+  function sentenceCount(t) {
+    if (!t) return 0;
+    var m = t.replace(/\s+/g, ' ').match(/[^.!?]+[.!?]*/g);
+    return m ? m.filter(function (s){ return s.trim().length; }).length : 0;
+  }
+
+  function validate() {
+    var p = val('problem'), pf = $('problem-flag'), sc = sentenceCount(p);
+    if (!p) { pf.className = 'flag'; }
+    else if (sc > 2) { pf.className = 'flag warn'; pf.textContent = '⚠ ' + sc + ' sentences — trim to 2'; }
+    else { pf.className = 'flag ok'; pf.textContent = '✓ ' + sc + ' sentence' + (sc===1?'':'s'); }
+
+    var hf = $('hyp-flag'), filled = [val('hyp-if'), val('hyp-then'), val('hyp-because')].filter(Boolean).length;
+    if (filled === 0) { hf.className = 'flag'; }
+    else if (filled < 3) { hf.className = 'flag warn'; hf.textContent = '⚠ fill all three — if · then · because'; }
+    else { hf.className = 'flag ok'; hf.textContent = '✓ if / then / because complete'; }
+
+    var mf = $('m-flag'), mname = val('m-name');
+    var mparts = [val('m-base'), val('m-target'), val('m-horizon')].filter(Boolean).length;
+    if (!mname && mparts === 0) { mf.className = 'flag'; }
+    else if (mname && mparts < 3) { mf.className = 'flag warn'; mf.textContent = '⚠ add baseline, target and horizon to make it verifiable'; }
+    else if (mname) { mf.className = 'flag ok'; mf.textContent = '✓ measurable'; }
+    else { mf.className = 'flag warn'; mf.textContent = '⚠ name the metric'; }
+
+    return { problemOk: !!p && sc <= 2, hypOk: filled === 3 };
+  }
+
+  function ready() {
+    var v = validate();
+    return val('squad') && v.problemOk && v.hypOk && val('customers');
+  }
+
+  function buildText() {
+    var L = [];
+    L.push('/golden-path');
+    L.push('');
+    L.push('Draft the PRD from this brief, then take it through to a merged PR.');
+    L.push('');
+    L.push('Squad: ' + (val('squad') || '{squad}'));
+    L.push('Stage: ' + val('stage'));
+    if (val('bet')) L.push('Bet: ' + val('bet'));
+    L.push('');
+    L.push('Problem: ' + (val('problem') || '{problem — who suffers, how often, what it costs}'));
+    L.push('');
+    var hif = val('hyp-if'), ht = val('hyp-then'), hb = val('hyp-because');
+    if (hif || ht || hb) {
+      L.push('Hypothesis: If we ' + (hif||'{X}') + ', then ' + (ht||'{Y}') + ', because ' + (hb||'{Z}') + '.');
+      L.push('');
+    }
+    var cust = lines('customers');
+    if (cust.length) { L.push('Customers:'); cust.forEach(function (c){ L.push('- ' + c); }); L.push(''); }
+    if (val('m-name')) {
+      var seg = 'Success metric: ' + val('m-name');
+      if (val('m-base') && val('m-target')) seg += ' — from ' + val('m-base') + ' to ' + val('m-target');
+      if (val('m-horizon')) seg += ' within ' + val('m-horizon');
+      L.push(seg); L.push('');
+    }
+    var ev = lines('evidence');
+    if (ev.length) { L.push('Evidence:'); ev.forEach(function (e){ L.push('- ' + e); }); L.push(''); }
+    while (L.length && L[L.length-1] === '') L.pop();
+    return L.join('\n');
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    var txt = buildText();
+    var html = esc(txt)
+      .replace(/^\/golden-path/, '<span class="cmd">/golden-path</span>')
+      .replace(/^(Squad|Stage|Bet|Problem|Hypothesis|Customers|Success metric|Evidence):/gm, '<span class="key">$1:</span>');
+    out.innerHTML = html;
+    copyHint.textContent = ready() ? 'ready · paste into claude code' : 'fill the required fields →';
+  }
+
+  function copy() {
+    var txt = buildText();
+    function done() {
+      copyBtn.textContent = 'Copied ✓'; copyBtn.classList.add('done');
+      copyHint.textContent = 'now paste it into Claude Code';
+      setTimeout(function () { copyBtn.textContent = 'Copy brief'; copyBtn.classList.remove('done'); copyHint.textContent = ready() ? 'ready · paste into claude code' : 'fill the required fields →'; }, 1900);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); done();
+    }
+  }
+
+  // textareas grow with their content — no inner scrollbar, no resize handle
+  function autogrow(el) { el.style.height = 'auto'; el.style.height = Math.max(96, el.scrollHeight) + 'px'; }
+  var areas = ['problem','customers','evidence'].map($);
+  areas.forEach(function (el) { el.addEventListener('input', function () { autogrow(el); }); });
+
+  fields.forEach(function (id) { $(id).addEventListener('input', render); });
+  copyBtn.addEventListener('click', copy);
+  render();
+  areas.forEach(autogrow);
+})();
+</script>
+</body>
+</html>
