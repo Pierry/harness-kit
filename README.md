@@ -52,6 +52,7 @@ watches for merge and clears state on its own.
 ```
 /plugin marketplace add Pierry/harness-kit
 /plugin install harness-kit@harness-kit
+Restart your Claude Code and then:
 /harness-kit:install
 ```
 
