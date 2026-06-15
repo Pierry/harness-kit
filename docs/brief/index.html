@@ -127,7 +127,7 @@
   input:hover, textarea:hover, select:hover { border-color: var(--border-strong); }
   input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--elev); box-shadow: 0 0 0 4px #a78bfa1f; }
 
-  /* guided builder — the criteria boxes, now generous */
+  /* guided builder, the criteria boxes, now generous */
   .builder {
     border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00);
     padding: 8px; position: relative; overflow: hidden;
@@ -200,7 +200,7 @@
   <section class="hero">
     <span class="eyebrow"><span class="live"></span> step <b>00</b> · the idea</span>
     <h1>Write the brief.<br />Ship the <span class="gold">golden path</span>.</h1>
-    <p class="lede">Shape your idea in the harness-kit standard, then copy a paste-ready <code>/golden-path</code> kick into Claude Code — it turns the brief into a PRD, a plan, code, tests, and a merged PR.</p>
+    <p class="lede">Shape your idea in the harness-kit standard, then copy a paste-ready <code>/golden-path</code> kick into Claude Code, it turns the brief into a PRD, a plan, code, tests, and a merged PR.</p>
   </section>
 
   <div class="grid">
@@ -228,7 +228,7 @@
       <div class="field">
         <label for="problem">Problem <span class="req">required</span></label>
         <p class="hint">Two sentences, tops. Who suffers, how often, what it costs.</p>
-        <textarea id="problem" placeholder="Returning guests abandon checkout when a card is declined once — there's no retry, just an error. It hits ~8% of attempts and costs ~R$120k/month in lost orders."></textarea>
+        <textarea id="problem" placeholder="Returning guests abandon checkout when a card is declined once, there's no retry, just an error. It hits ~8% of attempts and costs ~R$120k/month in lost orders."></textarea>
         <div class="flag" id="problem-flag"></div>
       </div>
 
@@ -236,7 +236,7 @@
 
       <div class="field">
         <label>Hypothesis <span class="req">required</span></label>
-        <p class="hint">A testable claim. Fill all three — it reads as one sentence.</p>
+        <p class="hint">A testable claim. Fill all three, it reads as one sentence.</p>
         <div class="builder">
           <div class="brow"><span class="btag">If we</span><input type="text" id="hyp-if" placeholder="add one-tap payment retry" /></div>
           <div class="brow"><span class="btag">then</span><input type="text" id="hyp-then" placeholder="checkout completion rises 5 points" /></div>
@@ -266,7 +266,7 @@
       <div class="field">
         <label for="customers">Customers <span class="req">required</span></label>
         <p class="hint">Who it's for and why it matters to them. One per line.</p>
-        <textarea id="customers" placeholder="Returning guests — lose the cart when a good card is declined once&#10;Support — fields refund tickets from accidental double-charges"></textarea>
+        <textarea id="customers" placeholder="Returning guests, lose the cart when a good card is declined once&#10;Support, fields refund tickets from accidental double-charges"></textarea>
       </div>
 
       <div class="field">
@@ -278,7 +278,7 @@
       <div class="field">
         <label for="evidence">Evidence <span class="opt">optional</span></label>
         <p class="hint">A user quote, a data point, a ticket id. One per line.</p>
-        <textarea id="evidence" placeholder="&quot;I gave up and bought it on Amazon instead&quot; — NPS verbatim&#10;CHECKOUT-980: 142 retry-related tickets last quarter"></textarea>
+        <textarea id="evidence" placeholder="&quot;I gave up and bought it on Amazon instead&quot;, NPS verbatim&#10;CHECKOUT-980: 142 retry-related tickets last quarter"></textarea>
       </div>
     </form>
 
@@ -333,12 +333,12 @@
   function validate() {
     var p = val('problem'), pf = $('problem-flag'), sc = sentenceCount(p);
     if (!p) { pf.className = 'flag'; }
-    else if (sc > 2) { pf.className = 'flag warn'; pf.textContent = '⚠ ' + sc + ' sentences — trim to 2'; }
+    else if (sc > 2) { pf.className = 'flag warn'; pf.textContent = '⚠ ' + sc + ' sentences, trim to 2'; }
     else { pf.className = 'flag ok'; pf.textContent = '✓ ' + sc + ' sentence' + (sc===1?'':'s'); }
 
     var hf = $('hyp-flag'), filled = [val('hyp-if'), val('hyp-then'), val('hyp-because')].filter(Boolean).length;
     if (filled === 0) { hf.className = 'flag'; }
-    else if (filled < 3) { hf.className = 'flag warn'; hf.textContent = '⚠ fill all three — if · then · because'; }
+    else if (filled < 3) { hf.className = 'flag warn'; hf.textContent = '⚠ fill all three, if · then · because'; }
     else { hf.className = 'flag ok'; hf.textContent = '✓ if / then / because complete'; }
 
     var mf = $('m-flag'), mname = val('m-name');
@@ -366,7 +366,7 @@
     L.push('Stage: ' + val('stage'));
     if (val('bet')) L.push('Bet: ' + val('bet'));
     L.push('');
-    L.push('Problem: ' + (val('problem') || '{problem — who suffers, how often, what it costs}'));
+    L.push('Problem: ' + (val('problem') || '{problem, who suffers, how often, what it costs}'));
     L.push('');
     var hif = val('hyp-if'), ht = val('hyp-then'), hb = val('hyp-because');
     if (hif || ht || hb) {
@@ -377,7 +377,7 @@
     if (cust.length) { L.push('Customers:'); cust.forEach(function (c){ L.push('- ' + c); }); L.push(''); }
     if (val('m-name')) {
       var seg = 'Success metric: ' + val('m-name');
-      if (val('m-base') && val('m-target')) seg += ' — from ' + val('m-base') + ' to ' + val('m-target');
+      if (val('m-base') && val('m-target')) seg += ', from ' + val('m-base') + ' to ' + val('m-target');
       if (val('m-horizon')) seg += ' within ' + val('m-horizon');
       L.push(seg); L.push('');
     }
@@ -415,7 +415,7 @@
     }
   }
 
-  // textareas grow with their content — no inner scrollbar, no resize handle
+  // textareas grow with their content, no inner scrollbar, no resize handle
   function autogrow(el) { el.style.height = 'auto'; el.style.height = Math.max(96, el.scrollHeight) + 'px'; }
   var areas = ['problem','customers','evidence'].map($);
   areas.forEach(function (el) { el.addEventListener('input', function () { autogrow(el); }); });

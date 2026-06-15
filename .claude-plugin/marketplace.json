@@ -5,7 +5,7 @@
     "name": "Space Metrics AI",
     "email": "pieerry@gmail.com"
   },
-  "description": "Harness Kit — Claude Code harness for product + engineering delivery. From idea to merged PR through one consistent pipeline.",
+  "description": "Harness Kit, Claude Code harness for product + engineering delivery. From idea to merged PR through one consistent pipeline.",
   "plugins": [
     {
       "name": "harness-kit",

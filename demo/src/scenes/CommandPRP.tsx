@@ -10,7 +10,7 @@ export const CommandPRP = () => {
       kicker="step 2 of 6 · product"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/product-manager:prp</span> — engineering-ready spec
+          <span style={{ color: theme.color.accent }}>/product-manager:prp</span>, engineering-ready spec
         </>
       }
       termTitle="claude code · billing"

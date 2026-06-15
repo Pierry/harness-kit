@@ -4,6 +4,7 @@
 
 **Idea to merged PR, through one gated pipeline.**
 
+
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 

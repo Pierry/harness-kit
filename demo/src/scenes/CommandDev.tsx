@@ -10,7 +10,7 @@ export const CommandDev = () => {
       kicker="step 4 of 6 · engineering"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/sse:dev</span> — implement the plan
+          <span style={{ color: theme.color.accent }}>/sse:dev</span>, implement the plan
         </>
       }
       termTitle="claude code · billing-service"

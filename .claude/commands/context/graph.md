@@ -30,14 +30,14 @@ docs:    https://github.com/safishamsi/graphify
 
 ## When to use
 
-- Target repo touched by many features (e.g. main product monorepo) — amortize build cost
-- Plan stage needs "find all callers of X", "where does Y live" — graph query >> grep
+- Target repo touched by many features (e.g. main product monorepo): amortize build cost
+- Plan stage needs "find all callers of X", "where does Y live", graph query >> grep
 - PRP `## 4) Context → Repos and files touched` discovery
 - ~71× token reduction on queries vs raw file reads (per graphify benchmarks)
 
 When NOT to use:
-- One-off small repo — overkill
-- Hot repo with high commit churn — graph stales fast, use `--update` hook (see Hot-repo section)
+- One-off small repo, overkill
+- Hot repo with high commit churn, graph stales fast, use `--update` hook (see Hot-repo section)
 - No `graphify` binary in env
 
 ## Reply format
@@ -62,4 +62,4 @@ Each commit triggers `graphify . --update`. Graph stays fresh, harness-kit cache
 
 ## Privacy note
 
-Code-only mode runs Tree-sitter locally — no network calls. Only the optional `--with-docs` step (not enabled by default in this wrapper) sends semantic descriptions of non-code files to a configured LLM. Raw source code never leaves the machine.
+Code-only mode runs Tree-sitter locally, no network calls. Only the optional `--with-docs` step (not enabled by default in this wrapper) sends semantic descriptions of non-code files to a configured LLM. Raw source code never leaves the machine.

@@ -5,10 +5,10 @@ Every command in the harness, and the sensors and evals that gate each stage.
 ## Pipeline commands
 
 ```
-/golden-path                   idea to merged PR — runs the full PM then Eng pipeline
+/golden-path                   idea to merged PR, runs the full PM then Eng pipeline
 /product-manager:run           draft PRD then PRP
 /sse:run                       plan, dev, test, open PR, watch for merge
-/sse:run --local               plan, dev, test — stop before PR
+/sse:run --local               plan, dev, test, stop before PR
 /sse:sdd                       spec-driven loop: dev↔test↔eval until the PRP is met, no PR
 /context:pack <feature_id>     repomix snapshot of the target repo (per-feature cache)
 /context:graph [repo]          graphify knowledge graph of a target repo (per-repo cache)
@@ -34,10 +34,10 @@ Each stage is its own slash command. Run one when that's all you need.
 
 - **Sensors** are deterministic structure checks. They block on failure, and Claude regenerates the
   artifact until they pass.
-- **Evals** are LLM-judge rubrics scored 0–10. Threshold is **8.0**, retried up to 3 times.
+- **Evals** are LLM-judge rubrics scored 0-10. Threshold is **8.0**, retried up to 3 times.
 - The **SDD eval** (`spec-satisfied`) returns `PASS`/`FAIL` instead of a score. `FAIL` re-enters the
   loop with a `next_iter_focus` hint. The loop predicate is built from the PRP's
-  `Success criteria (verifiable)` and `Validation gates` sections — both must be present and
+  `Success criteria (verifiable)` and `Validation gates` sections, both must be present and
   concrete, or the `prp-has-acceptance-criteria` sensor blocks before the first iteration. Hitting
   the cap without a `PASS` returns a blocker listing the unmet criteria.
 

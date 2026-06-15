@@ -33,7 +33,7 @@ question = "supervisor eval reads diff + minimal context (SDD loop)"
 ### `/product-manager:prp`
 - § 4 Context discovery: prefer graph query (if cached) over grep
 - `Repos and files touched` list: graph + grep both OK; graph faster
-- No pack here — PRP is upstream of pack
+- No pack here, PRP is upstream of pack
 
 ### `/sse:plan`
 - Read order:
@@ -44,7 +44,7 @@ question = "supervisor eval reads diff + minimal context (SDD loop)"
 - Don't double-load. If pack covers all PRP-listed files, skip grep.
 
 ### `/sse:dev`
-- Never reads stale pack/graph for the live code — code is mutating per commit.
+- Never reads stale pack/graph for the live code, code is mutating per commit.
 - Reads plan only. Use grep/Read on live repo for guidance lookups.
 
 ### `/sse:test`

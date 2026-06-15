@@ -17,7 +17,7 @@ Plugin cache has no git remote, so newest source comes from the **plugin** itsel
 bash "${CLAUDE_PLUGIN_ROOT}/setup/update.sh" "${CLAUDE_PROJECT_DIR}"
 ```
 
-`update.sh` in plugin cache (no `.git`) falls through to reinstall of the bundled version — expected. It backs up existing `.claude/settings.json` and reports version delta via `.claude/.hk-version`.
+`update.sh` in plugin cache (no `.git`) falls through to reinstall of the bundled version, expected. It backs up existing `.claude/settings.json` and reports version delta via `.claude/.hk-version`.
 
 Relay output verbatim. Tell user to **restart Claude Code** after.
 

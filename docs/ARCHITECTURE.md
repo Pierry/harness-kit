@@ -26,7 +26,7 @@ billing-fix [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next 
 billing-fix · complete (prd/prp/plan/dev/test/pr)
 ```
 
-State persists at `.claude/.pipeline-state.json`. Close the session and reopen — `/pipeline:continue`
+State persists at `.claude/.pipeline-state.json`. Close the session and reopen, `/pipeline:continue`
 picks up at the next pending stage. When the PR merges, state auto-clears.
 
 ## Project conventions
@@ -83,7 +83,7 @@ npm i -g repomix           # or: brew install repomix
 uv tool install graphifyy  # or: pipx install graphifyy   (CLI cmd is `graphify`)
 ```
 
-The installer detects both and prints a hint if missing — it never auto-installs. See
+The installer detects both and prints a hint if missing, it never auto-installs. See
 [`context-strategy.md`](../.claude/shared/context-strategy.md) for when each tier is worth it
 (grep vs pack vs graph).
 

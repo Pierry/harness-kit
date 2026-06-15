@@ -31,7 +31,7 @@ Missing either side → NOT MET.
 Every command in PRP section 6 "Validation gates" bash block exit 0 in latest test report. UNCLEAR if command not run.
 
 ### 3. Manual verification items
-Each `- [ ]` under "Manual verification" in PRP. Worker cannot tick these — flag as PENDING for user. Do not block goal on these; report separately.
+Each `- [ ]` under "Manual verification" in PRP. Worker cannot tick these, flag as PENDING for user. Do not block goal on these; report separately.
 
 ### 4. Scope discipline
 No code change outside PRP "Repos and files touched" without justification in dev summary. Out-of-scope diff hunks → flag for review, not auto-fail.

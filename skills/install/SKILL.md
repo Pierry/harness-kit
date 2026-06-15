@@ -10,13 +10,13 @@ Install harness-kit into the user's project. Plugin ships full harness; this ski
 
 Installer copies into the **target project** (`${CLAUDE_PROJECT_DIR}`):
 
-- `.claude/agents/` — product-manager + staff-software-engineer (sensors, evals, guides, skills)
-- `.claude/commands/` — `/product-manager:*`, `/sse:*`, `/pipeline:*`, `/context:*`
-- `.claude/runtime/` — per-agent hooks + scripts (outputs/ stay target-side state)
-- `.claude/hooks/` + `.claude/scripts/` — status bar, pipeline tracking, token accounting
-- `.claude/shared/` — cross-agent guides
-- `.claude/conventions/` — scaffold for project overrides
-- `.claude/settings.json` — wires hooks + status bar (existing one backed up first)
+- `.claude/agents/`, product-manager + staff-software-engineer (sensors, evals, guides, skills)
+- `.claude/commands/`, `/product-manager:*`, `/sse:*`, `/pipeline:*`, `/context:*`
+- `.claude/runtime/`, per-agent hooks + scripts (outputs/ stay target-side state)
+- `.claude/hooks/` + `.claude/scripts/`, status bar, pipeline tracking, token accounting
+- `.claude/shared/`, cross-agent guides
+- `.claude/conventions/`, scaffold for project overrides
+- `.claude/settings.json`, wires hooks + status bar (existing one backed up first)
 - `AGENTS.md` at repo root; `CLAUDE.md` if absent
 
 This modifies files in the user's repo. Tell user what runs before running. Existing `.claude/settings.json` backed up to `.claude/settings.json.bak.<stamp>`.
@@ -35,7 +35,7 @@ Relay installer output verbatim. On `missing agents` / `git not found` / `python
 
 Tell user: **restart Claude Code** to load agents, commands, hooks, status bar. Then:
 
-- `/golden-path` — the golden path: idea → merged PR in one command
+- `/golden-path`, the golden path: idea → merged PR in one command
 - `/product-manager:prd | :prp | :run`
 - `/sse:plan | :dev | :test | :pr | :run | :sdd`
 - `/pipeline:continue | :reset`

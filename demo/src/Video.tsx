@@ -39,11 +39,11 @@ const s = (sec: number) => sec * FPS;
 
 export const scenes: SceneSpec[] = [
   { id: 'intro',    component: Intro,             duration: s(4),  status: null },
-  { id: 'pipeline', component: Pipeline,          duration: s(7),  status: { skill: '—', stage: 'overview', next: '—' } },
+  { id: 'pipeline', component: Pipeline,          duration: s(7),  status: { skill: ',', stage: 'overview', next: ',' } },
   { id: 'agents',   component: Agents,            duration: s(6),  status: { skill: 'AGENTS.md', stage: 'registry', next: 'product-manager · staff-software-engineer' } },
   { id: 'skills',   component: Skills,            duration: s(6),  status: { skill: 'agent skills', stage: 'area + role', next: 'loaded per stage' } },
   { id: 'install',  component: Install,           duration: s(8),  status: { skill: 'installer', stage: 'install', next: 'restart claude code' } },
-  { id: 'sb',       component: StatusBarExplain,  duration: s(5),  status: { skill: '—', stage: 'idle', next: '/product-manager:run · /sse:run · /pipeline:continue' } },
+  { id: 'sb',       component: StatusBarExplain,  duration: s(5),  status: { skill: ',', stage: 'idle', next: '/product-manager:run · /sse:run · /pipeline:continue' } },
   { id: 'sbdyn',    component: DynamicStatusBar,  duration: s(9),  status: { skill: 'status bar', stage: 'live shape · live state', next: 'reflects every action' } },
   { id: 'prd',      component: CommandPRD,        duration: s(10), status: { skill: 'product-manager:prd',  stage: 'prd drafting',  next: '/product-manager:prd  →  approve' } },
   { id: 'prp',      component: CommandPRP,        duration: s(10), status: { skill: 'product-manager:prp',  stage: 'prp drafting',  next: '/product-manager:prp  →  approve' } },

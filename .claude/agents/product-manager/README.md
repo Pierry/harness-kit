@@ -12,7 +12,7 @@ Registered in [`AGENTS.md`](../../../AGENTS.md). Agent definition: [`product-man
 
 Also invokable as sub-agent via Task tool with `subagent_type: "product-manager"`.
 
-PRP explorer (`skills/prp/SKILL.md`) consults optional context cache before grep: cached graphify graph or repomix pack at `.claude/runtime/cache/{graphify,repomix}/`. See [`.claude/shared/context-strategy.md`](../../../.claude/shared/context-strategy.md). Built via `/context:graph` or `/context:pack` — manual, optional.
+PRP explorer (`skills/prp/SKILL.md`) consults optional context cache before grep: cached graphify graph or repomix pack at `.claude/runtime/cache/{graphify,repomix}/`. See [`.claude/shared/context-strategy.md`](../../../.claude/shared/context-strategy.md). Built via `/context:graph` or `/context:pack`, manual, optional.
 
 ## Tree
 
@@ -93,9 +93,9 @@ jq -s '.[] | select(.feature_id | contains("dispatch"))' .claude/runtime/outputs
 After a PRP is approved, engineering picks it up via the [staff-software-engineer plugin](../staff-software-engineer/README.md). The SSE plugin reads `.claude/runtime/outputs/pm/prp/{feature_id}.md` and runs plan → dev → test → pr stages, all writing to the same `.claude/runtime/outputs/pm/tokens/{feature_id}.json` file. Full feature lifecycle in one token log.
 
 Engineering can choose:
-- `/sse:run` — full pipeline through merged PR
-- `/sse:run --local` — plan, dev, test; stop before PR
-- `/sse:sdd` — spec-driven loop using the PRP's `Success criteria (verifiable)` + `Validation gates` as goal predicate. PRP authors should write **testable** criteria — vague bullets fail the `prp-has-acceptance-criteria` pre-flight sensor and block the loop.
+- `/sse:run`, full pipeline through merged PR
+- `/sse:run --local`, plan, dev, test; stop before PR
+- `/sse:sdd`, spec-driven loop using the PRP's `Success criteria (verifiable)` + `Validation gates` as goal predicate. PRP authors should write **testable** criteria, vague bullets fail the `prp-has-acceptance-criteria` pre-flight sensor and block the loop.
 
 ## Status bar
 

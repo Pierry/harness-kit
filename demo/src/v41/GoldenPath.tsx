@@ -112,8 +112,8 @@ export const GoldenPath = () => {
           color: theme.color.textFaint,
         }}
       >
-        <LegendDot color={theme.color.accent} text="/product-manager:run — prd · prp" />
-        <LegendDot color={gold} text="/sse:run — plan · dev · test · pr" />
+        <LegendDot color={theme.color.accent} text="/product-manager:run, prd · prp" />
+        <LegendDot color={gold} text="/sse:run, plan · dev · test · pr" />
       </div>
 
       {/* properties tagline */}
