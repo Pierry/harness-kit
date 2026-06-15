@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>harness-kit · usage guide</title>
+<meta name="description" content="harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." />
+<meta property="og:title" content="harness-kit · usage guide" />
+<meta property="og:description" content="Idea to merged PR, through one gated pipeline of Claude Code agents." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/" />
+<!--
+  harness-kit usage-guide landing page. Mirrors README.md content
+  (what/why, install, golden path, commands, agents, docs) and reuses
+  the visual system from docs/brief/index.html.
+  Type: Bricolage Grotesque (display) · Hanken Grotesk (body) · JetBrains Mono (code).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08090c; --bg-2: #0b0d11; --surface: #101319; --elev: #161a22;
+    --border: #1d222c; --border-strong: #2b323e;
+    --text: #edeff3; --dim: #9aa3b2; --faint: #5e6776;
+    --accent: #a78bfa; --accent-2: #c4b3ff; --accent-dim: #7c6ad9;
+    --gold: #fcc04a; --gold-deep: #e0a020;
+    --success: #6ee7b7; --success-dim: #34d399; --danger: #fb7185;
+    --code-bg: #0a0c10;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sans: "Hanken Grotesk", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 28px;
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+    font-size: 16px; line-height: 1.6; letter-spacing: -0.1px;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
+      radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
+      radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
+      linear-gradient(180deg, var(--bg), var(--bg-2));
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent-2); text-decoration: none; transition: color .15s var(--ease); }
+  a:hover { color: #fff; }
+  ::selection { background: #a78bfa44; }
+
+  /* header */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 40px; position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, #08090ce8, #08090cb0); backdrop-filter: blur(14px);
+    border-bottom: 1px solid #ffffff0a;
+  }
+  .wordmark { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: -0.5px; display: flex; align-items: baseline; gap: 12px; }
+  .wordmark .dash { color: var(--gold); }
+  .wordmark .sub { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0; }
+  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 24px; }
+  header nav a.cta { color: var(--gold); }
+  @media (max-width: 720px) { header nav .hide-sm { display: none; } header { padding: 18px 22px; } }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px; }
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+
+  /* hero */
+  .hero { padding: 90px 0 56px; max-width: 800px; }
+  .eyebrow {
+    display: inline-flex; gap: 12px; align-items: center; padding: 8px 16px 8px 14px;
+    border-radius: 999px; border: 1px solid var(--border-strong);
+    background: #ffffff06; font-family: var(--mono); font-size: 12px; letter-spacing: 0.4px; color: var(--dim);
+    margin-bottom: 28px;
+  }
+  .eyebrow b { color: var(--gold); font-weight: 700; }
+  .eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: var(--success-dim); box-shadow: 0 0 0 0 #34d39966; animation: pulse 2.4s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 #34d39955} 70%{box-shadow:0 0 0 7px #34d39900} 100%{box-shadow:0 0 0 0 #34d39900} }
+  h1 {
+    font-family: var(--display); font-weight: 800; font-size: clamp(42px, 6.5vw, 76px);
+    line-height: 0.96; letter-spacing: -2.2px; margin: 0 0 22px;
+  }
+  h1 .gold { background: linear-gradient(100deg, var(--gold), var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 20px; color: var(--dim); max-width: 660px; font-weight: 400; }
+  .lede code { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 8px; border-radius: 7px; font-size: 16px; }
+  .hero-cta { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+  /* the pipeline ribbon */
+  .pipe { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 13px; color: var(--faint); margin-top: 44px; }
+  .pipe .stage { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: #ffffff04; }
+  .pipe .stage.pm { color: var(--accent-2); border-color: #a78bfa3a; }
+  .pipe .stage.sse { color: var(--gold); border-color: #fcc04a3a; }
+  .pipe .arrow { color: #3a4250; }
+  .pipe .end { color: var(--success-dim); font-weight: 700; padding: 7px 14px; border: 1px solid #34d39933; border-radius: 999px; }
+
+  /* buttons */
+  .btn {
+    font-family: var(--mono); font-size: 14px; font-weight: 700; border-radius: var(--r-sm);
+    padding: 14px 24px; cursor: pointer; transition: transform .1s var(--ease), filter .15s, box-shadow .2s; display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn.primary { color: #1a1205; background: linear-gradient(100deg, var(--gold), var(--gold-deep)); border: none; box-shadow: 0 8px 24px #fcc04a22; }
+  .btn.primary:hover { filter: brightness(1.06); box-shadow: 0 10px 30px #fcc04a38; color: #1a1205; }
+  .btn.primary:active { transform: translateY(1px); }
+  .btn.ghost { color: var(--text); background: #ffffff06; border: 1px solid var(--border-strong); }
+  .btn.ghost:hover { border-color: var(--accent); color: #fff; }
+
+  /* sections */
+  section.block { padding: 56px 0; border-top: 1px solid #ffffff0a; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 12px; }
+  .sec-head .n { font-family: var(--mono); font-size: 13px; color: var(--gold); font-weight: 700; }
+  .sec-head h2 { font-family: var(--display); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; letter-spacing: -0.8px; margin: 0; }
+  .sec-sub { color: var(--dim); max-width: 680px; margin: 0 0 32px; font-size: 17px; }
+
+  /* code blocks */
+  .code {
+    background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: var(--r-md);
+    overflow: hidden; box-shadow: 0 20px 60px #00000055; margin: 0 0 18px;
+  }
+  .code .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--elev), #12151c); }
+  .code .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .code .bar .title { margin-left: 12px; color: var(--dim); font-family: var(--mono); font-size: 12.5px; }
+  .code pre { margin: 0; padding: 22px 24px; font-family: var(--mono); font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
+  .code pre .cmd { color: var(--gold); font-weight: 700; }
+  .code pre .key { color: var(--accent-2); }
+  .code pre .c { color: var(--faint); }
+  code.inline { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 7px; border-radius: 6px; font-size: 0.88em; }
+
+  /* steps */
+  .steps { display: grid; gap: 18px; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); }
+  .step .num { counter-increment: step; font-family: var(--display); font-weight: 800; font-size: 22px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #fcc04a16; color: var(--gold); }
+  .step h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 4px 0 8px; letter-spacing: -0.4px; }
+  .step p { margin: 0; color: var(--dim); font-size: 15.5px; }
+  .step p + p { margin-top: 10px; }
+
+  /* feature cards */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+  .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); position: relative; overflow: hidden; }
+  .card::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
+  .card .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); text-transform: lowercase; }
+  .card h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 10px 0 8px; letter-spacing: -0.4px; }
+  .card p { margin: 0 0 14px; color: var(--dim); font-size: 15px; }
+  .card .skills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .card .skills span { font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 4px 9px; border: 1px solid var(--border); border-radius: 999px; }
+  .card .more { font-family: var(--mono); font-size: 13px; }
+
+  /* table */
+  .tablewrap { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table th, table td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  table th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--faint); font-weight: 600; background: #ffffff04; }
+  table tr:last-child td { border-bottom: none; }
+  table td:nth-child(2) { font-family: var(--mono); font-size: 13.5px; color: var(--gold); }
+  table td:nth-child(3) { font-family: var(--mono); font-size: 13px; color: var(--dim); }
+  table tr:hover td { background: #ffffff04; }
+  @media (max-width: 720px) { table { font-size: 13.5px; } table th, table td { padding: 11px 12px; } }
+
+  /* gates note */
+  .note { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border: 1px solid #a78bfa2a; border-radius: var(--r-md); background: #a78bfa0c; margin-top: 22px; }
+  .note .ic { color: var(--accent-2); font-family: var(--mono); font-weight: 700; flex: none; }
+  .note p { margin: 0; color: var(--dim); font-size: 15px; }
+  .note b { color: var(--text); }
+
+  /* docs grid */
+  .docgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 720px) { .docgrid { grid-template-columns: 1fr; } }
+  .doc { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--r-sm); background: #ffffff04; transition: border-color .15s var(--ease), background .15s; }
+  .doc:hover { border-color: var(--border-strong); background: #ffffff07; }
+  .doc .t { font-weight: 600; color: var(--text); }
+  .doc .d { font-size: 13.5px; color: var(--faint); }
+  .doc .ar { color: var(--accent-2); font-family: var(--mono); }
+
+  footer { border-top: 1px solid #ffffff0a; padding: 36px 0 72px; color: var(--faint); font-family: var(--mono); font-size: 13px; margin-top: 30px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub">usage guide</span></div>
+  <nav>
+    <a class="hide-sm" href="#install">install</a>
+    <a class="hide-sm" href="#golden-path">golden path</a>
+    <a class="hide-sm" href="#commands">commands</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow"><span class="live"></span> claude code plugin &middot; <b>gated pipeline</b></span>
+    <h1>Idea to merged PR,<br />through one <span class="gold">gated pipeline</span>.</h1>
+    <p class="lede">harness-kit is a set of Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw idea through <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, with a pass/fail check and a scored review at every stage. Nothing advances on vibes.</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#install">Install it</a>
+      <a class="btn ghost" href="brief/">Open the idea-brief builder</a>
+    </div>
+    <div class="pipe">
+      <span class="stage pm">prd</span><span class="stage pm">prp</span>
+      <span class="arrow">&#8594;</span>
+      <span class="stage sse">plan</span><span class="stage sse">dev</span><span class="stage sse">test</span><span class="stage sse">pr</span>
+      <span class="arrow">&#8594;</span>
+      <span class="end">merged PR</span>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="block" id="why">
+    <div class="sec-head"><span class="n">01</span><h2>Why it exists</h2></div>
+    <p class="sec-sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
+    <div class="note">
+      <span class="ic">&#9670;</span>
+      <p>Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="block" id="install">
+    <div class="sec-head"><span class="n">02</span><h2>Install</h2></div>
+    <p class="sec-sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
+<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
+<span class="cmd">/plugin</span> install harness-kit@harness-kit</pre>
+    </div>
+    <p class="sec-sub" style="margin:0 0 18px">Restart Claude Code, then inside the repo you want to use it in:</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">per repo, once</span></div>
+<pre><span class="cmd">/harness-kit:install</span></pre>
+    </div>
+    <p class="sec-sub" style="margin:0">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
+    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a0c">
+      <span class="ic" style="color:var(--gold)">&#8635;</span>
+      <p><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
+    </div>
+  </section>
+
+  <!-- GOLDEN PATH -->
+  <section class="block" id="golden-path">
+    <div class="sec-head"><span class="n">03</span><h2>The golden path</h2></div>
+    <p class="sec-sub">One command, idea to merged PR.</p>
+    <div class="steps">
+      <div class="step">
+        <span class="num"></span>
+        <div>
+          <h3>Write the brief</h3>
+          <p>Open the <a href="brief/">idea-brief builder</a> and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to the PRD conventions as you type.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="num"></span>
+        <div>
+          <h3>Paste it</h3>
+          <p>Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code:</p>
+          <div class="code" style="margin-top:14px">
+            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">paste into claude code</span></div>
+<pre><span class="cmd">/golden-path</span>
+
+<span class="key">Squad:</span> checkout
+<span class="key">Problem:</span> Returning guests abandon checkout when a card is declined once <span class="c">&#8230;</span>
+<span class="key">Hypothesis:</span> If we add one-tap retry, then completion rises 5 points, because <span class="c">&#8230;</span>
+<span class="key">Success metric:</span> checkout completion, from 71% to 76% within 30 days</pre>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="num"></span>
+        <div>
+          <h3>Approve and ship</h3>
+          <p>All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; the status bar tracks where you are.</p>
+          <p>SSE flags pass straight through: <code class="inline">--local</code>, <code class="inline">--sdd</code>, <code class="inline">--no-monitor</code>. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OTHER WAYS -->
+  <section class="block" id="commands">
+    <div class="sec-head"><span class="n">04</span><h2>Other ways to run</h2></div>
+    <p class="sec-sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>You want</th><th>Run</th><th>Stages</th></tr></thead>
+        <tbody>
+          <tr><td>Idea to merged PR</td><td>/golden-path</td><td>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</td></tr>
+          <tr><td>Spec only, align before any code</td><td>/product-manager:run</td><td>prd &#8594; prp</td></tr>
+          <tr><td>Small change, plan in your head</td><td>/sse:run</td><td>plan &#8594; dev &#8594; test &#8594; pr</td></tr>
+          <tr><td>Local only, no PR</td><td>/sse:run --local</td><td>plan &#8594; dev &#8594; test</td></tr>
+          <tr><td>Loop until the spec passes</td><td>/sse:sdd</td><td>plan &#8594; [dev&#8596;test&#8596;eval] &times;3</td></tr>
+          <tr><td>Resume after a break</td><td>/pipeline:continue</td><td>next pending stage</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <span class="ic">&#9670;</span>
+      <p><b>Sensors</b> are deterministic structure checks, they block on failure and Claude regenerates until they pass. <b>Evals</b> are LLM-judge rubrics scored 0-10, threshold 8.0, retried up to 3 times. Each stage is also its own command: <code class="inline">/sse:plan</code>, <code class="inline">/sse:dev</code>, <code class="inline">/sse:test</code>, <code class="inline">/sse:pr</code>. <a href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md">Every command and gate &#8594;</a></p>
+    </div>
+  </section>
+
+  <!-- AGENTS -->
+  <section class="block" id="agents">
+    <div class="sec-head"><span class="n">05</span><h2>The agents</h2></div>
+    <p class="sec-sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="tag">product-manager</span>
+        <h3>Frame the problem</h3>
+        <p>Turns a problem into an engineering-ready spec, a PRD then a PRP.</p>
+        <div class="skills"><span>prd</span><span>prp</span></div>
+      </div>
+      <div class="card">
+        <span class="tag">staff-software-engineer</span>
+        <h3>Ship the code</h3>
+        <p>Turns an approved PRP into a merged PR, or a satisfied spec. Area skills auto-detected from the repo, plus a designer skill for new UIs.</p>
+        <div class="skills"><span>backend</span><span>web</span><span>mobile</span><span>devops</span><span>designer</span></div>
+      </div>
+      <div class="card">
+        <span class="tag">system-architect</span>
+        <h3>Design the system</h3>
+        <p>Turns a problem into a rigorous System Design Doc, then an adversarial review. Topic playbooks per classic design.</p>
+        <div class="skills"><span>url-shortener</span><span>rate-limiter</span><span>search-engine</span></div>
+        <div class="more"><a href="https://github.com/Pierry/harness-kit/wiki">Theory &amp; references in the wiki &#8594;</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCS -->
+  <section class="block" id="docs">
+    <div class="sec-head"><span class="n">06</span><h2>Docs</h2></div>
+    <p class="sec-sub">Go deeper than this page.</p>
+    <div class="docgrid">
+      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span><span class="t">Golden path</span><br /><span class="d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md"><span><span class="t">Commands &amp; gates</span><br /><span class="d">every command, every sensor and eval</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/ARCHITECTURE.md"><span><span class="t">Architecture</span><br /><span class="d">stage anatomy, status bar, repo layout</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md"><span><span class="t">AGENTS.md</span><br /><span class="d">agent registry and path-by-path map</span></span><span class="ar">&#8594;</span></a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+</body>
+</html>
