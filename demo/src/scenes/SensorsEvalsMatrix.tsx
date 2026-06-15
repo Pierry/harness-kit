@@ -14,7 +14,7 @@ const ROWS: Row[] = [
     stage: 'prd',
     sensors: ['prd-structure', 'prd-acceptance-criteria'],
     evals: ['prd-quality', 'prd-readiness'],
-    preGate: '—',
+    preGate: ',',
     delay: 28,
   },
   {

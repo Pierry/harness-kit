@@ -1,6 +1,6 @@
 # Business Info
 
-> Template. Rename to `business-info.md` and fill in. Keep it short — agents read this on every PRD/PRP.
+> Template. Rename to `business-info.md` and fill in. Keep it short, agents read this on every PRD/PRP.
 
 ## Company
 

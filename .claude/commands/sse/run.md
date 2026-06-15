@@ -23,7 +23,7 @@ Run end to end.
 
 Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval markers, token accounting, publish behavior.
 
-Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so user sees what was checked and loaded.
+Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable, list specifics so user sees what was checked and loaded.
 
 ```
 Engineering pipeline complete.

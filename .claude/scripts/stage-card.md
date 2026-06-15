@@ -2,7 +2,7 @@
 
 Every pipeline stage command (PRD, PRP, plan, dev, test, pr) prints two blocks
 in its chat response. The card mirrors what the Remotion demo shows in its
-"active artifacts" panel — guides, refs, sensors, eval, next step — but renders
+"active artifacts" panel, guides, refs, sensors, eval, next step, but renders
 inline in the Claude session so it works without any UI.
 
 The card is part of the LLM's output, not a hook. Hooks update the status bar;

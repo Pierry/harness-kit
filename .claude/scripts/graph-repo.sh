@@ -2,7 +2,7 @@
 # Build knowledge graph of target repo with graphify.
 # Output: .claude/runtime/cache/graphify/{repo_slug}/graphify-out/
 #
-# Code files processed locally via Tree-sitter — no API key needed.
+# Code files processed locally via Tree-sitter, no API key needed.
 # Non-code files (docs, PDFs, images) require an LLM key if present.
 #
 # Usage:

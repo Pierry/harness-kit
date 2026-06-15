@@ -4,21 +4,21 @@
 
 ## Scenes
 
-1. **Intro** — title card with tagline
-2. **Pipeline** — six stages animated, approval markers light up
-3. **Install** — `npm i -g` + `hk install` terminal recording
-4. **StatusBarExplain** — what the footer status bar shows: active skill, stage, next command
-5. **DynamicStatusBar** — status bar shape + state mutating live as commands run
-6. **CommandPRD** — `/product-manager:prd` running: guides + refs loaded, sensors pass, evals score
-7. **CommandPRP** — `/product-manager:prp` running
-8. **CommandPlan** — `/sse:plan` running
-9. **CommandDev** — `/sse:dev` running: edits, commits, `code-conventions` + `dev-structure` sensors, `dev-quality` eval
-10. **CommandTest** — `/sse:test` running: suite + `test-coverage` + `test-structure` sensors, `test-quality` eval
-11. **CommandPR** — `/sse:pr` opens draft PR, `pr-structure` + `pr-quality` gates, then **pr-monitor armed** (auto-watch with 3→6→12→24→30min backoff until merged)
-12. **Summary** — final tally: every sensor, eval, guide, token spend per phase, named
-13. **Resume** — `/pipeline:continue` picks up at next pending stage
-14. **Anatomy** — every stage = guide + ref + sensor + eval
-15. **Outro** — links + npm install CTA
+1. **Intro**: title card with tagline
+2. **Pipeline**: six stages animated, approval markers light up
+3. **Install**: `npm i -g` + `hk install` terminal recording
+4. **StatusBarExplain**: what the footer status bar shows: active skill, stage, next command
+5. **DynamicStatusBar**: status bar shape + state mutating live as commands run
+6. **CommandPRD**: `/product-manager:prd` running: guides + refs loaded, sensors pass, evals score
+7. **CommandPRP**: `/product-manager:prp` running
+8. **CommandPlan**: `/sse:plan` running
+9. **CommandDev**: `/sse:dev` running: edits, commits, `code-conventions` + `dev-structure` sensors, `dev-quality` eval
+10. **CommandTest**: `/sse:test` running: suite + `test-coverage` + `test-structure` sensors, `test-quality` eval
+11. **CommandPR**: `/sse:pr` opens draft PR, `pr-structure` + `pr-quality` gates, then **pr-monitor armed** (auto-watch with 3→6→12→24→30min backoff until merged)
+12. **Summary**: final tally: every sensor, eval, guide, token spend per phase, named
+13. **Resume**: `/pipeline:continue` picks up at next pending stage
+14. **Anatomy**: every stage = guide + ref + sensor + eval
+15. **Outro**: links + npm install CTA
 
 ## Run
 
@@ -30,7 +30,7 @@ npm run render        # MP4 to demo/out/demo.mp4
 npm run render:gif    # GIF to demo/out/demo.gif (raw, big)
 ```
 
-To build the compact README preview (`demo/preview.gif`) — rendered from the **DemoV41** composition (`src/VideoV41.tsx`), a ~70s walkthrough of five topics: **01 what it is** → **02 how to install** (marketplace add + plugin install + `/harness-kit:install`, with a streamed timeline of what the installer lays down: agents · sensors · guides · evals · commands · hooks · AGENTS.md) → **03 the agents** (`claude agents` + `@agent` mentions) → **04 the golden path** (`/golden-path`: idea → merged PR through six gated stages, prd·prp via `/product-manager:run` then plan·dev·test·pr via `/sse:run`) → **05 how to use** (write the idea brief on the [Pages site](https://pierry.github.io/harness-kit/brief/), copy it, paste `/golden-path` into Claude Code, watch the six stages run to a merged PR) → outro. Type: Bricolage Grotesque · Hanken Grotesk · JetBrains Mono:
+To build the compact README preview (`demo/preview.gif`): rendered from the **DemoV41** composition (`src/VideoV41.tsx`), a ~70s walkthrough of five topics: **01 what it is** → **02 how to install** (marketplace add + plugin install + `/harness-kit:install`, with a streamed timeline of what the installer lays down: agents · sensors · guides · evals · commands · hooks · AGENTS.md) → **03 the agents** (`claude agents` + `@agent` mentions) → **04 the golden path** (`/golden-path`: idea → merged PR through six gated stages, prd·prp via `/product-manager:run` then plan·dev·test·pr via `/sse:run`) → **05 how to use** (write the idea brief on the [Pages site](https://pierry.github.io/harness-kit/brief/), copy it, paste `/golden-path` into Claude Code, watch the six stages run to a merged PR) → outro. Type: Bricolage Grotesque · Hanken Grotesk · JetBrains Mono:
 
 ```bash
 npm run render:v41        # MP4 to demo/out/demo-v41.mp4 (README preview source)
@@ -41,9 +41,9 @@ ffmpeg -y -i out/demo-v41.mp4 \
 
 ## Output formats
 
-- `demo/out/demo.mp4` — full quality, 1920x1080, h264. Gitignored.
-- `demo/out/demo.gif` — Remotion-rendered, full resolution. Big. Gitignored.
-- `demo/preview.gif` — compressed via ffmpeg for README embed. Committed.
+- `demo/out/demo.mp4`, full quality, 1920x1080, h264. Gitignored.
+- `demo/out/demo.gif`, Remotion-rendered, full resolution. Big. Gitignored.
+- `demo/preview.gif`, compressed via ffmpeg for README embed. Committed.
 
 ## Structure
 

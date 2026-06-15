@@ -10,7 +10,7 @@ export const CommandTest = () => {
       kicker="step 5 of 6 · engineering"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/sse:test</span> — run project test suite
+          <span style={{ color: theme.color.accent }}>/sse:test</span>, run project test suite
         </>
       }
       termTitle="claude code · billing-service"

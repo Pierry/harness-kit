@@ -1,7 +1,7 @@
 #!/bin/sh
 # SessionStart hook.
 # 1. If current branch has a MERGED/CLOSED PR and pipeline state looks stale
-#    (no feature_id), clear state — the work shipped, nothing to resume.
+#    (no feature_id), clear state, the work shipped, nothing to resume.
 # 2. Otherwise, if a pipeline state exists with an incomplete pipeline,
 #    print a resume hint.
 

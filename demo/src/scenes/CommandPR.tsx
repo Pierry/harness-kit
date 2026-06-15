@@ -10,7 +10,7 @@ export const CommandPR = () => {
       kicker="step 6 of 6 · engineering"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/sse:pr</span> — open draft PR
+          <span style={{ color: theme.color.accent }}>/sse:pr</span>, open draft PR
         </>
       }
       termTitle="claude code · billing-service"

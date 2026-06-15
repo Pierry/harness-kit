@@ -8,7 +8,7 @@ const DISPLAY = '"Bricolage Grotesque", system-ui, sans-serif';
 const BODY = '"Hanken Grotesk", system-ui, sans-serif';
 const gold = theme.color.warning;
 
-// 05 · how to use — write the brief on the site, copy it, paste /golden-path into
+// 05 · how to use, write the brief on the site, copy it, paste /golden-path into
 // Claude Code, watch the six gated stages run to a merged PR.
 
 const briefRows = [
@@ -50,7 +50,7 @@ export const UseIt = () => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 30, width: '100%', maxWidth: 1680, opacity: enter }}>
-        {/* LEFT — the brief site */}
+        {/* LEFT, the brief site */}
         <div style={{ flex: '1 1 0', display: 'flex' }}>
           <div
             style={{
@@ -74,7 +74,7 @@ export const UseIt = () => {
 
             <Field label="Squad" start={30} frame={frame} fps={fps}>checkout</Field>
             <Field label="Problem" start={48} frame={frame} fps={fps}>
-              Returning guests abandon checkout when a card is declined once — no retry, just an error. ~8% of attempts, ~R$120k/mo lost.
+              Returning guests abandon checkout when a card is declined once, no retry, just an error. ~8% of attempts, ~R$120k/mo lost.
             </Field>
 
             {/* hypothesis builder */}
@@ -124,7 +124,7 @@ export const UseIt = () => {
           <div style={{ fontSize: 32, color: gold, opacity: 0.3 + pasteGlow * 0.7, transform: `translateX(${pasteGlow * 4}px)` }}>→</div>
         </div>
 
-        {/* RIGHT — claude code terminal */}
+        {/* RIGHT, claude code terminal */}
         <div style={{ flex: '1 1 0', display: 'flex' }}>
           <Terminal title="claude code">
             <div style={{ marginBottom: 8 }}>

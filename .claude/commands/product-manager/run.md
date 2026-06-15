@@ -11,7 +11,7 @@ Run end to end.
 
 Follow .claude/agents/product-manager/guides/pipeline.md. Read .claude/agents/product-manager.md for inputs and rules.
 
-Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so user sees what was checked and loaded.
+Return format. Name every sensor, eval, guide that ran. Generic summaries not acceptable, list specifics so user sees what was checked and loaded.
 
 ```
 Pipeline complete.

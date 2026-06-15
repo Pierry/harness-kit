@@ -28,7 +28,7 @@ When prioritizing, make trade-offs between cohorts explicit, not invisible. Comm
 
 Prefer metrics already on existing dashboards. New metrics need owner to instrument.
 
-Strong examples (shape of strong metric — specific, owned, instrumented):
+Strong examples (shape of strong metric, specific, owned, instrumented):
 - error rate of X by segment
 - first-attempt success rate
 - latency P95 of Y action

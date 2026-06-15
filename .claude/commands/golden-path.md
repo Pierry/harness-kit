@@ -1,9 +1,9 @@
 ---
-description: The golden path. One command, idea to merged PR. Runs the full pipeline — prd → prp → plan → dev → test → pr — with sensor + eval gates at every stage.
+description: The golden path. One command, idea to merged PR. Runs the full pipeline, prd → prp → plan → dev → test → pr, with sensor + eval gates at every stage.
 ---
 
 Golden path. Idea → merged PR. Paved, opinionated, supported. The recommended way; not the
-only way (step off any time — see Detours).
+only way (step off any time, see Detours).
 
 Full reference: `docs/GOLDEN-PATH.md`.
 
@@ -35,7 +35,7 @@ Golden path is optional. Run any stage solo instead: `/product-manager:prd | :pr
 
 ## Return format
 
-Name every sensor, eval, guide that ran. Generic summaries not acceptable — list specifics so
+Name every sensor, eval, guide that ran. Generic summaries not acceptable, list specifics so
 user sees what was checked and loaded. Concatenate the PM and SSE return blocks:
 
 ```

@@ -33,8 +33,8 @@ docs:    https://repomix.com
 - SDD loop: pack `{changed files} ∪ {PRP "Repos and files touched"}` for cheaper per-iter eval
 
 When NOT to use:
-- Small repo (<20 files) — grep is fine
-- Pack would exceed context budget (>200k tokens) — narrow with `--include`
+- Small repo (<20 files): grep is fine
+- Pack would exceed context budget (>200k tokens): narrow with `--include`
 
 ## Reply format
 
