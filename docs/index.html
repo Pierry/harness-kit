@@ -357,9 +357,41 @@ flowchart LR
     </div>
   </section>
 
+  <!-- CONTEXT OPTIMIZATION -->
+  <section class="block" id="context">
+    <div class="sec-head"><span class="n">05</span><h2>Context optimization</h2></div>
+    <p class="sec-sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Cuts</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>/context:pack</td><td>input</td><td>repomix snapshot of the target repo, cached per feature</td></tr>
+          <tr><td>/context:graph</td><td>input</td><td>graphify knowledge graph, query "what calls X" (~71x fewer tokens)</td></tr>
+          <tr><td>qmd</td><td>input</td><td>semantic search over the guides, returns the relevant excerpt not the whole file</td></tr>
+          <tr><td>rtk</td><td>output</td><td>shell proxy, compresses git/test/lint/grep output 60-90%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sec-sub" style="margin:24px 0 14px"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md">qmd</a> and <a href="https://github.com/tobi/qmd">rtk</a> are third-party, install them yourself:</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">shell</span></div>
+<pre><span class="c"># rtk, output filter, auto-intercepts git/test/lint/grep</span>
+brew install rtk
+rtk init -g            <span class="c"># select Claude Code; rtk gain shows savings</span>
+
+<span class="c"># qmd, semantic doc search over the harness guide tree</span>
+npm install -g @tobilu/qmd
+setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2GB models, once)</span></pre>
+    </div>
+    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a0c">
+      <span class="ic" style="color:var(--gold)">&#9670;</span>
+      <p>qmd and rtk are not bundled. Rationale and measured wins in <a href="https://github.com/Pierry/harness-kit/issues/2">issue #2</a>. Full tier order in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md">context-strategy.md</a>.</p>
+    </div>
+  </section>
+
   <!-- AGENTS -->
   <section class="block" id="agents">
-    <div class="sec-head"><span class="n">05</span><h2>The agents</h2></div>
+    <div class="sec-head"><span class="n">06</span><h2>The agents</h2></div>
     <p class="sec-sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
       <div class="card">
@@ -386,7 +418,7 @@ flowchart LR
 
   <!-- FOUNDATIONS -->
   <section class="block" id="foundations">
-    <div class="sec-head"><span class="n">06</span><h2>Foundations</h2></div>
+    <div class="sec-head"><span class="n">07</span><h2>Foundations</h2></div>
     <p class="sec-sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
       <div class="ref">
@@ -422,7 +454,7 @@ flowchart LR
 
   <!-- DOCS -->
   <section class="block" id="docs">
-    <div class="sec-head"><span class="n">07</span><h2>Docs</h2></div>
+    <div class="sec-head"><span class="n">08</span><h2>Docs</h2></div>
     <p class="sec-sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span><span class="t">Golden path</span><br /><span class="d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>

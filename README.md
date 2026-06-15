@@ -160,6 +160,47 @@ PR on its own. Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/ss
 
 ---
 
+## Context optimization
+
+Optional, all local-first. As a target repo and the harness grow, the tokens spent
+*loading context* and *reading command output* start to dominate. Four tools cut that, and they
+stack with the per-stage model tiers (which pick *which* model runs each step):
+
+| Tool | Cuts | How | Setup |
+|---|---|---|---|
+| [`/context:pack`](docs/COMMANDS.md) | input | `repomix` snapshot of the target repo for a deterministic stage handoff, cached per feature | `npm i -g repomix` |
+| [`/context:graph`](docs/COMMANDS.md) | input | `graphify` knowledge graph of a long-lived repo, query "what calls X" instead of grepping (~71× fewer tokens) | `pipx install graphifyy` |
+| **qmd** | input | local semantic search over the harness's own guides/skills, returns the relevant excerpt instead of the whole file | `setup/setup-qmd.sh` |
+| **rtk** | output | shell proxy that compresses `git`/`test`/`lint`/`grep` output 60-90% before it reaches the model | `brew install rtk && rtk init -g` |
+
+**`/context:pack` and `/context:graph`** ship with the harness. `pack` is a per-feature snapshot
+consumed by `/sse:plan` and the SDD supervisor eval; `graph` is a long-lived, queryable map of a big
+repo. The plan and eval stages read the cache when present and fall back to grep otherwise. Tier
+order and the decision tree live in [`context-strategy.md`](.claude/shared/context-strategy.md).
+
+**qmd** ([tobi/qmd](https://github.com/tobi/qmd)) and **rtk** ([rtk-ai/rtk](https://github.com/rtk-ai/rtk))
+attack the two remaining halves of token cost, input loading and output reading:
+
+```
+# rtk, output filter, one-liner, auto-intercepts git/test/lint/grep
+brew install rtk
+rtk init -g            # select Claude Code; rtk gain shows savings
+
+# qmd, semantic doc search over the harness guide tree
+npm install -g @tobilu/qmd
+setup/setup-qmd.sh     # indexes .claude/agents · commands · shared + skills, then embeds
+```
+
+`setup-qmd.sh` indexes the guide tree and prints the MCP-server snippet to add to
+`.claude/settings.json`. First embed downloads ~2GB of local models, once. After that an agent runs
+`qmd:query "..."` and gets back only the relevant guide section.
+
+> Heads up: qmd and rtk are third-party tools, not bundled. Each `Setup` cell above installs them
+> yourself. See [issue #2](https://github.com/Pierry/harness-kit/issues/2) for the rationale and
+> measured wins.
+
+---
+
 ## The agents
 
 All registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals, guides, and skills.
