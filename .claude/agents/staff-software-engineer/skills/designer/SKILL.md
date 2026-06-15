@@ -1,6 +1,6 @@
 ---
 name: designer
-description: Visual + UX design defaults for new UIs. Material Design 3, dark/light theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon. Apply when building something new. Project conventions in .claude/conventions/web.md override these defaults.
+description: Visual + UX design defaults for new UIs. Material Design 3, dark/light theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon. No emojis and no em-dashes; use MD3/modern icons instead. Apply when building something new. Project conventions in .claude/conventions/web.md override these defaults.
 user_invocable: false
 ---
 
@@ -50,6 +50,10 @@ Mandatory both. System preference first, user toggle second, choice persisted.
   Sans`). One display + one text face max.
 - Stack: `"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`.
 - Tabular numbers for data (`font-variant-numeric: tabular-nums`).
+- **Never use em-dashes (`—`) or en-dashes (`–`)** in any user-facing copy, headings, labels, empty
+  states, microcopy, or content strings. Hard rule. Use a comma, colon, parentheses, or rewrite the
+  sentence. Same rule in code comments, commit messages, PR text, and docs. Applies to all three
+  locales. Hyphen (`-`) is fine for compound words.
 
 ## Behance-grade polish (the "new and good" bar)
 
@@ -70,7 +74,9 @@ Avoid generic AI-template look: centered everything, default Bootstrap blues, gr
 
 - **Never use emojis.** Not as icons, not in buttons, labels, headings, empty states, or copy. Emojis
   are not a design system: they render differently per platform, break visual consistency, and read as
-  unfinished. This is a hard rule.
+  unfinished. This is a hard rule. **Use Material Design 3 (Material Symbols) icons, or another modern
+  open set (Lucide, Phosphor), in place of any emoji.** Need a glyph -> reach for an MD3/modern icon,
+  never an emoji.
 - **Create original icons.** Design a custom SVG icon set for the product's key actions and brand
   marks, drawn on a consistent grid (e.g. 24px, 2px stroke, rounded joins) with one visual language
   (stroke weight, corner radius, terminals). The logo/brand glyph and the primary actions should be
@@ -148,7 +154,8 @@ State which symbol + seed you chose and why (the context link).
 
 ## Forbidden
 
-- Emojis anywhere (UI, icons, buttons, copy, empty states).
+- Emojis anywhere (UI, icons, buttons, copy, empty states). Use MD3/modern icons instead.
+- Em-dashes (`—`) or en-dashes (`–`) anywhere (copy, headings, comments, commits, PRs, docs).
 - Stock/generic icons for brand or primary marks; mixing icon families.
 - Hardcoded colors instead of tokens/roles.
 - A single theme (light-only or dark-only).

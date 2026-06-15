@@ -8,7 +8,7 @@
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.3.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.3.1-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -50,18 +50,45 @@ watches for merge and clears state on its own.
 
 ## Install
 
+Two layers: the **plugin** (fetched once from the marketplace) and the **harness** (laid into each
+repo you want it in).
+
 ```
 /plugin marketplace add Pierry/harness-kit
 /plugin install harness-kit@harness-kit
-Restart your Claude Code and then:
+```
+
+Restart Claude Code, then inside the repo you want to use it in:
+
+```
 /harness-kit:install
 ```
 
-Restart Claude Code. The plugin lays the full harness into your repo, agents, commands, skills,
-hooks, status bar. Update later with `/plugin update harness-kit` then `/harness-kit:update`.
+`/harness-kit:install` lays the full harness into that repo, agents, commands, skills, hooks, and the
+status bar, under `.claude/` plus `AGENTS.md`/`CLAUDE.md` at the root. Run it once per repo.
 
 Requires Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/) (for PRs).
 [Full tooling →](docs/ARCHITECTURE.md#tooling)
+
+---
+
+## Update
+
+The plugin version is pinned in the marketplace, so a new release does **not** reach you until you
+pull it. Two steps, mirroring install:
+
+```
+/plugin update harness-kit     # fetch the newer plugin from the marketplace
+/harness-kit:update            # re-lay it into the current repo
+```
+
+`/harness-kit:update` backs up your existing `.claude/settings.json` and reports the version delta
+via `.claude/.hk-version`. Run the second step in every repo you installed into.
+
+- **New users** who install after a release get the latest version automatically, nothing extra.
+- **Existing users** stay on their pinned version until they run the two commands above.
+
+Current version: see the badge up top and [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 

@@ -2,6 +2,13 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.3.1]
+
+### Changed
+- Designer skill typography hardened: **never use em-dashes (`—`) or en-dashes (`–`)** in user-facing copy, headings, labels, microcopy, code comments, commits, PRs, or docs (all three locales). Use comma, colon, parentheses, or rewrite; plain hyphen for compounds stays fine.
+- Designer skill iconography reinforced: in place of any emoji, **use Material Design 3 (Material Symbols) icons or another modern open set** (Lucide, Phosphor). Need a glyph, reach for an MD3/modern icon, never an emoji.
+- Version bumped to 4.3.1 across VERSION, plugin.json, package.json, and the README badge so marketplace consumers receive the update.
+
 ## [4.3.0]
 
 ### Changed
