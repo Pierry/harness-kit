@@ -46,7 +46,7 @@ export const UseIt = () => {
   return (
     <AbsoluteFill style={{ padding: theme.space.pad, justifyContent: 'center', alignItems: 'center', opacity: exit }}>
       <div style={{ marginBottom: 30 }}>
-        <SectionLabel n="05" label="how to use" />
+        <SectionLabel n="06" label="how to use" />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 30, width: '100%', maxWidth: 1680, opacity: enter }}>

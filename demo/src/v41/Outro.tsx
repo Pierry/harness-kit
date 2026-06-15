@@ -8,7 +8,8 @@ export const Outro = () => {
   const titleOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: 'clamp' });
   const titleY = spring({ frame, fps, config: { damping: 16 } });
   const urlOpacity = interpolate(frame, [30, 54], [0, 1], { extrapolateRight: 'clamp' });
-  const tagOpacity = interpolate(frame, [58, 80], [0, 1], { extrapolateRight: 'clamp' });
+  const siteOpacity = interpolate(frame, [48, 70], [0, 1], { extrapolateRight: 'clamp' });
+  const tagOpacity = interpolate(frame, [64, 86], [0, 1], { extrapolateRight: 'clamp' });
 
   return (
     <AbsoluteFill
@@ -47,6 +48,18 @@ export const Outro = () => {
         </div>
         <div
           style={{
+            marginTop: 18,
+            opacity: siteOpacity,
+            fontFamily: theme.font.mono,
+            fontSize: theme.type.body,
+            color: theme.color.textFaint,
+            letterSpacing: -0.3,
+          }}
+        >
+          guide · <span style={{ color: theme.color.textDim }}>pierry.github.io/harness-kit</span>
+        </div>
+        <div
+          style={{
             marginTop: 40,
             opacity: tagOpacity,
             display: 'inline-flex',
@@ -62,7 +75,7 @@ export const Outro = () => {
           }}
         >
           <span style={{ width: 8, height: 8, borderRadius: 999, background: theme.color.accent }} />
-          v4.1.0 · MIT
+          v4.3.1 · MIT
         </div>
       </div>
     </AbsoluteFill>

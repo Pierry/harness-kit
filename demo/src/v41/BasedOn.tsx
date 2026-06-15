@@ -1,70 +1,116 @@
-import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { theme } from '../theme';
+import { SectionLabel } from './SectionLabel';
+
+// 07 · grounded on. This is not invented method: harness-kit implements
+// harness engineering (Böckeler, martinfowler.com), and the system-architect
+// reasons from the established engineering canon. Mirrors the README
+// "Foundations" section and the usage-guide site.
+
+const canon = [
+  'Kleppmann · DDIA',
+  'Ousterhout · PoSD',
+  'Nygard · Release It',
+  'Jeff Dean',
+  'Vogels',
+  'Helland',
+];
 
 export const BasedOn = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 24], [0, 1], { extrapolateRight: 'clamp' });
-  const exit = interpolate(frame, [120, 150], [1, 0], { extrapolateRight: 'clamp' });
-  const lineOpacity = interpolate(frame, [40, 64], [0, 1], { extrapolateRight: 'clamp' });
+  const { fps } = useVideoConfig();
+
+  const enter = interpolate(frame, [0, 24], [0, 1], { extrapolateRight: 'clamp' });
+  const exit = interpolate(frame, [170, 200], [1, 0], { extrapolateRight: 'clamp' });
+  const titleY = spring({ frame: frame - 18, fps, config: { damping: 16 } });
+  const lineOpacity = interpolate(frame, [44, 66], [0, 1], { extrapolateRight: 'clamp' });
+  const attrOpacity = interpolate(frame, [60, 80], [0, 1], { extrapolateRight: 'clamp' });
+  const canonOpacity = interpolate(frame, [86, 108], [0, 1], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill
-      style={{
-        padding: theme.space.pad,
-        justifyContent: 'center',
-        alignItems: 'center',
-        opacity: opacity * exit,
-      }}
-    >
-      <div style={{ textAlign: 'center', maxWidth: 1400 }}>
+    <AbsoluteFill style={{ padding: theme.space.pad, justifyContent: 'center', alignItems: 'center', opacity: enter * exit }}>
+      <div style={{ marginBottom: 30 }}>
+        <SectionLabel n="07" label="grounded on" />
+      </div>
+
+      <div style={{ textAlign: 'center', maxWidth: 1500 }}>
         <div
           style={{
-            color: theme.color.textFaint,
-            fontSize: theme.type.label,
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            marginBottom: 24,
-          }}
-        >
-          based on
-        </div>
-        <div
-          style={{
-            fontSize: theme.type.h2,
+            transform: `translateY(${(1 - titleY) * 28}px)`,
+            fontFamily: theme.font.display,
+            fontSize: theme.type.h1,
             color: theme.color.text,
-            fontWeight: 600,
-            lineHeight: 1.2,
-            letterSpacing: -1,
+            fontWeight: 800,
+            letterSpacing: -2,
+            lineHeight: 1,
           }}
         >
-          Claude Code <span style={{ color: theme.color.accent, fontFamily: theme.font.mono }}>/goal</span> pattern
+          Harness <span style={{ color: theme.color.accent }}>engineering</span>.
         </div>
+
         <div
           style={{
-            marginTop: 32,
+            marginTop: 30,
             opacity: lineOpacity,
+            fontFamily: theme.font.mono,
             fontSize: theme.type.h3,
             color: theme.color.textDim,
             fontWeight: 400,
             lineHeight: 1.4,
-            maxWidth: 1200,
-            margin: '32px auto 0',
           }}
         >
-          separate <span style={{ color: theme.color.text }}>the agent that works</span> from{' '}
-          <span style={{ color: theme.color.text }}>the one that decides it&apos;s done</span>.
+          guides steer<Sep /> sensors gate<Sep /> evals score<Sep />
+          <span style={{ color: theme.color.text }}>humans on the loop</span>
         </div>
+
         <div
           style={{
             marginTop: 28,
+            opacity: attrOpacity,
             color: theme.color.textFaint,
             fontSize: theme.type.label,
             fontFamily: theme.font.mono,
           }}
         >
-          Anthropic · Code with Claude · May 2026
+          Birgitta Böckeler · martinfowler.com
+        </div>
+
+        {/* the engineering canon behind system-architect */}
+        <div
+          style={{
+            marginTop: 48,
+            opacity: canonOpacity,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 14,
+          }}
+        >
+          {canon.map((c, i) => {
+            const st = 90 + i * 8;
+            const op = interpolate(frame, [st, st + 16], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+            return (
+              <span
+                key={c}
+                style={{
+                  opacity: op,
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  border: `1px solid ${theme.color.border}`,
+                  background: theme.color.surface,
+                  fontFamily: theme.font.mono,
+                  fontSize: theme.type.label,
+                  color: theme.color.textDim,
+                }}
+              >
+                {c}
+              </span>
+            );
+          })}
         </div>
       </div>
     </AbsoluteFill>
   );
 };
+
+const Sep = () => <span style={{ color: theme.color.textFaint, margin: '0 14px' }}>·</span>;

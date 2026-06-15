@@ -17,7 +17,7 @@ idea through `prd → prp → plan → dev → test → pr`, with a pass/fail ch
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>70s walkthrough, what it is, install, the golden path, idea to merged PR.</sub>
+<sub>~90s walkthrough, what it is, install, the three agents, the golden path, how each stage is gated, idea to merged PR.</sub>
 
 </div>
 

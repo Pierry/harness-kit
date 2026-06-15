@@ -7,6 +7,7 @@ import { SectionLabel } from './SectionLabel';
 const agents = [
   { at: '@product-manager', desc: 'PRD → PRP', accent: false },
   { at: '@staff-software-engineer', desc: 'plan → dev → test → pr', accent: true },
+  { at: '@system-architect', desc: 'System Design Doc → adversarial review', accent: false },
 ];
 
 export const Agents = () => {
@@ -19,7 +20,7 @@ export const Agents = () => {
   return (
     <AbsoluteFill style={{ padding: theme.space.pad, justifyContent: 'center', alignItems: 'center', opacity: exit }}>
       <div style={{ marginBottom: 36 }}>
-        <SectionLabel n="03" label="how to use" />
+        <SectionLabel n="03" label="the agents" />
       </div>
 
       <div style={{ maxWidth: 1500, margin: '0 auto', width: '100%', opacity: termOpacity }}>
@@ -30,7 +31,7 @@ export const Agents = () => {
             <TypingText text="claude agents" startFrame={40} cps={24} />
           </div>
           <Output start={96} dim>
-            {'  '}Claude Code · agents view · 2 project agents
+            {'  '}Claude Code · agents view · 3 project agents
           </Output>
 
           {/* agent roster */}

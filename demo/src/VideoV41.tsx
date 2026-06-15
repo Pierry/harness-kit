@@ -8,7 +8,9 @@ import { Title } from './v41/Title';
 import { Install } from './v41/Install';
 import { Agents } from './v41/Agents';
 import { GoldenPath } from './v41/GoldenPath';
+import { GatedStage } from './v41/GatedStage';
 import { UseIt } from './v41/UseIt';
+import { BasedOn } from './v41/BasedOn';
 import { Outro } from './v41/Outro';
 
 loadInter();
@@ -29,8 +31,10 @@ export const v41Scenes: Scene[] = [
   { id: 'install',  component: Install,    duration: s(18) },  // 02 · how to install
   { id: 'agents',   component: Agents,     duration: s(14) },  // 03 · the agents
   { id: 'golden',   component: GoldenPath, duration: s(11) },  // 04 · the golden path
-  { id: 'useit',    component: UseIt,      duration: s(15) },  // 05 · how to use (brief → terminal)
-  { id: 'outro',    component: Outro,      duration: s(5) },
+  { id: 'gated',    component: GatedStage, duration: s(11) },  // 05 · how it's gated (the loop)
+  { id: 'useit',    component: UseIt,      duration: s(15) },  // 06 · how to use (brief → merged PR)
+  { id: 'basedon',  component: BasedOn,    duration: s(7) },   // 07 · grounded on (harness engineering)
+  { id: 'outro',    component: Outro,      duration: s(6) },
 ];
 
 export const V41_DURATION_FRAMES = v41Scenes.reduce((acc, x) => acc + x.duration, 0);

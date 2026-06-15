@@ -7,7 +7,7 @@ import { SectionLabel } from './SectionLabel';
 // What `/harness-kit:install` actually lays down, in install order.
 // This is the "behind the scenes" timeline: the harness anatomy.
 const steps = [
-  { label: 'agents',     desc: 'product-manager · staff-software-engineer' },
+  { label: 'agents',     desc: 'product-manager · staff-software-engineer · system-architect' },
   { label: 'sensors',    desc: 'input gates that guard each stage' },
   { label: 'guides',     desc: 'conventions · templates · examples' },
   { label: 'evals',      desc: 'quality gate between every stage' },
@@ -65,7 +65,7 @@ export const Install = () => {
             <TypingText text="/plugin install harness-kit@harness-kit" startFrame={104} cps={48} />
           </Line>
           <Output start={150} dim>
-            {'  '}installed · harness-kit v4.1.0
+            {'  '}installed · harness-kit v4.3.1
           </Output>
 
           {/* 3, lay the harness down into the repo */}
@@ -74,7 +74,7 @@ export const Install = () => {
             <TypingText text="/harness-kit:install" startFrame={166} cps={42} />
           </Line>
           <Output start={196} dim>
-            {'  '}harness-kit v4.1.0 → ~/your-repo
+            {'  '}harness-kit v4.3.1 → ~/your-repo
           </Output>
 
           {/* timeline, what gets laid down behind the scenes */}

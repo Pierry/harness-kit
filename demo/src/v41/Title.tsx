@@ -48,8 +48,8 @@ export const Title = () => {
             lineHeight: 1.35,
           }}
         >
-          Two Claude Code agents.{' '}
-          <span style={{ color: theme.color.text }}>From idea to merged PR, one pipeline.</span>
+          Three Claude Code agents.{' '}
+          <span style={{ color: theme.color.text }}>From idea to merged PR, one gated pipeline.</span>
         </div>
       </div>
     </AbsoluteFill>
