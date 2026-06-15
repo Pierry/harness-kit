@@ -16,7 +16,7 @@ Read by Claude Code on every session. Defines how to work in this harness-kit wo
 
 Internal docs (sensors, evals, guides, skills, sub-agent prompts, slash commands) are written in **caveman-full** style to save input tokens: drop articles, drop filler, fragments OK, short synonyms. Technical terms exact, code blocks unchanged, file paths verbatim. Chat reply templates inside slash commands follow the same style.
 
-**Exception — artifacts stay natural English.** PRDs, PRPs, plans, dev/test/pr reports get read by external stakeholders. Generated artifact content must be readable prose, not caveman. Reference templates and good-* examples under `guides/templates/` and `guides/examples/` stay natural for the same reason — they teach Claude what good artifact prose looks like.
+**Exception, artifacts stay natural English.** PRDs, PRPs, plans, dev/test/pr reports get read by external stakeholders. Generated artifact content must be readable prose, not caveman. Reference templates and good-* examples under `guides/templates/` and `guides/examples/` stay natural for the same reason, they teach Claude what good artifact prose looks like.
 
 ## Role
 
@@ -33,7 +33,7 @@ Configurable per consumer. Fill `context-library/business-info.md` and `context-
 
 ## Agents
 
-Two orchestrator agents, registered in [`AGENTS.md`](./AGENTS.md). Each lives under `.claude/agents/<name>/` with its own README, sensors, evals, guides, and skills.
+Three orchestrator agents, registered in [`AGENTS.md`](./AGENTS.md). Each lives under `.claude/agents/<name>/` with its own README, sensors, evals, guides, and skills.
 
 ### product-manager
 
@@ -54,6 +54,8 @@ Engineering pipeline. Slash commands:
 - `/sse:run` full SSE pipeline. `--local` skip PR. `--sdd` use spec-driven loop variant.
 - `/sse:sdd` spec-driven dev loop. Plan once + dev↔test↔eval loop until PRP spec satisfied. Local only, no PR.
 
+Area skills auto-detected from the repo: `backend`, `web`, `mobile`, `devops`. Plus a cross-cutting `designer` skill, applied when building a new UI: Material Design 3, dark/light theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon.
+
 Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claude/agents/staff-software-engineer/`.
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
@@ -67,11 +69,11 @@ Slash commands:
 - `/system-design:review` adversarial review, returns ship/revise/block
 - `/system-design:run` full pipeline, design then review
 
-Skills are **per-system-design** (like SSE area skills): one topic skill per classic problem. Each series episode becomes a skill the agent adapts to real scale. First: `skills/search-engine/`. Add more as `skills/{topic}/SKILL.md`. Optional front stage before PRP/plan. Sub-agent `system-architect` is Task-tool-invokable. Assets: `.claude/agents/system-architect/`.
+Skills are **per-system-design** (like SSE area skills): one topic skill per classic problem. Each series episode becomes a skill the agent adapts to real scale. Topic skills so far: `url-shortener`, `rate-limiter`, `search-engine`, plus generic `design` and `review`. Add more as `skills/{topic}/SKILL.md`. Optional front stage before PRP/plan. Sub-agent `system-architect` is Task-tool-invokable. Assets: `.claude/agents/system-architect/`. Deep theory + references in the [wiki](https://github.com/Pierry/harness-kit/wiki).
 
 ### golden path
 
-`/golden-path` is the end-to-end front door — one command runs all six stages, idea → merged PR (`full-run`: `/product-manager:run` then `/sse:run`, SSE flags pass through). Opinionated, supported, optional (step off any time, run stages solo). Reference: [`docs/GOLDEN-PATH.md`](./docs/GOLDEN-PATH.md), command `.claude/commands/golden-path.md`.
+`/golden-path` is the end-to-end front door, one command runs all six stages, idea → merged PR (`full-run`: `/product-manager:run` then `/sse:run`, SSE flags pass through). Opinionated, supported, optional (step off any time, run stages solo). Reference: [`docs/GOLDEN-PATH.md`](./docs/GOLDEN-PATH.md), command `.claude/commands/golden-path.md`.
 
 SDD variant: `prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] → [user gate] → pr`. Loop cap 3 iters. Predicate built from PRP "Success criteria (verifiable)" + "Validation gates". See `.claude/agents/staff-software-engineer/guides/sdd-loop.md`.
 
@@ -79,8 +81,8 @@ SDD variant: `prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] �
 
 Two opt-in helpers for big target repos. Both bind to external CLIs; missing binary → cmd prints install hint.
 
-- `/context:pack <feature_id>` — `repomix` snapshot to `.claude/runtime/cache/repomix/{feature_id}.xml`. Ephemeral per feature. Cleared on `/pipeline:reset`.
-- `/context:graph [repo]` — `graphify` knowledge graph to `.claude/runtime/cache/graphify/{slug}/graphify-out/`. Long-lived per repo, code-only mode needs no API key (Tree-sitter local).
+- `/context:pack <feature_id>`, `repomix` snapshot to `.claude/runtime/cache/repomix/{feature_id}.xml`. Ephemeral per feature. Cleared on `/pipeline:reset`.
+- `/context:graph [repo]`, `graphify` knowledge graph to `.claude/runtime/cache/graphify/{slug}/graphify-out/`. Long-lived per repo, code-only mode needs no API key (Tree-sitter local).
 
 PRP, plan, and SDD supervisor eval consult cache when present and fall back to grep otherwise. Tier order + when-to-use in `.claude/shared/context-strategy.md`.
 
