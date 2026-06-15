@@ -23,8 +23,9 @@ Read:
 - .claude/agents/staff-software-engineer/guides/pipeline.md
 - .claude/agents/staff-software-engineer/guides/coding-style.md
 - area-specific skill: .claude/agents/staff-software-engineer/skills/{area}/SKILL.md (area = backend, web, mobile, devops)
+- designer skill: .claude/agents/staff-software-engineer/skills/designer/SKILL.md (when the plan includes a new UI: factor in M3 tokens, dark/light theme, modern font, i18n en/pt-BR/es, context-aware favicon)
 - project conventions if present: {repo}/.claude/conventions/{area}.md (see .claude/agents/staff-software-engineer/guides/conventions-override.md)
-- .claude/shared/context-strategy.md — pick the right tier for target-repo lookups
+- .claude/shared/context-strategy.md, pick the right tier for target-repo lookups
 
 Context lookups (per `context-strategy.md`):
 - Cached graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → query for callers/refs instead of grepping

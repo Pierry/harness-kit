@@ -17,6 +17,7 @@ Before coding, write phase start marker:
 Read:
 - source plan
 - area skill: .claude/agents/staff-software-engineer/skills/{area}/SKILL.md
+- designer skill: .claude/agents/staff-software-engineer/skills/designer/SKILL.md (when building a new UI: new app, page, feature, or landing). Apply M3 tokens, dark/light theme, modern font, i18n en/pt-BR/es, context-aware favicon.
 - .claude/agents/staff-software-engineer/guides/coding-style.md
 - .claude/agents/staff-software-engineer/guides/commit-style.md
 - project conventions: {repo}/.claude/conventions/{area}.md if present
