@@ -58,6 +58,17 @@ Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claud
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
 
+### system-architect
+
+System design pipeline. Turns a system/problem into a rigorous System Design Doc, then runs an adversarial staff-level review. Method from the System Design series (EP24 worked example) + the engineering canon (Kleppmann/DDIA, Jeff Dean, Vogels, Helland, Nygard, Ousterhout). Built as a harness per Böckeler/Fowler "Harness engineering": guides (feedforward) + sensors + evals (feedback).
+
+Slash commands:
+- `/system-design:design` produce a System Design Doc (routes to a topic playbook or generic)
+- `/system-design:review` adversarial review, returns ship/revise/block
+- `/system-design:run` full pipeline, design then review
+
+Skills are **per-system-design** (like SSE area skills): one topic skill per classic problem. Each series episode becomes a skill the agent adapts to real scale. First: `skills/search-engine/`. Add more as `skills/{topic}/SKILL.md`. Optional front stage before PRP/plan. Sub-agent `system-architect` is Task-tool-invokable. Assets: `.claude/agents/system-architect/`.
+
 ### golden path
 
 `/golden-path` is the end-to-end front door — one command runs all six stages, idea → merged PR (`full-run`: `/product-manager:run` then `/sse:run`, SSE flags pass through). Opinionated, supported, optional (step off any time, run stages solo). Reference: [`docs/GOLDEN-PATH.md`](./docs/GOLDEN-PATH.md), command `.claude/commands/golden-path.md`.
