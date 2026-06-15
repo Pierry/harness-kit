@@ -27,12 +27,20 @@ CLAUDE.md                          ← project context (style, role, conventions
 │   │   ├── evals/
 │   │   ├── guides/                pipeline, coding-style, commit-style, conventions-override
 │   │   └── skills/                backend, web, mobile, devops
+│   ├── system-architect/
+│   │   ├── README.md
+│   │   ├── sensors/               design-structure, design-rigor
+│   │   ├── evals/                 design-quality, design-review-depth
+│   │   ├── guides/                design-method (the canon), templates, example
+│   │   └── skills/                design, review, search-engine (+ one per system design)
 │   ├── product-manager.md         orchestrator agent
-│   └── staff-software-engineer.md orchestrator agent
+│   ├── staff-software-engineer.md orchestrator agent
+│   └── system-architect.md        orchestrator agent
 ├── commands/                      ← slash-command entry points
 │   ├── golden-path.md             /golden-path  (front door: idea → merged PR)
 │   ├── product-manager/           /product-manager:{prd,prp,run}
 │   ├── sse/                       /sse:{plan,dev,test,pr,run,sdd}
+│   ├── system-design/             /system-design:{design,review,run}
 │   ├── context/                   /context:{pack,graph}
 │   └── pipeline/                  /pipeline:{continue,reset}
 ├── shared/                        ← cross-agent guides (context-strategy.md)
@@ -62,6 +70,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 | `product-manager` | Generate PRD then PRP for a squad/feature | `/product-manager:run` | `.claude/agents/product-manager.md` |
 | `staff-software-engineer` | Full engineering pipeline: plan → dev → test → pr | `/sse:run` | `.claude/agents/staff-software-engineer.md` |
 | `staff-software-engineer` (sdd) | Spec-driven dev loop, local only: plan once + dev↔test↔eval until PRP spec met | `/sse:sdd` | `.claude/agents/staff-software-engineer/guides/sdd-loop.md` |
+| `system-architect` | Design a system into a System Design Doc, then adversarial review. Optional front stage before PRP/plan. | `/system-design:run` | `.claude/agents/system-architect.md` |
 
 ---
 
@@ -72,6 +81,11 @@ When the user types a slash command, the entry point is unambiguous. When the us
 | User intent | Route |
 |---|---|
 | "go from idea to merged PR" (the golden path) | `/golden-path` (full-run: PM then SSE) |
+| "design a system" / "how would you architect X at scale" | `system-architect` → `/system-design:run` |
+| "design a search engine / crawler" | `/system-design:design` → routes to `skills/search-engine/` |
+| "design a URL shortener / link service" | `/system-design:design` → routes to `skills/url-shortener/` |
+| "design a rate limiter / throttle / quota" | `/system-design:design` → routes to `skills/rate-limiter/` |
+| "review this system design" | `/system-design:review` |
 | "ship a new feature end-to-end" (spec in hand) | `staff-software-engineer` (`/sse:run` full pipeline) |
 | "draft a PRD" | `product-manager` → `/product-manager:prd` |
 | "draft a PRP" | `product-manager` → `/product-manager:prp` |
@@ -143,6 +157,7 @@ Generated artifacts and lifecycle hooks live under `.claude/runtime/`.
 |---|---|
 | `runtime/outputs/pm/{prd,prp,tokens,.markers}/` | PRD/PRP artifacts, token JSONs, phase markers |
 | `runtime/outputs/sse/{plan,dev,test,pr,sdd,tokens,.markers}/` | Plan/dev/test/pr/sdd-loop artifacts, token JSONs, phase markers |
+| `runtime/outputs/architect/{design,review}/` | System Design Docs and design reviews |
 | `runtime/cache/{repomix,graphify}/` | Optional context cache: repomix snapshots (per feature_id) + graphify graphs (per repo). See `.claude/shared/context-strategy.md` |
 | `runtime/hooks/<agent>/` | Per-agent lifecycle hooks (post-write, post-eval, pre-prp-check) |
 | `runtime/scripts/<agent>/` | Per-agent utilities (sensor-runner, token-phase, link-validator, confluence-publish) |

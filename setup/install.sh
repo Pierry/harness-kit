@@ -25,7 +25,7 @@ command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 not found"; exit 1; }
 
 # Optional context tools (repomix snapshot, graphify knowledge graph).
-# Both are no-ops if missing — /context:pack and /context:graph will print install hints.
+# Both are no-ops if missing, /context:pack and /context:graph will print install hints.
 if ! command -v repomix >/dev/null 2>&1; then
   echo "  optional: repomix not found. /context:pack disabled until you install it."
   echo "            npm i -g repomix   |   brew install repomix"
@@ -48,7 +48,7 @@ fi
 
 # Migrate legacy v3.x layout if detected. Backs up to .claude/.legacy-v3-backup/.
 if [ -d "$TARGET/.claude/plugins" ]; then
-  echo "  detected legacy v3.x plugins/ — backing up to .claude/.legacy-v3-backup/"
+  echo "  detected legacy v3.x plugins/, backing up to .claude/.legacy-v3-backup/"
   STAMP="$(date +%Y%m%d-%H%M%S)"
   mkdir -p "$TARGET/.claude/.legacy-v3-backup"
   mv "$TARGET/.claude/plugins" "$TARGET/.claude/.legacy-v3-backup/plugins.$STAMP"
@@ -62,14 +62,14 @@ fi
 
 # 2) Agent definitions (sensors, evals, guides, skills, README + orchestrator .md)
 mkdir -p "$TARGET/.claude/agents"
-for agent in product-manager staff-software-engineer; do
+for agent in product-manager staff-software-engineer system-architect; do
   rm -rf "$TARGET/.claude/agents/$agent"
   cp -R "$SOURCE_ROOT/.claude/agents/$agent" "$TARGET/.claude/agents/$agent"
   cp "$SOURCE_ROOT/.claude/agents/$agent.md" "$TARGET/.claude/agents/$agent.md"
 done
 
-# 3) Per-agent runtime hooks + scripts (NOT outputs — that's target-side state)
-mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TARGET/.claude/runtime/outputs/pm/.markers" "$TARGET/.claude/runtime/outputs/sse/.markers" "$TARGET/.claude/runtime/outputs/sse/sdd" "$TARGET/.claude/runtime/cache/repomix" "$TARGET/.claude/runtime/cache/graphify"
+# 3) Per-agent runtime hooks + scripts (NOT outputs, that's target-side state)
+mkdir -p "$TARGET/.claude/runtime/hooks" "$TARGET/.claude/runtime/scripts" "$TARGET/.claude/runtime/outputs/pm/.markers" "$TARGET/.claude/runtime/outputs/sse/.markers" "$TARGET/.claude/runtime/outputs/sse/sdd" "$TARGET/.claude/runtime/outputs/architect/design" "$TARGET/.claude/runtime/outputs/architect/review" "$TARGET/.claude/runtime/cache/repomix" "$TARGET/.claude/runtime/cache/graphify"
 touch "$TARGET/.claude/runtime/cache/repomix/.gitkeep" "$TARGET/.claude/runtime/cache/graphify/.gitkeep"
 for agent in product-manager staff-software-engineer; do
   rm -rf "$TARGET/.claude/runtime/hooks/$agent"
@@ -89,7 +89,7 @@ done
 
 # 4) Slash commands
 mkdir -p "$TARGET/.claude/commands"
-for ns in product-manager sse pipeline context; do
+for ns in product-manager sse pipeline context system-design; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
@@ -234,5 +234,6 @@ echo "done. restart Claude Code to load."
 echo "  /golden-path            idea -> merged PR (the golden path)"
 echo "  /product-manager:prd | :prp | :run"
 echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"
+echo "  /system-design:design | :review | :run"
 echo "  /context:pack | :graph"
 echo "  /pipeline:continue | :reset"
