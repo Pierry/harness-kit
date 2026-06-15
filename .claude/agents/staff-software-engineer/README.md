@@ -11,7 +11,7 @@ Registered in [`AGENTS.md`](../../../AGENTS.md). Agent definition: [`staff-softw
 - `/sse:test`: run the project test suite
 - `/sse:pr`: open the draft PR
 - `/sse:run`: full pipeline, plan to pr. Flags: `--local` (stop before PR), `--sdd` (hand off to spec-driven loop), `--no-monitor` (skip PR monitor only)
-- `/sse:sdd`: spec-driven dev loop. Plan once, then dev↔test↔spec-satisfied eval until PRP spec met. Cap 3 iters. Local only — never auto-opens PR.
+- `/sse:sdd`: spec-driven dev loop. Plan once, then dev↔test↔spec-satisfied eval until PRP spec met. Cap 3 iters. Local only, never auto-opens PR.
 
 Also invokable as sub-agent via Task tool with `subagent_type: "staff-software-engineer"`.
 

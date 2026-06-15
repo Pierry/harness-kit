@@ -62,7 +62,7 @@ export const DynamicStatusBar = () => {
             lineHeight: 1.35,
           }}
         >
-          Updates the moment you type a slash command. Tracks pipeline shape, current stage, next step — live.
+          Updates the moment you type a slash command. Tracks pipeline shape, current stage, next step, live.
         </div>
       </div>
 

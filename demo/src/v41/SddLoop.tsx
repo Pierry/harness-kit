@@ -34,7 +34,7 @@ export const SddLoop = () => {
           color: theme.color.textDim,
         }}
       >
-        <span style={{ color: theme.color.accent, fontFamily: theme.font.mono }}>/sse:sdd</span> — until the spec is met.
+        <span style={{ color: theme.color.accent, fontFamily: theme.font.mono }}>/sse:sdd</span>, until the spec is met.
       </div>
 
       <div

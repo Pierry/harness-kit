@@ -6,10 +6,10 @@ How harness-kit is distributed as a Claude Code plugin, and how to submit it to 
 
 This repo doubles as its own **self-hosted marketplace** and a single **bootstrap plugin**:
 
-- `.claude-plugin/marketplace.json` — catalog (`name: harness-kit`, one plugin entry, `source: "./"`).
-- `.claude-plugin/plugin.json` — plugin manifest (`name: harness-kit`, `version: 4.1.0`).
-- `skills/install/SKILL.md` — `/harness-kit:install` → runs `setup/install.sh` into the user's project.
-- `skills/update/SKILL.md` — `/harness-kit:update` → re-lays the harness.
+- `.claude-plugin/marketplace.json`, catalog (`name: harness-kit`, one plugin entry, `source: "./"`).
+- `.claude-plugin/plugin.json`, plugin manifest (`name: harness-kit`, `version: 4.1.0`).
+- `skills/install/SKILL.md`, `/harness-kit:install` → runs `setup/install.sh` into the user's project.
+- `skills/update/SKILL.md`, `/harness-kit:update` → re-lays the harness.
 
 The plugin is a **bootstrap**, not a native-component plugin: it ships the full harness and installs it into the project, because the agents/commands/guides cross-reference each other by `.claude/`-relative paths that only resolve when copied into a project (not from the plugin cache). This gives full feature parity including hooks and the status bar. See `AGENTS.md` → Distribution.
 
@@ -32,7 +32,7 @@ claude plugin validate . --strict   # passes (CI gate)
 
 ## Official Anthropic directory (optional, gated)
 
-The official, Anthropic-managed directory is **`anthropics/claude-plugins-official`**. Inclusion is at Anthropic's discretion against quality + security standards. It is **not** a PR — submit via the form:
+The official, Anthropic-managed directory is **`anthropics/claude-plugins-official`**. Inclusion is at Anthropic's discretion against quality + security standards. It is **not** a PR, submit via the form:
 
 > **Submission form:** https://clau.de/plugin-directory-submission
 
@@ -44,7 +44,7 @@ The official, Anthropic-managed directory is **`anthropics/claude-plugins-offici
 - [x] `claude plugin validate . --strict` passes
 - [ ] `CHANGELOG.md` kept current per release (see file)
 - [ ] Repo is public on GitHub at `Pierry/harness-kit`
-- [ ] Security note: plugin runs `setup/install.sh`, which **writes into the user's repo** (`.claude/`, `AGENTS.md`, `CLAUDE.md`) and backs up any existing `.claude/settings.json`. Disclose this in the submission — reviewers flag plugins that mutate the project.
+- [ ] Security note: plugin runs `setup/install.sh`, which **writes into the user's repo** (`.claude/`, `AGENTS.md`, `CLAUDE.md`) and backs up any existing `.claude/settings.json`. Disclose this in the submission, reviewers flag plugins that mutate the project.
 
 ### Entry Anthropic would add to their catalog
 
@@ -69,12 +69,12 @@ When approved, their `marketplace.json` would carry an entry like:
 
 Faster, unofficial discovery while the official review is pending:
 
-- ClaudePluginHub — https://www.claudepluginhub.com/tools/submit-plugin
-- claudemarketplaces.com — indexes public marketplace repos
-- claudecodecommands.directory/submit — commands/agents indexes
+- ClaudePluginHub, https://www.claudepluginhub.com/tools/submit-plugin
+- claudemarketplaces.com, indexes public marketplace repos
+- claudecodecommands.directory/submit, commands/agents indexes
 
 These index a public marketplace repo; no code change needed beyond keeping `.claude-plugin/marketplace.json` valid on the default branch.
 
 ## Not a thing: a single cross-AI index
 
-There is no registry that lists one tool into OpenAI + Gemini + Claude at once. Cross-tool reach comes from `AGENTS.md` (read by Codex CLI, Gemini CLI, Cursor on clone) — a convention, not a submission target. See `AGENTS.md` → Cross-tool compatibility.
+There is no registry that lists one tool into OpenAI + Gemini + Claude at once. Cross-tool reach comes from `AGENTS.md` (read by Codex CLI, Gemini CLI, Cursor on clone): a convention, not a submission target. See `AGENTS.md` → Cross-tool compatibility.

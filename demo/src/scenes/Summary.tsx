@@ -116,7 +116,7 @@ export const Summary = () => {
             letterSpacing: -2,
           }}
         >
-          Every <span style={{ color: theme.color.accent }}>sensor, eval, guide</span> — named.
+          Every <span style={{ color: theme.color.accent }}>sensor, eval, guide</span>, named.
         </div>
         <div
           style={{

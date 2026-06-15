@@ -11,9 +11,9 @@ Inspired by Claude Code `/goal` (May 2026): worker model attempts work, independ
 - PRP exists with testable success criteria + validation gates
 
 When not:
-- No PRP — run `/product-manager:prp` first
-- Want PR opened automatically — use `/sse:run`
-- PRP success criteria vague — sensor blocks, fix PRP first
+- No PRP, run `/product-manager:prp` first
+- Want PR opened automatically, use `/sse:run`
+- PRP success criteria vague, sensor blocks, fix PRP first
 
 ## Inputs
 
@@ -101,7 +101,7 @@ Per-iter phases tracked under same `.markers/` dir as standard pipeline:
 - `{feature_id}.sdd-iter{N}-test.{start,end}`
 - `{feature_id}.sdd-iter{N}-eval.{start,end}`
 
-Reuses existing `scripts/staff-software-engineer/token-phase.py` — pass phase name as arg.
+Reuses existing `scripts/staff-software-engineer/token-phase.py`, pass phase name as arg.
 
 ## Stop conditions
 
@@ -115,7 +115,7 @@ Reuses existing `scripts/staff-software-engineer/token-phase.py` — pass phase 
 `/sse:run` is monolithic plan→dev→test→pr. SDD loop adds iter inside dev+test, omits pr. Two reasons:
 
 1. **Local dev workflow**: want repeated dev↔test cycle with spec-judge feedback, not single shot
-2. **PR gate**: human reviews loop transcript before pushing. Auto-PR on goal PASS is too eager — supervisor can be wrong
+2. **PR gate**: human reviews loop transcript before pushing. Auto-PR on goal PASS is too eager, supervisor can be wrong
 
 `/sse:run --local` exists as cheap alternative (skip pr stage, no loop). SDD loop is the spec-driven mode.
 

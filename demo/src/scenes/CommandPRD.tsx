@@ -10,7 +10,7 @@ export const CommandPRD = () => {
       kicker="step 1 of 6 · product"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/product-manager:prd</span> — draft a PRD
+          <span style={{ color: theme.color.accent }}>/product-manager:prd</span>, draft a PRD
         </>
       }
       termTitle="claude code · billing"

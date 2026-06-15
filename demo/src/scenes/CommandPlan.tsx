@@ -10,7 +10,7 @@ export const CommandPlan = () => {
       kicker="step 3 of 6 · engineering"
       title={
         <>
-          <span style={{ color: theme.color.accent }}>/sse:plan</span> — technical plan from PRP
+          <span style={{ color: theme.color.accent }}>/sse:plan</span>, technical plan from PRP
         </>
       }
       termTitle="claude code · billing-service"

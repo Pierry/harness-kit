@@ -50,7 +50,7 @@ export const Install = () => {
 
       <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', opacity: termOpacity }}>
         <Terminal title="claude code">
-          {/* 1 — add the marketplace */}
+          {/* 1, add the marketplace */}
           <Line>
             <span style={{ color: promptColor }}>{'>'}</span>{' '}
             <TypingText text="/plugin marketplace add Pierry/harness-kit" startFrame={40} cps={48} />
@@ -59,7 +59,7 @@ export const Install = () => {
             {'  '}added marketplace · harness-kit
           </Output>
 
-          {/* 2 — install the plugin (registers it in Claude Code) */}
+          {/* 2, install the plugin (registers it in Claude Code) */}
           <Line>
             <span style={{ color: promptColor }}>{'>'}</span>{' '}
             <TypingText text="/plugin install harness-kit@harness-kit" startFrame={104} cps={48} />
@@ -68,7 +68,7 @@ export const Install = () => {
             {'  '}installed · harness-kit v4.1.0
           </Output>
 
-          {/* 3 — lay the harness down into the repo */}
+          {/* 3, lay the harness down into the repo */}
           <Line>
             <span style={{ color: promptColor }}>{'>'}</span>{' '}
             <TypingText text="/harness-kit:install" startFrame={166} cps={42} />
@@ -77,7 +77,7 @@ export const Install = () => {
             {'  '}harness-kit v4.1.0 → ~/your-repo
           </Output>
 
-          {/* timeline — what gets laid down behind the scenes */}
+          {/* timeline, what gets laid down behind the scenes */}
           <div style={{ position: 'relative', paddingLeft: 46, marginTop: 22, marginBottom: 8 }}>
             {/* base rail */}
             <div
