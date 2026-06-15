@@ -2,6 +2,12 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.3.0]
+
+### Changed
+- Designer skill iconography hardened: **never use emojis** (anywhere, UI/icons/buttons/copy), **always create original, modern SVG icons** (consistent grid, one visual language, currentColor, accessible labels). Use a single modern open set only as a base; brand and hero marks stay original; never mix icon families.
+- Version bumped to 4.3.0 across VERSION, plugin.json, package.json, and the README badge so marketplace consumers receive the update.
+
 ## [4.2.0]
 
 ### Added
