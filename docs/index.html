@@ -4,17 +4,25 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>harness-kit · usage guide</title>
-<meta name="description" content="harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." />
+<meta id="meta-desc" name="description" content="harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." />
 <meta property="og:title" content="harness-kit · usage guide" />
 <meta property="og:description" content="Idea to merged PR, through one gated pipeline of Claude Code agents." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
 <link rel="canonical" href="https://pierry.github.io/harness-kit/" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
 <!--
   harness-kit usage-guide landing page. Mirrors README.md content
   (what/why, install, golden path, commands, agents, docs) and reuses
   the visual system from docs/brief/index.html.
   Type: Bricolage Grotesque (display) · Hanken Grotesk (body) · JetBrains Mono (code).
+  Dark/light theme (data-theme attr), i18n en/pt-BR/es (data-i18n keys + JS dict,
+  English lives in the DOM), refined scroll/parallax/glow effects.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,6 +41,46 @@
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 28px;
     --ease: cubic-bezier(.22,.61,.36,1);
+    /* theme-swappable surfaces */
+    --link-hover: #fff;
+    --hairline: #ffffff0a;
+    --chip-bg: #ffffff06;
+    --card-bg: linear-gradient(180deg, #ffffff05, #ffffff00);
+    --hover-bg: #ffffff07;
+    --bar-bg: linear-gradient(180deg, var(--elev), #12151c);
+    --shadow: 0 20px 60px #00000055;
+    --header-bg: linear-gradient(180deg, #08090ce8, #08090cb0);
+    --noise-op: .035;
+    --mesh:
+      radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
+      radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
+      radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
+      linear-gradient(180deg, var(--bg), var(--bg-2));
+    --glow: #a78bfa22;
+  }
+  :root[data-theme="light"] {
+    --bg: #faf9fc; --bg-2: #f1eef8; --surface: #ffffff; --elev: #ffffff;
+    --border: #e7e3f0; --border-strong: #d6cfe4;
+    --text: #1b1822; --dim: #54506a; --faint: #8a849c;
+    --accent: #7c5cf0; --accent-2: #6442d8; --accent-dim: #7c6ad9;
+    --gold: #b07908; --gold-deep: #8f6206;
+    --success: #0f9d6b; --success-dim: #0f9d6b; --danger: #e11d48;
+    --code-bg: #f6f4fb;
+    --link-hover: #000;
+    --hairline: #1b18220f;
+    --chip-bg: #ffffff;
+    --card-bg: #ffffff;
+    --hover-bg: #f1eef8;
+    --bar-bg: linear-gradient(180deg, #f1eef8, #e9e5f2);
+    --shadow: 0 16px 44px #2a206814;
+    --header-bg: linear-gradient(180deg, #faf9fce8, #faf9fcb8);
+    --noise-op: .02;
+    --mesh:
+      radial-gradient(60% 50% at 78% -8%, #7c5cf014, transparent 62%),
+      radial-gradient(48% 42% at 12% 8%, #f0a91e12, transparent 60%),
+      radial-gradient(55% 50% at 50% 120%, #12b07410, transparent 60%),
+      linear-gradient(180deg, var(--bg), var(--bg-2));
+    --glow: #7c5cf01f;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -40,36 +88,62 @@
     margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
     font-size: 16px; line-height: 1.6; letter-spacing: -0.1px;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    transition: background .4s var(--ease), color .4s var(--ease);
   }
   body::before {
-    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
-    background:
-      radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
-      radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
-      radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
-      linear-gradient(180deg, var(--bg), var(--bg-2));
+    content: ""; position: fixed; inset: -10%; z-index: -2; pointer-events: none;
+    background: var(--mesh);
+    transform: translateY(var(--sy, 0));
+    animation: meshDrift 26s ease-in-out infinite alternate;
+    will-change: transform, background-position;
+  }
+  @keyframes meshDrift {
+    from { background-position: 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: 3% -2%, -2% 2%, 1% 3%, 0 0; }
   }
   body::after {
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .035;
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--noise-op);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   a { color: var(--accent-2); text-decoration: none; transition: color .15s var(--ease); }
-  a:hover { color: #fff; }
+  a:hover { color: var(--link-hover); }
   ::selection { background: #a78bfa44; }
 
   /* header */
   header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 22px 40px; position: sticky; top: 0; z-index: 20;
-    background: linear-gradient(180deg, #08090ce8, #08090cb0); backdrop-filter: blur(14px);
-    border-bottom: 1px solid #ffffff0a;
+    background: var(--header-bg); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
   }
   .wordmark { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: -0.5px; display: flex; align-items: baseline; gap: 12px; }
   .wordmark .dash { color: var(--gold); }
   .wordmark .sub { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0; }
-  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 24px; }
+  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 24px; align-items: center; }
   header nav a.cta { color: var(--gold); }
-  @media (max-width: 720px) { header nav .hide-sm { display: none; } header { padding: 18px 22px; } }
+  @media (max-width: 860px) { header nav .hide-sm { display: none; } header { padding: 18px 22px; } }
+
+  /* controls: language switch + theme toggle */
+  .controls { display: flex; align-items: center; gap: 12px; }
+  .langsw { display: flex; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; }
+  .langsw button {
+    background: transparent; border: none; color: var(--faint); padding: 6px 11px; cursor: pointer;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.4px;
+    transition: color .15s var(--ease), background .15s var(--ease);
+  }
+  .langsw button:hover { color: var(--text); }
+  .langsw button[aria-pressed="true"] { background: #a78bfa22; color: var(--accent-2); }
+  .themebtn {
+    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px; border: 1px solid var(--border-strong); background: var(--chip-bg); color: var(--dim);
+    cursor: pointer; transition: color .15s var(--ease), border-color .15s var(--ease), transform .12s var(--ease);
+  }
+  .themebtn:hover { color: var(--text); border-color: var(--accent); }
+  .themebtn:active { transform: scale(.92); }
+  .themebtn svg { width: 18px; height: 18px; }
+  .themebtn .i-sun, .themebtn .i-moon { display: none; }
+  :root:not([data-theme="light"]) .themebtn .i-moon { display: block; }
+  :root[data-theme="light"] .themebtn .i-sun { display: block; }
 
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px; }
   @media (max-width: 720px) { .wrap { padding: 0 22px; } }
@@ -79,7 +153,7 @@
   .eyebrow {
     display: inline-flex; gap: 12px; align-items: center; padding: 8px 16px 8px 14px;
     border-radius: 999px; border: 1px solid var(--border-strong);
-    background: #ffffff06; font-family: var(--mono); font-size: 12px; letter-spacing: 0.4px; color: var(--dim);
+    background: var(--chip-bg); font-family: var(--mono); font-size: 12px; letter-spacing: 0.4px; color: var(--dim);
     margin-bottom: 28px;
   }
   .eyebrow b { color: var(--gold); font-weight: 700; }
@@ -94,12 +168,21 @@
   .lede code { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 8px; border-radius: 7px; font-size: 16px; }
   .hero-cta { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 
+  /* hero media (demo gif) */
+  .media { margin-top: 44px; }
+  .media .frame { border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow); background: var(--code-bg); }
+  .media .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bar-bg); }
+  .media .bar .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .media .bar .title { margin-left: 12px; color: var(--dim); font-family: var(--mono); font-size: 12.5px; }
+  .media img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  .media .cap { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 12px 0 0; text-align: center; }
+
   /* the pipeline ribbon */
   .pipe { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 13px; color: var(--faint); margin-top: 44px; }
-  .pipe .stage { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: #ffffff04; }
+  .pipe .stage { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip-bg); }
   .pipe .stage.pm { color: var(--accent-2); border-color: #a78bfa3a; }
   .pipe .stage.sse { color: var(--gold); border-color: #fcc04a3a; }
-  .pipe .arrow { color: #3a4250; }
+  .pipe .arrow { color: var(--faint); }
   .pipe .end { color: var(--success-dim); font-weight: 700; padding: 7px 14px; border: 1px solid #34d39933; border-radius: 999px; }
 
   /* buttons */
@@ -110,11 +193,11 @@
   .btn.primary { color: #1a1205; background: linear-gradient(100deg, var(--gold), var(--gold-deep)); border: none; box-shadow: 0 8px 24px #fcc04a22; }
   .btn.primary:hover { filter: brightness(1.06); box-shadow: 0 10px 30px #fcc04a38; color: #1a1205; }
   .btn.primary:active { transform: translateY(1px); }
-  .btn.ghost { color: var(--text); background: #ffffff06; border: 1px solid var(--border-strong); }
-  .btn.ghost:hover { border-color: var(--accent); color: #fff; }
+  .btn.ghost { color: var(--text); background: var(--chip-bg); border: 1px solid var(--border-strong); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--link-hover); }
 
   /* sections */
-  section.block { padding: 56px 0; border-top: 1px solid #ffffff0a; }
+  section.block { padding: 56px 0; border-top: 1px solid var(--hairline); }
   .sec-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 12px; }
   .sec-head .n { font-family: var(--mono); font-size: 13px; color: var(--gold); font-weight: 700; }
   .sec-head h2 { font-family: var(--display); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; letter-spacing: -0.8px; margin: 0; }
@@ -123,9 +206,9 @@
   /* code blocks */
   .code {
     background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: var(--r-md);
-    overflow: hidden; box-shadow: 0 20px 60px #00000055; margin: 0 0 18px;
+    overflow: hidden; box-shadow: var(--shadow); margin: 0 0 18px;
   }
-  .code .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--elev), #12151c); }
+  .code .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bar-bg); }
   .code .dot { width: 11px; height: 11px; border-radius: 50%; }
   .code .bar .title { margin-left: 12px; color: var(--dim); font-family: var(--mono); font-size: 12.5px; }
   .code pre { margin: 0; padding: 22px 24px; font-family: var(--mono); font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
@@ -136,8 +219,9 @@
 
   /* steps */
   .steps { display: grid; gap: 18px; counter-reset: step; }
-  .step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
   .step .num { counter-increment: step; font-family: var(--display); font-weight: 800; font-size: 22px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #fcc04a16; color: var(--gold); }
+  .step .num::before { content: counter(step); }
   .step h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 4px 0 8px; letter-spacing: -0.4px; }
   .step p { margin: 0; color: var(--dim); font-size: 15.5px; }
   .step p + p { margin-top: 10px; }
@@ -145,7 +229,7 @@
   /* feature cards */
   .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
-  .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); position: relative; overflow: hidden; }
+  .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
   .card::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
   .card .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); text-transform: lowercase; }
   .card h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 10px 0 8px; letter-spacing: -0.4px; }
@@ -154,21 +238,26 @@
   .card .skills span { font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 4px 9px; border: 1px solid var(--border); border-radius: 999px; }
   .card .more { font-family: var(--mono); font-size: 13px; }
 
+  /* glow follows the cursor on raised surfaces */
+  .glowable { position: relative; }
+  .glowable > .glow { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity .35s var(--ease); pointer-events: none; background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%); }
+  .glowable:hover > .glow { opacity: 1; }
+
   /* table */
   .tablewrap { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
   table th, table td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); }
-  table th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--faint); font-weight: 600; background: #ffffff04; }
+  table th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--faint); font-weight: 600; background: var(--chip-bg); }
   table tr:last-child td { border-bottom: none; }
   table td:nth-child(2) { font-family: var(--mono); font-size: 13.5px; color: var(--gold); }
   table td:nth-child(3) { font-family: var(--mono); font-size: 13px; color: var(--dim); }
-  table tr:hover td { background: #ffffff04; }
+  table tr:hover td { background: var(--hover-bg); }
   @media (max-width: 720px) { table { font-size: 13.5px; } table th, table td { padding: 11px 12px; } }
 
   /* diagram */
   .diagram {
     border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--code-bg);
-    padding: 24px; margin: 22px 0 0; overflow-x: auto; box-shadow: 0 20px 60px #00000044;
+    padding: 24px; margin: 22px 0 0; overflow-x: auto; box-shadow: var(--shadow);
   }
   .diagram .mermaid { width: 100%; min-width: 640px; }
   .diagram svg { width: 100% !important; max-width: 100% !important; height: auto; display: block; }
@@ -176,7 +265,7 @@
 
   /* references */
   .refs { display: grid; gap: 14px; }
-  .ref { padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); position: relative; overflow: hidden; }
+  .ref { padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
   .ref::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
   .ref .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); }
   .ref h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 10px 0 6px; letter-spacing: -0.4px; }
@@ -187,7 +276,7 @@
   .ref li b { color: var(--text); font-weight: 600; }
 
   /* gates note */
-  .note { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border: 1px solid #a78bfa2a; border-radius: var(--r-md); background: #a78bfa0c; margin-top: 22px; }
+  .note { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border: 1px solid #a78bfa2a; border-radius: var(--r-md); background: #a78bfa12; margin-top: 22px; }
   .note .ic { color: var(--accent-2); font-family: var(--mono); font-weight: 700; flex: none; }
   .note p { margin: 0; color: var(--dim); font-size: 15px; }
   .note b { color: var(--text); }
@@ -195,49 +284,83 @@
   /* docs grid */
   .docgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 720px) { .docgrid { grid-template-columns: 1fr; } }
-  .doc { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--r-sm); background: #ffffff04; transition: border-color .15s var(--ease), background .15s; }
-  .doc:hover { border-color: var(--border-strong); background: #ffffff07; }
+  .doc { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--chip-bg); overflow: hidden; transition: border-color .15s var(--ease), background .15s, transform .15s var(--ease); }
+  .doc:hover { border-color: var(--border-strong); background: var(--hover-bg); transform: translateY(-2px); }
   .doc .t { font-weight: 600; color: var(--text); }
   .doc .d { font-size: 13.5px; color: var(--faint); }
   .doc .ar { color: var(--accent-2); font-family: var(--mono); }
 
-  footer { border-top: 1px solid #ffffff0a; padding: 36px 0 72px; color: var(--faint); font-family: var(--mono); font-size: 13px; margin-top: 30px; }
+  footer { border-top: 1px solid var(--hairline); padding: 36px 0 72px; color: var(--faint); font-family: var(--mono); font-size: 13px; margin-top: 30px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  /* effects: scroll reveal + reduced-motion guard */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .cards .card:nth-child(2), .refs .ref:nth-child(2), .docgrid .doc:nth-child(2) { transition-delay: .07s; }
+  .cards .card:nth-child(3), .refs .ref:nth-child(3), .docgrid .doc:nth-child(3) { transition-delay: .14s; }
+  .steps .step:nth-child(2) { transition-delay: .08s; }
+  .steps .step:nth-child(3) { transition-delay: .16s; }
+  .docgrid .doc:nth-child(4) { transition-delay: .21s; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    body::before { animation: none !important; transform: none !important; }
+    .live { animation: none !important; }
+    body { transition: none !important; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub">usage guide</span></div>
+  <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
   <nav>
-    <a class="hide-sm" href="#install">install</a>
+    <a class="hide-sm" href="#install" data-i18n="nav.install">install</a>
     <a class="hide-sm" href="#golden-path">golden path</a>
-    <a class="hide-sm" href="#commands">commands</a>
+    <a class="hide-sm" href="#commands" data-i18n="nav.commands">commands</a>
     <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <span class="langsw" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+        <button type="button" data-lang="es" aria-pressed="false">ES</button>
+      </span>
+      <button type="button" class="themebtn" id="themebtn" aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
   </nav>
 </header>
 
 <div class="wrap">
   <section class="hero">
-    <span class="eyebrow"><span class="live"></span> claude code plugin &middot; <b>gated pipeline</b></span>
-    <h1>Idea to merged PR,<br />through one <span class="gold">gated pipeline</span>.</h1>
-    <p class="lede">harness-kit is a set of Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw idea through <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, with a pass/fail check and a scored review at every stage. Nothing advances on vibes.</p>
+    <span class="eyebrow"><span class="live"></span> <span data-i18n="hero.eyebrow">claude code plugin &middot; <b>gated pipeline</b></span></span>
+    <h1 data-i18n="hero.h1">Idea to merged PR,<br />through one <span class="gold">gated pipeline</span>.</h1>
+    <p class="lede" data-i18n="hero.lede">harness-kit is a set of Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw idea through <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, with a pass/fail check and a scored review at every stage. Nothing advances on vibes.</p>
     <div class="hero-cta">
-      <a class="btn primary" href="#install">Install it</a>
-      <a class="btn ghost" href="brief/">Open the idea-brief builder</a>
+      <a class="btn primary" href="#install" data-i18n="hero.cta1">Install it</a>
+      <a class="btn ghost" href="brief/" data-i18n="hero.cta2">Open the idea-brief builder</a>
+    </div>
+    <div class="media reveal">
+      <div class="frame">
+        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="hero.gifbar">the full pipeline &middot; demo</span></div>
+        <img src="preview.gif" width="720" height="405" loading="lazy" decoding="async" alt="harness-kit pipeline walkthrough: prd to prp to plan, dev, test and pr" />
+      </div>
+      <p class="cap" data-i18n="hero.gifcap">the full pipeline, one walkthrough</p>
     </div>
     <div class="pipe">
       <span class="stage pm">prd</span><span class="stage pm">prp</span>
       <span class="arrow">&#8594;</span>
       <span class="stage sse">plan</span><span class="stage sse">dev</span><span class="stage sse">test</span><span class="stage sse">pr</span>
       <span class="arrow">&#8594;</span>
-      <span class="end">merged PR</span>
+      <span class="end" data-i18n="hero.merged">merged PR</span>
     </div>
   </section>
 
   <!-- WHY -->
-  <section class="block" id="why">
-    <div class="sec-head"><span class="n">01</span><h2>Why it exists</h2></div>
-    <p class="sec-sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
+  <section class="block reveal" id="why">
+    <div class="sec-head"><span class="n">01</span><h2 data-i18n="s01.title">Why it exists</h2></div>
+    <p class="sec-sub" data-i18n="s01.sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
     <div class="diagram">
       <pre class="mermaid">
 flowchart LR
@@ -252,14 +375,14 @@ flowchart LR
     pr --> merged([merged PR])
       </pre>
     </div>
-    <p class="diagram-cap">two agents, one pipeline &middot; each arrow is a gated handoff</p>
+    <p class="diagram-cap" data-i18n="s01.cap1">two agents, one pipeline &middot; each arrow is a gated handoff</p>
     <div class="note" style="margin-top:28px">
       <span class="ic">&#9670;</span>
-      <p>Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
+      <p data-i18n="s01.note">Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
     </div>
 
-    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:40px 0 6px">How one stage is gated</h3>
-    <p class="sec-sub" style="margin-bottom:0">The same loop runs at every stage. The agent generates the artifact, a sensor checks its structure, an eval scores its quality, and only then does a human approve. Failures self-correct before they reach you.</p>
+    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:40px 0 6px" data-i18n="s01.h3">How one stage is gated</h3>
+    <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub2">The same loop runs at every stage. The agent generates the artifact, a sensor checks its structure, an eval scores its quality, and only then does a human approve. Failures self-correct before they reach you.</p>
     <div class="diagram">
       <pre class="mermaid">
 flowchart LR
@@ -271,49 +394,49 @@ flowchart LR
     approve --> next([next stage])
       </pre>
     </div>
-    <p class="diagram-cap">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
+    <p class="diagram-cap" data-i18n="s01.cap2">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
   </section>
 
   <!-- INSTALL -->
-  <section class="block" id="install">
-    <div class="sec-head"><span class="n">02</span><h2>Install</h2></div>
-    <p class="sec-sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
+  <section class="block reveal" id="install">
+    <div class="sec-head"><span class="n">02</span><h2 data-i18n="s02.title">Install</h2></div>
+    <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
     <div class="code">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
 <pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
 <span class="cmd">/plugin</span> install harness-kit@harness-kit</pre>
     </div>
-    <p class="sec-sub" style="margin:0 0 18px">Restart Claude Code, then inside the repo you want to use it in:</p>
+    <p class="sec-sub" style="margin:0 0 18px" data-i18n="s02.sub2">Restart Claude Code, then inside the repo you want to use it in:</p>
     <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">per repo, once</span></div>
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s02.bar">per repo, once</span></div>
 <pre><span class="cmd">/harness-kit:install</span></pre>
     </div>
-    <p class="sec-sub" style="margin:0">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
-    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a0c">
+    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
+    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
       <span class="ic" style="color:var(--gold)">&#8635;</span>
-      <p><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
+      <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
     </div>
   </section>
 
   <!-- GOLDEN PATH -->
-  <section class="block" id="golden-path">
-    <div class="sec-head"><span class="n">03</span><h2>The golden path</h2></div>
-    <p class="sec-sub">One command, idea to merged PR.</p>
+  <section class="block reveal" id="golden-path">
+    <div class="sec-head"><span class="n">03</span><h2 data-i18n="s03.title">The golden path</h2></div>
+    <p class="sec-sub" data-i18n="s03.sub">One command, idea to merged PR.</p>
     <div class="steps">
-      <div class="step">
+      <div class="step glowable"><span class="glow"></span>
         <span class="num"></span>
         <div>
-          <h3>Write the brief</h3>
-          <p>Open the <a href="brief/">idea-brief builder</a> and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to the PRD conventions as you type.</p>
+          <h3 data-i18n="s03.s1h">Write the brief</h3>
+          <p data-i18n="s03.s1p">Open the <a href="brief/">idea-brief builder</a> and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to the PRD conventions as you type.</p>
         </div>
       </div>
-      <div class="step">
+      <div class="step glowable"><span class="glow"></span>
         <span class="num"></span>
         <div>
-          <h3>Paste it</h3>
-          <p>Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code:</p>
+          <h3 data-i18n="s03.s2h">Paste it</h3>
+          <p data-i18n="s03.s2p">Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code:</p>
           <div class="code" style="margin-top:14px">
-            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">paste into claude code</span></div>
+            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s03.bar">paste into claude code</span></div>
 <pre><span class="cmd">/golden-path</span>
 
 <span class="key">Squad:</span> checkout
@@ -323,56 +446,56 @@ flowchart LR
           </div>
         </div>
       </div>
-      <div class="step">
+      <div class="step glowable"><span class="glow"></span>
         <span class="num"></span>
         <div>
-          <h3>Approve and ship</h3>
-          <p>All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; the status bar tracks where you are.</p>
-          <p>SSE flags pass straight through: <code class="inline">--local</code>, <code class="inline">--sdd</code>, <code class="inline">--no-monitor</code>. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
+          <h3 data-i18n="s03.s3h">Approve and ship</h3>
+          <p data-i18n="s03.s3p1">All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; the status bar tracks where you are.</p>
+          <p data-i18n="s03.s3p2">SSE flags pass straight through: <code class="inline">--local</code>, <code class="inline">--sdd</code>, <code class="inline">--no-monitor</code>. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- OTHER WAYS -->
-  <section class="block" id="commands">
-    <div class="sec-head"><span class="n">04</span><h2>Other ways to run</h2></div>
-    <p class="sec-sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
+  <section class="block reveal" id="commands">
+    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
+    <p class="sec-sub" data-i18n="s04.sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>You want</th><th>Run</th><th>Stages</th></tr></thead>
+        <thead><tr><th data-i18n="s04.th1">You want</th><th data-i18n="s04.th2">Run</th><th data-i18n="s04.th3">Stages</th></tr></thead>
         <tbody>
-          <tr><td>Idea to merged PR</td><td>/golden-path</td><td>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</td></tr>
-          <tr><td>Spec only, align before any code</td><td>/product-manager:run</td><td>prd &#8594; prp</td></tr>
-          <tr><td>Small change, plan in your head</td><td>/sse:run</td><td>plan &#8594; dev &#8594; test &#8594; pr</td></tr>
-          <tr><td>Local only, no PR</td><td>/sse:run --local</td><td>plan &#8594; dev &#8594; test</td></tr>
-          <tr><td>Loop until the spec passes</td><td>/sse:sdd</td><td>plan &#8594; [dev&#8596;test&#8596;eval] &times;3</td></tr>
-          <tr><td>Resume after a break</td><td>/pipeline:continue</td><td>next pending stage</td></tr>
+          <tr><td data-i18n="s04.r1">Idea to merged PR</td><td>/golden-path</td><td>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</td></tr>
+          <tr><td data-i18n="s04.r2">Spec only, align before any code</td><td>/product-manager:run</td><td>prd &#8594; prp</td></tr>
+          <tr><td data-i18n="s04.r3">Small change, plan in your head</td><td>/sse:run</td><td>plan &#8594; dev &#8594; test &#8594; pr</td></tr>
+          <tr><td data-i18n="s04.r4">Local only, no PR</td><td>/sse:run --local</td><td>plan &#8594; dev &#8594; test</td></tr>
+          <tr><td data-i18n="s04.r5">Loop until the spec passes</td><td>/sse:sdd</td><td>plan &#8594; [dev&#8596;test&#8596;eval] &times;3</td></tr>
+          <tr><td data-i18n="s04.r6">Resume after a break</td><td>/pipeline:continue</td><td>next pending stage</td></tr>
         </tbody>
       </table>
     </div>
     <div class="note">
       <span class="ic">&#9670;</span>
-      <p><b>Sensors</b> are deterministic structure checks, they block on failure and Claude regenerates until they pass. <b>Evals</b> are LLM-judge rubrics scored 0-10, threshold 8.0, retried up to 3 times. Each stage is also its own command: <code class="inline">/sse:plan</code>, <code class="inline">/sse:dev</code>, <code class="inline">/sse:test</code>, <code class="inline">/sse:pr</code>. <a href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md">Every command and gate &#8594;</a></p>
+      <p data-i18n="s04.note"><b>Sensors</b> are deterministic structure checks, they block on failure and Claude regenerates until they pass. <b>Evals</b> are LLM-judge rubrics scored 0-10, threshold 8.0, retried up to 3 times. Each stage is also its own command: <code class="inline">/sse:plan</code>, <code class="inline">/sse:dev</code>, <code class="inline">/sse:test</code>, <code class="inline">/sse:pr</code>. <a href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md">Every command and gate &#8594;</a></p>
     </div>
   </section>
 
   <!-- CONTEXT OPTIMIZATION -->
-  <section class="block" id="context">
-    <div class="sec-head"><span class="n">05</span><h2>Context optimization</h2></div>
-    <p class="sec-sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
+  <section class="block reveal" id="context">
+    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s05.title">Context optimization</h2></div>
+    <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Tool</th><th>Cuts</th><th>How</th></tr></thead>
+        <thead><tr><th data-i18n="s05.th1">Tool</th><th data-i18n="s05.th2">Cuts</th><th data-i18n="s05.th3">How</th></tr></thead>
         <tbody>
-          <tr><td>/context:pack</td><td>input</td><td>repomix snapshot of the target repo, cached per feature</td></tr>
-          <tr><td>/context:graph</td><td>input</td><td>graphify knowledge graph, query "what calls X" (~71x fewer tokens)</td></tr>
-          <tr><td>qmd</td><td>input</td><td>semantic search over the guides, returns the relevant excerpt not the whole file</td></tr>
-          <tr><td>rtk</td><td>output</td><td>shell proxy, compresses git/test/lint/grep output 60-90%</td></tr>
+          <tr><td>/context:pack</td><td>input</td><td data-i18n="s05.h1">repomix snapshot of the target repo, cached per feature</td></tr>
+          <tr><td>/context:graph</td><td>input</td><td data-i18n="s05.h2">graphify knowledge graph, query "what calls X" (~71x fewer tokens)</td></tr>
+          <tr><td>qmd</td><td>input</td><td data-i18n="s05.h3">semantic search over the guides, returns the relevant excerpt not the whole file</td></tr>
+          <tr><td>rtk</td><td>output</td><td data-i18n="s05.h4">shell proxy, compresses git/test/lint/grep output 60-90%</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="sec-sub" style="margin:24px 0 14px"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md">qmd</a> and <a href="https://github.com/tobi/qmd">rtk</a> are third-party, install them yourself:</p>
+    <p class="sec-sub" style="margin:24px 0 14px" data-i18n="s05.sub2"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md">qmd</a> and <a href="https://github.com/tobi/qmd">rtk</a> are third-party, install them yourself:</p>
     <div class="code">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">shell</span></div>
 <pre><span class="c"># rtk, output filter, auto-intercepts git/test/lint/grep</span>
@@ -383,118 +506,357 @@ rtk init -g            <span class="c"># select Claude Code; rtk gain shows savi
 npm install -g @tobilu/qmd
 setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2GB models, once)</span></pre>
     </div>
-    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a0c">
+    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
       <span class="ic" style="color:var(--gold)">&#9670;</span>
-      <p>qmd and rtk are not bundled. Rationale and measured wins in <a href="https://github.com/Pierry/harness-kit/issues/2">issue #2</a>. Full tier order in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md">context-strategy.md</a>.</p>
+      <p data-i18n="s05.note">qmd and rtk are not bundled. Rationale and measured wins in <a href="https://github.com/Pierry/harness-kit/issues/2">issue #2</a>. Full tier order in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md">context-strategy.md</a>.</p>
     </div>
   </section>
 
   <!-- AGENTS -->
-  <section class="block" id="agents">
-    <div class="sec-head"><span class="n">06</span><h2>The agents</h2></div>
-    <p class="sec-sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
+  <section class="block reveal" id="agents">
+    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s06.title">The agents</h2></div>
+    <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
-      <div class="card">
+      <div class="card glowable"><span class="glow"></span>
         <span class="tag">product-manager</span>
-        <h3>Frame the problem</h3>
-        <p>Turns a problem into an engineering-ready spec, a PRD then a PRP.</p>
+        <h3 data-i18n="c1.h">Frame the problem</h3>
+        <p data-i18n="c1.p">Turns a problem into an engineering-ready spec, a PRD then a PRP.</p>
         <div class="skills"><span>prd</span><span>prp</span></div>
       </div>
-      <div class="card">
+      <div class="card glowable"><span class="glow"></span>
         <span class="tag">staff-software-engineer</span>
-        <h3>Ship the code</h3>
-        <p>Turns an approved PRP into a merged PR, or a satisfied spec. Area skills auto-detected from the repo, plus a designer skill for new UIs.</p>
+        <h3 data-i18n="c2.h">Ship the code</h3>
+        <p data-i18n="c2.p">Turns an approved PRP into a merged PR, or a satisfied spec. Area skills auto-detected from the repo, plus a designer skill for new UIs.</p>
         <div class="skills"><span>backend</span><span>web</span><span>mobile</span><span>devops</span><span>designer</span></div>
       </div>
-      <div class="card">
+      <div class="card glowable"><span class="glow"></span>
         <span class="tag">system-architect</span>
-        <h3>Design the system</h3>
-        <p>Turns a problem into a rigorous System Design Doc, then an adversarial review. Topic playbooks per classic design.</p>
+        <h3 data-i18n="c3.h">Design the system</h3>
+        <p data-i18n="c3.p">Turns a problem into a rigorous System Design Doc, then an adversarial review. Topic playbooks per classic design.</p>
         <div class="skills"><span>url-shortener</span><span>rate-limiter</span><span>search-engine</span></div>
-        <div class="more"><a href="https://github.com/Pierry/harness-kit/wiki">Theory &amp; references in the wiki &#8594;</a></div>
+        <div class="more"><a href="https://github.com/Pierry/harness-kit/wiki" data-i18n="c3.more">Theory &amp; references in the wiki &#8594;</a></div>
       </div>
     </div>
   </section>
 
   <!-- FOUNDATIONS -->
-  <section class="block" id="foundations">
-    <div class="sec-head"><span class="n">07</span><h2>Foundations</h2></div>
-    <p class="sec-sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
+  <section class="block reveal" id="foundations">
+    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s07.title">Foundations</h2></div>
+    <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
-      <div class="ref">
-        <span class="tag">the harness model</span>
+      <div class="ref glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="r1.tag">the harness model</span>
         <h3>Harness engineering</h3>
-        <p>From Birgitta Böckeler (Thoughtworks / martinfowler.com). Every stage gate here is exactly this split.</p>
+        <p data-i18n="r1.p">From Birgitta B&ouml;ckeler (Thoughtworks / martinfowler.com). Every stage gate here is exactly this split.</p>
         <ul>
-          <li><a href="https://martinfowler.com/articles/harness-engineering.html"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (deterministic feedback), evals (inferential feedback), humans on the loop.</li>
-          <li><a href="https://martinfowler.com/articles/sensors-for-coding-agents.html"><b>Maintainability sensors for coding agents</b></a>: the sensor idea our structure checks implement.</li>
+          <li data-i18n="r1.li1"><a href="https://martinfowler.com/articles/harness-engineering.html"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (deterministic feedback), evals (inferential feedback), humans on the loop.</li>
+          <li data-i18n="r1.li2"><a href="https://martinfowler.com/articles/sensors-for-coding-agents.html"><b>Maintainability sensors for coding agents</b></a>: the sensor idea our structure checks implement.</li>
         </ul>
       </div>
-      <div class="ref">
-        <span class="tag">the system-design canon</span>
-        <h3>The engineering canon</h3>
-        <p>Behind the <code class="inline">system-architect</code> agent. Full mapping in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md">design-method.md</a>.</p>
+      <div class="ref glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="r2.tag">the system-design canon</span>
+        <h3 data-i18n="r2.h">The engineering canon</h3>
+        <p data-i18n="r2.p">Behind the <code class="inline">system-architect</code> agent. Full mapping in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md">design-method.md</a>.</p>
         <ul>
-          <li><a href="https://dataintensive.net/"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: reliability / scalability / maintainability as the spine.</li>
-          <li><b>A Philosophy of Software Design</b>, John Ousterhout: deep modules, simple interfaces, complexity is the enemy.</li>
-          <li><b>Release It!</b>, Michael Nygard: stability patterns: circuit breaker, bulkhead, timeout, backoff.</li>
-          <li><b>Jeff Dean</b> (numbers every engineer should know), <b>Werner Vogels</b> (design for failure), <b>Pat Helland</b> (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.</li>
+          <li data-i18n="r2.li1"><a href="https://dataintensive.net/"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: reliability / scalability / maintainability as the spine.</li>
+          <li data-i18n="r2.li2"><b>A Philosophy of Software Design</b>, John Ousterhout: deep modules, simple interfaces, complexity is the enemy.</li>
+          <li data-i18n="r2.li3"><b>Release It!</b>, Michael Nygard: stability patterns: circuit breaker, bulkhead, timeout, backoff.</li>
+          <li data-i18n="r2.li4"><b>Jeff Dean</b> (numbers every engineer should know), <b>Werner Vogels</b> (design for failure), <b>Pat Helland</b> (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.</li>
         </ul>
       </div>
-      <div class="ref">
-        <span class="tag">the topic playbooks</span>
-        <h3>The System Design series</h3>
-        <p>The system-architect topic skills adapt one classic problem each, with the theory, diagrams, and references per design.</p>
+      <div class="ref glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="r3.tag">the topic playbooks</span>
+        <h3 data-i18n="r3.h">The System Design series</h3>
+        <p data-i18n="r3.p">The system-architect topic skills adapt one classic problem each, with the theory, diagrams, and references per design.</p>
         <ul>
-          <li><a href="https://github.com/Pierry/harness-kit/wiki"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
+          <li data-i18n="r3.li1"><a href="https://github.com/Pierry/harness-kit/wiki"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
         </ul>
       </div>
     </div>
   </section>
 
   <!-- DOCS -->
-  <section class="block" id="docs">
-    <div class="sec-head"><span class="n">08</span><h2>Docs</h2></div>
-    <p class="sec-sub">Go deeper than this page.</p>
+  <section class="block reveal" id="docs">
+    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s08.title">Docs</h2></div>
+    <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
     <div class="docgrid">
-      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span><span class="t">Golden path</span><br /><span class="d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md"><span><span class="t">Commands &amp; gates</span><br /><span class="d">every command, every sensor and eval</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/ARCHITECTURE.md"><span><span class="t">Architecture</span><br /><span class="d">stage anatomy, status bar, repo layout</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md"><span><span class="t">AGENTS.md</span><br /><span class="d">agent registry and path-by-path map</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md"><span class="glow"></span><span><span class="t" data-i18n="d2.t">Commands &amp; gates</span><br /><span class="d" data-i18n="d2.d">every command, every sensor and eval</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/ARCHITECTURE.md"><span class="glow"></span><span><span class="t" data-i18n="d3.t">Architecture</span><br /><span class="d" data-i18n="d3.d">stage anatomy, status bar, repo layout</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md"><span class="glow"></span><span><span class="t">AGENTS.md</span><br /><span class="d" data-i18n="d4.d">agent registry and path-by-path map</span></span><span class="ar">&#8594;</span></a>
     </div>
   </section>
 </div>
 
 <footer>
   <div class="wrap">
-    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span data-i18n="footer.left">harness-kit &middot; idea to merged PR, through one gated pipeline</span>
     <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
   </div>
 </footer>
 
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: "base",
-    securityLevel: "strict",
-    fontFamily: "JetBrains Mono, ui-monospace, monospace",
-    flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
-    themeVariables: {
-      background: "transparent",
-      primaryColor: "#161a22",
-      primaryTextColor: "#edeff3",
-      primaryBorderColor: "#2b323e",
-      secondaryColor: "#101319",
-      tertiaryColor: "#0b0d11",
-      lineColor: "#7c6ad9",
-      textColor: "#9aa3b2",
-      clusterBkg: "#0d0f14",
-      clusterBorder: "#2b323e",
-      edgeLabelBackground: "#0a0c10",
-      nodeBorder: "#2b323e",
-      fontSize: "14px",
+
+  /* ---------- mermaid, theme-aware ---------- */
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14", clusterBorder: "#2b323e",
+      edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e", fontSize: "14px",
     },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8", clusterBorder: "#d6cfe4",
+      edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4", fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => { n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src; });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  /* ---------- theme ---------- */
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  /* ---------- i18n (English lives in the DOM; pt + es here) ---------- */
+  const META = {
+    en: { title: "harness-kit · usage guide", desc: "harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." },
+    pt: { title: "harness-kit · guia de uso", desc: "harness-kit: leve uma ideia crua até um PR mergeado por um único pipeline com gates de agentes do Claude Code. Instalação, o golden path, cada comando e os agentes." },
+    es: { title: "harness-kit · guía de uso", desc: "harness-kit: lleva una idea cruda hasta un PR fusionado por un único pipeline con gates de agentes de Claude Code. Instalación, el golden path, cada comando y los agentes." },
+  };
+  const I18N = {
+    pt: {
+      "wordmark.sub": "guia de uso",
+      "nav.install": "instalar", "nav.commands": "comandos",
+      "hero.eyebrow": "plugin claude code &middot; <b>pipeline com gates</b>",
+      "hero.h1": "Da ideia ao PR mergeado,<br />por um só <span class=\"gold\">pipeline com gates</span>.",
+      "hero.lede": "harness-kit é um conjunto de agentes do Claude Code, um product manager, um staff engineer e um system architect, que levam uma ideia crua por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, com um check pass/fail e uma avaliação pontuada em cada etapa. Nada avança no feeling.",
+      "hero.cta1": "Instalar", "hero.cta2": "Abrir o construtor de brief",
+      "hero.gifbar": "o pipeline completo &middot; demo", "hero.gifcap": "o pipeline completo, num passo a passo", "hero.merged": "PR mergeado",
+      "s01.title": "Por que existe",
+      "s01.sub": "Entregar uma feature no feeling pula as partes que a deixam correta: enquadrar o problema, escrever critérios de aceite, manter as convenções, colocar gates na revisão. O harness-kit traz isso de volta, sem você escrever um doc à mão.",
+      "s01.cap1": "dois agentes, um pipeline &middot; cada seta é um handoff com gate",
+      "s01.note": "Cada etapa produz um artefato markdown, com gate de um <b>sensor</b> determinístico (pass/fail) e um <b>eval</b> pontuado (limiar 8.0). Depois que o PR abre, um monitor na sessão observa o merge e limpa o estado sozinho.",
+      "s01.h3": "Como uma etapa tem gate",
+      "s01.sub2": "O mesmo loop roda em toda etapa. O agente gera o artefato, um sensor checa a estrutura, um eval pontua a qualidade, e só então um humano aprova. Falhas se autocorrigem antes de chegar em você.",
+      "s01.cap2": "guides orientam antes &middot; sensors dão feedback determinístico &middot; evals dão feedback inferencial &middot; humanos seguem no loop",
+      "s02.title": "Instalação",
+      "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
+      "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
+      "s02.bar": "por repo, uma vez",
+      "s02.sub3": "Instala a harness completa nesse repo, agentes, comandos, skills, hooks e a status bar, em <code class=\"inline\">.claude/</code> mais <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code> na raiz. Requer Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Atualizando.</b> A versão do plugin é fixada, então um release só chega quando você puxa: <code class=\"inline\">/plugin update harness-kit</code> e depois <code class=\"inline\">/harness-kit:update</code> em cada repo. Novos usuários já pegam a última versão na instalação.",
+      "s03.title": "O golden path", "s03.sub": "Um comando, da ideia ao PR mergeado.",
+      "s03.s1h": "Escreva o brief",
+      "s03.s1p": "Abra o <a href=\"brief/\">construtor de brief</a> e preencha os campos, squad, problema, hipótese, clientes, métrica. A validação inline mantém você nas convenções de PRD enquanto digita.",
+      "s03.s2h": "Cole",
+      "s03.s2p": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code:",
+      "s03.bar": "cole no claude code",
+      "s03.s3h": "Aprove e entregue",
+      "s03.s3p1": "As seis etapas com gate rodam, PM (<code class=\"inline\">prd &#8594; prp</code>) e depois Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprove cada artefato quando pedido; a status bar mostra onde você está.",
+      "s03.s3p2": "As flags do SSE passam direto: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
+      "s04.title": "Outras formas de rodar",
+      "s04.sub": "Todo fluxo compartilha o mesmo estado de pipeline, então dá pra trocar entre eles no meio da feature.",
+      "s04.th1": "Você quer", "s04.th2": "Rode", "s04.th3": "Etapas",
+      "s04.r1": "Da ideia ao PR mergeado", "s04.r2": "Só o spec, alinhar antes de qualquer código", "s04.r3": "Mudança pequena, plano na cabeça", "s04.r4": "Só local, sem PR", "s04.r5": "Loop até o spec passar", "s04.r6": "Retomar após uma pausa",
+      "s04.note": "<b>Sensors</b> são checagens determinísticas de estrutura, bloqueiam na falha e o Claude regenera até passar. <b>Evals</b> são rubricas julgadas por LLM, pontuadas 0-10, limiar 8.0, com até 3 retentativas. Cada etapa também é um comando próprio: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Todo comando e gate &#8594;</a>",
+      "s05.title": "Otimização de contexto",
+      "s05.sub": "Opcional, tudo local-first. Conforme o repo e a harness crescem, os tokens gastos carregando contexto e lendo a saída dos comandos começam a dominar. Quatro ferramentas cortam isso, e somam com os tiers de modelo por etapa.",
+      "s05.th1": "Ferramenta", "s05.th2": "Corta", "s05.th3": "Como",
+      "s05.h1": "snapshot repomix do repo alvo, cacheado por feature",
+      "s05.h2": "grafo de conhecimento graphify, consulta \"o que chama X\" (~71x menos tokens)",
+      "s05.h3": "busca semântica nos guides, devolve o trecho relevante, não o arquivo inteiro",
+      "s05.h4": "proxy de shell, comprime a saída de git/test/lint/grep em 60-90%",
+      "s05.sub2": "<code class=\"inline\">/context:pack</code> e <code class=\"inline\">/context:graph</code> vêm com a harness e alimentam as etapas de plan e SDD-eval. <a href=\"https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md\">qmd</a> e <a href=\"https://github.com/tobi/qmd\">rtk</a> são de terceiros, instale você mesmo:",
+      "s05.note": "qmd e rtk não vêm no pacote. Justificativa e ganhos medidos no <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Ordem completa de tiers em <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
+      "s06.title": "Os agentes",
+      "s06.sub": "Todos registrados em <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada um traz seus próprios sensors, evals, guides e skills.",
+      "c1.h": "Enquadre o problema", "c1.p": "Transforma um problema num spec pronto pra engenharia, um PRD e depois um PRP.",
+      "c2.h": "Entregue o código", "c2.p": "Transforma um PRP aprovado num PR mergeado, ou num spec satisfeito. Skills de área detectadas do repo, mais uma skill de designer pra novas UIs.",
+      "c3.h": "Projete o sistema", "c3.p": "Transforma um problema num System Design Doc rigoroso, depois numa revisão adversarial. Playbooks por design clássico.", "c3.more": "Teoria e referências na wiki &#8594;",
+      "s07.title": "Fundamentos",
+      "s07.sub": "Isto não é método inventado. O harness-kit é uma implementação concreta de harness engineering, e o agente system-architect raciocina a partir do cânone de engenharia estabelecido.",
+      "r1.tag": "o modelo de harness",
+      "r1.p": "De Birgitta Böckeler (Thoughtworks / martinfowler.com). Cada gate de etapa aqui é exatamente essa divisão.",
+      "r1.li1": "<a href=\"https://martinfowler.com/articles/harness-engineering.html\"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (feedback determinístico), evals (feedback inferencial), humanos no loop.",
+      "r1.li2": "<a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\"><b>Maintainability sensors for coding agents</b></a>: a ideia de sensor que nossas checagens de estrutura implementam.",
+      "r2.tag": "o cânone de system design", "r2.h": "O cânone de engenharia",
+      "r2.p": "Por trás do agente <code class=\"inline\">system-architect</code>. Mapeamento completo em <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md\">design-method.md</a>.",
+      "r2.li1": "<a href=\"https://dataintensive.net/\"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: confiabilidade / escalabilidade / manutenibilidade como espinha.",
+      "r2.li2": "<b>A Philosophy of Software Design</b>, John Ousterhout: módulos profundos, interfaces simples, a complexidade é a inimiga.",
+      "r2.li3": "<b>Release It!</b>, Michael Nygard: padrões de estabilidade: circuit breaker, bulkhead, timeout, backoff.",
+      "r2.li4": "<b>Jeff Dean</b> (números que todo engenheiro deveria saber), <b>Werner Vogels</b> (projete para a falha), <b>Pat Helland</b> (imutabilidade, eventos no lugar de estado mutável), Leslie Lamport, Sam Newman, Gregor Hohpe.",
+      "r3.tag": "os playbooks de tópico", "r3.h": "A série System Design",
+      "r3.p": "As skills de tópico do system-architect adaptam um problema clássico cada, com a teoria, diagramas e referências por design.",
+      "r3.li1": "<a href=\"https://github.com/Pierry/harness-kit/wiki\"><b>A wiki</b></a>: uma página por problema clássico: url-shortener, rate-limiter, search-engine.",
+      "s08.title": "Docs", "s08.sub": "Vá além desta página.",
+      "d1.t": "Golden path", "d1.d": "o passo a passo completo da porta de entrada",
+      "d2.t": "Comandos e gates", "d2.d": "cada comando, cada sensor e eval",
+      "d3.t": "Arquitetura", "d3.d": "anatomia da etapa, status bar, layout do repo",
+      "d4.d": "registro de agentes e mapa caminho a caminho",
+      "footer.left": "harness-kit &middot; da ideia ao PR mergeado, por um só pipeline com gates",
+    },
+    es: {
+      "wordmark.sub": "guía de uso",
+      "nav.install": "instalar", "nav.commands": "comandos",
+      "hero.eyebrow": "plugin claude code &middot; <b>pipeline con gates</b>",
+      "hero.h1": "De la idea al PR fusionado,<br />por un solo <span class=\"gold\">pipeline con gates</span>.",
+      "hero.lede": "harness-kit es un conjunto de agentes de Claude Code, un product manager, un staff engineer y un system architect, que llevan una idea cruda por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, con un check pass/fail y una evaluación puntuada en cada etapa. Nada avanza por intuición.",
+      "hero.cta1": "Instalar", "hero.cta2": "Abrir el constructor de brief",
+      "hero.gifbar": "el pipeline completo &middot; demo", "hero.gifcap": "el pipeline completo, en un recorrido", "hero.merged": "PR fusionado",
+      "s01.title": "Por qué existe",
+      "s01.sub": "Entregar una feature por intuición salta las partes que la hacen correcta: enmarcar el problema, escribir criterios de aceptación, mantener las convenciones, poner gates en la revisión. harness-kit las devuelve, sin que escribas un solo doc a mano.",
+      "s01.cap1": "dos agentes, un pipeline &middot; cada flecha es un handoff con gate",
+      "s01.note": "Cada etapa produce un artefacto markdown, con gate de un <b>sensor</b> determinista (pass/fail) y un <b>eval</b> puntuado (umbral 8.0). Tras abrir el PR, un monitor en la sesión observa el merge y limpia el estado por sí solo.",
+      "s01.h3": "Cómo una etapa tiene gate",
+      "s01.sub2": "El mismo loop corre en cada etapa. El agente genera el artefacto, un sensor revisa su estructura, un eval puntúa su calidad, y solo entonces un humano aprueba. Los fallos se autocorrigen antes de llegar a ti.",
+      "s01.cap2": "guides orientan antes &middot; sensors dan feedback determinista &middot; evals dan feedback inferencial &middot; humanos siguen en el loop",
+      "s02.title": "Instalación",
+      "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
+      "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
+      "s02.bar": "por repo, una vez",
+      "s02.sub3": "Instala la harness completa en ese repo, agentes, comandos, skills, hooks y la status bar, en <code class=\"inline\">.claude/</code> más <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code> en la raíz. Requiere Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Actualizando.</b> La versión del plugin está fijada, así que un release no te llega hasta que lo traes: <code class=\"inline\">/plugin update harness-kit</code> y luego <code class=\"inline\">/harness-kit:update</code> en cada repo. Los usuarios nuevos obtienen la última versión al instalar.",
+      "s03.title": "El golden path", "s03.sub": "Un comando, de la idea al PR fusionado.",
+      "s03.s1h": "Escribe el brief",
+      "s03.s1p": "Abre el <a href=\"brief/\">constructor de brief</a> y llena los campos, squad, problema, hipótesis, clientes, métrica. La validación inline te mantiene en las convenciones de PRD mientras escribes.",
+      "s03.s2h": "Pégalo",
+      "s03.s2p": "Pulsa <b>Copy brief</b> y pega el disparo listo de <code class=\"inline\">/golden-path</code> en Claude Code:",
+      "s03.bar": "pega en claude code",
+      "s03.s3h": "Aprueba y entrega",
+      "s03.s3p1": "Las seis etapas con gate corren, PM (<code class=\"inline\">prd &#8594; prp</code>) y luego Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprueba cada artefacto cuando se te pida; la status bar muestra dónde estás.",
+      "s03.s3p2": "Las flags de SSE pasan directo: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. ¿Ya tienes clara la idea? Salta el constructor y escribe <code class=\"inline\">/golden-path</code> con el brief tú mismo.",
+      "s04.title": "Otras formas de ejecutar",
+      "s04.sub": "Todo flujo comparte el mismo estado de pipeline, así que puedes cambiar entre ellos a mitad de la feature.",
+      "s04.th1": "Quieres", "s04.th2": "Ejecuta", "s04.th3": "Etapas",
+      "s04.r1": "De la idea al PR fusionado", "s04.r2": "Solo el spec, alinear antes de código", "s04.r3": "Cambio pequeño, plan en tu cabeza", "s04.r4": "Solo local, sin PR", "s04.r5": "Loop hasta que el spec pase", "s04.r6": "Retomar tras una pausa",
+      "s04.note": "<b>Sensors</b> son chequeos deterministas de estructura, bloquean al fallar y Claude regenera hasta pasar. <b>Evals</b> son rúbricas juzgadas por LLM, puntuadas 0-10, umbral 8.0, con hasta 3 reintentos. Cada etapa es también su propio comando: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Cada comando y gate &#8594;</a>",
+      "s05.title": "Optimización de contexto",
+      "s05.sub": "Opcional, todo local-first. A medida que el repo y la harness crecen, los tokens gastados cargando contexto y leyendo la salida de comandos empiezan a dominar. Cuatro herramientas recortan eso, y se suman con los tiers de modelo por etapa.",
+      "s05.th1": "Herramienta", "s05.th2": "Recorta", "s05.th3": "Cómo",
+      "s05.h1": "snapshot repomix del repo objetivo, cacheado por feature",
+      "s05.h2": "grafo de conocimiento graphify, consulta \"qué llama a X\" (~71x menos tokens)",
+      "s05.h3": "búsqueda semántica en los guides, devuelve el extracto relevante, no el archivo entero",
+      "s05.h4": "proxy de shell, comprime la salida de git/test/lint/grep 60-90%",
+      "s05.sub2": "<code class=\"inline\">/context:pack</code> y <code class=\"inline\">/context:graph</code> vienen con la harness y alimentan las etapas de plan y SDD-eval. <a href=\"https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md\">qmd</a> y <a href=\"https://github.com/tobi/qmd\">rtk</a> son de terceros, instalalos tú mismo:",
+      "s05.note": "qmd y rtk no vienen incluidos. Justificación y ganancias medidas en el <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Orden completo de tiers en <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
+      "s06.title": "Los agentes",
+      "s06.sub": "Todos registrados en <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada uno trae sus propios sensors, evals, guides y skills.",
+      "c1.h": "Enmarca el problema", "c1.p": "Convierte un problema en un spec listo para ingeniería, un PRD y luego un PRP.",
+      "c2.h": "Entrega el código", "c2.p": "Convierte un PRP aprobado en un PR fusionado, o en un spec satisfecho. Skills de área detectadas del repo, más una skill de designer para nuevas UIs.",
+      "c3.h": "Diseña el sistema", "c3.p": "Convierte un problema en un System Design Doc riguroso, luego en una revisión adversarial. Playbooks por diseño clásico.", "c3.more": "Teoría y referencias en la wiki &#8594;",
+      "s07.title": "Fundamentos",
+      "s07.sub": "Esto no es método inventado. harness-kit es una implementación concreta de harness engineering, y el agente system-architect razona desde el canon de ingeniería establecido.",
+      "r1.tag": "el modelo de harness",
+      "r1.p": "De Birgitta Böckeler (Thoughtworks / martinfowler.com). Cada gate de etapa aquí es exactamente esa división.",
+      "r1.li1": "<a href=\"https://martinfowler.com/articles/harness-engineering.html\"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (feedback determinista), evals (feedback inferencial), humanos en el loop.",
+      "r1.li2": "<a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\"><b>Maintainability sensors for coding agents</b></a>: la idea de sensor que implementan nuestros chequeos de estructura.",
+      "r2.tag": "el canon de system design", "r2.h": "El canon de ingeniería",
+      "r2.p": "Detrás del agente <code class=\"inline\">system-architect</code>. Mapeo completo en <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md\">design-method.md</a>.",
+      "r2.li1": "<a href=\"https://dataintensive.net/\"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: fiabilidad / escalabilidad / mantenibilidad como columna.",
+      "r2.li2": "<b>A Philosophy of Software Design</b>, John Ousterhout: módulos profundos, interfaces simples, la complejidad es el enemigo.",
+      "r2.li3": "<b>Release It!</b>, Michael Nygard: patrones de estabilidad: circuit breaker, bulkhead, timeout, backoff.",
+      "r2.li4": "<b>Jeff Dean</b> (números que todo ingeniero debería saber), <b>Werner Vogels</b> (diseña para el fallo), <b>Pat Helland</b> (inmutabilidad, eventos en vez de estado mutable), Leslie Lamport, Sam Newman, Gregor Hohpe.",
+      "r3.tag": "los playbooks de tema", "r3.h": "La serie System Design",
+      "r3.p": "Las skills de tema del system-architect adaptan un problema clásico cada una, con la teoría, diagramas y referencias por diseño.",
+      "r3.li1": "<a href=\"https://github.com/Pierry/harness-kit/wiki\"><b>La wiki</b></a>: una página por problema clásico: url-shortener, rate-limiter, search-engine.",
+      "s08.title": "Docs", "s08.sub": "Ve más allá de esta página.",
+      "d1.t": "Golden path", "d1.d": "el recorrido completo de la puerta de entrada",
+      "d2.t": "Comandos y gates", "d2.d": "cada comando, cada sensor y eval",
+      "d3.t": "Arquitectura", "d3.d": "anatomía de la etapa, status bar, layout del repo",
+      "d4.d": "registro de agentes y mapa ruta por ruta",
+      "footer.left": "harness-kit &middot; de la idea al PR fusionado, por un solo pipeline con gates",
+    },
+  };
+
+  const keyedEls = [...document.querySelectorAll("[data-i18n]")];
+  keyedEls.forEach((el) => { el.dataset.i18nDefault = el.innerHTML; });
+  const langButtons = [...document.querySelectorAll(".langsw button")];
+  const LANG_HTML = { en: "en", pt: "pt-BR", es: "es" };
+  function applyLang(lang) {
+    document.documentElement.lang = LANG_HTML[lang] || "en";
+    const meta = META[lang] || META.en;
+    document.title = meta.title;
+    const md = document.getElementById("meta-desc");
+    if (md) md.setAttribute("content", meta.desc);
+    keyedEls.forEach((el) => {
+      const k = el.dataset.i18n;
+      if (lang === "en") { el.innerHTML = el.dataset.i18nDefault; return; }
+      const dict = I18N[lang] || {};
+      el.innerHTML = k in dict ? dict[k] : el.dataset.i18nDefault;
+    });
+    langButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+    localStorage.setItem("hk-lang", lang);
+  }
+  function detectLang() {
+    const stored = localStorage.getItem("hk-lang");
+    if (stored && META[stored]) return stored;
+    const n = (navigator.language || "en").toLowerCase();
+    if (n.startsWith("pt")) return "pt";
+    if (n.startsWith("es")) return "es";
+    return "en";
+  }
+  langButtons.forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  applyLang(detectLang());
+
+  /* ---------- effects: reveal, parallax, cursor glow ---------- */
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const revealEls = [...document.querySelectorAll(".reveal")];
+  if (reduce || !("IntersectionObserver" in window)) {
+    revealEls.forEach((el) => el.classList.add("is-visible"));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    revealEls.forEach((el) => io.observe(el));
+
+    let ticking = false;
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        root.style.setProperty("--sy", (window.scrollY * 0.04) + "px");
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+  document.querySelectorAll(".glowable").forEach((el) => {
+    el.addEventListener("pointermove", (ev) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", (ev.clientX - r.left) + "px");
+      el.style.setProperty("--my", (ev.clientY - r.top) + "px");
+    });
   });
 </script>
 </body>
