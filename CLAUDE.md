@@ -33,7 +33,7 @@ Configurable per consumer. Fill `context-library/business-info.md` and `context-
 
 ## Agents
 
-Two orchestrator agents, registered in [`AGENTS.md`](./AGENTS.md). Each lives under `.claude/agents/<name>/` with its own README, sensors, evals, guides, and skills.
+Three orchestrator agents, registered in [`AGENTS.md`](./AGENTS.md). Each lives under `.claude/agents/<name>/` with its own README, sensors, evals, guides, and skills.
 
 ### product-manager
 
@@ -54,6 +54,8 @@ Engineering pipeline. Slash commands:
 - `/sse:run` full SSE pipeline. `--local` skip PR. `--sdd` use spec-driven loop variant.
 - `/sse:sdd` spec-driven dev loop. Plan once + dev↔test↔eval loop until PRP spec satisfied. Local only, no PR.
 
+Area skills auto-detected from the repo: `backend`, `web`, `mobile`, `devops`. Plus a cross-cutting `designer` skill, applied when building a new UI: Material Design 3, dark/light theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon.
+
 Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claude/agents/staff-software-engineer/`.
 
 Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
@@ -67,7 +69,7 @@ Slash commands:
 - `/system-design:review` adversarial review, returns ship/revise/block
 - `/system-design:run` full pipeline, design then review
 
-Skills are **per-system-design** (like SSE area skills): one topic skill per classic problem. Each series episode becomes a skill the agent adapts to real scale. First: `skills/search-engine/`. Add more as `skills/{topic}/SKILL.md`. Optional front stage before PRP/plan. Sub-agent `system-architect` is Task-tool-invokable. Assets: `.claude/agents/system-architect/`.
+Skills are **per-system-design** (like SSE area skills): one topic skill per classic problem. Each series episode becomes a skill the agent adapts to real scale. Topic skills so far: `url-shortener`, `rate-limiter`, `search-engine`, plus generic `design` and `review`. Add more as `skills/{topic}/SKILL.md`. Optional front stage before PRP/plan. Sub-agent `system-architect` is Task-tool-invokable. Assets: `.claude/agents/system-architect/`. Deep theory + references in the [wiki](https://github.com/Pierry/harness-kit/wiki).
 
 ### golden path
 

@@ -4,8 +4,9 @@
 
 **Idea to merged PR, through one gated pipeline.**
 
-Two Claude Code agents, a product manager and a staff engineer, that carry a raw idea
-through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
+
+Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
+idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
 [![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
@@ -112,14 +113,20 @@ PR on its own. Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/ss
 
 ---
 
-## The two agents
+## The agents
 
-Both registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals, guides, and skills.
+All registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals, guides, and skills.
 
 - **`product-manager`**: turns a problem into an engineering-ready spec.
   Skills `prd`, `prp`. [Docs →](.claude/agents/product-manager/README.md)
 - **`staff-software-engineer`**: turns an approved PRP into a merged PR (or a satisfied spec).
-  Skills `backend`, `web`, `mobile`, `devops`, auto-detected from the repo. [Docs →](.claude/agents/staff-software-engineer/README.md)
+  Skills `backend`, `web`, `mobile`, `devops`, auto-detected from the repo, plus `designer`
+  (Material Design 3, dark/light theme, modern type, i18n, favicon) for new UIs.
+  [Docs →](.claude/agents/staff-software-engineer/README.md)
+- **`system-architect`**: turns a problem into a rigorous System Design Doc, then an adversarial
+  review. Topic playbooks per classic design (url-shortener, rate-limiter, search-engine). Optional
+  front stage before the pipeline. [Docs →](.claude/agents/system-architect/README.md) ·
+  [Wiki →](https://github.com/Pierry/harness-kit/wiki)
 
 ---
 

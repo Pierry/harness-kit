@@ -26,7 +26,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 │   │   ├── sensors/
 │   │   ├── evals/
 │   │   ├── guides/                pipeline, coding-style, commit-style, conventions-override
-│   │   └── skills/                backend, web, mobile, devops
+│   │   └── skills/                backend, web, mobile, devops, designer (new UIs)
 │   ├── system-architect/
 │   │   ├── README.md
 │   │   ├── sensors/               design-structure, design-rigor

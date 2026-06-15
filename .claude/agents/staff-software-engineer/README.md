@@ -26,7 +26,8 @@ Optional context helpers (separate namespace, manual): `/context:pack <feature_i
 │   ├── backend/SKILL.md                   Java/Spring defaults
 │   ├── web/SKILL.md                       Vue/React defaults
 │   ├── mobile/SKILL.md                    iOS/Android defaults
-│   └── devops/SKILL.md                    CI/IaC defaults
+│   ├── devops/SKILL.md                    CI/IaC defaults
+│   └── designer/SKILL.md                  M3, dark/light, modern type, i18n, favicon (new UIs)
 ├── guides/
 │   ├── pipeline.md                        retry, approval, token accounting, variants (--local, sdd)
 │   ├── sdd-loop.md                        spec-driven loop algorithm, predicate from PRP
