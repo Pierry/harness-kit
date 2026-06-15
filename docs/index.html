@@ -165,6 +165,27 @@
   table tr:hover td { background: #ffffff04; }
   @media (max-width: 720px) { table { font-size: 13.5px; } table th, table td { padding: 11px 12px; } }
 
+  /* diagram */
+  .diagram {
+    border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--code-bg);
+    padding: 24px; margin: 22px 0 0; overflow-x: auto; box-shadow: 0 20px 60px #00000044;
+  }
+  .diagram .mermaid { width: 100%; min-width: 640px; }
+  .diagram svg { width: 100% !important; max-width: 100% !important; height: auto; display: block; }
+  .diagram-cap { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 12px 0 0; text-align: center; }
+
+  /* references */
+  .refs { display: grid; gap: 14px; }
+  .ref { padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: linear-gradient(180deg, #ffffff05, #ffffff00); position: relative; overflow: hidden; }
+  .ref::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
+  .ref .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); }
+  .ref h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 10px 0 6px; letter-spacing: -0.4px; }
+  .ref p { margin: 0 0 12px; color: var(--dim); font-size: 15px; }
+  .ref ul { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 9px; }
+  .ref li { font-size: 14.5px; color: var(--dim); padding-left: 20px; position: relative; }
+  .ref li::before { content: "\2192"; position: absolute; left: 0; color: var(--gold); font-family: var(--mono); }
+  .ref li b { color: var(--text); font-weight: 600; }
+
   /* gates note */
   .note { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border: 1px solid #a78bfa2a; border-radius: var(--r-md); background: #a78bfa0c; margin-top: 22px; }
   .note .ic { color: var(--accent-2); font-family: var(--mono); font-weight: 700; flex: none; }
@@ -217,10 +238,40 @@
   <section class="block" id="why">
     <div class="sec-head"><span class="n">01</span><h2>Why it exists</h2></div>
     <p class="sec-sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
-    <div class="note">
+    <div class="diagram">
+      <pre class="mermaid">
+flowchart LR
+    idea([idea]) --> prd
+    subgraph PM[product-manager]
+        prd --> prp
+    end
+    subgraph SSE[staff-software-engineer]
+        plan --> dev --> test --> pr
+    end
+    prp --> plan
+    pr --> merged([merged PR])
+      </pre>
+    </div>
+    <p class="diagram-cap">two agents, one pipeline &middot; each arrow is a gated handoff</p>
+    <div class="note" style="margin-top:28px">
       <span class="ic">&#9670;</span>
       <p>Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
     </div>
+
+    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:40px 0 6px">How one stage is gated</h3>
+    <p class="sec-sub" style="margin-bottom:0">The same loop runs at every stage. The agent generates the artifact, a sensor checks its structure, an eval scores its quality, and only then does a human approve. Failures self-correct before they reach you.</p>
+    <div class="diagram">
+      <pre class="mermaid">
+flowchart LR
+    gen[generate artifact] --> sensor{sensor<br/>structure check}
+    sensor -->|fail| gen
+    sensor -->|pass| eval{eval<br/>LLM judge}
+    eval -->|"score &lt; 8.0, retry x3"| gen
+    eval -->|"score &#8805; 8.0"| approve[human approves]
+    approve --> next([next stage])
+      </pre>
+    </div>
+    <p class="diagram-cap">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
   </section>
 
   <!-- INSTALL -->
@@ -333,9 +384,45 @@
     </div>
   </section>
 
+  <!-- FOUNDATIONS -->
+  <section class="block" id="foundations">
+    <div class="sec-head"><span class="n">06</span><h2>Foundations</h2></div>
+    <p class="sec-sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
+    <div class="refs">
+      <div class="ref">
+        <span class="tag">the harness model</span>
+        <h3>Harness engineering</h3>
+        <p>From Birgitta Böckeler (Thoughtworks / martinfowler.com). Every stage gate here is exactly this split.</p>
+        <ul>
+          <li><a href="https://martinfowler.com/articles/harness-engineering.html"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (deterministic feedback), evals (inferential feedback), humans on the loop.</li>
+          <li><a href="https://martinfowler.com/articles/sensors-for-coding-agents.html"><b>Maintainability sensors for coding agents</b></a>: the sensor idea our structure checks implement.</li>
+        </ul>
+      </div>
+      <div class="ref">
+        <span class="tag">the system-design canon</span>
+        <h3>The engineering canon</h3>
+        <p>Behind the <code class="inline">system-architect</code> agent. Full mapping in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md">design-method.md</a>.</p>
+        <ul>
+          <li><a href="https://dataintensive.net/"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: reliability / scalability / maintainability as the spine.</li>
+          <li><b>A Philosophy of Software Design</b>, John Ousterhout: deep modules, simple interfaces, complexity is the enemy.</li>
+          <li><b>Release It!</b>, Michael Nygard: stability patterns: circuit breaker, bulkhead, timeout, backoff.</li>
+          <li><b>Jeff Dean</b> (numbers every engineer should know), <b>Werner Vogels</b> (design for failure), <b>Pat Helland</b> (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.</li>
+        </ul>
+      </div>
+      <div class="ref">
+        <span class="tag">the topic playbooks</span>
+        <h3>The System Design series</h3>
+        <p>The system-architect topic skills adapt one classic problem each, with the theory, diagrams, and references per design.</p>
+        <ul>
+          <li><a href="https://github.com/Pierry/harness-kit/wiki"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- DOCS -->
   <section class="block" id="docs">
-    <div class="sec-head"><span class="n">06</span><h2>Docs</h2></div>
+    <div class="sec-head"><span class="n">07</span><h2>Docs</h2></div>
     <p class="sec-sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span><span class="t">Golden path</span><br /><span class="d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
@@ -352,5 +439,31 @@
     <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
   </div>
 </footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "base",
+    securityLevel: "strict",
+    fontFamily: "JetBrains Mono, ui-monospace, monospace",
+    flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+    themeVariables: {
+      background: "transparent",
+      primaryColor: "#161a22",
+      primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e",
+      secondaryColor: "#101319",
+      tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9",
+      textColor: "#9aa3b2",
+      clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e",
+      edgeLabelBackground: "#0a0c10",
+      nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+  });
+</script>
 </body>
 </html>

@@ -46,6 +46,26 @@ Every stage produces a markdown artifact, gated by a deterministic **sensor** (p
 scored **eval** (≥ 8.0). Nothing advances on vibes. After the PR opens, an in-session monitor
 watches for merge and clears state on its own.
 
+### How one stage is gated
+
+The same loop runs at every stage. The agent generates the artifact, a **sensor** checks its
+structure deterministically, an **eval** scores its quality with an LLM judge, and only then does a
+human approve. Failures self-correct before they reach you.
+
+```mermaid
+flowchart LR
+    gen[generate artifact] --> sensor{sensor<br/>structure check}
+    sensor -->|fail| gen
+    sensor -->|pass| eval{eval<br/>LLM judge}
+    eval -->|score &lt; 8.0, retry ×3| gen
+    eval -->|score ≥ 8.0| approve[human approves]
+    approve --> next([next stage])
+```
+
+This is the harness-engineering split: **guides** steer before (feedforward), **sensors** give
+deterministic feedback, **evals** give inferential feedback, and humans stay *on* the loop, improving
+the guides and gates rather than hand-fixing each output. See [Foundations](#foundations).
+
 ---
 
 ## Install
@@ -166,6 +186,28 @@ All registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals,
 | [Architecture](docs/ARCHITECTURE.md) | stage anatomy, status bar, repo layout, tooling |
 | [Conventions](.claude/agents/staff-software-engineer/guides/conventions-override.md) | per-repo overrides for the SSE agent |
 | [AGENTS.md](./AGENTS.md) | agent registry and path-by-path map |
+
+---
+
+## Foundations
+
+This is not invented method. harness-kit is a concrete implementation of **harness engineering**, and
+the system-architect agent reasons from the established engineering canon.
+
+**The harness model** comes from Birgitta Böckeler (Thoughtworks / martinfowler.com):
+
+- [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html): guides (feedforward), sensors (deterministic feedback), evals (inferential feedback), humans on the loop. Every stage gate here is exactly this.
+- [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html): the sensor idea our structure checks implement.
+
+**The system-design canon** behind the `system-architect` agent (full mapping in
+[`design-method.md`](.claude/agents/system-architect/guides/design-method.md)):
+
+- [*Designing Data-Intensive Applications*](https://dataintensive.net/), Martin Kleppmann: reliability / scalability / maintainability as the spine.
+- *A Philosophy of Software Design*, John Ousterhout: deep modules, simple interfaces, complexity is the enemy.
+- *Release It!*, Michael Nygard: stability patterns: circuit breaker, bulkhead, timeout, backoff.
+- Jeff Dean (numbers every engineer should know), Werner Vogels (design for failure), Pat Helland (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.
+
+**The system-design topic playbooks** adapt the [System Design series](https://github.com/Pierry/harness-kit/wiki), one wiki page per classic problem (url-shortener, rate-limiter, search-engine), with the theory, diagrams, and references for each.
 
 ---
 
