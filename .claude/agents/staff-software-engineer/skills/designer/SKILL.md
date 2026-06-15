@@ -63,10 +63,24 @@ Inspiration: top Behance UI work. What that means concretely:
 - **Real content.** Design with realistic copy and data, never lorem. Empty/loading/error states
   designed, not afterthoughts.
 - **Micro-interactions.** Hover, focus, press feedback on every interactive element. Subtle, fast.
-- **Imagery/iconography** consistent set (one icon family, e.g. Material Symbols or Lucide).
 
-Avoid generic AI-template look: centered everything, default Bootstrap blues, gradient-on-everything,
-emoji as icons.
+Avoid generic AI-template look: centered everything, default Bootstrap blues, gradient-on-everything.
+
+## Iconography: original, modern, never emoji
+
+- **Never use emojis.** Not as icons, not in buttons, labels, headings, empty states, or copy. Emojis
+  are not a design system: they render differently per platform, break visual consistency, and read as
+  unfinished. This is a hard rule.
+- **Create original icons.** Design a custom SVG icon set for the product's key actions and brand
+  marks, drawn on a consistent grid (e.g. 24px, 2px stroke, rounded joins) with one visual language
+  (stroke weight, corner radius, terminals). The logo/brand glyph and the primary actions should be
+  original, not stock.
+- **Modern style.** Clean line or duotone icons, optically balanced, legible at 16-20px. Pixel-snap
+  and align to the grid. Match stroke weight to the type weight.
+- If a full custom set is out of scope, use **one** modern open set as the base (Lucide, Material
+  Symbols, Phosphor) and still draw the brand and hero marks original. Never mix icon families.
+- Ship icons as inline SVG or a sprite, currentColor-driven so they theme with light/dark. Give each
+  an accessible label (`aria-label` or `<title>`).
 
 ## i18n: en, pt-BR, es
 
@@ -128,11 +142,14 @@ State which symbol + seed you chose and why (the context link).
 2. Theme toggle wired to system preference + persistence.
 3. Modern font loaded with `font-display: swap`.
 4. `locales/{en,pt-BR,es}.json` + `t()` wiring + lang switch.
-5. Context-aware favicon set + manifest + tags.
-6. Designed empty / loading / error states.
+5. Original, modern SVG icon set (currentColor, accessible labels). No emoji.
+6. Context-aware favicon set + manifest + tags.
+7. Designed empty / loading / error states.
 
 ## Forbidden
 
+- Emojis anywhere (UI, icons, buttons, copy, empty states).
+- Stock/generic icons for brand or primary marks; mixing icon families.
 - Hardcoded colors instead of tokens/roles.
 - A single theme (light-only or dark-only).
 - Hardcoded user-facing strings.
