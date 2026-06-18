@@ -39,7 +39,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 ├── commands/                      ← slash-command entry points
 │   ├── golden-path.md             /golden-path  (front door: idea → merged PR)
 │   ├── product-manager/           /product-manager:{prd,prp,run}
-│   ├── sse/                       /sse:{plan,dev,test,pr,run,sdd}
+│   ├── sse/                       /sse:{plan,dev,test,pr,run,sdd,firebase-publish}
 │   ├── system-design/             /system-design:{design,review,run}
 │   ├── context/                   /context:{pack,graph}
 │   └── pipeline/                  /pipeline:{continue,reset}
@@ -96,6 +96,7 @@ When the user types a slash command, the entry point is unambiguous. When the us
 | "open the PR" | `/sse:pr` |
 | "dev + test locally, no PR" | `/sse:run --local` |
 | "spec-driven loop until PRP met" | `/sse:sdd` |
+| "deploy static site to Firebase Hosting" | `/sse:firebase-publish` |
 | "snapshot a repo for AI context" | `/context:pack <feature_id>` |
 | "build knowledge graph of a repo" | `/context:graph` |
 | "continue the active pipeline" | `/pipeline:continue` |

@@ -2,6 +2,17 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.4.1]
+
+### Changed
+- `/sse:dev` now asks once, before writing any code, whether to apply the designer skill (Material Design 3, dark/light theme, modern font and icons, Behance-grade polish, context-aware favicon, i18n, animations) when the work includes UI. Greenfield UI defaults to Yes; a repo with an existing design system defaults toward matching it; pure backend/devops work skips the question. The choice surfaces as a `design:` line in the dev reply. The designer skill itself already existed; this wires it into the pipeline as an explicit prompt.
+
+## [4.4.0]
+
+### Added
+- New SSE command `/sse:firebase-publish`: create or reuse a Firebase project, configure Hosting, and deploy the current static site. Stages to a preview channel first, then promotes. Hard safety rules baked in: never deletes any resource, creates at most one project per run and verifies via `projects:list`, confirms PROJECT_ID before create. Post-pipeline deploy step for static web work, registered in AGENTS.md routing and the SSE agent README.
+- Version bumped to 4.4.0 across VERSION, plugin.json, package.json, and the README badge so marketplace consumers receive the update.
+
 ## [4.3.1]
 
 ### Changed

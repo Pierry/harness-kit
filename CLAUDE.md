@@ -53,6 +53,7 @@ Engineering pipeline. Slash commands:
 - `/sse:pr` open the draft PR
 - `/sse:run` full SSE pipeline. `--local` skip PR. `--sdd` use spec-driven loop variant.
 - `/sse:sdd` spec-driven dev loop. Plan once + dev↔test↔eval loop until PRP spec satisfied. Local only, no PR.
+- `/sse:firebase-publish` create or reuse Firebase project, configure Hosting, deploy current static site. Never deletes.
 
 Area skills auto-detected from the repo: `backend`, `web`, `mobile`, `devops`. Plus a cross-cutting `designer` skill, applied when building a new UI: Material Design 3, dark/light theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon.
 

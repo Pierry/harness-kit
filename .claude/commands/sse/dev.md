@@ -27,6 +27,12 @@ Read 3+ similar files in target repo before writing. Match conventions:
 - build tool (Maven, Gradle, npm)
 - package layout, test framework, helpers
 
+Designer-skill gate (ask once, before any code). Plan includes new or changed UI (app, page, feature, landing, component, any visual surface)? ASK user once via AskUserQuestion:
+- Q: "This work has UI. Apply the designer skill (Material Design 3, dark/light theme, modern font, modern icons, Behance-grade polish, context-aware favicon, i18n, animations)?"
+- options: "Yes, apply designer defaults (Recommended)" | "No, match existing / minimal styling"
+- Repo already has a design system → default the question toward matching it, not imposing M3. Greenfield UI → default Yes.
+Honor answer. Yes → read + apply designer SKILL.md fully. No → skip M3 defaults, still respect no-emoji and no-em-dash hard rules. Pure backend/devops/no-UI work → skip the question entirely, do not ask.
+
 Write code in small commits (1-4 files, < 100 lines ideal). Conventional Commits format.
 
 Code gates (run after each implementation step):
@@ -59,6 +65,7 @@ Dev complete. branch {branch}.
   commits: {M} ({short-sha}, {short-sha}, ...)
   sensors: code-conventions ok, test-coverage ok, dev-structure ok
   eval:    dev-quality {N}/10
+  design:  {applied designer skill | skipped, matched existing | n/a, no UI}
   guides:  coding-style.md, commit-style.md, skills/{area}/SKILL.md
   refs:    plan/{feature_id}.md, conventions/{area}.md
   next:    /sse:test
