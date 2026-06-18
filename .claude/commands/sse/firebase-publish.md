@@ -30,12 +30,14 @@ Print header card before deploy, footer card after live URL returns. Format: .cl
 3. Pin default: write `.firebaserc` `{"projects":{"default":"<PROJECT_ID>"}}` if absent or different.
 4. Ensure `firebase.json` hosting block exists. Missing → write minimal:
    ```json
-   { "hosting": { "public": ".", "ignore": ["firebase.json", "**/.*", "**/node_modules/**"], "cleanUrls": true } }
+   { "hosting": { "public": ".", "ignore": ["firebase.json", ".firebaserc", ".firebase/**", ".git/**", "**/.git/**", ".gitignore", ".claude/**", "**/.claude/**", "**/node_modules/**", "*.md"], "cleanUrls": true } }
    ```
    Confirm `public` points at the dir holding `index.html`.
+   GOTCHA: when `public` is the repo root, `**/.*` does NOT exclude a dotdir's non-dot children, so `.claude/**` would leak PRDs/PRPs/internals publicly. Always ignore `.claude/**`, `.git/**`, and `*.md` explicitly. After deploy, verify the file count is small and `curl -o /dev/null -w '%{http_code}' <url>/.claude/...` returns 404.
 5. Stage first: `firebase hosting:channel:deploy preview --project <PROJECT_ID> --expires 7d`. Capture preview URL. Show user.
 6. Promote: `firebase deploy --only hosting --project <PROJECT_ID>`.
 7. Live URLs: `https://<SITE_ID>.web.app` and `https://<SITE_ID>.firebaseapp.com`.
+8. Verify no leak: deploy log file count should match the site (small). `curl -s -o /dev/null -w '%{http_code}' https://<SITE_ID>.web.app/.claude/...` must return 404, home must return 200. Same check on the preview channel URL. Leak found → fix `ignore`, redeploy live AND preview.
 
 ## Output
 
