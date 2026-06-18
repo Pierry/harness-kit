@@ -14,7 +14,14 @@ How code reads. Applies to all areas unless `{repo}/.claude/conventions/{area}.m
 - Defensive: null-safe, guards, edge cases.
 - No speculative abstraction. Three similar lines beats premature DRY.
 
-## Never invent
+## Shell hygiene (fewer permission prompts)
+
+Compound shell triggers a permission prompt every time, even when each part is allowlisted: Claude Code matches the whole string, so `a | b`, `a && b`, and multi-line scripts never match a `Bash(cmd:*)` rule. Keep trivial work cheap:
+
+- Prefer native tools (Read, Grep, Glob) over shell for reading, searching, validating. They do not prompt.
+- When shell is needed, run ONE simple command per call (matches the allowlist), not a pipe chain or `&&` sequence.
+- Do not over-validate. Skip elaborate "confirm everything" pipelines for read-only checks.
+- Destructive and outward commands (deletes, deploys, force-push) SHOULD still prompt. Never try to allowlist around them. The shipped `settings.json` denies deletes and force operations on purpose.
 
 If class, helper, or pattern not in repo, do not fabricate.
 
