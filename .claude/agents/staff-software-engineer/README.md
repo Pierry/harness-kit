@@ -62,10 +62,10 @@ The plugin holds team defaults per area. Each project repo can override by addin
 {repo-root}/.claude/conventions/{area}.md
 ```
 
-Example for the `recon-service` repo:
+Example for the `billing-service` repo:
 
 ```
-recon-service/.claude/conventions/backend.md
+billing-service/.claude/conventions/backend.md
 ```
 
 Plugin skills read both. Project rules win. See `guides/conventions-override.md`.
