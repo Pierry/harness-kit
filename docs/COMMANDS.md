@@ -25,7 +25,7 @@ Each stage is its own slash command. Run one when that's all you need.
 | `prd` | `/product-manager:prd` | `prd-structure`, `prd-acceptance-criteria` · `prd-quality`, `prd-readiness` |
 | `prp` | `/product-manager:prp` | `prp-structure`, `prp-context-quality`, `prp-links`, `link-validator` · `prp-quality`, `prp-context-readiness` |
 | `plan` | `/sse:plan` | `plan-structure` · `plan-quality` |
-| `dev` | `/sse:dev` | `code-conventions`, `test-coverage`, `dev-structure` · `dev-quality` |
+| `dev` | `/sse:dev` | `code-conventions`, `test-coverage`, `dev-structure` · `dev-quality`. Asks once, before coding, whether to apply the designer skill when the work has UI |
 | `test` | `/sse:test` | `test-structure` · `test-quality` |
 | `pr` | `/sse:pr` | `pr-structure` · `pr-quality` · auto-arms `/sse:pr-monitor` |
 | `sdd` | `/sse:sdd` | `prp-has-acceptance-criteria` (pre-flight) · `spec-satisfied` per iter (fresh session) · cap 3 iters |
@@ -53,6 +53,16 @@ an inline `<!-- tokens: ... -->` comment.
 
 `/sse:sdd` never auto-opens a PR. Review the loop transcript at
 `.claude/runtime/outputs/sse/sdd/{feature_id}.md`, then run `/sse:pr` when ready.
+
+## Deploy a static site
+
+```
+/sse:firebase-publish [project-id] [site-id]   create or reuse a Firebase project, deploy Hosting
+```
+
+A standalone post-pipeline step, not part of `/sse:run`. Creates the project if missing (else
+reuses it), configures `firebase.json`, stages to a preview channel, then promotes to live. Never
+deletes any resource. Hand off to the `firebase-add-domain` skill for a custom domain.
 
 ## Resume
 

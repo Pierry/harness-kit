@@ -8,7 +8,7 @@
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.4.1-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.4.2-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -155,6 +155,8 @@ Every flow shares the same pipeline state, so you can switch between them mid-fe
 `/sse:sdd` treats the PRP as the spec: an independent supervisor session re-checks the repo against
 the PRP's `Success criteria` + `Validation gates` after every dev↔test iteration, and never opens a
 PR on its own. Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`.
+`/sse:dev` asks once whether to apply the designer skill when the work has UI. To ship a finished
+static site, `/sse:firebase-publish` creates or reuses a Firebase project and deploys Hosting.
 
 **[Every command and every gate →](docs/COMMANDS.md)**
 

@@ -74,6 +74,7 @@ Optional property in practice. Golden path is the paved lane, not a fence. Run a
 | Open PR only | `/sse:pr` |
 | Dev + test, no PR | `/sse:run --local` |
 | Spec-driven loop | `/sse:sdd` |
+| Deploy a static site | `/sse:firebase-publish` |
 | Resume where left off | `/pipeline:continue` |
 | Abandon active run | `/pipeline:reset` |
 

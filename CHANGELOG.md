@@ -2,6 +2,13 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.4.2]
+
+### Changed
+- Documentation completeness pass for the 4.4.0/4.4.1 additions: `/sse:firebase-publish` and the `/sse:dev` designer-skill prompt are now reflected in `docs/COMMANDS.md`, `docs/GOLDEN-PATH.md`, and the main `README.md`, not just AGENTS.md and the agent README.
+- Genericized the backend convention examples: replaced the `recon-service` repo name and `br.com.team.recon` package with `billing-service` and `com.example.billing` in `conventions-override.md` and the SSE agent README, so the public plugin carries no internal project names.
+- Version bumped to 4.4.2 across VERSION, plugin.json, package.json, and the README badge.
+
 ## [4.4.1]
 
 ### Changed

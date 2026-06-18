@@ -33,7 +33,7 @@ When skill or command generates code:
 DIFFERENCES from defaults, not full rule set. Examples:
 
 ```markdown
-# Backend conventions for recon-service
+# Backend conventions for billing-service
 
 Stack overrides:
 - Java 17 (not 8 or 11)
@@ -42,10 +42,10 @@ Stack overrides:
 - MapStruct for mappers (not Orika)
 - JUnit 5 + Mockito (not JUnit 4)
 - Deploy as container, not WAR
-- Package: br.com.team.recon
+- Package: com.example.billing
 
 Project-specific patterns:
-- All entities in br.com.team.recon.domain
+- All entities in com.example.billing.domain
 - Service layer in .service, repositories in .repository
 - Use Records for DTOs
 
@@ -64,10 +64,10 @@ If convention you wrote for repo applies to others, consider promoting to agent 
 
 Track conventions changes in git. When rule changes, commit message and PR description explain why.
 
-## Example structure for recon-service
+## Example structure for billing-service
 
 ```
-recon-service/
+billing-service/
 ├── .claude/
 │ └── conventions/
 │ ├── backend.md
@@ -76,4 +76,4 @@ recon-service/
 └── pom.xml
 ```
 
-Web and mobile files absent because recon-service has no web or mobile work.
+Web and mobile files absent because billing-service has no web or mobile work.
