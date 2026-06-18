@@ -2,6 +2,14 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.4.3]
+
+### Changed
+- Fewer permission prompts during the pipeline. The shipped `.claude/settings.json` allowlist now covers the safe, read-only and build/test command families the pipeline actually uses (node, npm/npx, python3, grep, find, awk, jq, curl, mkdir, echo, plus read-only firebase subcommands), instead of just git/gradle/mvnw/npm/gh/jq. Updated in both the installer template (`setup/install.sh`) and the repo's own settings.
+- Safety held: the allowlist contains no destructive or outward command. Deletes, deploys, project/site creation, and force operations still prompt, and `deny` blocks `rm -rf`, force-push, `git reset --hard`, Firebase site/channel deletes, and `gcloud projects delete`.
+- New "Shell hygiene" guidance in `coding-style.md`: compound shell (`a | b`, `a && b`, multi-line) always prompts regardless of the allowlist, so prefer native Read/Grep/Glob and single commands for trivial read-only work.
+- Version bumped to 4.4.3 across VERSION, plugin.json, package.json, and the README badge.
+
 ## [4.4.2]
 
 ### Changed
