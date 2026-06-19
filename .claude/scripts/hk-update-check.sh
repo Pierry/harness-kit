@@ -50,6 +50,6 @@ fi
 # Newer only if remote sorts strictly above local (version sort).
 newest="$(printf '%s\n%s\n' "$LOCAL" "$REMOTE" | sort -V 2>/dev/null | tail -1)"
 if [ "$newest" = "$REMOTE" ] && [ "$REMOTE" != "$LOCAL" ]; then
-  printf 'harness-kit v%s available (you have v%s).\nupdate: /plugin update harness-kit  then  /harness-kit:update\n' "$REMOTE" "$LOCAL"
+  printf 'harness-kit v%s available (you have v%s).\nupdate: /plugin update harness-kit  ->  restart Claude Code  ->  /harness-kit:update\n' "$REMOTE" "$LOCAL"
 fi
 exit 0

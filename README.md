@@ -8,7 +8,7 @@
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.5.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.5.1-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -95,19 +95,26 @@ Requires Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/
 ## Update
 
 The plugin version is pinned in the marketplace, so a new release does **not** reach you until you
-pull it. **Both** steps are required, in order:
+pull it. **Three** steps are required, in order, the middle one matters:
 
 ```
-/plugin update harness-kit     # step 1: fetch the newer plugin from the marketplace
-/harness-kit:update            # step 2: re-lay it into THIS repo
+/plugin update harness-kit     # step 1: fetch the newer plugin into the cache
+                               # step 2: RESTART Claude Code  (plugins load at startup)
+/harness-kit:update            # step 3: re-lay it into THIS repo
 ```
 
-Step 1 alone updates the plugin cache but changes nothing in your repo. Step 2 lays the new version
-into the repo you run it from, run it once **per repo** you installed into.
+Step 1 fetches the new version into the plugin cache but does **not** change anything in your repo,
+and the running session still points at the old version. Step 2 (restart) makes Claude Code load the
+new version, without it, step 3 would re-lay the *old* version it still has loaded (the updater now
+detects this and stops with a restart reminder rather than silently downgrading). Step 3 lays the new
+version into the repo you run it from, run it once **per repo** you installed into.
+
+If step 1 reports you are already up to date but you know a newer release exists, refresh the
+marketplace first: `/plugin marketplace update harness-kit`, then retry step 1.
 
 **You don't have to remember to check.** On session start the harness compares your installed version
 against the latest release on GitHub (best-effort, cached ~24h, never blocks) and prints a one-line
-notice when you're behind, with the two commands to run. Disable it with
+notice when you're behind, with the steps to run. Disable it with
 `HK_UPDATE_CHECK=0` in your environment.
 
 `/harness-kit:update` backs up your existing `.claude/settings.json` and reports the version delta
@@ -117,7 +124,7 @@ internal prompt, while destructive ops stay blocked. If you customized permissio
 from the `.bak` file. See [Architecture › Permissions](docs/ARCHITECTURE.md#permissions).
 
 - **New users** who install after a release get the latest version automatically, nothing extra.
-- **Existing users** stay on their pinned version until they run the two commands above.
+- **Existing users** stay on their pinned version until they run the steps above.
 
 Current version: see the badge up top and [`CHANGELOG.md`](CHANGELOG.md).
 

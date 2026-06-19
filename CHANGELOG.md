@@ -2,6 +2,11 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.5.1]
+
+### Fixed
+- **Update flow no longer silently downgrades.** `/plugin update harness-kit` fetches the new version into the plugin cache, but the running session keeps the version loaded at startup (`${CLAUDE_PLUGIN_ROOT}` only repoints after a restart). Running `/harness-kit:update` in the same session therefore re-laid the *old* version. `setup/update.sh` now (1) recognizes plugin-cache installs instead of mislabeling them "npm install" with irrelevant npm upgrade hints, and (2) detects when a newer version is already cached but not yet loaded, and stops with a "RESTART Claude Code, then rerun" message rather than downgrading. The README Update section is now three ordered steps (update, **restart**, re-lay) and notes `/plugin marketplace update harness-kit` for when the marketplace cache is stale. The session-start update notice and update skill carry the same restart guidance.
+
 ## [4.5.0]
 
 ### Added
