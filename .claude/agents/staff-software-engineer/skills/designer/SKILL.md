@@ -32,6 +32,8 @@ Use M3 as the system, not the look. Token-driven, not hardcoded.
     `grid-template-rows: 0fr -> 1fr` technique (or `max-height`) plus opacity and a small translate;
     never toggle `display:none` with no transition.
   - Content entrance: stagger cards/sections in with a short rise-and-fade on load.
+  - Animate meaningful value changes: count-up on headline numbers/totals, a subtle pulse when a key
+    result updates. Build the result DOM once and update in place so values can tween.
   - Always wrap motion in `@media (prefers-reduced-motion: reduce)` to disable it.
 
 ## Theme: dark + light
@@ -64,7 +66,21 @@ Mandatory both. System preference first, user toggle second, choice persisted.
 
 ## Behance-grade polish (the "new and good" bar)
 
-Inspiration: top Behance UI work. What that means concretely:
+Inspiration: top Behance UI work. **Actually research it, do not just invoke the name.** Before
+designing a new surface, run a real web search for current Behance/Dribbble work in the product's
+domain (e.g. "Behance fintech investment calculator dark UI"), look at several results, and extract
+concrete directives (accent treatment, card and result styling, data-viz patterns, spacing, motion).
+Note in the build what you took from it. Behance gallery pages are JS-rendered, so screenshots may
+not be machine-readable; rely on the search result summaries and the patterns they describe, and
+state the sources.
+
+A recurring, high-value pattern from fintech/finance results UIs: **visualize the breakdown, do not
+just list numbers.** For any result that is a sum of parts (gross = principal + yield + taxes,
+budget = categories, score = components), add a lightweight visual (a stacked composition bar, a
+donut, or a sparkline) with a value legend, animated on update. Pure CSS/SVG, no chart lib, to keep
+load fast. A bare list of figures is the unfinished version.
+
+What top Behance work means concretely:
 
 - **Generous whitespace.** 8pt spacing grid (4/8/12/16/24/32/48/64). Let layouts breathe.
 - **Strong hierarchy.** One clear focal point per view. Big confident headline, calm body.
@@ -102,6 +118,21 @@ surface:
 /* Bad: never do this */
 .callout { border-left: 3px solid var(--primary); background: var(--surface-container); }
 ```
+
+## Form inputs are real MD3 text fields
+
+An input is not a bare bordered box with a label floating above it in plain text. Use the MD3 text
+field anatomy:
+
+- **Outlined or filled** container (pick one and keep it consistent), 56px tall, proper shape radius.
+- **Floating label** that sits as the resting placeholder, then animates up onto the outline (or to
+  the top of a filled field) on focus or when filled. Label turns `primary` on focus.
+- **Supporting text** under the field for the hint/example (do not abuse the placeholder for hints).
+- **Leading/trailing affixes and icons** live inside the field (currency prefix, unit suffix, an
+  info or clear trailing icon button), not floating outside it.
+- Focus state thickens the outline to `primary` (a 2px look via inset box-shadow is fine).
+
+Skip this only if the repo already standardizes a different field component, in which case match it.
 
 ## Page headers and hero structure
 
