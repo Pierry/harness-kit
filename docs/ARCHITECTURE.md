@@ -29,6 +29,14 @@ billing-fix · complete (prd/prp/plan/dev/test/pr)
 State persists at `.claude/.pipeline-state.json`. Close the session and reopen, `/pipeline:continue`
 picks up at the next pending stage. When the PR merges, state auto-clears.
 
+### Update notice
+
+A SessionStart hook (`.claude/scripts/hk-update-check.sh`) compares the installed version
+(`.claude/.hk-version`) against the latest release on GitHub and prints a one-line notice when you are
+behind. It is best-effort: the network is hit at most once per ~24h (result cached in
+`.claude/.hk-update-check`), each call times out in 2s, and every path exits 0 so it never blocks or
+fails a session. Offline, it stays silent. Disable it with `HK_UPDATE_CHECK=0` in your environment.
+
 ## Project conventions
 
 The SSE agent has defaults per area. Override them per repo:
@@ -72,7 +80,7 @@ What `/harness-kit:install` lays down in your repo:
     ├── commands/                slash command entry points (pm, sse, context, pipeline)
     ├── shared/                  cross-agent guides (context-strategy.md)
     ├── hooks/                   status-line + lifecycle hooks
-    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · marker.sh · preflight.sh · pack-repo.sh · graph-repo.sh
+    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · marker.sh · preflight.sh · hk-update-check.sh · pack-repo.sh · graph-repo.sh
     ├── runtime/
     │   ├── hooks/<agent>/       per-agent lifecycle (post-write, post-eval, pre-prp-check)
     │   ├── scripts/<agent>/     per-agent utilities (sensor-runner, token-phase, link-validator, run-sensors.sh)

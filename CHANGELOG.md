@@ -5,6 +5,7 @@ All notable changes to harness-kit. Format roughly follows [Keep a Changelog](ht
 ## [4.5.0]
 
 ### Added
+- **Proactive update notice.** A SessionStart hook (`.claude/scripts/hk-update-check.sh`) compares the installed version against the latest release on GitHub and prints a one-line notice when you are behind, naming both commands to run (`/plugin update harness-kit` then `/harness-kit:update`). Best-effort: network hit at most once per ~24h (cached in `.claude/.hk-update-check`), 2s timeout, every path exits 0 so it never blocks a session, silent when offline. Disable with `HK_UPDATE_CHECK=0`.
 - **Committed scripts replace inline shell, and are pre-authorized.** Slash commands now call named scripts instead of improvising shell, so each permission prompt shows a readable path rather than an opaque one-liner: `.claude/scripts/marker.sh` (phase start/approve markers, replaces inline `date`/`printf >>`), `.claude/scripts/preflight.sh` (toolchain probe, replaces inline `node -v`/`npm ping`/`$(...)`), and `.claude/runtime/scripts/<agent>/run-sensors.sh` (deterministic sensor runner, replaces inline `grep`/`for` loops). The installer pre-authorizes these in `settings.json` `permissions.allow` (both bare-path and `bash <path>` forms) plus `git`/`gh`/`jq` and the project build tools, so a full pipeline run never stops for a harness-internal prompt. Destructive ops (`rm -rf`, force push, `git reset --hard`) stay in `permissions.deny` and always prompt.
 
 ### Fixed

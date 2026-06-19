@@ -22,3 +22,5 @@ bash "${CLAUDE_PLUGIN_ROOT}/setup/update.sh" "${CLAUDE_PROJECT_DIR}"
 Relay output verbatim. Tell user to **restart Claude Code** after.
 
 If user wants a newer harness and plugin already current, point them at `/plugin update harness-kit` then rerun this.
+
+SessionStart hook (`hk-update-check.sh`) already warns when a newer release is on GitHub, so no manual polling. Notice names both commands (`/plugin update harness-kit` then `/harness-kit:update`). Cache `.claude/.hk-update-check`, disable via `HK_UPDATE_CHECK=0`.

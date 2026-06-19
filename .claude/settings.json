@@ -38,7 +38,8 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/scripts/hk-update-check.sh ] && sh .claude/scripts/hk-update-check.sh; exit 0" }
         ]
       }
     ],

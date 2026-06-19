@@ -95,18 +95,26 @@ Requires Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/
 ## Update
 
 The plugin version is pinned in the marketplace, so a new release does **not** reach you until you
-pull it. Two steps, mirroring install:
+pull it. **Both** steps are required, in order:
 
 ```
-/plugin update harness-kit     # fetch the newer plugin from the marketplace
-/harness-kit:update            # re-lay it into the current repo
+/plugin update harness-kit     # step 1: fetch the newer plugin from the marketplace
+/harness-kit:update            # step 2: re-lay it into THIS repo
 ```
+
+Step 1 alone updates the plugin cache but changes nothing in your repo. Step 2 lays the new version
+into the repo you run it from, run it once **per repo** you installed into.
+
+**You don't have to remember to check.** On session start the harness compares your installed version
+against the latest release on GitHub (best-effort, cached ~24h, never blocks) and prints a one-line
+notice when you're behind, with the two commands to run. Disable it with
+`HK_UPDATE_CHECK=0` in your environment.
 
 `/harness-kit:update` backs up your existing `.claude/settings.json` and reports the version delta
-via `.claude/.hk-version`. Run the second step in every repo you installed into. It also pre-authorizes
-the harness's own scripts (`marker.sh`, `preflight.sh`, `run-sensors.sh`) in `permissions.allow`, so a
-pipeline run never stops for an internal prompt, while destructive ops stay blocked. If you customized
-permissions, merge them back from the `.bak` file. See [Architecture › Permissions](docs/ARCHITECTURE.md#permissions).
+via `.claude/.hk-version`. It also pre-authorizes the harness's own scripts (`marker.sh`,
+`preflight.sh`, `run-sensors.sh`) in `permissions.allow`, so a pipeline run never stops for an
+internal prompt, while destructive ops stay blocked. If you customized permissions, merge them back
+from the `.bak` file. See [Architecture › Permissions](docs/ARCHITECTURE.md#permissions).
 
 - **New users** who install after a release get the latest version automatically, nothing extra.
 - **Existing users** stay on their pinned version until they run the two commands above.

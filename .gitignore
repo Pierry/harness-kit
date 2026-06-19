@@ -47,6 +47,7 @@ __pycache__/
 # -------------------------------------------
 .claude/settings.local.json
 .claude/.hk-version
+.claude/.hk-update-check
 
 # -------------------------------------------
 # OS / editor noise

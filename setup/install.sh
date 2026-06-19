@@ -116,7 +116,7 @@ for s in pipeline.py activity.py pr-monitor.py; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
-for s in pack-repo.sh graph-repo.sh marker.sh preflight.sh; do
+for s in pack-repo.sh graph-repo.sh marker.sh preflight.sh hk-update-check.sh; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
@@ -174,7 +174,8 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" }
+          { "type": "command", "command": "[ -x .claude/hooks/pipeline-session-start.sh ] && bash .claude/hooks/pipeline-session-start.sh; exit 0" },
+          { "type": "command", "command": "[ -x .claude/scripts/hk-update-check.sh ] && sh .claude/scripts/hk-update-check.sh; exit 0" }
         ]
       }
     ],
