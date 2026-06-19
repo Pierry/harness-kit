@@ -1,6 +1,6 @@
 {
   "name": "@pieerry/harness-kit",
-  "version": "4.4.2",
+  "version": "4.5.0",
   "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
   "author": "Space Metrics AI",
   "license": "MIT",

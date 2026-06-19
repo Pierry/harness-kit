@@ -8,10 +8,16 @@ Print header card before coding and footer card after gates run. Format: .claude
 
 Source plan: latest in .claude/runtime/outputs/sse/plan/ with approved marker. None, abort. Ask user to run /sse:plan first.
 
-Before coding, write phase start marker:
+Before coding, write the phase start marker by running this script. Do NOT inline `date`/`printf`:
 
 ```
-.claude/runtime/outputs/sse/.markers/{feature_id}.dev-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/sse/.markers/{feature_id}.dev-generate.start
+```
+
+Probe the toolchain with the committed script (do NOT inline `node -v`/`npm ping`/`$(...)` env checks):
+
+```
+.claude/scripts/preflight.sh node npm git
 ```
 
 Read:
@@ -51,10 +57,16 @@ Document gates (run on saved summary):
 - Sensor: .claude/agents/staff-software-engineer/sensors/dev-structure.md (auto-run by post-write hook)
 - Eval:   .claude/agents/staff-software-engineer/evals/dev-quality.md (you score it; threshold 8.0)
 
-Append approval marker only when code gates pass and dev-quality eval is >= 8.0:
+Run the deterministic dev-structure sensor on the saved summary via the committed runner (do NOT improvise inline grep/for loops). Read the code-conventions / test-coverage / eval specs with the Read tool, never `cat` them in a loop:
 
 ```
-<!-- approved: {YYYY-MM-DD} -->
+.claude/runtime/scripts/staff-software-engineer/run-sensors.sh .claude/runtime/outputs/sse/dev/{feature_id}.md .claude/agents/staff-software-engineer/sensors/dev-structure.md
+```
+
+Append approval marker only when code gates pass and dev-quality eval is >= 8.0. Use the committed script (do NOT inline `printf >>`); it appends `<!-- approved: {YYYY-MM-DD} -->`:
+
+```
+.claude/scripts/marker.sh approve .claude/runtime/outputs/sse/dev/{feature_id}.md {score}
 ```
 
 After approval, reply with this exact shape (name actual sensors/evals/guides that ran):

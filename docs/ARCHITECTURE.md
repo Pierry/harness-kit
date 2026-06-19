@@ -40,6 +40,25 @@ The SSE agent has defaults per area. Override them per repo:
 Add only the area files you need; the agent reads them on top of its defaults. Reference:
 [`conventions-override.md`](../.claude/agents/staff-software-engineer/guides/conventions-override.md).
 
+## Permissions
+
+A pipeline run should flow start to finish without stopping to ask whether it may run its own
+plumbing. To make that safe and legible, the slash commands never improvise shell. They call named,
+committed scripts:
+
+| Script | Replaces | Runs in |
+|--------|----------|---------|
+| `marker.sh start\|approve` | inline `date` / `printf >>` marker writes | every stage |
+| `preflight.sh <bins>` | inline `node -v` / `npm ping` / `$(...)` probes | `/sse:dev` |
+| `run-sensors.sh` | inline `grep` / `for` sensor loops | pm + sse stages |
+
+The installer pre-authorizes exactly these (plus `git`, `gh`, `jq`, and the project build tools
+`gradlew`/`mvnw`/`npm`) in `settings.json` `permissions.allow`, both as a bare path and as
+`bash <path>`. So you grant nothing mid-run, and what you would have been asked is a readable path,
+not an opaque one-liner. Destructive ops (`rm -rf`, force push, `git reset --hard`) stay in
+`permissions.deny` and always prompt. Existing settings are backed up on install, merge any custom
+permissions back from the `.bak` file.
+
 ## Layout
 
 What `/harness-kit:install` lays down in your repo:
@@ -53,10 +72,10 @@ What `/harness-kit:install` lays down in your repo:
     ├── commands/                slash command entry points (pm, sse, context, pipeline)
     ├── shared/                  cross-agent guides (context-strategy.md)
     ├── hooks/                   status-line + lifecycle hooks
-    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · pack-repo.sh · graph-repo.sh
+    ├── scripts/                 pipeline.py · activity.py · pr-monitor.py · marker.sh · preflight.sh · pack-repo.sh · graph-repo.sh
     ├── runtime/
     │   ├── hooks/<agent>/       per-agent lifecycle (post-write, post-eval, pre-prp-check)
-    │   ├── scripts/<agent>/     per-agent utilities (sensor-runner, token-phase, link-validator)
+    │   ├── scripts/<agent>/     per-agent utilities (sensor-runner, token-phase, link-validator, run-sensors.sh)
     │   ├── outputs/{pm,sse}/    generated artifacts, markers, tokens (incl. sse/sdd/ loop transcripts)
     │   └── cache/               repomix packs + graphify graphs (optional, gitignored)
     ├── conventions/             your per-repo overrides

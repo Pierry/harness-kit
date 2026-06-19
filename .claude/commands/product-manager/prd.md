@@ -8,13 +8,11 @@ Print header card before drafting and footer card after gates run. Format: .clau
 
 Ask once if missing: squad, problem in 1-2 sentences, customers, hypothesis, bet link, stage.
 
-Compute feature_id = {YYYY-MM-DD}-{squad}-{slug}. Before generating, write phase start marker:
+Compute feature_id = {YYYY-MM-DD}-{squad}-{slug}. Before generating, write the phase start marker by running this script. Do NOT inline `date`/`printf` (command-substitution + redirect always trips the permission prompt):
 
 ```
-.claude/runtime/outputs/pm/.markers/{feature_id}.prd-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/pm/.markers/{feature_id}.prd-generate.start
 ```
-
-Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
 - .claude/agents/product-manager/guides/product-guidelines.md
@@ -26,7 +24,13 @@ Read:
 
 Save to .claude/runtime/outputs/pm/prd/{feature_id}.md.
 
-Sensors: .claude/agents/product-manager/sensors/prd-structure.md, .claude/agents/product-manager/sensors/prd-acceptance-criteria.md.
+Sensors: run deterministically via the committed runner. Do NOT improvise inline grep/for loops:
+
+```
+.claude/runtime/scripts/product-manager/run-sensors.sh .claude/runtime/outputs/pm/prd/{feature_id}.md .claude/agents/product-manager/sensors/prd-structure.md .claude/agents/product-manager/sensors/prd-acceptance-criteria.md
+```
+
+Exit 0 = all pass; exit 1 = a sensor blocked (the runner prints which). Read a sensor spec with the Read tool only to explain a failure; never `cat` it in a loop.
 
 Evals: .claude/agents/product-manager/evals/prd-quality.md, .claude/agents/product-manager/evals/prd-readiness.md.
 

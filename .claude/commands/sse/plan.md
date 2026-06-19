@@ -10,13 +10,11 @@ Source PRP: user passes path, use it. Else pick most recent in .claude/runtime/o
 
 Compute feature_id from source PRP filename (basename without .md). Save plan to .claude/runtime/outputs/sse/plan/{feature_id}.md so it matches.
 
-Before generating, write phase start marker:
+Before generating, write the phase start marker by running this script. Do NOT inline `date`/`printf` (command-substitution + redirect always trips the permission prompt):
 
 ```
-.claude/runtime/outputs/sse/.markers/{feature_id}.plan-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/sse/.markers/{feature_id}.plan-generate.start
 ```
-
-Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
 - source PRP
@@ -35,7 +33,13 @@ Context lookups (per `context-strategy.md`):
 
 Save to .claude/runtime/outputs/sse/plan/{feature_id}.md.
 
-Sensors: .claude/agents/staff-software-engineer/sensors/plan-structure.md.
+Sensors: run deterministically via the committed runner. Do NOT improvise inline grep/for loops:
+
+```
+.claude/runtime/scripts/staff-software-engineer/run-sensors.sh .claude/runtime/outputs/sse/plan/{feature_id}.md .claude/agents/staff-software-engineer/sensors/plan-structure.md
+```
+
+Exit 0 = all pass; exit 1 = a sensor blocked (the runner prints which). Read a sensor spec with the Read tool only to explain a failure; never `cat` it in a loop.
 
 Evals: .claude/agents/staff-software-engineer/evals/plan-quality.md.
 

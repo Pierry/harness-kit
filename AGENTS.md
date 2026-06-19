@@ -46,7 +46,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 ├── shared/                        ← cross-agent guides (context-strategy.md)
 ├── conventions/                   ← generic conventions (overridable per repo)
 ├── hooks/                         ← root lifecycle hooks (session-start, prompt, postedit, postwrite, status-line, activity-pre-read)
-├── scripts/                       ← root utilities (pipeline.py, activity.py, pr-monitor.py)
+├── scripts/                       ← root utilities (pipeline.py, activity.py, pr-monitor.py, marker.sh, preflight.sh, pack-repo.sh, graph-repo.sh)
 └── runtime/                       ← generated artifacts + per-agent hooks/scripts
     ├── outputs/
     │   ├── pm/{prd,prp,tokens,.markers}/
@@ -55,8 +55,8 @@ CLAUDE.md                          ← project context (style, role, conventions
     │   ├── product-manager/       phase markers, sensor gates, eval, publish
     │   └── staff-software-engineer/
     └── scripts/
-        ├── product-manager/       sensor-runner, token-phase, link-validator, confluence-publish
-        └── staff-software-engineer/  token-phase
+        ├── product-manager/       sensor-runner, token-phase, link-validator, confluence-publish, run-sensors.sh
+        └── staff-software-engineer/  token-phase, run-sensors.sh
 ```
 
 ---
@@ -161,9 +161,21 @@ Generated artifacts and lifecycle hooks live under `.claude/runtime/`.
 | `runtime/outputs/architect/{design,review}/` | System Design Docs and design reviews |
 | `runtime/cache/{repomix,graphify}/` | Optional context cache: repomix snapshots (per feature_id) + graphify graphs (per repo). See `.claude/shared/context-strategy.md` |
 | `runtime/hooks/<agent>/` | Per-agent lifecycle hooks (post-write, post-eval, pre-prp-check) |
-| `runtime/scripts/<agent>/` | Per-agent utilities (sensor-runner, token-phase, link-validator, confluence-publish) |
+| `runtime/scripts/<agent>/` | Per-agent utilities (sensor-runner, token-phase, link-validator, confluence-publish, run-sensors.sh) |
 
 `settings.json` `hooks` blocks reference these paths. `.claude/scripts/pipeline.py` reads/writes markers and outputs.
+
+### Committed scripts vs inline shell
+
+Slash commands invoke named, committed scripts instead of improvising shell, so each permission prompt shows a readable path, not an opaque `date`/`printf`/`grep` one-liner:
+
+| Script | Replaces | Used by |
+|---|---|---|
+| `.claude/scripts/marker.sh start\|approve` | inline `date` / `printf >>` marker writes | every pm/sse stage |
+| `.claude/scripts/preflight.sh <bins>` | inline `node -v` / `npm ping` / `$(...)` probes | `/sse:dev` |
+| `.claude/runtime/scripts/<agent>/run-sensors.sh` | inline `grep` / `for` sensor loops | pm + sse stages |
+
+The installer pre-authorizes these in `settings.json` `permissions.allow` (both bare-path and `bash <path>` forms), so a full pipeline run never stops for a harness-internal prompt. Destructive ops (`rm -rf`, force push, hard reset) stay in `permissions.deny` and still prompt.
 
 ---
 

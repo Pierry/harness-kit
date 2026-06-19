@@ -2,6 +2,18 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.5.0]
+
+### Added
+- **Committed scripts replace inline shell, and are pre-authorized.** Slash commands now call named scripts instead of improvising shell, so each permission prompt shows a readable path rather than an opaque one-liner: `.claude/scripts/marker.sh` (phase start/approve markers, replaces inline `date`/`printf >>`), `.claude/scripts/preflight.sh` (toolchain probe, replaces inline `node -v`/`npm ping`/`$(...)`), and `.claude/runtime/scripts/<agent>/run-sensors.sh` (deterministic sensor runner, replaces inline `grep`/`for` loops). The installer pre-authorizes these in `settings.json` `permissions.allow` (both bare-path and `bash <path>` forms) plus `git`/`gh`/`jq` and the project build tools, so a full pipeline run never stops for a harness-internal prompt. Destructive ops (`rm -rf`, force push, `git reset --hard`) stay in `permissions.deny` and always prompt.
+
+### Fixed
+- `setup/install.sh` now delivers the new committed scripts on install/update. The script-copy lists were hardcoded and missed `marker.sh`, `preflight.sh`, and the SSE `run-sensors.sh` (the SSE scripts dir is symlinks, so npm pack drops it, it is now copied as a real file target-side). Without this, `/harness-kit:update` shipped commands that referenced scripts it never laid down.
+
+### Changed
+- Version bumped to 4.5.0 across VERSION, plugin.json, package.json, and the README badge.
+- Docs updated for the above: `docs/ARCHITECTURE.md` gains a Permissions section and the script lists, `AGENTS.md` documents the committed-scripts-vs-inline-shell convention, `README.md` Update section notes the pre-authorization.
+
 ## [4.4.2]
 
 ### Changed

@@ -10,13 +10,11 @@ Source PRD: user passes path, use it. Else pick most recent in .claude/runtime/o
 
 Compute feature_id from source PRD filename (basename without .md). Save PRP to .claude/runtime/outputs/pm/prp/{feature_id}.md so it matches.
 
-Before generating, write phase start marker:
+Before generating, write the phase start marker by running this script. Do NOT inline `date`/`printf` (command-substitution + redirect always trips the permission prompt):
 
 ```
-.claude/runtime/outputs/pm/.markers/{feature_id}.prp-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/pm/.markers/{feature_id}.prp-generate.start
 ```
-
-Content: `{"timestamp": "<ISO-8601 UTC now>", "session_id": ""}`
 
 Read:
 - source PRD
@@ -30,7 +28,13 @@ Explore target repos. Ask user for repo paths if not provided. Use Grep and Read
 
 Save to .claude/runtime/outputs/pm/prp/{feature_id}.md.
 
-Sensors: .claude/agents/product-manager/sensors/prp-structure.md, .claude/agents/product-manager/sensors/prp-context-quality.md, .claude/agents/product-manager/sensors/prp-links.md.
+Sensors: run deterministically via the committed runner. Do NOT improvise inline grep/for loops:
+
+```
+.claude/runtime/scripts/product-manager/run-sensors.sh .claude/runtime/outputs/pm/prp/{feature_id}.md .claude/agents/product-manager/sensors/prp-structure.md .claude/agents/product-manager/sensors/prp-context-quality.md .claude/agents/product-manager/sensors/prp-links.md
+```
+
+Exit 0 = all pass; exit 1 = a sensor blocked (the runner prints which). Read a sensor spec with the Read tool only to explain a failure; never `cat` it in a loop.
 
 Evals: .claude/agents/product-manager/evals/prp-quality.md, .claude/agents/product-manager/evals/prp-context-readiness.md.
 

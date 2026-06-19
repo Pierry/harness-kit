@@ -44,7 +44,7 @@ The official, Anthropic-managed directory is **`anthropics/claude-plugins-offici
 - [x] `claude plugin validate . --strict` passes
 - [ ] `CHANGELOG.md` kept current per release (see file)
 - [ ] Repo is public on GitHub at `Pierry/harness-kit`
-- [ ] Security note: plugin runs `setup/install.sh`, which **writes into the user's repo** (`.claude/`, `AGENTS.md`, `CLAUDE.md`) and backs up any existing `.claude/settings.json`. Disclose this in the submission, reviewers flag plugins that mutate the project.
+- [ ] Security note: plugin runs `setup/install.sh`, which **writes into the user's repo** (`.claude/`, `AGENTS.md`, `CLAUDE.md`) and backs up any existing `.claude/settings.json`. The written `settings.json` pre-authorizes only the harness's own committed scripts (`marker.sh`, `preflight.sh`, `run-sensors.sh`) plus `git`/`gh`/`jq` and the project build tools; destructive ops (`rm -rf`, force push, `git reset --hard`) are explicitly denied. Disclose this in the submission, reviewers flag plugins that mutate the project or grant Bash permissions.
 
 ### Entry Anthropic would add to their catalog
 

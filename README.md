@@ -8,7 +8,7 @@
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.4.2-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.5.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -103,7 +103,10 @@ pull it. Two steps, mirroring install:
 ```
 
 `/harness-kit:update` backs up your existing `.claude/settings.json` and reports the version delta
-via `.claude/.hk-version`. Run the second step in every repo you installed into.
+via `.claude/.hk-version`. Run the second step in every repo you installed into. It also pre-authorizes
+the harness's own scripts (`marker.sh`, `preflight.sh`, `run-sensors.sh`) in `permissions.allow`, so a
+pipeline run never stops for an internal prompt, while destructive ops stay blocked. If you customized
+permissions, merge them back from the `.bak` file. See [Architecture › Permissions](docs/ARCHITECTURE.md#permissions).
 
 - **New users** who install after a release get the latest version automatically, nothing extra.
 - **Existing users** stay on their pinned version until they run the two commands above.

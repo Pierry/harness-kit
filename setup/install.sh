@@ -86,6 +86,9 @@ mkdir -p "$TARGET/.claude/runtime/scripts/staff-software-engineer"
 for name in sensor-runner.py token-phase.py; do
   ln -sf "../product-manager/$name" "$TARGET/.claude/runtime/scripts/staff-software-engineer/$name"
 done
+# Real (non-symlink) SSE scripts
+cp "$SOURCE_ROOT/.claude/runtime/scripts/staff-software-engineer/run-sensors.sh" "$TARGET/.claude/runtime/scripts/staff-software-engineer/run-sensors.sh"
+chmod +x "$TARGET/.claude/runtime/scripts/staff-software-engineer/run-sensors.sh"
 
 # 4) Slash commands
 mkdir -p "$TARGET/.claude/commands"
@@ -113,7 +116,7 @@ for s in pipeline.py activity.py pr-monitor.py; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
-for s in pack-repo.sh graph-repo.sh; do
+for s in pack-repo.sh graph-repo.sh marker.sh preflight.sh; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
@@ -124,6 +127,14 @@ find "$TARGET/.claude" -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev
 find "$TARGET/.claude" -name "*.pyc" -type f -delete 2>/dev/null || true
 
 # 7) settings.json (back up existing if content differs)
+# The allow-list pre-authorizes the harness's OWN committed scripts so the
+# pipeline never interrupts a run with a cryptic permission prompt:
+#   marker.sh      writes phase start/approval markers (replaces inline date/printf)
+#   preflight.sh   probes the toolchain, e.g. node/npm/git (replaces inline -v checks)
+#   run-sensors.sh runs the deterministic structure sensors (replaces inline grep loops)
+# All are named, readable paths, not opaque one-liners. Project build/test
+# commands (gradlew, mvnw, npm) and git/gh/jq are pre-authorized for the same
+# reason. Anything destructive stays in deny and still prompts.
 if [ -f "$TARGET/.claude/settings.json" ]; then
   STAMP="$(date +%Y%m%d-%H%M%S)"
   BACKUP="$TARGET/.claude/settings.json.bak.$STAMP"
@@ -141,6 +152,14 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
       "Bash(npm:*)",
       "Bash(gh:*)",
       "Bash(jq:*)",
+      "Bash(.claude/scripts/marker.sh:*)",
+      "Bash(bash .claude/scripts/marker.sh:*)",
+      "Bash(.claude/scripts/preflight.sh:*)",
+      "Bash(bash .claude/scripts/preflight.sh:*)",
+      "Bash(.claude/runtime/scripts/product-manager/run-sensors.sh:*)",
+      "Bash(bash .claude/runtime/scripts/product-manager/run-sensors.sh:*)",
+      "Bash(.claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
+      "Bash(bash .claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
       "Read(.claude/runtime/outputs/**)",
       "Write(.claude/runtime/outputs/**)"
     ],
@@ -231,6 +250,8 @@ fi
 echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
 echo "done. restart Claude Code to load."
+echo "  pre-authorized harness scripts (no mid-run prompts): marker, preflight, run-sensors"
+echo "  destructive ops (rm -rf, force push, hard reset) stay blocked and will prompt"
 echo "  /golden-path            idea -> merged PR (the golden path)"
 echo "  /product-manager:prd | :prp | :run"
 echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"
