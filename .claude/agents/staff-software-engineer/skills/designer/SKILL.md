@@ -25,7 +25,16 @@ Use M3 as the system, not the look. Token-driven, not hardcoded.
   elevation (container tint) over heavy shadows.
 - **State layers**: hover 8%, focus 10%, pressed 10% of `on-*` over the component.
 - **Motion**: M3 easing `emphasized` (cubic-bezier(.2,0,0,1)), standard 200-300ms, small 100ms. No
-  gratuitous animation.
+  gratuitous animation. Motion is required, not optional:
+  - Every interactive element gets an M3 **state layer** (hover 8%, focus 10%, pressed 10% of the
+    `on-*` role over the component), not just a color swap.
+  - Every show/hide, expand/collapse, or reveal **animates** both directions. Animate height with the
+    `grid-template-rows: 0fr -> 1fr` technique (or `max-height`) plus opacity and a small translate;
+    never toggle `display:none` with no transition.
+  - Content entrance: stagger cards/sections in with a short rise-and-fade on load.
+  - Animate meaningful value changes: count-up on headline numbers/totals, a subtle pulse when a key
+    result updates. Build the result DOM once and update in place so values can tween.
+  - Always wrap motion in `@media (prefers-reduced-motion: reduce)` to disable it.
 
 ## Theme: dark + light
 
@@ -57,7 +66,21 @@ Mandatory both. System preference first, user toggle second, choice persisted.
 
 ## Behance-grade polish (the "new and good" bar)
 
-Inspiration: top Behance UI work. What that means concretely:
+Inspiration: top Behance UI work. **Actually research it, do not just invoke the name.** Before
+designing a new surface, run a real web search for current Behance/Dribbble work in the product's
+domain (e.g. "Behance fintech investment calculator dark UI"), look at several results, and extract
+concrete directives (accent treatment, card and result styling, data-viz patterns, spacing, motion).
+Note in the build what you took from it. Behance gallery pages are JS-rendered, so screenshots may
+not be machine-readable; rely on the search result summaries and the patterns they describe, and
+state the sources.
+
+A recurring, high-value pattern from fintech/finance results UIs: **visualize the breakdown, do not
+just list numbers.** For any result that is a sum of parts (gross = principal + yield + taxes,
+budget = categories, score = components), add a lightweight visual (a stacked composition bar, a
+donut, or a sparkline) with a value legend, animated on update. Pure CSS/SVG, no chart lib, to keep
+load fast. A bare list of figures is the unfinished version.
+
+What top Behance work means concretely:
 
 - **Generous whitespace.** 8pt spacing grid (4/8/12/16/24/32/48/64). Let layouts breathe.
 - **Strong hierarchy.** One clear focal point per view. Big confident headline, calm body.
@@ -69,6 +92,62 @@ Inspiration: top Behance UI work. What that means concretely:
 - **Micro-interactions.** Hover, focus, press feedback on every interactive element. Subtle, fast.
 
 Avoid generic AI-template look: centered everything, default Bootstrap blues, gradient-on-everything.
+
+## Info, help, and supporting surfaces
+
+For any callout, help text, tooltip body, inline explanation, hint, banner, or "supporting"
+surface:
+
+- **Never use a colored left-border accent bar** (`border-left: 3px solid ...`) to mark it. That
+  reads as a generic CMS blockquote or a Bootstrap alert, not MD3. Hard rule.
+- Use an **MD3 tonal container**: `secondary-container` / `on-secondary-container` (or
+  `surface-container-high` / `on-surface-variant` for a quieter look), with a real shape radius
+  (`shape-m` or `shape-l`), full padding, and an MD3 **info icon** (Material Symbols `info`) leading
+  the text. Theme the icon and text with the container's `on-*` role.
+- Color the surface, not its edge. Tonal fill carries the meaning; a stripe on one side does not.
+- For inline reveals (the "?" expander pattern), animate open and closed (see Motion). A reveal that
+  snaps via `display:none` is incomplete.
+
+```css
+/* Good: MD3 tonal supporting surface */
+.help-panel__body {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px;
+  padding: 12px 16px; border-radius: var(--shape-m);
+  background: var(--secondary-container); color: var(--on-secondary-container);
+}
+/* Bad: never do this */
+.callout { border-left: 3px solid var(--primary); background: var(--surface-container); }
+```
+
+## Form inputs are real MD3 text fields
+
+An input is not a bare bordered box with a label floating above it in plain text. Use the MD3 text
+field anatomy:
+
+- **Outlined or filled** container (pick one and keep it consistent), 56px tall, proper shape radius.
+- **Floating label** that sits as the resting placeholder, then animates up onto the outline (or to
+  the top of a filled field) on focus or when filled. Label turns `primary` on focus.
+- **Supporting text** under the field for the hint/example (do not abuse the placeholder for hints).
+- **Leading/trailing affixes and icons** live inside the field (currency prefix, unit suffix, an
+  info or clear trailing icon button), not floating outside it.
+- Focus state thickens the outline to `primary` (a 2px look via inset box-shadow is fine).
+
+Skip this only if the repo already standardizes a different field component, in which case match it.
+
+## Page headers and hero structure
+
+A page header is not a wordmark thrown at the top. Build it on the M3 type scale with real hierarchy:
+
+- **Eyebrow** (optional): an M3 `label` (uppercase, tracked, `primary` color) that frames the context.
+- **Title**: M3 `display` or `headline`, tight letter-spacing, the single focal point of the view.
+- **Subtitle**: M3 `body`/supporting text in `on-surface-variant`, max ~48ch.
+- Put the brand mark and utility controls (theme toggle, etc.) in a top bar above the title, not
+  inline with it. Give the header generous top space and let it breathe.
+- A restrained tonal background wash (one or two soft radial tints from the seed) is allowed; avoid
+  gradient-on-everything.
+
+Map the type scale to classes once (`.t-display`, `.t-headline`, `.t-title`, `.t-label`) and reuse
+them; do not hand-size headings per page.
 
 ## Iconography: original, modern, never emoji
 
@@ -157,6 +236,10 @@ State which symbol + seed you chose and why (the context link).
 - Emojis anywhere (UI, icons, buttons, copy, empty states). Use MD3/modern icons instead.
 - Em-dashes (`—`) or en-dashes (`–`) anywhere (copy, headings, comments, commits, PRs, docs).
 - Stock/generic icons for brand or primary marks; mixing icon families.
+- Colored left-border accent bars (`border-left`) for info, help, callouts, or supporting surfaces.
+  Use an MD3 tonal container (see Info, help, and supporting surfaces).
+- Reveals or expanders that toggle `display:none` with no animation.
+- Page headers that are a bare wordmark with no eyebrow/title/subtitle hierarchy.
 - Hardcoded colors instead of tokens/roles.
 - A single theme (light-only or dark-only).
 - Hardcoded user-facing strings.

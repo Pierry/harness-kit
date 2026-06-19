@@ -2,6 +2,14 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.6.0]
+
+### Changed
+- **Designer skill rewritten for real MD3 fidelity and motion.** `skills/designer/SKILL.md` now bans the colored left-border callout pattern and requires MD3 tonal containers (with an info icon) for any help, callout, tooltip, or supporting surface. Adds the full MD3 outlined/filled text-field anatomy (floating label, supporting text, leading/trailing affixes inside the field) so form inputs stop being bare boxes with external labels. Adds a page-header/hero structure rule (eyebrow label, display title, subtitle, controls in a top bar) instead of a wordmark thrown at the top.
+- **Motion is now mandatory, not optional.** State layers on every interactive element, animated reveals in both directions (`grid-template-rows: 0fr -> 1fr` plus opacity and translate, never a bare `display:none` toggle), staggered content entrance, and value count-up on headline numbers, all wrapped in `prefers-reduced-motion`.
+- **Behance research must be real.** The skill now instructs an actual web search of current Behance/Dribbble work for the product domain before designing, extracting concrete directives and citing sources, rather than invoking the name without looking. Adds the high-value finance pattern: visualize a result that is a sum of parts (stacked bar, donut, sparkline with a legend) instead of listing raw numbers, pure CSS/SVG to keep load fast.
+- Version bumped to 4.6.0 across VERSION, plugin.json, package.json, and the README badge.
+
 ## [4.5.1]
 
 ### Fixed
