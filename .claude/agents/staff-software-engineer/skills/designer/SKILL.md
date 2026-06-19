@@ -25,7 +25,14 @@ Use M3 as the system, not the look. Token-driven, not hardcoded.
   elevation (container tint) over heavy shadows.
 - **State layers**: hover 8%, focus 10%, pressed 10% of `on-*` over the component.
 - **Motion**: M3 easing `emphasized` (cubic-bezier(.2,0,0,1)), standard 200-300ms, small 100ms. No
-  gratuitous animation.
+  gratuitous animation. Motion is required, not optional:
+  - Every interactive element gets an M3 **state layer** (hover 8%, focus 10%, pressed 10% of the
+    `on-*` role over the component), not just a color swap.
+  - Every show/hide, expand/collapse, or reveal **animates** both directions. Animate height with the
+    `grid-template-rows: 0fr -> 1fr` technique (or `max-height`) plus opacity and a small translate;
+    never toggle `display:none` with no transition.
+  - Content entrance: stagger cards/sections in with a short rise-and-fade on load.
+  - Always wrap motion in `@media (prefers-reduced-motion: reduce)` to disable it.
 
 ## Theme: dark + light
 
@@ -69,6 +76,47 @@ Inspiration: top Behance UI work. What that means concretely:
 - **Micro-interactions.** Hover, focus, press feedback on every interactive element. Subtle, fast.
 
 Avoid generic AI-template look: centered everything, default Bootstrap blues, gradient-on-everything.
+
+## Info, help, and supporting surfaces
+
+For any callout, help text, tooltip body, inline explanation, hint, banner, or "supporting"
+surface:
+
+- **Never use a colored left-border accent bar** (`border-left: 3px solid ...`) to mark it. That
+  reads as a generic CMS blockquote or a Bootstrap alert, not MD3. Hard rule.
+- Use an **MD3 tonal container**: `secondary-container` / `on-secondary-container` (or
+  `surface-container-high` / `on-surface-variant` for a quieter look), with a real shape radius
+  (`shape-m` or `shape-l`), full padding, and an MD3 **info icon** (Material Symbols `info`) leading
+  the text. Theme the icon and text with the container's `on-*` role.
+- Color the surface, not its edge. Tonal fill carries the meaning; a stripe on one side does not.
+- For inline reveals (the "?" expander pattern), animate open and closed (see Motion). A reveal that
+  snaps via `display:none` is incomplete.
+
+```css
+/* Good: MD3 tonal supporting surface */
+.help-panel__body {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px;
+  padding: 12px 16px; border-radius: var(--shape-m);
+  background: var(--secondary-container); color: var(--on-secondary-container);
+}
+/* Bad: never do this */
+.callout { border-left: 3px solid var(--primary); background: var(--surface-container); }
+```
+
+## Page headers and hero structure
+
+A page header is not a wordmark thrown at the top. Build it on the M3 type scale with real hierarchy:
+
+- **Eyebrow** (optional): an M3 `label` (uppercase, tracked, `primary` color) that frames the context.
+- **Title**: M3 `display` or `headline`, tight letter-spacing, the single focal point of the view.
+- **Subtitle**: M3 `body`/supporting text in `on-surface-variant`, max ~48ch.
+- Put the brand mark and utility controls (theme toggle, etc.) in a top bar above the title, not
+  inline with it. Give the header generous top space and let it breathe.
+- A restrained tonal background wash (one or two soft radial tints from the seed) is allowed; avoid
+  gradient-on-everything.
+
+Map the type scale to classes once (`.t-display`, `.t-headline`, `.t-title`, `.t-label`) and reuse
+them; do not hand-size headings per page.
 
 ## Iconography: original, modern, never emoji
 
@@ -157,6 +205,10 @@ State which symbol + seed you chose and why (the context link).
 - Emojis anywhere (UI, icons, buttons, copy, empty states). Use MD3/modern icons instead.
 - Em-dashes (`—`) or en-dashes (`–`) anywhere (copy, headings, comments, commits, PRs, docs).
 - Stock/generic icons for brand or primary marks; mixing icon families.
+- Colored left-border accent bars (`border-left`) for info, help, callouts, or supporting surfaces.
+  Use an MD3 tonal container (see Info, help, and supporting surfaces).
+- Reveals or expanders that toggle `display:none` with no animation.
+- Page headers that are a bare wordmark with no eyebrow/title/subtitle hierarchy.
 - Hardcoded colors instead of tokens/roles.
 - A single theme (light-only or dark-only).
 - Hardcoded user-facing strings.
