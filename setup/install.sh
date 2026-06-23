@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# harness-kit installer (v4). Copies agents, runtime hooks/scripts,
-# root hooks/scripts, slash commands, AGENTS.md/CLAUDE.md, and writes
-# the wiring settings.json into a target repo. Reads VERSION at the
-# repo root and records it in the target.
+# harness-kit installer (v4). Copies shared agents and runtime assets,
+# Claude Code commands/hooks, Codex repo skills, AGENTS.md/CLAUDE.md,
+# and writes Claude Code settings into a target repo. Reads VERSION at
+# the repo root and records it in the target.
 #
 # Usage:
 #   bash /path/to/harness-kit/setup/install.sh [target-dir]
@@ -18,6 +18,11 @@ VERSION="$(cat "$SOURCE_ROOT/VERSION" 2>/dev/null || echo "0.0.0")"
 if [ ! -d "$SOURCE_ROOT/.claude/agents/product-manager" ]; then
   echo "missing agents at $SOURCE_ROOT/.claude/agents/"
   echo "clone the repo first, then re-run: git clone https://github.com/Pierry/harness-kit ~/.harness-kit"
+  exit 1
+fi
+
+if [ ! -d "$SOURCE_ROOT/codex/skills/hk-golden-path" ]; then
+  echo "missing Codex skills at $SOURCE_ROOT/codex/skills/"
   exit 1
 fi
 
@@ -98,6 +103,15 @@ for ns in product-manager sse pipeline context system-design; do
 done
 # Top-level commands (no namespace): /golden-path
 cp "$SOURCE_ROOT/.claude/commands/golden-path.md" "$TARGET/.claude/commands/golden-path.md"
+
+# 4.25) Codex repo skills. Remove only Harness Kit-owned entries so consumer skills survive.
+mkdir -p "$TARGET/.agents/skills"
+for skill in hk-golden-path hk-product-manager hk-sse hk-system-design hk-pipeline hk-context hk-install hk-update; do
+  rm -rf "$TARGET/.agents/skills/$skill"
+  cp -R "$SOURCE_ROOT/codex/skills/$skill" "$TARGET/.agents/skills/$skill"
+done
+rm -rf "$TARGET/.agents/skills/_shared"
+cp -R "$SOURCE_ROOT/codex/skills/_shared" "$TARGET/.agents/skills/_shared"
 
 # 4.5) Shared cross-agent guides
 mkdir -p "$TARGET/.claude/shared"
@@ -250,9 +264,15 @@ fi
 # Record installed version
 echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
-echo "done. restart Claude Code to load."
+echo "done."
 echo "  pre-authorized harness scripts (no mid-run prompts): marker, preflight, run-sensors"
 echo "  destructive ops (rm -rf, force push, hard reset) stay blocked and will prompt"
+echo ""
+echo "Codex: start a new thread, then use:"
+echo '  $hk-golden-path | $hk-product-manager | $hk-sse'
+echo '  $hk-system-design | $hk-pipeline | $hk-context'
+echo ""
+echo "Claude Code: restart, then use:"
 echo "  /golden-path            idea -> merged PR (the golden path)"
 echo "  /product-manager:prd | :prp | :run"
 echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"

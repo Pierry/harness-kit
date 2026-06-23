@@ -400,7 +400,15 @@ flowchart LR
   <!-- INSTALL -->
   <section class="block reveal" id="install">
     <div class="sec-head"><span class="n">02</span><h2 data-i18n="s02.title">Install</h2></div>
-    <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
+    <p class="sec-sub" data-i18n="s02.sub">The same marketplace shape works in Codex and Claude Code: add the catalog, install the plugin, then lay the harness into each repo once.</p>
+    <h3 style="font-family:var(--display);font-size:18px;margin:0 0 10px">Codex</h3>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">codex cli</span></div>
+<pre><span class="cmd">codex plugin marketplace add</span> Pierry/harness-kit
+<span class="cmd">codex plugin add</span> harness-kit@harness-kit</pre>
+    </div>
+    <p class="sec-sub" style="margin:0 0 28px" data-i18n="s02.codexAfter">Start a new thread in the target repo, select <code class="inline">@harness-kit</code>, and ask it to install.</p>
+    <h3 style="font-family:var(--display);font-size:18px;margin:0 0 10px">Claude Code</h3>
     <div class="code">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
 <pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
@@ -411,10 +419,10 @@ flowchart LR
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s02.bar">per repo, once</span></div>
 <pre><span class="cmd">/harness-kit:install</span></pre>
     </div>
-    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
+    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the shared runtime into <code class="inline">.claude/</code>, Codex workflows into <code class="inline">.agents/skills/</code>, and root instructions into <code class="inline">AGENTS.md</code>. Requires Codex or Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
     <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
       <span class="ic" style="color:var(--gold)">&#8635;</span>
-      <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
+      <p data-i18n="s02.note"><b>Updating.</b> Codex: <code class="inline">codex plugin marketplace upgrade harness-kit</code>, reinstall the plugin, then <code class="inline">$hk-update</code> per repo. Claude Code: update the plugin, restart, then run <code class="inline">/harness-kit:update</code> per repo.</p>
     </div>
   </section>
 
@@ -434,10 +442,11 @@ flowchart LR
         <span class="num"></span>
         <div>
           <h3 data-i18n="s03.s2h">Paste it</h3>
-          <p data-i18n="s03.s2p">Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code:</p>
+          <p data-i18n="s03.s2p">Hit <b>Copy brief</b> and run it with <code class="inline">$hk-golden-path</code> in Codex or <code class="inline">/golden-path</code> in Claude Code:</p>
           <div class="code" style="margin-top:14px">
-            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s03.bar">paste into claude code</span></div>
-<pre><span class="cmd">/golden-path</span>
+            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s03.bar">codex / claude code</span></div>
+<pre><span class="c"># Codex: $hk-golden-path</span>
+<span class="c"># Claude Code: /golden-path</span>
 
 <span class="key">Squad:</span> checkout
 <span class="key">Problem:</span> Returning guests abandon checkout when a card is declined once <span class="c">&#8230;</span>
@@ -672,17 +681,18 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.sub2": "O mesmo loop roda em toda etapa. O agente gera o artefato, um sensor checa a estrutura, um eval pontua a qualidade, e só então um humano aprova. Falhas se autocorrigem antes de chegar em você.",
       "s01.cap2": "guides orientam antes &middot; sensors dão feedback determinístico &middot; evals dão feedback inferencial &middot; humanos seguem no loop",
       "s02.title": "Instalação",
-      "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
+      "s02.sub": "O mesmo formato de marketplace funciona no Codex e no Claude Code: adicione o catálogo, instale o plugin e depois instale a harness uma vez em cada repo.",
+      "s02.codexAfter": "Inicie uma nova thread no repo alvo, selecione <code class=\"inline\">@harness-kit</code> e peça para instalar.",
       "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
       "s02.bar": "por repo, uma vez",
-      "s02.sub3": "Instala a harness completa nesse repo, agentes, comandos, skills, hooks e a status bar, em <code class=\"inline\">.claude/</code> mais <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code> na raiz. Requer Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Atualizando.</b> A versão do plugin é fixada, então um release só chega quando você puxa: <code class=\"inline\">/plugin update harness-kit</code> e depois <code class=\"inline\">/harness-kit:update</code> em cada repo. Novos usuários já pegam a última versão na instalação.",
+      "s02.sub3": "Instala o runtime compartilhado em <code class=\"inline\">.claude/</code>, os workflows Codex em <code class=\"inline\">.agents/skills/</code> e as instruções em <code class=\"inline\">AGENTS.md</code>. Requer Codex ou Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Atualizando.</b> Codex: <code class=\"inline\">codex plugin marketplace upgrade harness-kit</code>, reinstale o plugin e rode <code class=\"inline\">$hk-update</code> por repo. Claude Code: atualize o plugin, reinicie e rode <code class=\"inline\">/harness-kit:update</code> por repo.",
       "s03.title": "O golden path", "s03.sub": "Um comando, da ideia ao PR mergeado.",
       "s03.s1h": "Escreva o brief",
       "s03.s1p": "Abra o <a href=\"brief/\">construtor de brief</a> e preencha os campos, squad, problema, hipótese, clientes, métrica. A validação inline mantém você nas convenções de PRD enquanto digita.",
       "s03.s2h": "Cole",
-      "s03.s2p": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code:",
-      "s03.bar": "cole no claude code",
+      "s03.s2p": "Clique em <b>Copy brief</b> e rode com <code class=\"inline\">$hk-golden-path</code> no Codex ou <code class=\"inline\">/golden-path</code> no Claude Code:",
+      "s03.bar": "codex / claude code",
       "s03.s3h": "Aprove e entregue",
       "s03.s3p1": "As seis etapas com gate rodam, PM (<code class=\"inline\">prd &#8594; prp</code>) e depois Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprove cada artefato quando pedido; a status bar mostra onde você está.",
       "s03.s3p2": "As flags do SSE passam direto: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
@@ -743,11 +753,12 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.sub2": "El mismo loop corre en cada etapa. El agente genera el artefacto, un sensor revisa su estructura, un eval puntúa su calidad, y solo entonces un humano aprueba. Los fallos se autocorrigen antes de llegar a ti.",
       "s01.cap2": "guides orientan antes &middot; sensors dan feedback determinista &middot; evals dan feedback inferencial &middot; humanos siguen en el loop",
       "s02.title": "Instalación",
-      "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
+      "s02.sub": "El mismo formato de marketplace funciona en Codex y Claude Code: agrega el catálogo, instala el plugin y luego instala la harness una vez en cada repo.",
+      "s02.codexAfter": "Inicia un nuevo hilo en el repo objetivo, selecciona <code class=\"inline\">@harness-kit</code> y pide instalarlo.",
       "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
       "s02.bar": "por repo, una vez",
-      "s02.sub3": "Instala la harness completa en ese repo, agentes, comandos, skills, hooks y la status bar, en <code class=\"inline\">.claude/</code> más <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code> en la raíz. Requiere Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Actualizando.</b> La versión del plugin está fijada, así que un release no te llega hasta que lo traes: <code class=\"inline\">/plugin update harness-kit</code> y luego <code class=\"inline\">/harness-kit:update</code> en cada repo. Los usuarios nuevos obtienen la última versión al instalar.",
+      "s02.sub3": "Instala el runtime compartido en <code class=\"inline\">.claude/</code>, los workflows Codex en <code class=\"inline\">.agents/skills/</code> y las instrucciones en <code class=\"inline\">AGENTS.md</code>. Requiere Codex o Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Actualizando.</b> Codex: <code class=\"inline\">codex plugin marketplace upgrade harness-kit</code>, reinstala el plugin y ejecuta <code class=\"inline\">$hk-update</code> por repo. Claude Code: actualiza el plugin, reinicia y ejecuta <code class=\"inline\">/harness-kit:update</code> por repo.",
       "s03.title": "El golden path", "s03.sub": "Un comando, de la idea al PR fusionado.",
       "s03.s1h": "Escribe el brief",
       "s03.s1p": "Abre el <a href=\"brief/\">constructor de brief</a> y llena los campos, squad, problema, hipótesis, clientes, métrica. La validación inline te mantiene en las convenciones de PRD mientras escribes.",

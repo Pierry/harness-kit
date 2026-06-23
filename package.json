@@ -1,7 +1,7 @@
 {
   "name": "@pieerry/harness-kit",
-  "version": "4.6.0",
-  "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
+  "version": "4.7.0",
+  "description": "Codex and Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
   "author": "Space Metrics AI",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,8 @@
   "keywords": [
     "claude-code",
     "claude",
+    "codex",
+    "openai-codex",
     "ai",
     "harness",
     "agent",
@@ -33,6 +35,9 @@
     "setup",
     ".claude",
     ".claude-plugin",
+    ".agents",
+    ".codex-plugin",
+    "codex",
     "skills",
     "context-library",
     "VERSION",

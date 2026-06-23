@@ -13,6 +13,8 @@ Portable across tools (Claude Code, Cursor, Codex CLI, Gemini CLI, and others): 
 ```
 AGENTS.md                          ← this file: registry + routing
 CLAUDE.md                          ← project context (style, role, conventions)
+.agents/skills/                    ← Codex entry skills installed in consumer repos
+codex/skills/                      ← source for Codex plugin + repo skills
 .claude/
 ├── agents/                        ← per-agent definitions + bundled assets
 │   ├── product-manager/
@@ -181,17 +183,20 @@ The installer pre-authorizes these in `settings.json` `permissions.allow` (both 
 
 ## Distribution
 
-This repo is **harness-kit**, the source-of-truth template. Three install paths, all landing the same `.claude/` tree:
+This repo is **harness-kit**, the source-of-truth template. Install paths land the shared runtime in
+`.claude/` and Codex entry points in `.agents/skills/`:
 
 | Path | Command | Notes |
 |---|---|---|
 | Claude Code marketplace | `/plugin marketplace add Pierry/harness-kit` → `/plugin install harness-kit@harness-kit` → `/harness-kit:install` | Plugin is a **bootstrap**: it ships the full harness and the `/harness-kit:install` skill runs `setup/install.sh` into the project. See `.claude-plugin/`. |
+| Codex marketplace | `codex plugin marketplace add Pierry/harness-kit` → `codex plugin add harness-kit@harness-kit` → new thread → `@harness-kit` install | `.agents/plugins/marketplace.json` catalogs the root Codex plugin; its bootstrap lays repo-scoped workflows into `.agents/skills/`. |
 | npm | `npx @pieerry/harness-kit` (or `hk install`) | `bin/hk.js` wraps `setup/install.sh`. |
 | git clone | `git clone … && bash setup/install.sh <target>` | Direct. |
 
 `setup/install.sh` copies:
 
 - `AGENTS.md` and `CLAUDE.md` to the target root
+- `codex/skills/` adapters to target `.agents/skills/`
 - `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/scripts/`, `.claude/conventions/` to the target `.claude/`
 - `.claude/runtime/hooks/`, `.claude/runtime/scripts/` to the target (definition-side only; `outputs/`, `state/`, `.markers/` are runtime, not distributed)
 - `.claude/settings.json` `hooks` block, merged with the consumer's existing settings
@@ -207,16 +212,20 @@ The harness targets Claude Code, but its assets are layered so other AI coding t
 | Tool | Reads | Gets | Does NOT get |
 |---|---|---|---|
 | **Claude Code** | everything | agents, slash commands, skills, hooks, status bar, sensors/evals |, (full feature set) |
-| **Codex CLI** | `AGENTS.md` (+ nested) | the agent registry, routing table, pipeline spec as standing instructions | slash commands, hooks, status bar (Claude-Code-specific) |
+| **Codex CLI / app / IDE** | `AGENTS.md` + `.agents/skills/` | explicit `$hk-*` workflows, implicit skill routing, shared agents/guides/sensors/evals, persisted pipeline state | Claude status bar and Claude-specific permission wiring |
 | **Gemini CLI** | `AGENTS.md`; optional Gemini *extensions* | same standing instructions; can wrap commands as extensions | Claude Code hooks/slash commands |
 | **Cursor / Windsurf / others** | `AGENTS.md` | registry + routing as project rules | hooks, slash commands |
 
 **What's portable vs Claude-Code-only:**
 
 - **Portable** (plain markdown, any tool reads): `AGENTS.md`, `CLAUDE.md`, every `guides/`, `sensors/`, `evals/`, and `skills/SKILL.md` body. These are instructions, not executables.
+- **Codex-native**: `codex/skills/*` in the package/plugin and `.agents/skills/hk-*` after project install. These translate command routing and tool names while reusing the canonical workflow specs.
 - **Claude-Code-only**: `.claude/commands/*` (slash commands), `.claude/hooks/*` + `.claude/settings.json` `hooks` (lifecycle automation, status bar), the `Skill`/`Task` tool dispatch. Other tools ignore these silently.
 
-**Guidance for non-Claude tools:** point the tool at `AGENTS.md` as the entry rule. The registry + routing + pipeline-stages sections are written to be executed by any capable agent reading them as instructions, it follows the same `prd → prp → plan → dev → test → pr` flow manually, reading the same `guides/` and writing the same artifacts, just without the slash-command shortcuts and gate automation.
+**Guidance for Codex:** invoke `$hk-golden-path`, `$hk-product-manager`, `$hk-sse`,
+`$hk-system-design`, `$hk-pipeline`, or `$hk-context`. Natural-language requests can also trigger
+these skills from their descriptions. The adapters execute the same command specifications and
+write the same artifacts, so a pipeline can move between Codex and Claude Code.
 
 There is no central registry that indexes one tool into all ecosystems. `AGENTS.md` is the de-facto cross-tool standard and is read directly from the repo on clone, no submission step exists or is needed.
 

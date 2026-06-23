@@ -16,7 +16,14 @@ An approval marker (`<!-- approved: -->`) gates the next stage. Token spend per 
 an inline `<!-- tokens: ... -->` comment. See [Commands & gates](COMMANDS.md) for the sensor and eval
 list per stage.
 
-## Status bar
+## Runtime surfaces
+
+Codex discovers the installed entry skills from `.agents/skills/` and executes the canonical
+workflow specifications under `.claude/commands/`. Claude Code exposes those specifications as
+slash commands and adds lifecycle hooks plus a status bar. Both runtimes share artifacts and state
+under `.claude/runtime/`, so interrupted work remains portable between them.
+
+### Claude Code status bar
 
 A live indicator at the bottom of every Claude Code session:
 
@@ -69,12 +76,13 @@ permissions back from the `.bak` file.
 
 ## Layout
 
-What `/harness-kit:install` lays down in your repo:
+What `hk install`, `$hk-install`, or `/harness-kit:install` lays down in your repo:
 
 ```
 {your-repo}/
 ├── AGENTS.md                    agent registry + routing
 ├── CLAUDE.md                    workspace style + role
+├── .agents/skills/              Codex-native hk-* workflow entry points
 └── .claude/
     ├── agents/                  agent definitions (sensors, evals, guides, skills)
     ├── commands/                slash command entry points (pm, sse, context, pipeline)
@@ -92,11 +100,18 @@ What `/harness-kit:install` lays down in your repo:
 
 Full path-by-path map in [`AGENTS.md`](../AGENTS.md).
 
+### Marketplace packaging
+
+- Claude Code reads `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json`.
+- Codex reads `.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`.
+- Both catalogs point at this repository root as a bootstrap plugin, so the installer and shared
+  workflow assets ship together without duplicated copies.
+
 ## Tooling
 
 | Tool | Why | Required |
 |------|-----|----------|
-| [Claude Code](https://claude.ai/code) | agent runtime | yes |
+| [OpenAI Codex](https://developers.openai.com/codex/) or [Claude Code](https://claude.ai/code) | agent runtime | yes |
 | `python3` | sensors, token accounting, pipeline state | yes |
 | `git` | branch + commit ops | yes |
 | [gh CLI](https://cli.github.com/) | opens PR, polls for merge | for `/sse:pr` |

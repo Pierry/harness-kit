@@ -2,6 +2,17 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [4.7.0]
+
+### Added
+- **First-class Codex support.** Added a Codex plugin manifest, cross-runtime install/update bootstrap skills, and repo-scoped `$hk-*` skills for the golden path, product, engineering, system design, pipeline state, and context tools.
+- **Codex marketplace distribution.** `.agents/plugins/marketplace.json` enables the same self-hosted two-command install shape as Claude Code: `codex plugin marketplace add Pierry/harness-kit` then `codex plugin add harness-kit@harness-kit`.
+- The installer now lays Codex skills into `.agents/skills/` while preserving the existing Claude Code commands, hooks, settings, and shared `.claude/runtime/` state.
+
+### Changed
+- The npm CLI, package metadata, architecture docs, command reference, and README now document and report both Codex and Claude Code workflows.
+- Version bumped to 4.7.0 across VERSION, both plugin manifests, package.json, and the README badge.
+
 ## [4.6.0]
 
 ### Changed

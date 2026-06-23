@@ -2,6 +2,17 @@
 
 Every command in the harness, and the sensors and evals that gate each stage.
 
+Codex uses repo skills while Claude Code uses slash commands. Both execute the same command specs:
+
+| Domain | Codex | Claude Code |
+|---|---|---|
+| Golden path | `$hk-golden-path` | `/golden-path` |
+| Product | `$hk-product-manager [prd|prp|run]` | `/product-manager:{prd,prp,run}` |
+| Engineering | `$hk-sse [plan|dev|test|pr|run|sdd]` | `/sse:{plan,dev,test,pr,run,sdd}` |
+| System design | `$hk-system-design [design|review|run]` | `/system-design:{design,review,run}` |
+| Pipeline state | `$hk-pipeline [continue|reset]` | `/pipeline:{continue,reset}` |
+| Context | `$hk-context [pack|graph]` | `/context:{pack,graph}` |
+
 ## Pipeline commands
 
 ```

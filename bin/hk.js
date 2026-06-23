@@ -24,6 +24,17 @@ function targetVersion(target) {
   }
 }
 
+const CODEX_SKILLS = [
+  'hk-golden-path',
+  'hk-product-manager',
+  'hk-sse',
+  'hk-system-design',
+  'hk-pipeline',
+  'hk-context',
+  'hk-install',
+  'hk-update',
+];
+
 function resolveTarget(arg) {
   return path.resolve(arg || process.cwd());
 }
@@ -59,6 +70,8 @@ function cmdUninstall(target) {
   }
   const toRemove = [
     'AGENTS.md',
+    ...CODEX_SKILLS.map((skill) => `.agents/skills/${skill}`),
+    '.agents/skills/_shared',
     '.claude/agents/product-manager',
     '.claude/agents/staff-software-engineer',
     '.claude/agents/product-manager.md',
@@ -97,7 +110,7 @@ function cmdUninstall(target) {
     }
   }
   console.log(`uninstalled harness-kit v${v} from ${target}`);
-  console.log(`note: CLAUDE.md, .claude/conventions/, .claude/runtime/outputs/, and .claude/.legacy-v3-backup/ kept. delete manually if desired.`);
+  console.log(`note: CLAUDE.md, non-Harness-Kit .agents/skills/, .claude/conventions/, .claude/runtime/outputs/, and .claude/.legacy-v3-backup/ kept. delete manually if desired.`);
 }
 
 function cmdStatus(target) {
@@ -115,6 +128,10 @@ function cmdStatus(target) {
     const r = spawnSync('bash', [statusLine], { cwd: target, encoding: 'utf8' });
     if (r.stdout) console.log(`pipeline:  ${r.stdout.trim()}`);
   }
+  const codexSkills = CODEX_SKILLS.filter((skill) =>
+    fs.existsSync(path.join(target, '.agents', 'skills', skill, 'SKILL.md')),
+  );
+  console.log(`codex:     ${codexSkills.length}/${CODEX_SKILLS.length} skills installed`);
 }
 
 function cmdVersion() {
@@ -132,7 +149,11 @@ usage:
   hk version              source version
   hk help                 this message
 
-after install, restart Claude Code and use:
+after install, start a new Codex thread and use:
+  $hk-golden-path | $hk-product-manager | $hk-sse
+  $hk-system-design | $hk-pipeline | $hk-context
+
+or restart Claude Code and use:
   /product-manager:prd | :prp | :run
   /sse:plan | :dev | :test | :pr | :pr-monitor | :run
   /pipeline:continue | :reset`);

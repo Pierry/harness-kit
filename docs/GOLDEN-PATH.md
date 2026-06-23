@@ -1,5 +1,8 @@
 # Golden Path
 
+Invoke with `$hk-golden-path` in Codex or `/golden-path` in Claude Code. Both runtimes execute the
+same command specification, gates, and persisted pipeline state described below.
+
 Caveman-full. Internal doc.
 
 ## What golden path is

@@ -1,10 +1,24 @@
 ---
 name: update
-description: Re-install / upgrade harness-kit in the current project to the version bundled in the installed plugin. Run after /plugin update harness-kit fetches a newer plugin version.
-user_invocable: true
+description: Re-install or upgrade Harness Kit in the current project for Codex or Claude Code using the version bundled in the active plugin source.
 ---
 
-Upgrade harness-kit in user's project to version bundled in the installed plugin.
+Upgrade harness-kit in the user's project to the version bundled in the installed plugin.
+
+## Codex
+
+Resolve the plugin root by walking up from this `SKILL.md` to the directory containing
+`setup/update.sh`, then run it against the current repository root:
+
+```bash
+bash <plugin-root>/setup/update.sh <target-repository-root>
+```
+
+If no plugin source root is available, use
+`npx @pieerry/harness-kit@latest update <target-repository-root>` after approval for network access.
+Start a new Codex thread afterward.
+
+## Claude Code
 
 Plugin cache has no git remote, so newest source comes from the **plugin** itself. Order matters, the restart is not optional:
 
@@ -14,7 +28,7 @@ Plugin cache has no git remote, so newest source comes from the **plugin** itsel
 
 Skip step 2 and this skill runs the OLD loaded `update.sh`, which re-lays the old version. `update.sh` now detects a newer-but-unloaded version sitting in the cache and stops with a restart reminder instead of downgrading.
 
-## Run
+### Run
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/setup/update.sh" "${CLAUDE_PROJECT_DIR}"

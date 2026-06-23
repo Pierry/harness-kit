@@ -1,0 +1,37 @@
+{
+  "name": "harness-kit",
+  "version": "4.7.0",
+  "description": "Gated product and engineering delivery workflows for Codex and Claude Code.",
+  "author": {
+    "name": "Space Metrics AI",
+    "email": "pieerry@gmail.com",
+    "url": "https://github.com/Pierry"
+  },
+  "homepage": "https://github.com/Pierry/harness-kit",
+  "repository": "https://github.com/Pierry/harness-kit",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "harness",
+    "prd",
+    "engineering",
+    "pipeline"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Harness Kit",
+    "shortDescription": "Idea to merged PR through gated workflows",
+    "longDescription": "Product, system-design, and engineering workflows with deterministic sensors, scored evals, and human approval gates.",
+    "developerName": "Space Metrics AI",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "websiteURL": "https://github.com/Pierry/harness-kit",
+    "defaultPrompt": [
+      "Install Harness Kit in this repository.",
+      "Draft a gated PRD and PRP for this feature.",
+      "Run the engineering pipeline from plan through tests."
+    ],
+    "brandColor": "#8B5CF6"
+  }
+}

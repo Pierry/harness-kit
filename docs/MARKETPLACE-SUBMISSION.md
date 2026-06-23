@@ -1,26 +1,53 @@
 # Marketplace distribution + submission
 
-How harness-kit is distributed as a Claude Code plugin, and how to submit it to Anthropic's official directory.
+How harness-kit is distributed through the Codex and Claude Code marketplaces, plus the optional
+Anthropic directory submission.
 
 ## What ships
 
-This repo doubles as its own **self-hosted marketplace** and a single **bootstrap plugin**:
+This repo doubles as its own **self-hosted marketplace** for both runtimes and a single bootstrap
+plugin implementation:
 
-- `.claude-plugin/marketplace.json`, catalog (`name: harness-kit`, one plugin entry, `source: "./"`).
-- `.claude-plugin/plugin.json`, plugin manifest (`name: harness-kit`, `version: 4.1.0`).
-- `skills/install/SKILL.md`, `/harness-kit:install` → runs `setup/install.sh` into the user's project.
-- `skills/update/SKILL.md`, `/harness-kit:update` → re-lays the harness.
+- `.agents/plugins/marketplace.json`, Codex catalog (`harness-kit@harness-kit`, source `./`).
+- `.codex-plugin/plugin.json`, Codex plugin manifest.
+- `.claude-plugin/marketplace.json`, Claude Code catalog (source `./`).
+- `.claude-plugin/plugin.json`, Claude Code plugin manifest.
+- `skills/install/SKILL.md`, cross-runtime bootstrap that runs `setup/install.sh`.
+- `skills/update/SKILL.md`, cross-runtime updater that re-lays the harness.
 
 The plugin is a **bootstrap**, not a native-component plugin: it ships the full harness and installs it into the project, because the agents/commands/guides cross-reference each other by `.claude/`-relative paths that only resolve when copied into a project (not from the plugin cache). This gives full feature parity including hooks and the status bar. See `AGENTS.md` → Distribution.
 
 Validate before publishing:
 
 ```bash
+TEST_CODEX_HOME=$(mktemp -d)
+CODEX_HOME="$TEST_CODEX_HOME" codex plugin marketplace add . --json
+CODEX_HOME="$TEST_CODEX_HOME" codex plugin add harness-kit@harness-kit --json
 claude plugin validate .            # passes
 claude plugin validate . --strict   # passes (CI gate)
 ```
 
-## Self-hosted install (live today, no approval needed)
+## Self-hosted Codex install
+
+```bash
+codex plugin marketplace add Pierry/harness-kit
+codex plugin add harness-kit@harness-kit
+```
+
+Start a new thread in the target repo, select `@harness-kit`, and ask it to install. The bootstrap
+copies the repo-scoped `$hk-*` skills and shared runtime into the project. The marketplace command
+reads `.agents/plugins/marketplace.json` from the default branch.
+
+Update with:
+
+```bash
+codex plugin marketplace upgrade harness-kit
+codex plugin add harness-kit@harness-kit
+```
+
+Then start a new thread and run `$hk-update` once per installed repo.
+
+## Self-hosted Claude Code install
 
 ```
 /plugin marketplace add Pierry/harness-kit
@@ -75,6 +102,9 @@ Faster, unofficial discovery while the official review is pending:
 
 These index a public marketplace repo; no code change needed beyond keeping `.claude-plugin/marketplace.json` valid on the default branch.
 
-## Not a thing: a single cross-AI index
+## Two catalogs, one repository
 
-There is no registry that lists one tool into OpenAI + Gemini + Claude at once. Cross-tool reach comes from `AGENTS.md` (read by Codex CLI, Gemini CLI, Cursor on clone): a convention, not a submission target. See `AGENTS.md` → Cross-tool compatibility.
+Codex and Claude Code use separate marketplace manifests, but both catalogs point to the same
+repository root and bootstrap installer. `AGENTS.md` remains the portable fallback for Gemini CLI,
+Cursor, and other tools that do not consume either plugin format. See `AGENTS.md` → Cross-tool
+compatibility.

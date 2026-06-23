@@ -5,10 +5,11 @@
 **Idea to merged PR, through one gated pipeline.**
 
 
-Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
+Codex and Claude Code workflows, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.6.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-4.7.0-blue.svg)](VERSION)
+[![Codex](https://img.shields.io/badge/OpenAI-Codex-10a37f.svg)](https://developers.openai.com/codex/)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -70,8 +71,32 @@ the guides and gates rather than hand-fixing each output. See [Foundations](#fou
 
 ## Install
 
-Two layers: the **plugin** (fetched once from the marketplace) and the **harness** (laid into each
-repo you want it in).
+The npm installer is the universal path. It lays the shared runtime into `.claude/`, Codex skills
+into `.agents/skills/`, and `AGENTS.md` at the repo root:
+
+```bash
+cd your-repo
+npx @pieerry/harness-kit install
+```
+
+Start a new Codex thread, then invoke a workflow explicitly (`$hk-golden-path`,
+`$hk-product-manager`, `$hk-sse`) or describe the task naturally and let skill routing select it.
+
+### Codex marketplace
+
+Add the marketplace and install the plugin, the same two-step shape as Claude Code:
+
+```bash
+codex plugin marketplace add Pierry/harness-kit
+codex plugin add harness-kit@harness-kit
+```
+
+Start a new Codex thread inside the target repo, select `@harness-kit`, and ask it to install. The
+bootstrap lays down the complete repo-scoped `hk-*` workflow set. Run this last step once per repo.
+
+### Claude Code plugin
+
+For Claude Code, add the marketplace plugin:
 
 ```
 /plugin marketplace add Pierry/harness-kit
@@ -84,18 +109,33 @@ Restart Claude Code, then inside the repo you want to use it in:
 /harness-kit:install
 ```
 
-`/harness-kit:install` lays the full harness into that repo, agents, commands, skills, hooks, and the
-status bar, under `.claude/` plus `AGENTS.md`/`CLAUDE.md` at the root. Run it once per repo.
+`/harness-kit:install` lays the full harness into that repo. Run it once per repo.
 
-Requires Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/) (for PRs).
+Requires Codex or Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/) (for PRs).
 [Full tooling →](docs/ARCHITECTURE.md#tooling)
 
 ---
 
 ## Update
 
-The plugin version is pinned in the marketplace, so a new release does **not** reach you until you
-pull it. **Three** steps are required, in order, the middle one matters:
+Universal/npm installs update with:
+
+```bash
+npx @pieerry/harness-kit@latest update
+```
+
+For Codex marketplace installs, update the marketplace and plugin with:
+
+```bash
+codex plugin marketplace upgrade harness-kit
+codex plugin add harness-kit@harness-kit
+```
+
+Start a new Codex thread and run `$hk-update` in each installed repo so changed skills and
+`AGENTS.md` are re-laid and reloaded.
+
+For Claude Code marketplace installs, the plugin version is pinned, so a new release does **not**
+reach you until you pull it. **Three** steps are required, in order, the middle one matters:
 
 ```
 /plugin update harness-kit     # step 1: fetch the newer plugin into the cache
@@ -138,10 +178,11 @@ One command, idea to merged PR.
 and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to
 the PRD conventions as you type.
 
-**2. Paste it.** Hit **Copy brief** and paste the ready-made `/golden-path` kick into Claude Code:
+**2. Paste it.** Hit **Copy brief** and run it with `$hk-golden-path` in Codex or `/golden-path` in
+Claude Code:
 
 ```
-/golden-path
+$hk-golden-path
 
 Squad: checkout
 Problem: Returning guests abandon checkout when a card is declined once …
@@ -150,10 +191,11 @@ Success metric: checkout completion, from 71% to 76% within 30 days
 ```
 
 **3. Approve and ship.** All six gated stages run, PM (`prd → prp`) then Eng (`plan → dev → test → pr`).
-Approve each artifact when prompted; the status bar tracks where you are. SSE flags pass straight
-through: `/golden-path --local`, `--sdd`, `--no-monitor`.
+Approve each artifact when prompted; persisted pipeline state tracks where you are (Claude Code also
+shows it in the status bar). SSE flags pass straight through in both runtimes: `--local`, `--sdd`,
+`--no-monitor`.
 
-Already know the idea cold? Skip the builder and type `/golden-path` with the brief yourself.
+Already know the idea cold? Skip the builder and invoke the golden path with the brief yourself.
 [Golden path reference →](docs/GOLDEN-PATH.md)
 
 ---
@@ -162,13 +204,13 @@ Already know the idea cold? Skip the builder and type `/golden-path` with the br
 
 Every flow shares the same pipeline state, so you can switch between them mid-feature.
 
-| You want | Run | Stages |
-|---|---|---|
-| Spec only, align before any code | `/product-manager:run` | `prd → prp` |
-| Small change, plan in your head | `/sse:run` | `plan → dev → test → pr` |
-| Local only, no PR | `/sse:run --local` | `plan → dev → test` |
-| Loop until the spec passes | `/sse:sdd` | `plan → [dev↔test↔eval] ×3` |
-| Resume after a break | `/pipeline:continue` | next pending stage |
+| You want | Codex | Claude Code | Stages |
+|---|---|---|---|
+| Spec only, align before code | `$hk-product-manager` | `/product-manager:run` | `prd → prp` |
+| Engineering delivery | `$hk-sse run` | `/sse:run` | `plan → dev → test → pr` |
+| Local only, no PR | `$hk-sse run --local` | `/sse:run --local` | `plan → dev → test` |
+| Loop until the spec passes | `$hk-sse sdd` | `/sse:sdd` | `plan → [dev↔test↔eval] ×3` |
+| Resume after a break | `$hk-pipeline continue` | `/pipeline:continue` | next pending stage |
 
 `/sse:sdd` treats the PRP as the spec: an independent supervisor session re-checks the repo against
 the PRP's `Success criteria` + `Validation gates` after every dev↔test iteration, and never opens a
@@ -274,10 +316,12 @@ the system-architect agent reasons from the established engineering canon.
 
 ## Contributing
 
-Issues and PRs welcome. The harness is plain markdown, Python, and shell, agents under
-`.claude/agents/`, commands under `.claude/commands/`, hooks wired in `.claude/settings.json`.
+Issues and PRs welcome. The harness is plain markdown, Python, and shell, Codex skills under
+`codex/skills/`, agents under `.claude/agents/`, commands under `.claude/commands/`, and Claude hooks
+wired in `.claude/settings.json`.
 See [`AGENTS.md`](./AGENTS.md) for where everything lives.
 
 ---
 
-MIT. Built on [Claude Code](https://claude.ai/code). Works in any repo Claude Code touches.
+MIT. Built for [OpenAI Codex](https://developers.openai.com/codex/) and
+[Claude Code](https://claude.ai/code).
