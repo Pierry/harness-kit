@@ -9,6 +9,32 @@ landing). Layers on top of the area skill (web/mobile), does not replace it. Pro
 `{repo}/.claude/conventions/web.md` wins. Match existing design system if repo already has one; only
 green-field gets these defaults.
 
+## READ FIRST: Material Design 3 is non-negotiable
+
+Every visual surface this skill touches **must** be Material Design 3. Not "M3-inspired", not "close
+enough". M3 is the system: token-driven color roles, the shape scale, tonal elevation, state layers,
+and motion. If you are about to write a color, a border, a radius, or a callout, it comes from M3,
+not from instinct or a CMS habit. This rule has been broken before; do not break it again.
+
+**Before you ship any surface, self-check against these top offenders. Each one is a hard rule with
+its own section below; this is the unmissable summary, not the exception list.**
+
+- **No colored left-border accent bars.** A `border-left: 3px/4px solid var(--primary)` on a card,
+  hint, callout, banner, or "supporting" box is forbidden. It collides with the shape-scale radius
+  and leaves a colored sliver in the rounded corner (the classic "corzinha no canto"). Color the
+  **surface** with a tonal container (`secondary-container` / `surface-container-high`), never one
+  edge. See "Info, help, and supporting surfaces".
+- **Tonal containers, not ad-hoc borders, carry meaning.** Reach for a `*-container` role + its
+  `on-*` text + a real shape radius + an MD3 `info` icon. A stripe is not a design system.
+- **Tokens only, never raw hex** in component CSS. Define roles once for light and dark.
+- **No emoji, ever.** Use Material Symbols or a single modern open set. Draw brand marks original.
+- **No em-dashes or en-dashes** anywhere: copy, headings, comments, commits, PRs, docs, all locales.
+- **Both themes, always.** Light and dark, system-preference first, choice persisted.
+
+When in doubt, open the matching section below and follow it literally. The detailed rules win over
+any quick instinct, and the "Forbidden" list at the end is exhaustive. Treat a violation of any of
+these as a build blocker, the same as a failing test.
+
 ## Design language: Material Design 3
 
 Use M3 as the system, not the look. Token-driven, not hardcoded.
