@@ -117,6 +117,16 @@ function cmdStatus(target) {
   }
 }
 
+function cmdCockpit(extra) {
+  const bundle = path.join(PKG_ROOT, 'tui', 'dist', 'cockpit.cjs');
+  if (!fs.existsSync(bundle)) {
+    console.error('cockpit bundle missing. Build it with: npm run build:cockpit');
+    process.exit(1);
+  }
+  const r = spawnSync(process.execPath, [bundle, ...extra], { stdio: 'inherit' });
+  process.exit(r.status ?? 0);
+}
+
 function cmdVersion() {
   console.log(pkgVersion());
 }
@@ -129,6 +139,7 @@ usage:
   hk update  [target]     pull latest source and reinstall (auto-backs up v3.x plugins/)
   hk uninstall [target]   remove installed harness from target
   hk status  [target]     show installed version + active pipeline stage
+  hk cockpit [target]     open the terminal cockpit: live pipeline, run stages, approve gates
   hk version              source version
   hk help                 this message
 
@@ -146,6 +157,8 @@ function main() {
     case 'update':    return cmdUpdate(target);
     case 'uninstall': return cmdUninstall(target);
     case 'status':    return cmdStatus(target);
+    case 'cockpit':
+    case 'tui':       return cmdCockpit(process.argv.slice(3));
     case 'version':
     case '--version':
     case '-v':        return cmdVersion();

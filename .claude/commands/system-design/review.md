@@ -2,10 +2,11 @@
 description: Adversarial staff-level review of a System Design Doc. Interrogates the 10 staff questions, finds cost and failure risks, returns a verdict. Sensors and evals gate.
 ---
 
-Review a System Design Doc. Follow .claude/agents/system-architect/guides/pipeline.md.
+Review a System Design Doc. Follow .claude/agents/system-architect/guides/pipeline.md, and .claude/shared/pipeline-pattern.md for inputs (resolve-mark-proceed) and eval (adversarial).
 
-Ask once if missing: path to the design doc (default: latest under
-`.claude/runtime/outputs/architect/design/`). Reviews own or external designs.
+Resolve the design-doc path, do not ask (resolve-mark-proceed): use the path the user passes; if none
+is given, default to the latest under `.claude/runtime/outputs/architect/design/`. Reviews own or
+external designs. Never stop to ask for it.
 
 Read:
 - the target design doc
@@ -21,6 +22,8 @@ Save to .claude/runtime/outputs/architect/review/{feature_id}.md (reuse design f
 
 Sensors: .claude/agents/system-architect/sensors/design-structure.md (review variant).
 Evals: .claude/agents/system-architect/evals/design-review-depth.md.
+
+Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this review. Hand it only the artifact path and the one rubric path; it scores against the rubric and reports the weighted total plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
 After save, reply with this exact shape:
 

@@ -317,6 +317,7 @@
     <a class="hide-sm" href="#install" data-i18n="nav.install">install</a>
     <a class="hide-sm" href="#golden-path">golden path</a>
     <a class="hide-sm" href="#commands" data-i18n="nav.commands">commands</a>
+    <a class="hide-sm" href="#cockpit">cockpit</a>
     <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
     <span class="controls">
       <span class="langsw" role="group" aria-label="Language">
@@ -465,6 +466,7 @@ flowchart LR
       <table>
         <thead><tr><th data-i18n="s04.th1">You want</th><th data-i18n="s04.th2">Run</th><th data-i18n="s04.th3">Stages</th></tr></thead>
         <tbody>
+          <tr><td data-i18n="s04.r0">Hands-off, idea to PR, two gates</td><td>/pipeline:run "&lt;idea&gt;"</td><td>intake &#8594; prd &#8594; &#8230; &#8594; pr</td></tr>
           <tr><td data-i18n="s04.r1">Idea to merged PR</td><td>/golden-path</td><td>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</td></tr>
           <tr><td data-i18n="s04.r2">Spec only, align before any code</td><td>/product-manager:run</td><td>prd &#8594; prp</td></tr>
           <tr><td data-i18n="s04.r3">Small change, plan in your head</td><td>/sse:run</td><td>plan &#8594; dev &#8594; test &#8594; pr</td></tr>
@@ -480,9 +482,27 @@ flowchart LR
     </div>
   </section>
 
+  <!-- COCKPIT -->
+  <section class="block reveal" id="cockpit">
+    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
+    <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Minimal questions, humans on the loop at two gates.</p>
+    <p data-i18n="s0c.p1">v5 puts a first <code class="inline">intake</code> stage in front of the pipeline: it harvests the inputs the harness used to ask for, squad, problem, customers, repos, from the target repo and your <code class="inline">context-library/</code>, marks anything genuinely unknown as <code class="inline">NEEDS REVIEW</code>, and keeps going. You approve at two gates instead of answering before every artifact: the direction after the PRD, and the PR before it opens. Run it hands-off with <code class="inline">/pipeline:run "&lt;idea&gt;"</code>.</p>
+    <p data-i18n="s0c.p2">The cockpit is the surface for it. Every stage live, each artifact rendered, a stage run on a keypress, and the two gates as modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
+    <div class="code" style="margin-top:14px">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.bar">terminal</span></div>
+<pre><span class="cmd">hk cockpit</span>                 <span class="c"># in an installed repo</span>
+<span class="cmd">hk cockpit</span> path/to/repo    <span class="c"># or point it at one</span>
+<span class="cmd">hk cockpit</span> -- <span class="key">"add one-tap retry to checkout"</span>   <span class="c"># seed intake</span></pre>
+    </div>
+    <div class="note">
+      <span class="ic">&#9670;</span>
+      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy">Autonomy</a> and <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents">Orchestration &amp; Subagents</a>.</p>
+    </div>
+  </section>
+
   <!-- CONTEXT OPTIMIZATION -->
   <section class="block reveal" id="context">
-    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s05.title">Context optimization</h2></div>
+    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s05.title">Context optimization</h2></div>
     <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
     <div class="tablewrap">
       <table>
@@ -514,7 +534,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- AGENTS -->
   <section class="block reveal" id="agents">
-    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s06.title">The agents</h2></div>
+    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s06.title">The agents</h2></div>
     <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
       <div class="card glowable"><span class="glow"></span>
@@ -541,7 +561,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- FOUNDATIONS -->
   <section class="block reveal" id="foundations">
-    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s07.title">Foundations</h2></div>
+    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s07.title">Foundations</h2></div>
     <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
       <div class="ref glowable"><span class="glow"></span>
@@ -577,7 +597,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- DOCS -->
   <section class="block reveal" id="docs">
-    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s08.title">Docs</h2></div>
+    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s08.title">Docs</h2></div>
     <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>

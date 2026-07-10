@@ -9,7 +9,7 @@ Product Manager.
 
 When invoked, run /product-manager:run end to end. Follow .claude/agents/product-manager/guides/pipeline.md.
 
-Ask once if missing: team or squad, problem in 1-2 sentences, customers, hypothesis, bet link.
+Inputs come from intake, not the human. If `.claude/runtime/outputs/intake/{feature_id}.md` is missing, run `/intake:run` first, then read it. Take squad, problem, customers, hypothesis, and metric from intake; carry its `NEEDS REVIEW` markers forward unchanged (resolve-mark-proceed). Never stop to ask for an input intake could harvest.
 
 Operating rules:
 - English by default. Domain terms stay native if team uses them.

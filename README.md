@@ -8,7 +8,7 @@
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
-[![Version](https://img.shields.io/badge/version-4.6.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-5.0.0-blue.svg)](VERSION)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
 [![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
@@ -164,7 +164,8 @@ Every flow shares the same pipeline state, so you can switch between them mid-fe
 
 | You want | Run | Stages |
 |---|---|---|
-| Spec only, align before any code | `/product-manager:run` | `prd → prp` |
+| Hands-off, idea to PR, two gates | `/pipeline:run "<idea>"` | `intake → prd → … → pr` |
+| Spec only, align before any code | `/product-manager:run` | `intake → prd → prp` |
 | Small change, plan in your head | `/sse:run` | `plan → dev → test → pr` |
 | Local only, no PR | `/sse:run --local` | `plan → dev → test` |
 | Loop until the spec passes | `/sse:sdd` | `plan → [dev↔test↔eval] ×3` |
@@ -177,6 +178,52 @@ PR on its own. Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/ss
 static site, `/sse:firebase-publish` creates or reuses a Firebase project and deploys Hosting.
 
 **[Every command and every gate →](docs/COMMANDS.md)**
+
+---
+
+## Autonomy and the cockpit
+
+harness-kit runs with minimal questions. A first `intake` stage harvests the inputs the pipeline used
+to ask for, squad, problem, customers, repos, straight from the target repo and your
+`context-library/`, so stages resolve context instead of stopping to ask. Anything genuinely unknown is
+marked `NEEDS REVIEW` and the run keeps going. You stay **on the loop** at two gates, not **in the loop**
+before every artifact:
+
+```
+intake → prd → [approve direction] → prp → plan → dev → test → [approve the PR] → pr
+```
+
+Run it hands-off with `/pipeline:run "<one-line idea>"`. Add `--yolo` to drop both gates, `--local` to
+stop before the PR. Full model:
+[Autonomy](https://github.com/Pierry/harness-kit/wiki/Autonomy) ·
+[Orchestration and Subagents](https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents).
+
+### The cockpit
+
+A terminal UI over the pipeline. It shows every stage live, renders each artifact, runs a stage on a
+keypress, and turns the two human gates into modal prompts (the direction gate lists intake's open
+`NEEDS REVIEW` items). It reads pipeline state and artifacts straight off disk, so it stays in sync with
+any Claude Code session driving the same feature.
+
+```
+npm i -g @pieerry/harness-kit   # once; puts hk, harness-kit, hk-tui on your PATH
+
+hk-tui                     # shortest: open the cockpit in the current repo
+hk-tui path/to/repo        # or point it at one
+hk-tui -- "add one-tap retry to checkout"   # seed the idea for intake
+hk cockpit                 # same thing via the main CLI
+```
+
+| Key | Action |
+|---|---|
+| `↑ ↓` / `j k` | move between stages |
+| `enter` | run the selected stage (`claude -p`), output tails in the pane |
+| `a` | at a gate: approve and continue · `x`: hold |
+| `r` | refresh · `q`: quit |
+
+The cockpit ships **bundled** with harness-kit (a single file, no extra dependencies land in your
+project), so `hk-tui` works the moment the package is installed, nothing else to build or configure. It
+needs a TTY and Node 18+. Working on the harness itself? Rebuild the bundle with `npm run build:cockpit`.
 
 ---
 

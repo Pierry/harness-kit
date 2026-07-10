@@ -67,6 +67,7 @@ CLAUDE.md                          ← project context (style, role, conventions
 
 | Agent | When to use | Entry | Definition |
 |---|---|---|---|
+| `intake` | Harvest repo + context-library into one intake artifact so later stages never stop to ask. Runs first. | `/intake:run` | `.claude/agents/intake.md` |
 | `product-manager` | Generate PRD then PRP for a squad/feature | `/product-manager:run` | `.claude/agents/product-manager.md` |
 | `staff-software-engineer` | Full engineering pipeline: plan → dev → test → pr | `/sse:run` | `.claude/agents/staff-software-engineer.md` |
 | `staff-software-engineer` (sdd) | Spec-driven dev loop, local only: plan once + dev↔test↔eval until PRP spec met | `/sse:sdd` | `.claude/agents/staff-software-engineer/guides/sdd-loop.md` |
@@ -80,7 +81,9 @@ When the user types a slash command, the entry point is unambiguous. When the us
 
 | User intent | Route |
 |---|---|
+| "idea to merged PR, hands-off" (gated autonomy) | `/pipeline:run "<idea>"` (intake → ... → pr, two gates) |
 | "go from idea to merged PR" (the golden path) | `/golden-path` (full-run: PM then SSE) |
+| "harvest context" / "figure out the inputs from the repo" | `intake` → `/intake:run` |
 | "design a system" / "how would you architect X at scale" | `system-architect` → `/system-design:run` |
 | "design a search engine / crawler" | `/system-design:design` → routes to `skills/search-engine/` |
 | "design a URL shortener / link service" | `/system-design:design` → routes to `skills/url-shortener/` |

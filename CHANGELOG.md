@@ -2,6 +2,17 @@
 
 All notable changes to harness-kit. Format roughly follows [Keep a Changelog](https://keepachangelog.com); versions follow [SemVer](https://semver.org).
 
+## [5.0.0]
+
+### Added
+- **`intake` stage: autonomy by harvesting, not asking.** A new read-only subagent runs before `prd`. It explores the target repo (README, code, recent commits, open PRs) and the `context-library/`, infers the inputs the pipeline used to ask for, squad, problem, customers, repos, metric, and writes one `intake.md`. Anything genuinely unknown is marked `NEEDS REVIEW` and the run continues. New `context-library/repos-template.md` maps squad to repo paths so targets resolve without asking. Added to `pipeline.py` as the first stage; `/intake:run` and the `intake`/`full-auto` intents wire it in.
+- **`/pipeline:run "<idea>"`: gated autonomy end to end.** One orchestrator carries an idea to a merged PR, stopping only at two human gates, approve direction after the PRD, approve the PR before it opens. `--yolo` drops both gates, `--local` stops before the PR. Humans move from *in the loop* (answer before every artifact) to *on the loop*.
+- **The cockpit: a terminal UI over the pipeline.** `hk cockpit` (or the dedicated `hk-tui` bin) shows every stage live, renders and scrolls each artifact, runs a stage on a keypress via `claude -p`, and turns the two gates into modal prompts (the direction gate lists intake's open `NEEDS REVIEW` items). Reads state and artifacts straight off disk, so it stays in sync with any Claude Code session. Ships as a single bundled file under `tui/dist` (Ink, built with esbuild at publish); no runtime dependencies land in the user's project. Vivid primary palette, Tab-to-read with `jk`/`space`/`g`/`G` scrolling.
+
+### Changed
+- **Every stage now follows one pipeline pattern**, captured in `.claude/shared/pipeline-pattern.md`: inputs via **resolve-mark-proceed** (resolve from context, mark `NEEDS REVIEW`, never stop to ask), and **adversarial evals** (each stage's eval is dispatched to a fresh `general-purpose` subagent that did not author the artifact, so the score is honest instead of grade-your-own-homework). Applied to `prd`, `prp`, `plan`, `dev`, `test`, `pr`, and the `system-design` stages, and to the `product-manager`, `staff-software-engineer`, and `system-architect` agents. The `dev` designer-skill gate now infers UI from the plan/PRP instead of asking; `test`, `pr`, and `prp` resolve their former questions from context.
+- Version bumped to 5.0.0 across VERSION, plugin.json, package.json, and the README badge. New wiki pages: Autonomy, Orchestration and Subagents; new site section: The cockpit.
+
 ## [4.6.0]
 
 ### Changed

@@ -9,10 +9,7 @@ Staff Software Engineer.
 
 When invoked, run /sse:run end to end. Follow .claude/agents/staff-software-engineer/guides/pipeline.md.
 
-Ask once if missing:
-- source PRP path (or read latest from .claude/runtime/outputs/pm/prp/)
-- target repo path
-- area: backend, web, mobile, or devops (auto-detect from repo files if possible)
+Inputs come from the upstream PRP, not the human (resolve-mark-proceed). Resolve the source PRP by reading the latest approved PRP from `.claude/runtime/outputs/pm/prp/`; if none exists, run `/product-manager:prp` first, then read it. Resolve the target repo path from the PRP/intake `repos` frontmatter, else `context-library/repos.md`, else auto-detect from the current working directory and git remotes. Auto-detect the area (backend, web, mobile, devops) from the repo files. Mark anything genuinely unresolvable `NOT FOUND - NEEDS REVIEW: {detail}` and proceed. Never stop to ask for an input context could yield.
 
 Operating rules:
 - English by default. Domain terms stay native if team uses them.

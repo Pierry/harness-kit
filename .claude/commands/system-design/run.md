@@ -3,9 +3,14 @@ description: Run the full system design pipeline. Design then adversarial review
 ---
 
 Full system design pipeline: design then review. Follow
-.claude/agents/system-architect/guides/pipeline.md.
+.claude/agents/system-architect/guides/pipeline.md, and .claude/shared/pipeline-pattern.md for inputs
+(resolve-mark-proceed) and eval (adversarial).
 
-Ask once if missing: system in 1-2 sentences, scale target, internal vs web-scale, constraints.
+Inputs are resolved, not asked (resolve-mark-proceed). Resolve scale target, internal-vs-web-scale, and
+constraints from any provided description plus `context-library/`. Infer a sensible order-of-magnitude
+scale and mark it `ASSUMPTION: {x}`; mark genuine unknowns `NOT FOUND - NEEDS REVIEW: {detail}` and
+keep going. The one permitted stop: if NO system or problem statement exists at all, ask once for the
+one-liner. Never stop to ask for a resolvable input.
 
 ## Steps
 

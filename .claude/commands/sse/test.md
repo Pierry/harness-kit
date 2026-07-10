@@ -2,7 +2,7 @@
 description: Run the project test suite. Reports results to .claude/runtime/outputs/sse/test/.
 ---
 
-Run test suite for current repo.
+Run test suite for current repo. Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval, publish, and .claude/shared/pipeline-pattern.md for inputs (resolve-mark-proceed) and eval (adversarial).
 
 Print header card before running and footer card after suite finishes. Format: .claude/scripts/stage-card.md.
 
@@ -12,7 +12,7 @@ Detect project test command (in order):
 3. Gradle (build.gradle present): `./gradlew test`
 4. npm (package.json with "test" script): `npm test`
 5. pytest (pyproject.toml or pytest.ini): `pytest`
-6. Other: ask user.
+6. Otherwise, infer the runner from the repo: package.json scripts, build files, Makefile targets, CI config (`.github/workflows/`), or project conventions. If it genuinely cannot be inferred, mark `NOT FOUND - NEEDS REVIEW: test runner` in the report and proceed (report it). Do NOT ask the user.
 
 Before running, write phase start marker:
 
@@ -31,7 +31,9 @@ Save .claude/runtime/outputs/sse/test/{feature_id}.md with:
 
 Document gates (run on saved report):
 - Sensor: .claude/agents/staff-software-engineer/sensors/test-structure.md (auto-run by post-write hook)
-- Eval:   .claude/agents/staff-software-engineer/evals/test-quality.md (you score it; threshold 8.0)
+- Eval:   .claude/agents/staff-software-engineer/evals/test-quality.md (threshold 8.0)
+
+Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this test report. Hand it only the artifact path and the one rubric path; it scores against the rubrics and reports weighted totals plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
 Append approval marker only when exit code is 0 and test-quality eval is >= 8.0:
 

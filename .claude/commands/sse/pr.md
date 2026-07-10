@@ -2,7 +2,7 @@
 description: Open a Pull Request on GitHub following team conventions. Draft by default.
 ---
 
-Open Pull Request.
+Open Pull Request. Follow .claude/agents/staff-software-engineer/guides/pipeline.md for retry, approval, publish, and .claude/shared/pipeline-pattern.md for inputs (resolve-mark-proceed) and eval (adversarial).
 
 Print header card before opening and footer card after gh returns. Format: .claude/scripts/stage-card.md.
 
@@ -20,7 +20,7 @@ Read:
 - .claude/agents/staff-software-engineer/guides/commit-style.md
 - latest plan and dev outputs (for body content)
 
-Detect ticket id from branch name (e.g., `feat/PROJ-123-foo` -> `PROJ-123`). Branch has none, ask user once. Never call Jira API.
+Infer the ticket id from the branch name (e.g., `feat/PROJ-123-foo` -> `PROJ-123`), else from the PRP/plan/intake frontmatter or commit messages. If none yields one, mark `NOT FOUND - NEEDS REVIEW: ticket id` in the record and open the PR without it. Do NOT ask the user. Never call Jira API.
 
 Compose:
 - Title: conventional commit prefix + short description (e.g., `feat(PROJ-123): add timezone-aware deadline check`)
@@ -39,7 +39,9 @@ Save .claude/runtime/outputs/sse/pr/{feature_id}.md with:
 
 Document gates (run on saved record):
 - Sensor: .claude/agents/staff-software-engineer/sensors/pr-structure.md (auto-run by post-write hook)
-- Eval:   .claude/agents/staff-software-engineer/evals/pr-quality.md (you score it; threshold 8.0)
+- Eval:   .claude/agents/staff-software-engineer/evals/pr-quality.md (threshold 8.0)
+
+Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this PR record. Hand it only the artifact path and the one rubric path; it scores against the rubrics and reports weighted totals plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
 Append approval marker only when sensor passes and pr-quality eval is >= 8.0:
 
