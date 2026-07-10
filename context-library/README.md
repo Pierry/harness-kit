@@ -7,6 +7,7 @@ Reference material the plugins consult before generating PRDs, PRPs, plans, and 
 ```
 context-library/
 ├── business-info.md          company snapshot (mission, customers, segments)
+├── repos.md                  squad → repo path map, so stages resolve targets without asking
 ├── personal-context.md       per-user role, style, constraints (gitignored)
 ├── stakeholder-template.md   stakeholder map template
 ├── writing-style.md          internal writing voice (drop pleasantries, etc)

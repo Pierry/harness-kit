@@ -16,6 +16,8 @@ PIPELINE_PY=".claude/scripts/pipeline.py"
 
 # Match leading slash commands. Order matters: more specific first.
 case "$PROMPT" in
+  /pipeline:run*)        python3 "$PIPELINE_PY" intent full-auto >/dev/null 2>&1 ;;
+  /intake:run*)          python3 "$PIPELINE_PY" intent intake >/dev/null 2>&1 ;;
   /golden-path*)         python3 "$PIPELINE_PY" intent full-run >/dev/null 2>&1 ;;
   /product-manager:run*) python3 "$PIPELINE_PY" intent pm-run >/dev/null 2>&1 ;;
   /product-manager:prd*) python3 "$PIPELINE_PY" intent pm-prd >/dev/null 2>&1 ;;

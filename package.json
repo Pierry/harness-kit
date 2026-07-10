@@ -1,6 +1,6 @@
 {
   "name": "@pieerry/harness-kit",
-  "version": "4.6.0",
+  "version": "5.0.0",
   "description": "Claude Code harness for product + engineering delivery. From idea to merged PR, one pipeline.",
   "author": "Space Metrics AI",
   "license": "MIT",
@@ -26,7 +26,12 @@
   ],
   "bin": {
     "hk": "bin/hk.js",
-    "harness-kit": "bin/hk.js"
+    "harness-kit": "bin/hk.js",
+    "hk-tui": "tui/dist/cockpit.cjs"
+  },
+  "scripts": {
+    "build:cockpit": "cd tui && npm install --no-audit --no-fund && npm run build",
+    "prepublishOnly": "npm run build:cockpit"
   },
   "files": [
     "bin",
@@ -35,6 +40,7 @@
     ".claude-plugin",
     "skills",
     "context-library",
+    "tui/dist",
     "VERSION",
     "README.md",
     "CHANGELOG.md",

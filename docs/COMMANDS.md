@@ -5,6 +5,8 @@ Every command in the harness, and the sensors and evals that gate each stage.
 ## Pipeline commands
 
 ```
+/pipeline:run "<idea>"         idea to merged PR with gated autonomy: intake harvests context, stages run on their own, human approves at two gates (--yolo skips them)
+/intake:run                    harvest repo + context-library into one intake artifact so later stages never stop to ask
 /golden-path                   idea to merged PR, runs the full PM then Eng pipeline
 /product-manager:run           draft PRD then PRP
 /sse:run                       plan, dev, test, open PR, watch for merge

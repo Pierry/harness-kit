@@ -8,9 +8,10 @@ each stage's state (pending|drafting|approved). Stored at
 Subcommands:
   init <feature_id> <stage,stage,...>   create state, set pipeline shape
   intent <kind>                         record last slash invocation intent
-                                        (sse-run, pm-run, full-run, sse-plan,
-                                         sse-dev, sse-test, sse-pr, pm-prd,
-                                         pm-prp, pipeline-continue)
+                                        (intake, full-auto, sse-run, pm-run,
+                                         full-run, sse-plan, sse-dev, sse-test,
+                                         sse-pr, pm-prd, pm-prp,
+                                         pipeline-continue)
   set-feature <feature_id>              attach feature_id (if not yet known)
   set-stage <stage> <state>             pending|drafting|approved
   detect-from-file <abs_path>           infer stage+state from output file
@@ -29,14 +30,17 @@ from pathlib import Path
 
 STATE_FILE = Path(".claude/.pipeline-state.json")
 
+INTAKE_STAGES = ("intake",)
 PM_STAGES = ("prd", "prp")
 SSE_STAGES = ("plan", "dev", "test", "pr")
-ALL_STAGES = PM_STAGES + SSE_STAGES
+ALL_STAGES = INTAKE_STAGES + PM_STAGES + SSE_STAGES
 
 INTENT_TO_PIPELINE = {
-    "pm-run": list(PM_STAGES),
+    "intake": list(INTAKE_STAGES),
+    "pm-run": list(INTAKE_STAGES + PM_STAGES),
     "sse-run": list(SSE_STAGES),
     "full-run": list(ALL_STAGES),
+    "full-auto": list(ALL_STAGES),
     "pm-prd": ["prd"],
     "pm-prp": ["prp"],
     "sse-plan": ["plan"],
@@ -46,6 +50,7 @@ INTENT_TO_PIPELINE = {
 }
 
 STAGE_TO_COMMAND = {
+    "intake": "/intake:run",
     "prd": "/product-manager:prd",
     "prp": "/product-manager:prp",
     "plan": "/sse:plan",
@@ -55,6 +60,7 @@ STAGE_TO_COMMAND = {
 }
 
 STAGE_TO_OUTPUT_DIR = {
+    "intake": ".claude/runtime/outputs/intake",
     "prd": ".claude/runtime/outputs/pm/prd",
     "prp": ".claude/runtime/outputs/pm/prp",
     "plan": ".claude/runtime/outputs/sse/plan",
