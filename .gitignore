@@ -35,6 +35,9 @@ context-library/writing-style-*.md
 .claude/.pr-monitor-state.json
 .claude/scheduled_tasks.lock
 
+# Stray runtime state that lands under the cockpit dir when it is run there
+tui/.claude/
+
 # -------------------------------------------
 # Python bytecode caches
 # -------------------------------------------
