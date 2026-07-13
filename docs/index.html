@@ -229,6 +229,18 @@
   /* feature cards */
   .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+
+  /* the four fronts overview grid */
+  .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 720px) { .grid4 { grid-template-columns: 1fr; } }
+  a.frontcard { display: block; text-decoration: none; color: inherit; }
+  a.frontcard:hover { border-color: var(--border-strong); }
+  .frontcard .num { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--gold); }
+  .frontcard .tag { color: var(--accent-2); }
+  .frontcard .ar { font-family: var(--mono); color: var(--accent-2); font-size: 14px; }
+
+  /* front eyebrow inside a section head */
+  .fronttag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--gold); text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
   .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
   .card::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
   .card .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); text-transform: lowercase; }
@@ -314,11 +326,11 @@
 <header>
   <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
   <nav>
-    <a class="hide-sm" href="#install" data-i18n="nav.install">install</a>
-    <a class="hide-sm" href="#golden-path">golden path</a>
-    <a class="hide-sm" href="#commands" data-i18n="nav.commands">commands</a>
+    <a class="hide-sm" href="#fronts" data-i18n="nav.fronts">fronts</a>
+    <a class="hide-sm" href="#brief">brief</a>
+    <a class="hide-sm" href="#pipeline">pipeline</a>
+    <a class="hide-sm" href="#quality">quality</a>
     <a class="hide-sm" href="#cockpit">cockpit</a>
-    <a class="hide-sm" href="quality/phase-report.html">quality</a>
     <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
     <span class="controls">
       <span class="langsw" role="group" aria-label="Language">
@@ -359,9 +371,64 @@
     </div>
   </section>
 
-  <!-- WHY -->
-  <section class="block reveal" id="why">
-    <div class="sec-head"><span class="n">01</span><h2 data-i18n="s01.title">Why it exists</h2></div>
+  <!-- THE FOUR FRONTS -->
+  <section class="block reveal" id="fronts">
+    <div class="sec-head"><span class="n">01</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
+    <p class="sec-sub" data-i18n="fronts.sub">harness-kit is one product with four surfaces. Each does one job, and they chain: shape the idea, run the pipeline, watch its quality, drive it from a terminal. Start anywhere.</p>
+    <div class="grid4">
+      <a class="card frontcard glowable" href="#brief"><span class="glow"></span>
+        <span class="num">FRONT 1</span> &nbsp; <span class="tag">brief builder</span>
+        <h3 data-i18n="fronts.f1h">Turn an idea into the prompt</h3>
+        <p data-i18n="fronts.f1p">A web app that turns your idea into a paste-ready <code class="inline">/golden-path</code> prompt, with inline validation as you type.</p>
+        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
+      </a>
+      <a class="card frontcard glowable" href="#pipeline"><span class="glow"></span>
+        <span class="num">FRONT 2</span> &nbsp; <span class="tag">the pipeline</span>
+        <h3 data-i18n="fronts.f2h">Idea to merged PR</h3>
+        <p data-i18n="fronts.f2p">The agents and the gated flow. Carries the idea <code class="inline">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, one gate at a time.</p>
+        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
+      </a>
+      <a class="card frontcard glowable" href="#quality"><span class="glow"></span>
+        <span class="num">FRONT 3</span> &nbsp; <span class="tag">quality dashboard</span>
+        <h3 data-i18n="fronts.f3h">Is each stage getting better?</h3>
+        <p data-i18n="fronts.f3p">Tracks each stage's eval score, open gaps, and sensor failures across every run, over time.</p>
+        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
+      </a>
+      <a class="card frontcard glowable" href="#cockpit"><span class="glow"></span>
+        <span class="num">FRONT 4</span> &nbsp; <span class="tag">the cockpit</span>
+        <h3 data-i18n="fronts.f4h">Drive it from the terminal</h3>
+        <p data-i18n="fronts.f4p">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, the two gates as prompts.</p>
+        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
+      </a>
+    </div>
+    <p class="diagram-cap" data-i18n="fronts.cap" style="margin-top:22px">front 2 is the engine &middot; front 1 feeds it &middot; front 3 measures it &middot; front 4 drives it</p>
+  </section>
+
+  <!-- FRONT 1 · BRIEF BUILDER -->
+  <section class="block reveal" id="brief">
+    <span class="fronttag" data-i18n="brief.eyebrow">Front 1 &middot; the on-ramp</span>
+    <div class="sec-head"><span class="n">02</span><h2 data-i18n="brief.title">Brief builder</h2></div>
+    <p class="sec-sub" data-i18n="brief.sub">A single web page that turns a rough idea into a well-formed <code class="inline">/golden-path</code> prompt. Fill squad, problem, hypothesis, and metric; it validates each field against the PRD conventions as you type, and builds the exact prompt to paste into Claude Code. No blank-page problem.</p>
+    <div class="media reveal" style="margin-top:0">
+      <div class="frame">
+        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="brief.gifbar">idea-brief builder &middot; live preview</span></div>
+        <img src="media/brief.gif" width="1512" height="794" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the idea-brief builder assembling a /golden-path prompt as fields are filled" />
+      </div>
+      <p class="cap" data-i18n="brief.gifcap">fields on the left, the prompt assembles live on the right</p>
+    </div>
+    <div class="hero-cta" style="margin-top:26px">
+      <a class="btn primary" href="brief/" data-i18n="brief.cta">Open the idea-brief builder</a>
+    </div>
+    <div class="note" style="margin-top:26px">
+      <span class="ic">&#9670;</span>
+      <p data-i18n="brief.note">Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
+    </div>
+  </section>
+
+  <!-- FRONT 2 · THE PIPELINE -->
+  <section class="block reveal" id="pipeline">
+    <span class="fronttag" data-i18n="s01.eyebrow">Front 2 &middot; the engine</span>
+    <div class="sec-head"><span class="n">03</span><h2 data-i18n="s01.title">The pipeline</h2></div>
     <p class="sec-sub" data-i18n="s01.sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -399,30 +466,10 @@ flowchart LR
     <p class="diagram-cap" data-i18n="s01.cap2">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
   </section>
 
-  <!-- INSTALL -->
-  <section class="block reveal" id="install">
-    <div class="sec-head"><span class="n">02</span><h2 data-i18n="s02.title">Install</h2></div>
-    <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
-<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
-<span class="cmd">/plugin</span> install harness-kit@harness-kit</pre>
-    </div>
-    <p class="sec-sub" style="margin:0 0 18px" data-i18n="s02.sub2">Restart Claude Code, then inside the repo you want to use it in:</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s02.bar">per repo, once</span></div>
-<pre><span class="cmd">/harness-kit:install</span></pre>
-    </div>
-    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
-    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
-      <span class="ic" style="color:var(--gold)">&#8635;</span>
-      <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
-    </div>
-  </section>
-
   <!-- GOLDEN PATH -->
   <section class="block reveal" id="golden-path">
-    <div class="sec-head"><span class="n">03</span><h2 data-i18n="s03.title">The golden path</h2></div>
+    <span class="fronttag" data-i18n="s03.eyebrow">Front 2 &middot; run it</span>
+    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s03.title">The golden path</h2></div>
     <p class="sec-sub" data-i18n="s03.sub">One command, idea to merged PR.</p>
     <div class="steps">
       <div class="step glowable"><span class="glow"></span>
@@ -461,7 +508,7 @@ flowchart LR
 
   <!-- OTHER WAYS -->
   <section class="block reveal" id="commands">
-    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
+    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
     <p class="sec-sub" data-i18n="s04.sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
     <div class="tablewrap">
       <table>
@@ -483,27 +530,75 @@ flowchart LR
     </div>
   </section>
 
-  <!-- COCKPIT -->
+  <!-- FRONT 3 · QUALITY -->
+  <section class="block reveal" id="quality">
+    <span class="fronttag" data-i18n="qual.eyebrow">Front 3 &middot; the feedback</span>
+    <div class="sec-head"><span class="n">06</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
+    <p class="sec-sub" data-i18n="qual.sub">Scores used to get lost in chat once a stage was approved. The quality dashboard persists per-phase signal across every run and answers one question: is each stage getting better or worse over time?</p>
+    <div class="media reveal" style="margin-top:0">
+      <div class="frame">
+        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="qual.gifbar">phase-quality dashboard &middot; sample data</span></div>
+        <img src="media/quality.gif" width="1512" height="794" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the phase-quality dashboard: KPI tiles, score trend by stage, failure rate, and the run table" />
+      </div>
+      <p class="cap" data-i18n="qual.gifcap">drop a phase-log.json and see where the pipeline drifts</p>
+    </div>
+    <p data-i18n="qual.p1" style="color:var(--dim);max-width:680px;margin:26px 0 0;font-size:16px">Every time a phase is approved, a post-eval hook appends one deterministic entry, zero token cost, to <code class="inline">phase-log.json</code>: the eval <code class="inline">score</code>, the count of open <code class="inline">gaps</code>, the <code class="inline">sensors</code> re-run pass/fail, and a derived <code class="inline">status</code> (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Drop that JSON on the page (a standalone file, no build, no network) for KPI tiles, a score trend by stage, failure rate, average score vs the 7.0 threshold, the sensors that block most, and the full run table.</p>
+    <div class="hero-cta" style="margin-top:26px">
+      <a class="btn primary" href="quality/phase-report.html" data-i18n="qual.cta">Open the dashboard</a>
+      <a class="btn ghost" href="https://github.com/Pierry/harness-kit/blob/main/docs/quality/README.md" data-i18n="qual.cta2">How it is fed</a>
+    </div>
+  </section>
+
+  <!-- FRONT 4 · COCKPIT -->
   <section class="block reveal" id="cockpit">
-    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
-    <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Minimal questions, humans on the loop at two gates.</p>
-    <p data-i18n="s0c.p1">v5 puts a first <code class="inline">intake</code> stage in front of the pipeline: it harvests the inputs the harness used to ask for, squad, problem, customers, repos, from the target repo and your <code class="inline">context-library/</code>, marks anything genuinely unknown as <code class="inline">NEEDS REVIEW</code>, and keeps going. You approve at two gates instead of answering before every artifact: the direction after the PRD, and the PR before it opens. Run it hands-off with <code class="inline">/pipeline:run "&lt;idea&gt;"</code>.</p>
-    <p data-i18n="s0c.p2">The cockpit is the surface for it. Every stage live, each artifact rendered, a stage run on a keypress, and the two gates as modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
-    <div class="code" style="margin-top:14px">
+    <span class="fronttag" data-i18n="s0c.eyebrow">Front 4 &middot; the control surface</span>
+    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
+    <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, humans on the loop at two gates.</p>
+    <div class="media reveal" style="margin-top:0">
+      <div class="frame">
+        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.gifbar">hk-tui &middot; a feature at the PR gate</span></div>
+        <img src="media/cockpit.gif" width="1240" height="820" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the harness-kit cockpit: stage rail, rendered artifact, and the PR approval gate" />
+      </div>
+      <p class="cap" data-i18n="s0c.gifcap">open a feature, read each artifact, approve the gate, all from the terminal</p>
+    </div>
+    <p data-i18n="s0c.p2" style="color:var(--dim);max-width:680px;margin:26px 0 0;font-size:16px">It renders each artifact, runs a stage on a keypress, and turns the two human gates into modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
+    <div class="code" style="margin-top:22px">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.bar">terminal</span></div>
-<pre><span class="cmd">hk cockpit</span>                 <span class="c"># in an installed repo</span>
-<span class="cmd">hk cockpit</span> path/to/repo    <span class="c"># or point it at one</span>
-<span class="cmd">hk cockpit</span> -- <span class="key">"add one-tap retry to checkout"</span>   <span class="c"># seed intake</span></pre>
+<pre><span class="cmd">npm</span> i -g @pieerry/harness-kit   <span class="c"># once, puts hk-tui on your PATH</span>
+<span class="cmd">hk-tui</span>                     <span class="c"># open the cockpit in the current repo</span>
+<span class="cmd">hk-tui</span> path/to/repo        <span class="c"># or point it at one</span>
+<span class="cmd">hk-tui</span> -- <span class="key">"add one-tap retry to checkout"</span>   <span class="c"># seed intake</span></pre>
     </div>
     <div class="note">
       <span class="ic">&#9670;</span>
-      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy">Autonomy</a> and <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents">Orchestration &amp; Subagents</a>.</p>
+      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">tab</code> focus the reader &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy">Autonomy</a> and <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents">Orchestration &amp; Subagents</a>.</p>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="block reveal" id="install">
+    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s02.title">Install</h2></div>
+    <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
+<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
+<span class="cmd">/plugin</span> install harness-kit@harness-kit</pre>
+    </div>
+    <p class="sec-sub" style="margin:0 0 18px" data-i18n="s02.sub2">Restart Claude Code, then inside the repo you want to use it in:</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s02.bar">per repo, once</span></div>
+<pre><span class="cmd">/harness-kit:install</span></pre>
+    </div>
+    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
+    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
+      <span class="ic" style="color:var(--gold)">&#8635;</span>
+      <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
     </div>
   </section>
 
   <!-- CONTEXT OPTIMIZATION -->
   <section class="block reveal" id="context">
-    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s05.title">Context optimization</h2></div>
+    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s05.title">Context optimization</h2></div>
     <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
     <div class="tablewrap">
       <table>
@@ -535,7 +630,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- AGENTS -->
   <section class="block reveal" id="agents">
-    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s06.title">The agents</h2></div>
+    <div class="sec-head"><span class="n">10</span><h2 data-i18n="s06.title">The agents</h2></div>
     <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
       <div class="card glowable"><span class="glow"></span>
@@ -562,7 +657,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- FOUNDATIONS -->
   <section class="block reveal" id="foundations">
-    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s07.title">Foundations</h2></div>
+    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s07.title">Foundations</h2></div>
     <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
       <div class="ref glowable"><span class="glow"></span>
@@ -598,7 +693,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- DOCS -->
   <section class="block reveal" id="docs">
-    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s08.title">Docs</h2></div>
+    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s08.title">Docs</h2></div>
     <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
@@ -686,7 +781,37 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.lede": "harness-kit é um conjunto de agentes do Claude Code, um product manager, um staff engineer e um system architect, que levam uma ideia crua por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, com um check pass/fail e uma avaliação pontuada em cada etapa. Nada avança no feeling.",
       "hero.cta1": "Instalar", "hero.cta2": "Abrir o construtor de brief",
       "hero.gifbar": "o pipeline completo &middot; demo", "hero.gifcap": "o pipeline completo, num passo a passo", "hero.merged": "PR mergeado",
-      "s01.title": "Por que existe",
+      "nav.fronts": "frentes",
+      "fronts.title": "As quatro frentes",
+      "fronts.sub": "O harness-kit é um produto com quatro superfícies. Cada uma faz um trabalho, e elas se encadeiam: modele a ideia, rode o pipeline, acompanhe a qualidade, dirija pelo terminal. Comece por qualquer uma.",
+      "fronts.f1h": "Vire a ideia num prompt",
+      "fronts.f1p": "Um app web que transforma sua ideia num prompt <code class=\"inline\">/golden-path</code> pronto pra colar, com validação inline enquanto você digita.",
+      "fronts.f2h": "Da ideia ao PR mergeado",
+      "fronts.f2p": "Os agentes e o fluxo com gates. Levam a ideia por <code class=\"inline\">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, um gate por vez.",
+      "fronts.f3h": "Cada etapa está melhorando?",
+      "fronts.f3p": "Acompanha o score de eval, os gaps abertos e as falhas de sensor de cada etapa, a cada run, ao longo do tempo.",
+      "fronts.f4h": "Dirija pelo terminal",
+      "fronts.f4p": "Uma UI de terminal sobre o pipeline. Cada etapa ao vivo, uma etapa rodada numa tecla, os dois gates como prompts.",
+      "fronts.jump": "ir até ela &#8594;",
+      "fronts.cap": "a frente 2 é o motor &middot; a frente 1 alimenta &middot; a frente 3 mede &middot; a frente 4 dirige",
+      "brief.eyebrow": "Frente 1 &middot; a porta de entrada",
+      "brief.title": "Construtor de brief",
+      "brief.sub": "Uma única página web que transforma uma ideia crua num prompt <code class=\"inline\">/golden-path</code> bem formado. Preencha squad, problema, hipótese e métrica; ela valida cada campo contra as convenções de PRD enquanto você digita e monta o prompt exato pra colar no Claude Code. Sem página em branco.",
+      "brief.gifbar": "construtor de brief &middot; preview ao vivo",
+      "brief.gifcap": "campos à esquerda, o prompt se monta ao vivo à direita",
+      "brief.cta": "Abrir o construtor de brief",
+      "brief.note": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
+      "s01.eyebrow": "Frente 2 &middot; o motor",
+      "s03.eyebrow": "Frente 2 &middot; rode",
+      "qual.eyebrow": "Frente 3 &middot; o feedback",
+      "qual.title": "Painel de qualidade",
+      "qual.sub": "Os scores se perdiam no chat depois que uma etapa era aprovada. O painel de qualidade persiste o sinal por fase a cada run e responde uma pergunta: cada etapa está melhorando ou piorando ao longo do tempo?",
+      "qual.gifbar": "painel de qualidade por fase &middot; dados de exemplo",
+      "qual.gifcap": "solte um phase-log.json e veja onde o pipeline desvia",
+      "qual.p1": "Toda vez que uma fase é aprovada, um hook de pós-eval adiciona uma entrada determinística, custo zero de token, no <code class=\"inline\">phase-log.json</code>: o <code class=\"inline\">score</code> do eval, a contagem de <code class=\"inline\">gaps</code> abertos, os <code class=\"inline\">sensors</code> re-executados (pass/fail) e um <code class=\"inline\">status</code> derivado (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Solte esse JSON na página (arquivo standalone, sem build, sem rede) pra ver KPIs, tendência de score por etapa, taxa de falha, score médio vs o limiar 7.0, os sensores que mais bloqueiam e a tabela completa de runs.",
+      "qual.cta": "Abrir o painel",
+      "qual.cta2": "Como é alimentado",
+      "s01.title": "O pipeline",
       "s01.sub": "Entregar uma feature no feeling pula as partes que a deixam correta: enquadrar o problema, escrever critérios de aceite, manter as convenções, colocar gates na revisão. O harness-kit traz isso de volta, sem você escrever um doc à mão.",
       "s01.cap1": "dois agentes, um pipeline &middot; cada seta é um handoff com gate",
       "s01.note": "Cada etapa produz um artefato markdown, com gate de um <b>sensor</b> determinístico (pass/fail) e um <b>eval</b> pontuado (limiar 8.0). Depois que o PR abre, um monitor na sessão observa o merge e limpa o estado sozinho.",
@@ -758,7 +883,37 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.lede": "harness-kit es un conjunto de agentes de Claude Code, un product manager, un staff engineer y un system architect, que llevan una idea cruda por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, con un check pass/fail y una evaluación puntuada en cada etapa. Nada avanza por intuición.",
       "hero.cta1": "Instalar", "hero.cta2": "Abrir el constructor de brief",
       "hero.gifbar": "el pipeline completo &middot; demo", "hero.gifcap": "el pipeline completo, en un recorrido", "hero.merged": "PR fusionado",
-      "s01.title": "Por qué existe",
+      "nav.fronts": "frentes",
+      "fronts.title": "Los cuatro frentes",
+      "fronts.sub": "harness-kit es un producto con cuatro superficies. Cada una hace un trabajo, y se encadenan: moldea la idea, corre el pipeline, vigila su calidad, condúcelo desde una terminal. Empieza por cualquiera.",
+      "fronts.f1h": "Convierte la idea en el prompt",
+      "fronts.f1p": "Una app web que convierte tu idea en un prompt <code class=\"inline\">/golden-path</code> listo para pegar, con validación inline mientras escribes.",
+      "fronts.f2h": "De la idea al PR fusionado",
+      "fronts.f2p": "Los agentes y el flujo con gates. Llevan la idea por <code class=\"inline\">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, un gate a la vez.",
+      "fronts.f3h": "¿Cada etapa mejora?",
+      "fronts.f3p": "Sigue el score de eval, los gaps abiertos y los fallos de sensor de cada etapa, en cada run, a lo largo del tiempo.",
+      "fronts.f4h": "Condúcelo desde la terminal",
+      "fronts.f4p": "Una UI de terminal sobre el pipeline. Cada etapa en vivo, una etapa corrida con una tecla, los dos gates como prompts.",
+      "fronts.jump": "ir a ella &#8594;",
+      "fronts.cap": "el frente 2 es el motor &middot; el frente 1 lo alimenta &middot; el frente 3 lo mide &middot; el frente 4 lo conduce",
+      "brief.eyebrow": "Frente 1 &middot; la puerta de entrada",
+      "brief.title": "Constructor de brief",
+      "brief.sub": "Una sola página web que convierte una idea cruda en un prompt <code class=\"inline\">/golden-path</code> bien formado. Llena squad, problema, hipótesis y métrica; valida cada campo contra las convenciones de PRD mientras escribes y arma el prompt exacto para pegar en Claude Code. Sin página en blanco.",
+      "brief.gifbar": "constructor de brief &middot; preview en vivo",
+      "brief.gifcap": "campos a la izquierda, el prompt se arma en vivo a la derecha",
+      "brief.cta": "Abrir el constructor de brief",
+      "brief.note": "Pulsa <b>Copy brief</b> y pega el disparo listo de <code class=\"inline\">/golden-path</code> en Claude Code. ¿Ya tienes clara la idea? Salta el constructor y escribe <code class=\"inline\">/golden-path</code> con el brief tú mismo.",
+      "s01.eyebrow": "Frente 2 &middot; el motor",
+      "s03.eyebrow": "Frente 2 &middot; ejecútalo",
+      "qual.eyebrow": "Frente 3 &middot; el feedback",
+      "qual.title": "Panel de calidad",
+      "qual.sub": "Los scores se perdían en el chat una vez aprobada una etapa. El panel de calidad persiste la señal por fase en cada run y responde una pregunta: ¿cada etapa mejora o empeora a lo largo del tiempo?",
+      "qual.gifbar": "panel de calidad por fase &middot; datos de ejemplo",
+      "qual.gifcap": "suelta un phase-log.json y ve dónde se desvía el pipeline",
+      "qual.p1": "Cada vez que se aprueba una fase, un hook de post-eval añade una entrada determinista, coste cero de tokens, al <code class=\"inline\">phase-log.json</code>: el <code class=\"inline\">score</code> del eval, el conteo de <code class=\"inline\">gaps</code> abiertos, los <code class=\"inline\">sensors</code> re-ejecutados (pass/fail) y un <code class=\"inline\">status</code> derivado (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Suelta ese JSON en la página (un archivo standalone, sin build, sin red) para ver KPIs, tendencia de score por etapa, tasa de fallo, score medio vs el umbral 7.0, los sensores que más bloquean y la tabla completa de runs.",
+      "qual.cta": "Abrir el panel",
+      "qual.cta2": "Cómo se alimenta",
+      "s01.title": "El pipeline",
       "s01.sub": "Entregar una feature por intuición salta las partes que la hacen correcta: enmarcar el problema, escribir criterios de aceptación, mantener las convenciones, poner gates en la revisión. harness-kit las devuelve, sin que escribas un solo doc a mano.",
       "s01.cap1": "dos agentes, un pipeline &middot; cada flecha es un handoff con gate",
       "s01.note": "Cada etapa produce un artefacto markdown, con gate de un <b>sensor</b> determinista (pass/fail) y un <b>eval</b> puntuado (umbral 8.0). Tras abrir el PR, un monitor en la sesión observa el merge y limpia el estado por sí solo.",

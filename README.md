@@ -4,7 +4,6 @@
 
 **Idea to merged PR, through one gated pipeline.**
 
-
 Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw
 idea through `prd → prp → plan → dev → test → pr`, with a pass/fail check and a scored review at every stage.
 
@@ -23,11 +22,52 @@ idea through `prd → prp → plan → dev → test → pr`, with a pass/fail ch
 
 ---
 
-## Why
+## The four fronts
 
-Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing
-acceptance criteria, holding the conventions, gating the review. harness-kit puts those back,
-without you hand-writing a single doc.
+harness-kit is one product with four surfaces. Each does one job, and they chain: shape the idea,
+run the pipeline, watch its quality, drive it from a terminal. Start anywhere.
+
+| | Front | What it does | Where |
+|---|---|---|---|
+| **1** | [**Brief builder**](#1-brief-builder--turn-an-idea-into-the-prompt) | A web app that turns your idea into a paste-ready `/golden-path` prompt, with inline validation. | [Open it →](https://pierry.github.io/harness-kit/brief/) |
+| **2** | [**The pipeline**](#2-the-pipeline--idea-to-merged-pr) | The agents and the gated flow. Carries the idea `prd → prp → plan → dev → test → pr`. | Claude Code |
+| **3** | [**Quality dashboard**](#3-quality-dashboard--is-each-stage-getting-better) | Tracks each stage's eval score, gaps, and sensor failures across every run over time. | [Open it →](https://pierry.github.io/harness-kit/quality/phase-report.html) |
+| **4** | [**The cockpit**](#4-the-cockpit--drive-it-from-the-terminal) | A terminal UI over the pipeline, every stage live, a stage run on a keypress, gates as prompts. | `hk-tui` |
+
+Front 2 is the engine. Front 1 feeds it, front 3 measures it, front 4 drives it. The rest of this
+page is one section per front, then install and the deeper docs.
+
+---
+
+## 1. Brief builder — turn an idea into the prompt
+
+The on-ramp. A single web page that turns a rough idea into a well-formed `/golden-path` prompt:
+you fill squad, problem, hypothesis, and metric, it validates each field against the PRD conventions
+as you type, and it builds the exact prompt to paste into Claude Code. No blank-page problem.
+
+![brief builder](docs/media/brief.gif)
+
+**[Open the idea-brief builder →](https://pierry.github.io/harness-kit/brief/)**
+
+Fill the fields, watch the live preview assemble the prompt on the right, hit **Copy brief**, and paste:
+
+```
+/golden-path
+
+Squad: checkout
+Problem: Returning guests abandon checkout when a card is declined once …
+Hypothesis: If we add one-tap retry, then completion rises 5 points, because …
+Success metric: checkout completion, from 71% to 76% within 30 days
+```
+
+Already know the idea cold? Skip the builder and type `/golden-path` with the brief yourself.
+
+---
+
+## 2. The pipeline — idea to merged PR
+
+The engine. Two agents carry a feature through six gated stages, and every stage produces a markdown
+artifact that must pass a check before it advances.
 
 ```mermaid
 flowchart LR
@@ -42,9 +82,10 @@ flowchart LR
     pr --> merged([merged PR])
 ```
 
-Every stage produces a markdown artifact, gated by a deterministic **sensor** (pass/fail) and a
-scored **eval** (≥ 8.0). Nothing advances on vibes. After the PR opens, an in-session monitor
-watches for merge and clears state on its own.
+Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing
+acceptance criteria, holding the conventions, gating the review. harness-kit puts those back,
+without you hand-writing a single doc. After the PR opens, an in-session monitor watches for merge
+and clears state on its own.
 
 ### How one stage is gated
 
@@ -65,6 +106,99 @@ flowchart LR
 This is the harness-engineering split: **guides** steer before (feedforward), **sensors** give
 deterministic feedback, **evals** give inferential feedback, and humans stay *on* the loop, improving
 the guides and gates rather than hand-fixing each output. See [Foundations](#foundations).
+
+### Run it: the golden path
+
+One command, idea to merged PR. Paste the brief from front 1 (or write it yourself) and approve each
+artifact when prompted; the status bar tracks where you are.
+
+```
+/golden-path
+
+Squad: checkout
+Problem: …
+Hypothesis: …
+Success metric: …
+```
+
+### Other ways to run
+
+Every flow shares the same pipeline state, so you can switch between them mid-feature.
+
+| You want | Run | Stages |
+|---|---|---|
+| Hands-off, idea to PR, two gates | `/pipeline:run "<idea>"` | `intake → prd → … → pr` |
+| Idea to merged PR, approve each | `/golden-path` | `prd → prp → plan → dev → test → pr` |
+| Spec only, align before any code | `/product-manager:run` | `prd → prp` |
+| Small change, plan in your head | `/sse:run` | `plan → dev → test → pr` |
+| Local only, no PR | `/sse:run --local` | `plan → dev → test` |
+| Loop until the spec passes | `/sse:sdd` | `plan → [dev↔test↔eval] ×3` |
+| Resume after a break | `/pipeline:continue` | next pending stage |
+
+Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`. `/sse:dev` asks
+once whether to apply the designer skill when the work has UI. To ship a finished static site,
+`/sse:firebase-publish` creates or reuses a Firebase project and deploys Hosting.
+
+**[Every command and every gate →](docs/COMMANDS.md)** · **[Golden path reference →](docs/GOLDEN-PATH.md)**
+
+---
+
+## 3. Quality dashboard — is each stage getting better?
+
+The feedback surface. Scores used to get lost in chat once a stage was approved. The quality
+dashboard persists per-phase signal across every run and answers one question: **is each stage
+getting better or worse over time?**
+
+![quality dashboard](docs/media/quality.gif)
+
+**[Open the dashboard →](https://pierry.github.io/harness-kit/quality/phase-report.html)** (click
+**Load sample** to explore with synthetic data).
+
+Every time a phase is approved, a post-eval hook appends one deterministic entry, zero token cost, to
+`.claude/runtime/outputs/quality/phase-log.json`:
+
+| field | source |
+|---|---|
+| `score` | eval score parsed from the approval marker |
+| `gaps` | count of `NOT FOUND - NEEDS REVIEW` markers left in the artifact |
+| `sensors` | the stage sensors re-run against the artifact (pass/fail) |
+| `status` | derived: `failed` (sensor blocked) / `degraded` (score < 7 or gaps > 0) / `ok` |
+
+Drop that JSON on the page (a standalone file, no build, no network) and it renders KPI tiles, a score
+trend by stage, failure rate by stage, average score vs the 7.0 threshold, the sensors that block
+most, and the full run table. Material Design 3, dark and light, three locales.
+[More →](docs/quality/README.md)
+
+---
+
+## 4. The cockpit — drive it from the terminal
+
+The control surface. A terminal UI over the pipeline. It shows every stage live, renders each
+artifact, runs a stage on a keypress, and turns the two human gates into modal prompts. It reads
+pipeline state and artifacts straight off disk, so it stays in sync with any Claude Code session
+driving the same feature.
+
+![the cockpit](docs/media/cockpit.gif)
+
+```
+npm i -g @pieerry/harness-kit   # once; puts hk, harness-kit, hk-tui on your PATH
+
+hk-tui                     # open the cockpit in the current repo
+hk-tui path/to/repo        # or point it at one
+hk-tui -- "add one-tap retry to checkout"   # seed the idea for intake
+hk cockpit                 # same thing via the main CLI
+```
+
+| Key | Action |
+|---|---|
+| `↑ ↓` / `j k` | move between stages |
+| `enter` | run the selected stage (`claude -p`), output tails in the pane |
+| `tab` | focus the artifact reader, scroll with `j k` / space |
+| `a` | at a gate: approve and continue · `x`: hold |
+| `r` | refresh · `q`: quit |
+
+The cockpit ships **bundled** with harness-kit (a single file, no extra dependencies land in your
+project), so `hk-tui` works the moment the package is installed. It needs a TTY and Node 18+.
 
 ---
 
@@ -90,181 +224,22 @@ status bar, under `.claude/` plus `AGENTS.md`/`CLAUDE.md` at the root. Run it on
 Requires Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/) (for PRs).
 [Full tooling →](docs/ARCHITECTURE.md#tooling)
 
----
+### Update
 
-## Update
-
-The plugin version is pinned in the marketplace, so a new release does **not** reach you until you
-pull it. **Three** steps are required, in order, the middle one matters:
+The plugin version is pinned, so a new release does **not** reach you until you pull it. **Three**
+steps, in order, the middle one matters:
 
 ```
 /plugin update harness-kit     # step 1: fetch the newer plugin into the cache
                                # step 2: RESTART Claude Code  (plugins load at startup)
-/harness-kit:update            # step 3: re-lay it into THIS repo
+/harness-kit:update            # step 3: re-lay it into THIS repo, once per repo
 ```
 
-Step 1 fetches the new version into the plugin cache but does **not** change anything in your repo,
-and the running session still points at the old version. Step 2 (restart) makes Claude Code load the
-new version, without it, step 3 would re-lay the *old* version it still has loaded (the updater now
-detects this and stops with a restart reminder rather than silently downgrading). Step 3 lays the new
-version into the repo you run it from, run it once **per repo** you installed into.
-
-If step 1 reports you are already up to date but you know a newer release exists, refresh the
-marketplace first: `/plugin marketplace update harness-kit`, then retry step 1.
-
-**You don't have to remember to check.** On session start the harness compares your installed version
-against the latest release on GitHub (best-effort, cached ~24h, never blocks) and prints a one-line
-notice when you're behind, with the steps to run. Disable it with
-`HK_UPDATE_CHECK=0` in your environment.
-
-`/harness-kit:update` backs up your existing `.claude/settings.json` and reports the version delta
-via `.claude/.hk-version`. It also pre-authorizes the harness's own scripts (`marker.sh`,
-`preflight.sh`, `run-sensors.sh`) in `permissions.allow`, so a pipeline run never stops for an
-internal prompt, while destructive ops stay blocked. If you customized permissions, merge them back
-from the `.bak` file. See [Architecture › Permissions](docs/ARCHITECTURE.md#permissions).
-
-- **New users** who install after a release get the latest version automatically, nothing extra.
-- **Existing users** stay on their pinned version until they run the steps above.
-
-Current version: see the badge up top and [`CHANGELOG.md`](CHANGELOG.md).
-
----
-
-## Quickstart, the golden path
-
-One command, idea to merged PR.
-
-**1. Write the brief.** Open the **[idea-brief builder](https://pierry.github.io/harness-kit/brief/)**
-and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to
-the PRD conventions as you type.
-
-**2. Paste it.** Hit **Copy brief** and paste the ready-made `/golden-path` kick into Claude Code:
-
-```
-/golden-path
-
-Squad: checkout
-Problem: Returning guests abandon checkout when a card is declined once …
-Hypothesis: If we add one-tap retry, then completion rises 5 points, because …
-Success metric: checkout completion, from 71% to 76% within 30 days
-```
-
-**3. Approve and ship.** All six gated stages run, PM (`prd → prp`) then Eng (`plan → dev → test → pr`).
-Approve each artifact when prompted; the status bar tracks where you are. SSE flags pass straight
-through: `/golden-path --local`, `--sdd`, `--no-monitor`.
-
-Already know the idea cold? Skip the builder and type `/golden-path` with the brief yourself.
-[Golden path reference →](docs/GOLDEN-PATH.md)
-
----
-
-## Other ways to run
-
-Every flow shares the same pipeline state, so you can switch between them mid-feature.
-
-| You want | Run | Stages |
-|---|---|---|
-| Hands-off, idea to PR, two gates | `/pipeline:run "<idea>"` | `intake → prd → … → pr` |
-| Spec only, align before any code | `/product-manager:run` | `intake → prd → prp` |
-| Small change, plan in your head | `/sse:run` | `plan → dev → test → pr` |
-| Local only, no PR | `/sse:run --local` | `plan → dev → test` |
-| Loop until the spec passes | `/sse:sdd` | `plan → [dev↔test↔eval] ×3` |
-| Resume after a break | `/pipeline:continue` | next pending stage |
-
-`/sse:sdd` treats the PRP as the spec: an independent supervisor session re-checks the repo against
-the PRP's `Success criteria` + `Validation gates` after every dev↔test iteration, and never opens a
-PR on its own. Each stage is also its own command, `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`.
-`/sse:dev` asks once whether to apply the designer skill when the work has UI. To ship a finished
-static site, `/sse:firebase-publish` creates or reuses a Firebase project and deploys Hosting.
-
-**[Every command and every gate →](docs/COMMANDS.md)**
-
----
-
-## Autonomy and the cockpit
-
-harness-kit runs with minimal questions. A first `intake` stage harvests the inputs the pipeline used
-to ask for, squad, problem, customers, repos, straight from the target repo and your
-`context-library/`, so stages resolve context instead of stopping to ask. Anything genuinely unknown is
-marked `NEEDS REVIEW` and the run keeps going. You stay **on the loop** at two gates, not **in the loop**
-before every artifact:
-
-```
-intake → prd → [approve direction] → prp → plan → dev → test → [approve the PR] → pr
-```
-
-Run it hands-off with `/pipeline:run "<one-line idea>"`. Add `--yolo` to drop both gates, `--local` to
-stop before the PR. Full model:
-[Autonomy](https://github.com/Pierry/harness-kit/wiki/Autonomy) ·
-[Orchestration and Subagents](https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents).
-
-### The cockpit
-
-A terminal UI over the pipeline. It shows every stage live, renders each artifact, runs a stage on a
-keypress, and turns the two human gates into modal prompts (the direction gate lists intake's open
-`NEEDS REVIEW` items). It reads pipeline state and artifacts straight off disk, so it stays in sync with
-any Claude Code session driving the same feature.
-
-```
-npm i -g @pieerry/harness-kit   # once; puts hk, harness-kit, hk-tui on your PATH
-
-hk-tui                     # shortest: open the cockpit in the current repo
-hk-tui path/to/repo        # or point it at one
-hk-tui -- "add one-tap retry to checkout"   # seed the idea for intake
-hk cockpit                 # same thing via the main CLI
-```
-
-| Key | Action |
-|---|---|
-| `↑ ↓` / `j k` | move between stages |
-| `enter` | run the selected stage (`claude -p`), output tails in the pane |
-| `a` | at a gate: approve and continue · `x`: hold |
-| `r` | refresh · `q`: quit |
-
-The cockpit ships **bundled** with harness-kit (a single file, no extra dependencies land in your
-project), so `hk-tui` works the moment the package is installed, nothing else to build or configure. It
-needs a TTY and Node 18+. Working on the harness itself? Rebuild the bundle with `npm run build:cockpit`.
-
----
-
-## Context optimization
-
-Optional, all local-first. As a target repo and the harness grow, the tokens spent
-*loading context* and *reading command output* start to dominate. Four tools cut that, and they
-stack with the per-stage model tiers (which pick *which* model runs each step):
-
-| Tool | Cuts | How | Setup |
-|---|---|---|---|
-| [`/context:pack`](docs/COMMANDS.md) | input | `repomix` snapshot of the target repo for a deterministic stage handoff, cached per feature | `npm i -g repomix` |
-| [`/context:graph`](docs/COMMANDS.md) | input | `graphify` knowledge graph of a long-lived repo, query "what calls X" instead of grepping (~71× fewer tokens) | `pipx install graphifyy` |
-| **qmd** | input | local semantic search over the harness's own guides/skills, returns the relevant excerpt instead of the whole file | `setup/setup-qmd.sh` |
-| **rtk** | output | shell proxy that compresses `git`/`test`/`lint`/`grep` output 60-90% before it reaches the model | `brew install rtk && rtk init -g` |
-
-**`/context:pack` and `/context:graph`** ship with the harness. `pack` is a per-feature snapshot
-consumed by `/sse:plan` and the SDD supervisor eval; `graph` is a long-lived, queryable map of a big
-repo. The plan and eval stages read the cache when present and fall back to grep otherwise. Tier
-order and the decision tree live in [`context-strategy.md`](.claude/shared/context-strategy.md).
-
-**qmd** ([tobi/qmd](https://github.com/tobi/qmd)) and **rtk** ([rtk-ai/rtk](https://github.com/rtk-ai/rtk))
-attack the two remaining halves of token cost, input loading and output reading:
-
-```
-# rtk, output filter, one-liner, auto-intercepts git/test/lint/grep
-brew install rtk
-rtk init -g            # select Claude Code; rtk gain shows savings
-
-# qmd, semantic doc search over the harness guide tree
-npm install -g @tobilu/qmd
-setup/setup-qmd.sh     # indexes .claude/agents · commands · shared + skills, then embeds
-```
-
-`setup-qmd.sh` indexes the guide tree and prints the MCP-server snippet to add to
-`.claude/settings.json`. First embed downloads ~2GB of local models, once. After that an agent runs
-`qmd:query "..."` and gets back only the relevant guide section.
-
-> Heads up: qmd and rtk are third-party tools, not bundled. Each `Setup` cell above installs them
-> yourself. See [issue #2](https://github.com/Pierry/harness-kit/issues/2) for the rationale and
-> measured wins.
+Skip the restart and step 3 would re-lay the *old* version it still has loaded (the updater detects
+this and stops with a reminder). On session start the harness compares your installed version against
+the latest release (best-effort, cached ~24h, never blocks) and prints a one-line notice when you're
+behind. Disable with `HK_UPDATE_CHECK=0`. New users get the latest on install automatically. Current
+version: see the badge and [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -285,6 +260,26 @@ All registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals,
 
 ---
 
+## Context optimization
+
+Optional, all local-first. As a target repo and the harness grow, the tokens spent *loading context*
+and *reading command output* start to dominate. Four tools cut that, and they stack with the
+per-stage model tiers:
+
+| Tool | Cuts | How | Setup |
+|---|---|---|---|
+| [`/context:pack`](docs/COMMANDS.md) | input | `repomix` snapshot of the target repo, cached per feature | ships with harness |
+| [`/context:graph`](docs/COMMANDS.md) | input | `graphify` knowledge graph, query "what calls X" (~71× fewer tokens) | ships with harness |
+| **qmd** | input | local semantic search over the harness's guides, returns the relevant excerpt | `setup/setup-qmd.sh` |
+| **rtk** | output | shell proxy that compresses `git`/`test`/`lint`/`grep` output 60-90% | `brew install rtk && rtk init -g` |
+
+`pack` and `graph` ship with the harness and feed the plan and SDD-eval stages, falling back to grep
+otherwise. qmd and rtk are third-party, install them yourself. See [issue #2](https://github.com/Pierry/harness-kit/issues/2)
+for the rationale and measured wins, and [`context-strategy.md`](.claude/shared/context-strategy.md)
+for the tier order.
+
+---
+
 ## Docs
 
 | | |
@@ -292,6 +287,7 @@ All registered in [`AGENTS.md`](./AGENTS.md). Each ships its own sensors, evals,
 | [Golden path](docs/GOLDEN-PATH.md) | the full front-door walkthrough |
 | [Commands & gates](docs/COMMANDS.md) | every command, every sensor and eval |
 | [Architecture](docs/ARCHITECTURE.md) | stage anatomy, status bar, repo layout, tooling |
+| [Quality tracking](docs/quality/README.md) | how the phase-quality dashboard is fed |
 | [Conventions](.claude/agents/staff-software-engineer/guides/conventions-override.md) | per-repo overrides for the SSE agent |
 | [AGENTS.md](./AGENTS.md) | agent registry and path-by-path map |
 
