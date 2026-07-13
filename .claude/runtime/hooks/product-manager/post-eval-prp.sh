@@ -66,6 +66,12 @@ print(f'<!-- tokens: outputs/tokens/${FEATURE_ID}.json in={t.get(\"input\",0)} o
   printf '\n%s\n' "$TOKENS_LINE" >> "$FILE_PATH"
 fi
 
+python3 .claude/scripts/phase-log.py \
+  --feature-id "$FEATURE_ID" \
+  --stage prp \
+  --artifact "$FILE_PATH" \
+  --tokens "$TOKENS_FILE" >&2 || true
+
 printf '\n<!-- published: %s -->\n' "$NOW" >> "$FILE_PATH"
 
 echo "[hook] PRP handoff complete" >&2

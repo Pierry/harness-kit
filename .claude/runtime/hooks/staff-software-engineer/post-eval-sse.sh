@@ -62,6 +62,13 @@ print(f'<!-- tokens: outputs/tokens/${FEATURE_ID}.json in={t.get(\"input\",0)} o
   printf '\n%s\n' "$TOKENS_LINE" >> "$FILE_PATH"
 fi
 
+# Persist phase quality (score, gaps, sensors) to the cumulative log
+python3 .claude/scripts/phase-log.py \
+  --feature-id "$FEATURE_ID" \
+  --stage "$PHASE" \
+  --artifact "$FILE_PATH" \
+  --tokens "$TOKENS_FILE" >&2 || true
+
 printf '\n<!-- published: %s -->\n' "$NOW" >> "$FILE_PATH"
 echo "[hook] ${PHASE} approved + token accounting done" >&2
 exit 0
