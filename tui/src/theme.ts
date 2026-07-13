@@ -1,14 +1,17 @@
 // Vivid primary palette. One source of truth for cockpit colors.
 import type { StageState } from './engine.js';
 
+// Matches the harness-kit site identity (docs/index.html): violet accent,
+// gold, mint-green success, rose danger. Keeps the cockpit visually part of
+// the same product as the web dashboard.
 export const C = {
-  accent: '#22d3ee', // vivid cyan — title, cursor, borders
-  done: '#22e06b', // vivid green — approved
-  active: '#ffc21a', // vivid amber — drafting / running
-  pending: '#5b9dff', // vivid blue — pending
-  gate: '#ffd21e', // vivid yellow — gates
-  hold: '#ff4d4d', // vivid red — hold / errors
-  border: '#22d3ee', // vivid cyan borders
+  accent: '#a78bfa', // violet — title, cursor, borders
+  done: '#6ee7b7', // mint green — approved
+  active: '#fcc04a', // gold — drafting / running
+  pending: '#6b8afd', // soft blue — pending
+  gate: '#fcc04a', // gold — gates
+  hold: '#fb7185', // rose — hold / errors
+  border: '#a78bfa', // violet borders
   muted: '#8aa0b8', // secondary text (used instead of dimColor)
 };
 

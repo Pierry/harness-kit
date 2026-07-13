@@ -1,7 +1,7 @@
 // Engine: everything the cockpit needs to read and drive the harness-kit pipeline.
 // Reads state and artifacts off disk (live), and drives stages by spawning `claude -p`.
 // The pipeline.py CLI remains the source of truth for state mutations.
-import { readFileSync, existsSync, watch as fsWatch, statSync } from 'node:fs';
+import { readFileSync, existsSync, watch as fsWatch, statSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 
@@ -10,6 +10,8 @@ export type StageState = 'pending' | 'drafting' | 'approved';
 export interface Stage {
   key: string;
   label: string;
+  short: string; // fixed 3-char tag for aligned column headers
+  desc: string; // one-line purpose, shown in the idle overview
   dir: string; // output dir, relative to target
   cmd: string; // slash command that runs it
   gateAfter?: boolean; // human gate after this stage (approve direction)
@@ -18,13 +20,13 @@ export interface Stage {
 
 // Mirrors .claude/scripts/pipeline.py STAGE maps. Keep in sync.
 export const STAGES: Stage[] = [
-  { key: 'intake', label: 'INTAKE', dir: '.claude/runtime/outputs/intake', cmd: '/intake:run' },
-  { key: 'prd', label: 'PRD', dir: '.claude/runtime/outputs/pm/prd', cmd: '/product-manager:prd', gateAfter: true },
-  { key: 'prp', label: 'PRP', dir: '.claude/runtime/outputs/pm/prp', cmd: '/product-manager:prp' },
-  { key: 'plan', label: 'PLAN', dir: '.claude/runtime/outputs/sse/plan', cmd: '/sse:plan' },
-  { key: 'dev', label: 'DEV', dir: '.claude/runtime/outputs/sse/dev', cmd: '/sse:dev' },
-  { key: 'test', label: 'TEST', dir: '.claude/runtime/outputs/sse/test', cmd: '/sse:test' },
-  { key: 'pr', label: 'PR', dir: '.claude/runtime/outputs/sse/pr', cmd: '/sse:pr', gateBefore: true },
+  { key: 'intake', label: 'INTAKE', short: 'itk', desc: 'harvest repo and context', dir: '.claude/runtime/outputs/intake', cmd: '/intake:run' },
+  { key: 'prd', label: 'PRD', short: 'prd', desc: 'draft the business spec', dir: '.claude/runtime/outputs/pm/prd', cmd: '/product-manager:prd', gateAfter: true },
+  { key: 'prp', label: 'PRP', short: 'prp', desc: 'engineering-ready spec', dir: '.claude/runtime/outputs/pm/prp', cmd: '/product-manager:prp' },
+  { key: 'plan', label: 'PLAN', short: 'pln', desc: 'technical plan', dir: '.claude/runtime/outputs/sse/plan', cmd: '/sse:plan' },
+  { key: 'dev', label: 'DEV', short: 'dev', desc: 'implement and run gates', dir: '.claude/runtime/outputs/sse/dev', cmd: '/sse:dev' },
+  { key: 'test', label: 'TEST', short: 'tst', desc: 'run the test suite', dir: '.claude/runtime/outputs/sse/test', cmd: '/sse:test' },
+  { key: 'pr', label: 'PR', short: ' pr', desc: 'open the pull request', dir: '.claude/runtime/outputs/sse/pr', cmd: '/sse:pr', gateBefore: true },
 ];
 
 export interface PipelineState {
@@ -189,4 +191,78 @@ export class Engine {
       return 0;
     }
   }
+
+  // ---- feature-level view ----
+
+  /** Stage states for one feature, derived from its artifacts on disk. */
+  deriveStages(featureId: string): Record<string, StageState> {
+    const out: Record<string, StageState> = {};
+    for (const s of STAGES) {
+      const body = this.readArtifact(s, featureId);
+      out[s.key] = body == null ? 'pending' : /<!--\s*approved:/.test(body) ? 'approved' : 'drafting';
+    }
+    // If this is the active feature, live state (drafting/current) wins.
+    const st = this.readState();
+    if (st?.feature_id === featureId && st.stages) {
+      for (const [k, v] of Object.entries(st.stages)) out[k] = v;
+    }
+    return out;
+  }
+
+  /** A readable title: first heading of the PRD (else intake/prp), stripped of prefix. */
+  featureTitle(featureId: string): string {
+    for (const key of ['prd', 'intake', 'prp']) {
+      const s = STAGES.find((x) => x.key === key)!;
+      const body = this.readArtifact(s, featureId);
+      const m = body?.match(/^#\s+(.+)$/m);
+      if (m) return m[1].replace(/^(PRD|Intake|PRP|Dev Summary):\s*/i, '').trim();
+    }
+    // strip leading YYYY-MM-DD-
+    return featureId.replace(/^\d{4}-\d{2}-\d{2}-/, '') || featureId;
+  }
+
+  /** Every feature that has at least one artifact, newest first. */
+  listFeatures(): Feature[] {
+    const seen = new Map<string, number>(); // id -> newest mtime
+    for (const s of STAGES) {
+      const dir = join(this.target, s.dir);
+      let names: string[] = [];
+      try {
+        names = readdirSync(dir);
+      } catch {
+        continue;
+      }
+      for (const n of names) {
+        if (!n.endsWith('.md')) continue;
+        const id = n.slice(0, -3);
+        let mtime = 0;
+        try {
+          mtime = statSync(join(dir, n)).mtimeMs;
+        } catch {
+          /* ignore */
+        }
+        seen.set(id, Math.max(seen.get(id) ?? 0, mtime));
+      }
+    }
+    const active = this.readState()?.feature_id ?? null;
+    const feats: Feature[] = [...seen.entries()].map(([id, mtime]) => {
+      const stages = this.deriveStages(id);
+      let reached = 'pending';
+      for (const s of STAGES) if (stages[s.key] !== 'pending') reached = s.key;
+      const done = STAGES.every((s) => stages[s.key] === 'approved');
+      return { id, title: this.featureTitle(id), stages, reached, done, mtime, active: id === active };
+    });
+    feats.sort((a, b) => b.mtime - a.mtime);
+    return feats;
+  }
+}
+
+export interface Feature {
+  id: string;
+  title: string;
+  stages: Record<string, StageState>;
+  reached: string; // furthest stage key touched
+  done: boolean;
+  mtime: number;
+  active: boolean;
 }

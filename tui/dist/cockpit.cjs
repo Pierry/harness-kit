@@ -60359,18 +60359,18 @@ var require_Box = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     var react_1 = __importStar(require_react());
-    var Box7 = react_1.forwardRef((_a2, ref) => {
+    var Box8 = react_1.forwardRef((_a2, ref) => {
       var { children } = _a2, style = __rest(_a2, ["children"]);
       const transformedStyle = Object.assign(Object.assign({}, style), { marginLeft: style.marginLeft || style.marginX || style.margin || 0, marginRight: style.marginRight || style.marginX || style.margin || 0, marginTop: style.marginTop || style.marginY || style.margin || 0, marginBottom: style.marginBottom || style.marginY || style.margin || 0, paddingLeft: style.paddingLeft || style.paddingX || style.padding || 0, paddingRight: style.paddingRight || style.paddingX || style.padding || 0, paddingTop: style.paddingTop || style.paddingY || style.padding || 0, paddingBottom: style.paddingBottom || style.paddingY || style.padding || 0 });
       return react_1.default.createElement("ink-box", { ref, style: transformedStyle }, children);
     });
-    Box7.displayName = "Box";
-    Box7.defaultProps = {
+    Box8.displayName = "Box";
+    Box8.defaultProps = {
       flexDirection: "row",
       flexGrow: 0,
       flexShrink: 1
     };
-    exports2.default = Box7;
+    exports2.default = Box8;
   }
 });
 
@@ -60385,7 +60385,7 @@ var require_Text = __commonJS({
     var react_1 = __importDefault(require_react());
     var chalk_1 = __importDefault(require_source());
     var colorize_1 = __importDefault(require_colorize());
-    var Text7 = ({ color, backgroundColor, dimColor, bold, italic, underline, strikethrough, inverse, wrap, children }) => {
+    var Text8 = ({ color, backgroundColor, dimColor, bold, italic, underline, strikethrough, inverse, wrap, children }) => {
       if (children === void 0 || children === null) {
         return null;
       }
@@ -60418,8 +60418,8 @@ var require_Text = __commonJS({
       };
       return react_1.default.createElement("ink-text", { style: { flexGrow: 0, flexShrink: 1, flexDirection: "row", textWrap: wrap }, internal_transform: transform }, children);
     };
-    Text7.displayName = "Text";
-    Text7.defaultProps = {
+    Text8.displayName = "Text";
+    Text8.defaultProps = {
       dimColor: false,
       bold: false,
       italic: false,
@@ -60427,7 +60427,7 @@ var require_Text = __commonJS({
       strikethrough: false,
       wrap: "wrap"
     };
-    exports2.default = Text7;
+    exports2.default = Text8;
   }
 });
 
@@ -62405,10 +62405,10 @@ var require_react_jsx_runtime_development = __commonJS({
             return jsxWithValidation(type2, props, key2, false);
           }
         }
-        var jsx7 = jsxWithValidationDynamic;
-        var jsxs7 = jsxWithValidationStatic;
-        exports2.jsx = jsx7;
-        exports2.jsxs = jsxs7;
+        var jsx8 = jsxWithValidationDynamic;
+        var jsxs8 = jsxWithValidationStatic;
+        exports2.jsx = jsx8;
+        exports2.jsxs = jsxs8;
       })();
     }
   }
@@ -62427,7 +62427,7 @@ var require_jsx_runtime = __commonJS({
 });
 
 // src/cockpit.tsx
-var import_ink6 = __toESM(require_build2(), 1);
+var import_ink7 = __toESM(require_build2(), 1);
 var import_node_path2 = require("node:path");
 
 // src/engine.ts
@@ -62435,13 +62435,13 @@ var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 var import_node_child_process = require("node:child_process");
 var STAGES = [
-  { key: "intake", label: "INTAKE", dir: ".claude/runtime/outputs/intake", cmd: "/intake:run" },
-  { key: "prd", label: "PRD", dir: ".claude/runtime/outputs/pm/prd", cmd: "/product-manager:prd", gateAfter: true },
-  { key: "prp", label: "PRP", dir: ".claude/runtime/outputs/pm/prp", cmd: "/product-manager:prp" },
-  { key: "plan", label: "PLAN", dir: ".claude/runtime/outputs/sse/plan", cmd: "/sse:plan" },
-  { key: "dev", label: "DEV", dir: ".claude/runtime/outputs/sse/dev", cmd: "/sse:dev" },
-  { key: "test", label: "TEST", dir: ".claude/runtime/outputs/sse/test", cmd: "/sse:test" },
-  { key: "pr", label: "PR", dir: ".claude/runtime/outputs/sse/pr", cmd: "/sse:pr", gateBefore: true }
+  { key: "intake", label: "INTAKE", short: "itk", desc: "harvest repo and context", dir: ".claude/runtime/outputs/intake", cmd: "/intake:run" },
+  { key: "prd", label: "PRD", short: "prd", desc: "draft the business spec", dir: ".claude/runtime/outputs/pm/prd", cmd: "/product-manager:prd", gateAfter: true },
+  { key: "prp", label: "PRP", short: "prp", desc: "engineering-ready spec", dir: ".claude/runtime/outputs/pm/prp", cmd: "/product-manager:prp" },
+  { key: "plan", label: "PLAN", short: "pln", desc: "technical plan", dir: ".claude/runtime/outputs/sse/plan", cmd: "/sse:plan" },
+  { key: "dev", label: "DEV", short: "dev", desc: "implement and run gates", dir: ".claude/runtime/outputs/sse/dev", cmd: "/sse:dev" },
+  { key: "test", label: "TEST", short: "tst", desc: "run the test suite", dir: ".claude/runtime/outputs/sse/test", cmd: "/sse:test" },
+  { key: "pr", label: "PR", short: " pr", desc: "open the pull request", dir: ".claude/runtime/outputs/sse/pr", cmd: "/sse:pr", gateBefore: true }
 ];
 var Engine = class {
   target;
@@ -62573,28 +62573,85 @@ var Engine = class {
       return 0;
     }
   }
+  // ---- feature-level view ----
+  /** Stage states for one feature, derived from its artifacts on disk. */
+  deriveStages(featureId) {
+    const out = {};
+    for (const s of STAGES) {
+      const body = this.readArtifact(s, featureId);
+      out[s.key] = body == null ? "pending" : /<!--\s*approved:/.test(body) ? "approved" : "drafting";
+    }
+    const st = this.readState();
+    if (st?.feature_id === featureId && st.stages) {
+      for (const [k, v] of Object.entries(st.stages)) out[k] = v;
+    }
+    return out;
+  }
+  /** A readable title: first heading of the PRD (else intake/prp), stripped of prefix. */
+  featureTitle(featureId) {
+    for (const key2 of ["prd", "intake", "prp"]) {
+      const s = STAGES.find((x) => x.key === key2);
+      const body = this.readArtifact(s, featureId);
+      const m = body?.match(/^#\s+(.+)$/m);
+      if (m) return m[1].replace(/^(PRD|Intake|PRP|Dev Summary):\s*/i, "").trim();
+    }
+    return featureId.replace(/^\d{4}-\d{2}-\d{2}-/, "") || featureId;
+  }
+  /** Every feature that has at least one artifact, newest first. */
+  listFeatures() {
+    const seen = /* @__PURE__ */ new Map();
+    for (const s of STAGES) {
+      const dir = (0, import_node_path.join)(this.target, s.dir);
+      let names = [];
+      try {
+        names = (0, import_node_fs.readdirSync)(dir);
+      } catch {
+        continue;
+      }
+      for (const n of names) {
+        if (!n.endsWith(".md")) continue;
+        const id = n.slice(0, -3);
+        let mtime = 0;
+        try {
+          mtime = (0, import_node_fs.statSync)((0, import_node_path.join)(dir, n)).mtimeMs;
+        } catch {
+        }
+        seen.set(id, Math.max(seen.get(id) ?? 0, mtime));
+      }
+    }
+    const active = this.readState()?.feature_id ?? null;
+    const feats = [...seen.entries()].map(([id, mtime]) => {
+      const stages = this.deriveStages(id);
+      let reached = "pending";
+      for (const s of STAGES) if (stages[s.key] !== "pending") reached = s.key;
+      const done = STAGES.every((s) => stages[s.key] === "approved");
+      return { id, title: this.featureTitle(id), stages, reached, done, mtime, active: id === active };
+    });
+    feats.sort((a, b) => b.mtime - a.mtime);
+    return feats;
+  }
 };
 
 // src/App.tsx
 var import_react2 = __toESM(require_react(), 1);
-var import_ink5 = __toESM(require_build2(), 1);
+var import_ink6 = __toESM(require_build2(), 1);
 
 // src/theme.ts
 var C = {
-  accent: "#22d3ee",
-  // vivid cyan — title, cursor, borders
-  done: "#22e06b",
-  // vivid green — approved
-  active: "#ffc21a",
-  // vivid amber — drafting / running
-  pending: "#5b9dff",
-  // vivid blue — pending
-  gate: "#ffd21e",
-  // vivid yellow — gates
-  hold: "#ff4d4d",
-  // vivid red — hold / errors
-  border: "#22d3ee",
-  // vivid cyan borders
+  accent: "#a78bfa",
+  // violet — title, cursor, borders
+  done: "#6ee7b7",
+  // mint green — approved
+  active: "#fcc04a",
+  // gold — drafting / running
+  pending: "#6b8afd",
+  // soft blue — pending
+  gate: "#fcc04a",
+  // gold — gates
+  hold: "#fb7185",
+  // rose — hold / errors
+  border: "#a78bfa",
+  // violet borders
   muted: "#8aa0b8"
   // secondary text (used instead of dimColor)
 };
@@ -62763,13 +62820,95 @@ function GateModal({
   ] });
 }
 
-// src/App.tsx
+// src/components/FeatureList.tsx
+var import_ink5 = __toESM(require_build2(), 1);
 var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
+var CELL = 4;
+var TITLE_W = 26;
+function date(id) {
+  const m = id.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[2]}-${m[3]}` : "";
+}
+function StageHeader() {
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: TITLE_W, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "feature" }) }),
+    STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: s.short }) }, s.key)),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: " reached" })
+  ] });
+}
+function PipelineOverview() {
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "No features yet. The pipeline runs these seven stages in order:" }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.pending, children: [
+        glyph.pending,
+        " "
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 9, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: true, color: "white", children: s.label.toLowerCase() }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 26, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, wrap: "truncate-end", children: s.desc }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 8, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.gate, children: s.gateAfter || s.gateBefore ? "\u2691 gate" : "" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: s.cmd })
+    ] }, s.key)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { marginTop: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "Start one with " }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.accent, children: '/pipeline:run "<idea>"' }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: " in Claude Code." })
+    ] })
+  ] });
+}
+function FeatureList({ features, cursor }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", flexGrow: 1, borderStyle: "round", borderColor: C.accent, paddingX: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { justifyContent: "space-between", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { bold: true, color: C.accent, children: [
+        "FEATURES (",
+        features.length,
+        ")"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.muted, children: [
+        glyph.pending,
+        " pending ",
+        "  ",
+        glyph.drafting,
+        " drafting ",
+        "  ",
+        glyph.approved,
+        " approved ",
+        "  ",
+        "\u2691",
+        " gate"
+      ] })
+    ] }),
+    features.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PipelineOverview, {}) : /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(StageHeader, {}),
+      features.map((f, i2) => {
+        const isCursor = i2 === cursor;
+        const reachedStage = STAGES.find((s) => s.key === f.reached);
+        return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { width: TITLE_W, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: true, color: C.accent, children: isCursor ? "\u25B8 " : "  " }),
+            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: isCursor, color: isCursor ? "white" : void 0, wrap: "truncate-end", children: f.title })
+          ] }),
+          STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: stageColor[f.stages[s.key] ?? "pending"], children: glyph[f.stages[s.key] ?? "pending"] }) }, s.key)),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { children: " " }),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: f.done ? C.done : C.active, children: f.done ? "done" : reachedStage?.label.toLowerCase() ?? "-" }),
+          f.active && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.accent, children: " \u25CF live" }),
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "  " + date(f.id) })
+        ] }, f.id);
+      })
+    ] })
+  ] });
+}
+
+// src/App.tsx
+var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
 function App({ engine: engine2, idea: idea2 }) {
-  const { exit: exit2 } = (0, import_ink5.useApp)();
-  const { isRawModeSupported } = (0, import_ink5.useStdin)();
-  const { stdout } = (0, import_ink5.useStdout)();
-  const [state, setState] = (0, import_react2.useState)(() => engine2.readState());
+  const { exit: exit2 } = (0, import_ink6.useApp)();
+  const { isRawModeSupported } = (0, import_ink6.useStdin)();
+  const { stdout } = (0, import_ink6.useStdout)();
+  const [rev, setRev] = (0, import_react2.useState)(0);
+  const [view, setView] = (0, import_react2.useState)("list");
+  const [featureId, setFeatureId] = (0, import_react2.useState)(null);
+  const [featCursor, setFeatCursor] = (0, import_react2.useState)(0);
   const [cursor, setCursor] = (0, import_react2.useState)(0);
   const [running, setRunning] = (0, import_react2.useState)(null);
   const [tail, setTail] = (0, import_react2.useState)("");
@@ -62777,18 +62916,33 @@ function App({ engine: engine2, idea: idea2 }) {
   const [focus, setFocus] = (0, import_react2.useState)("rail");
   const [scroll, setScroll] = (0, import_react2.useState)(0);
   const child = (0, import_react2.useRef)(null);
-  const stages = (0, import_react2.useMemo)(() => engine2.stagesInPlay(state), [engine2, state]);
-  const featureId = state?.feature_id ?? null;
+  const bump = () => setRev((r) => r + 1);
   (0, import_react2.useEffect)(() => {
-    const reload = () => setState(engine2.readState());
-    reload();
-    return engine2.watch(reload);
+    bump();
+    return engine2.watch(bump);
   }, [engine2]);
-  (0, import_react2.useEffect)(() => {
-    setCursor((c) => Math.max(0, Math.min(c, stages.length - 1)));
-  }, [stages.length]);
-  (0, import_react2.useEffect)(() => setScroll(0), [cursor, running]);
+  const features = (0, import_react2.useMemo)(() => engine2.listFeatures(), [engine2, rev]);
+  const activeState = (0, import_react2.useMemo)(() => engine2.readState(), [engine2, rev]);
+  const isActive = !!featureId && featureId === activeState?.feature_id;
+  const state = (0, import_react2.useMemo)(() => {
+    if (!featureId) return null;
+    if (isActive && activeState) return activeState;
+    const stages2 = engine2.deriveStages(featureId);
+    const current = STAGES.find((s) => stages2[s.key] !== "approved")?.key ?? null;
+    return {
+      feature_id: featureId,
+      pipeline: STAGES.map((s) => s.key),
+      stages: stages2,
+      current,
+      intent: "archived"
+    };
+  }, [engine2, featureId, isActive, activeState]);
+  const stages = (0, import_react2.useMemo)(() => engine2.stagesInPlay(state), [engine2, state]);
+  (0, import_react2.useEffect)(() => setCursor((c) => Math.max(0, Math.min(c, stages.length - 1))), [stages.length]);
+  (0, import_react2.useEffect)(() => setFeatCursor((c) => Math.max(0, Math.min(c, features.length - 1))), [features.length]);
+  (0, import_react2.useEffect)(() => setScroll(0), [cursor, running, featureId]);
   const gate = (0, import_react2.useMemo)(() => {
+    if (!isActive) return null;
     const st = (k) => state?.stages?.[k] ?? "pending";
     for (let i2 = 0; i2 < stages.length; i2++) {
       const s = stages[i2];
@@ -62817,9 +62971,16 @@ function App({ engine: engine2, idea: idea2 }) {
       }
     }
     return null;
-  }, [stages, state, dismissed, engine2, featureId]);
+  }, [isActive, stages, state, dismissed, engine2, featureId]);
+  function openFeature(id) {
+    setFeatureId(id);
+    setView("feature");
+    setCursor(0);
+    setFocus("rail");
+    setDismissed(/* @__PURE__ */ new Set());
+  }
   function run2(stage) {
-    if (running) return;
+    if (running || !isActive) return;
     setTail(`$ claude -p "${stage.cmd}"
 `);
     setRunning(stage.key);
@@ -62834,7 +62995,7 @@ function App({ engine: engine2, idea: idea2 }) {
         setTail((t) => t + `
 [exit ${code ?? "?"}]
 `);
-        setState(engine2.readState());
+        bump();
       }
     );
   }
@@ -62845,11 +63006,25 @@ function App({ engine: engine2, idea: idea2 }) {
   const lineCount = (paneBody ?? "").split("\n").length;
   const maxScroll = Math.max(0, lineCount - rows);
   const clamp = (n) => Math.max(0, Math.min(n, maxScroll));
-  (0, import_ink5.useInput)(
+  (0, import_ink6.useInput)(
     (input, key2) => {
       if (input === "q" || key2.ctrl && input === "c") {
         child.current?.kill();
         exit2();
+        return;
+      }
+      if (input === "r") {
+        bump();
+        return;
+      }
+      if (view === "list") {
+        if (key2.upArrow || input === "k") setFeatCursor((c) => Math.max(0, c - 1));
+        else if (key2.downArrow || input === "j") setFeatCursor((c) => Math.min(features.length - 1, c + 1));
+        else if (key2.return && features[featCursor]) openFeature(features[featCursor].id);
+        return;
+      }
+      if (key2.escape || key2.leftArrow || input === "h" || key2.backspace) {
+        setView("list");
         return;
       }
       if (key2.tab) {
@@ -62865,10 +63040,6 @@ function App({ engine: engine2, idea: idea2 }) {
         setDismissed((d) => new Set(d).add(gate.key));
         return;
       }
-      if (input === "r") {
-        setState(engine2.readState());
-        return;
-      }
       if (focus === "reader") {
         if (key2.downArrow || input === "j") setScroll((s) => clamp(s + 1));
         else if (key2.upArrow || input === "k") setScroll((s) => clamp(s - 1));
@@ -62881,29 +63052,58 @@ function App({ engine: engine2, idea: idea2 }) {
       if (key2.upArrow || input === "k") setCursor((c) => Math.max(0, c - 1));
       else if (key2.downArrow || input === "j") setCursor((c) => Math.min(stages.length - 1, c + 1));
       else if (key2.return) run2(stages[cursor]);
+      else if (input === "m" && isActive) {
+        const s = stages[cursor];
+        const cur = state?.stages?.[s.key] ?? "pending";
+        engine2.setStage(s.key, cur === "approved" ? "pending" : "approved");
+        bump();
+      }
     },
     { isActive: isRawModeSupported }
   );
+  if (view === "list") {
+    const activeStages = engine2.stagesInPlay(activeState);
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { paddingX: 1, justifyContent: "space-between", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: true, color: C.accent, children: "harness-kit cockpit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: engine2.target.split("/").pop() })
+      ] }),
+      activeState?.feature_id && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { paddingX: 1, flexDirection: "column", marginBottom: 1, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
+          "active run: ",
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: "white", children: activeState.feature_id }),
+          activeState.intent ? `  \xB7  ${activeState.intent}` : ""
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { children: activeStages.map((s, i2) => {
+          const st = activeState.stages?.[s.key] ?? "pending";
+          return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_react2.default.Fragment, { children: [
+            i2 > 0 && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: " \u2500 " }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { bold: true, color: stageColor[st], children: [
+              glyph[st],
+              " ",
+              s.label
+            ] })
+          ] }, s.key);
+        }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FeatureList, { features, cursor: featCursor }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
+        "jk move \xB7 enter open feature \xB7 r refresh \xB7 q quit",
+        !isRawModeSupported && "   (no TTY: read-only)"
+      ] }) })
+    ] });
+  }
   const paneTitle = running ? `running: ${running}` : selected ? `${selected.label} \u2014 ${relPath ?? "(no file yet)"}` : "artifact";
-  const hint = gate ? "a approve \xB7 x hold \xB7 tab read PRD \xB7 jk scroll \xB7 q quit" : focus === "reader" ? "READER \xB7 jk/space/b scroll \xB7 g/G top\xB7end \xB7 tab rail \xB7 q quit" : "jk move \xB7 enter run \xB7 tab read \xB7 r refresh \xB7 q quit";
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Header, { stages, state, featureId }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(StageRail, { stages, state, cursor, running, focused: focus === "rail" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
-        ArtifactPane,
-        {
-          title: paneTitle,
-          body: paneBody,
-          rows,
-          tail: !!running,
-          scroll,
-          focused: focus === "reader"
-        }
-      )
+  const hint = gate ? "a approve \xB7 x hold \xB7 tab read \xB7 jk scroll \xB7 esc back" : focus === "reader" ? "READER \xB7 jk/space/b scroll \xB7 g/G top\xB7end \xB7 tab rail \xB7 esc back" : `jk move \xB7 enter run${isActive ? " \xB7 m mark done" : ""} \xB7 tab read \xB7 esc back \xB7 q quit`;
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Header, { stages, state, featureId }),
+    !isActive && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "archived feature \u2014 read-only (esc for the list)" }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StageRail, { stages, state, cursor, running, focused: focus === "rail" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArtifactPane, { title: paneTitle, body: paneBody, rows, tail: !!running, scroll, focused: focus === "reader" })
     ] }),
-    gate && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(GateModal, { title: gate.title, subtitle: gate.subtitle, unknowns: gate.unknowns }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.muted, children: [
+    gate && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(GateModal, { title: gate.title, subtitle: gate.subtitle, unknowns: gate.unknowns }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
       hint,
       !isRawModeSupported && "   (no TTY: read-only)"
     ] }) })
@@ -62911,7 +63111,7 @@ function App({ engine: engine2, idea: idea2 }) {
 }
 
 // src/cockpit.tsx
-var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
 var argv = process.argv.slice(2);
 var dashIdx = argv.indexOf("--");
 var idea = dashIdx >= 0 ? argv.slice(dashIdx + 1).join(" ").trim() || null : null;
@@ -62919,21 +63119,21 @@ var positional = (dashIdx >= 0 ? argv.slice(0, dashIdx) : argv).filter((a) => !a
 var target = (0, import_node_path2.resolve)(positional[0] || process.cwd());
 var engine = new Engine(target);
 if (!engine.isInstalled()) {
-  (0, import_ink6.render)(
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", borderStyle: "round", borderColor: "red", paddingX: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: "red", bold: true, children: [
+  (0, import_ink7.render)(
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { flexDirection: "column", borderStyle: "round", borderColor: "red", paddingX: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { color: "red", bold: true, children: [
         "harness-kit not found at ",
         target
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { dimColor: true, children: "run `hk install` here first, or pass a target repo: `hk cockpit <path>`" })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { dimColor: true, children: "run `hk install` here first, or pass a target repo: `hk cockpit <path>`" })
     ] })
   );
   process.exit(1);
 }
 if (process.stdin.isTTY) {
-  (0, import_ink6.render)(/* @__PURE__ */ (0, import_jsx_runtime6.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
+  (0, import_ink7.render)(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
 } else {
-  const { unmount } = (0, import_ink6.render)(/* @__PURE__ */ (0, import_jsx_runtime6.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
+  const { unmount } = (0, import_ink7.render)(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
   setTimeout(() => {
     unmount();
     process.exit(0);
