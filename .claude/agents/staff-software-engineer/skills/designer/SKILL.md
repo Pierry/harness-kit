@@ -30,6 +30,12 @@ its own section below; this is the unmissable summary, not the exception list.**
 - **No emoji, ever.** Use Material Symbols or a single modern open set. Draw brand marks original.
 - **No em-dashes or en-dashes** anywhere: copy, headings, comments, commits, PRs, docs, all locales.
 - **Both themes, always.** Light and dark, system-preference first, choice persisted.
+- **Vivid, on-trend color, never a timid grey wash.** Saturated modern seed + a second accent +
+  purposeful gradients. A washed-out palette is a build blocker. See "Vivid, on-trend color".
+- **A real, beautiful typeface, never the raw system stack.** Load/embed a current variable face
+  (Geist, Instrument Sans, Bricolage Grotesque, etc.); system-ui as the final look is forbidden.
+- **Depth and motion on every surface.** Layered + tinted shadows, accent glow, highlights/glass,
+  and animation are always on (with `prefers-reduced-motion`). Flat and shadowless is a defect.
 
 When in doubt, open the matching section below and follow it literally. The detailed rules win over
 any quick instinct, and the "Forbidden" list at the end is exhaustive. Treat a violation of any of
@@ -77,14 +83,26 @@ Mandatory both. System preference first, user toggle second, choice persisted.
 - Never ship one theme. Verify both for contrast (see Accessibility).
 - Dark is not pure black: use `#1A1C1E`-ish surface, elevate with lighter container tints.
 
-## Type: modern font
+## Type: beautiful modern font (never the system stack)
 
-- **Default**: `Inter` (variable) for UI + body. M3-native alternative: `Roboto Flex`. Pick one,
-  self-host or use a CDN with `font-display: swap`.
-- Optional **display** face for hero/headline only (e.g. `Space Grotesk`, `Sora`, `Plus Jakarta
-  Sans`). One display + one text face max.
-- Stack: `"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`.
-- Tabular numbers for data (`font-variant-numeric: tabular-nums`).
+A shipped UI must load a real, characterful typeface. `system-ui` / `-apple-system` as the intended
+look is forbidden: it reads as unfinished, the "default" tell of a template. Inter is allowed but it
+is now the safe, over-used default, so treat it as a fallback, not the pick.
+
+- **Body / UI default (pick one, current and good):** `Geist`, `Instrument Sans`, `General Sans`,
+  `Manrope`, or `Inter Tight`. Variable weight. This is the workhorse for body, labels, and data.
+- **Display / headline (pick one, pair with the body face):** `Bricolage Grotesque`, `Clash Display`,
+  `Sora`, `Fraunces` (for a warmer editorial feel), or `Space Grotesk`. One display + one text face,
+  no more. The display face carries the hero and big numbers; give it real weight (600-800) and tight
+  tracking.
+- **Numbers:** always `font-variant-numeric: tabular-nums` for data, meters, and KPIs. A mono face
+  (`Geist Mono`, `JetBrains Mono`) is fine for code/IDs only, not for prose.
+- **Loading, offline-safe:** self-host or embed. When the surface must work with no network or under a
+  strict CSP (standalone HTML, an Artifact, an embedded tool), **embed the variable font as a base64
+  `woff2` `@font-face` data URI** so the real face always renders. Never ship the system stack as the
+  final design and call it done. Always `font-display: swap`. Keep a system fallback in the stack for
+  the first paint only.
+- Stack example: `"Geist", "Inter Tight", system-ui, sans-serif` (fallback trails, never leads the intent).
 - **Never use em-dashes (`—`) or en-dashes (`–`)** in any user-facing copy, headings, labels, empty
   states, microcopy, or content strings. Hard rule. Use a comma, colon, parentheses, or rewrite the
   sentence. Same rule in code comments, commit messages, PR text, and docs. Applies to all three
@@ -110,14 +128,63 @@ What top Behance work means concretely:
 
 - **Generous whitespace.** 8pt spacing grid (4/8/12/16/24/32/48/64). Let layouts breathe.
 - **Strong hierarchy.** One clear focal point per view. Big confident headline, calm body.
-- **Restrained palette.** 1 brand seed + neutrals + 1 accent. Color earns attention, not decorates.
-- **Intentional contrast.** Size, weight, and space carry hierarchy before color does.
+- **Vivid, on-trend color** (see the dedicated section below). A washed-out, timid, grey-on-grey
+  palette is a defect, the same as a bug. Saturated, modern, confident color is the default.
+- **Intentional contrast.** Size, weight, and space carry hierarchy; color makes it feel alive.
 - **Crisp components.** Consistent radius, aligned grids, optical alignment, no orphaned elements.
 - **Real content.** Design with realistic copy and data, never lorem. Empty/loading/error states
   designed, not afterthoughts.
-- **Micro-interactions.** Hover, focus, press feedback on every interactive element. Subtle, fast.
+- **Micro-interactions.** Hover, focus, press feedback on every interactive element, and depth on
+  every surface (see "Depth and motion"). Subtle, fast, but always present.
 
-Avoid generic AI-template look: centered everything, default Bootstrap blues, gradient-on-everything.
+Avoid the generic AI-template look: centered everything, default Bootstrap blue, timid greys, one
+flat gradient slapped on a hero. The fix is not "no color", it is *considered, vivid* color plus real
+depth.
+
+## Vivid, on-trend color (mandatory)
+
+The palette must feel current and alive, not corporate-muted. This is a hard requirement, and it wins
+over any instinct toward a safe neutral wash. Stay inside the MD3 token/role system, just push the
+chroma and depth up:
+
+- **Seed with real chroma.** Pick a saturated, modern seed from the product's world (electric indigo,
+  vivid violet, cyber-lime, hot coral, aqua/cyan, magenta). Not a desaturated slate, not Bootstrap
+  `#0d6efd`, not the default M3 purple. State the seed and why.
+- **A second accent for energy.** Beyond the primary seed, define a vivid secondary/tertiary
+  (analogous or a punchy complementary) and use it in gradients, chart series, active states, and
+  focal highlights. Two lively hues in tension read as "designed", one flat hue reads as "template".
+- **Gradients are welcome, used with intent.** Multi-stop or mesh gradients on the hero, primary
+  buttons, key numbers, and accent surfaces. Vibrant, directional, not a single grey-to-grey fade.
+  A subtle animated gradient or aurora wash in the background is encouraged.
+- **Rich, dimensional surfaces.** Dark theme especially: deep, slightly-tinted near-black grounds
+  (tint the neutral toward the seed), luminous accent surfaces, and glow. Light theme: crisp bright
+  ground with saturated accent fills, never muddy.
+- **Container roles keep their vivid `on-*` pairs.** `primary-container` / `secondary-container` etc.
+  should be visibly tinted and lively, not a faint 4%-opacity ghost. Keep AA contrast in both themes.
+- **Color still earns its place.** Vivid does not mean noisy: one confident focal hue + its accent
+  partner + tuned neutrals + separate semantic status colors. Saturation with hierarchy, not confetti.
+
+## Depth and motion (always on)
+
+Every surface has dimension and every view has life. Flat, static, and shadowless is not acceptable
+for a shipped UI. Layer these, tastefully but always present:
+
+- **Shadow play.** Real, layered elevation shadows (a soft ambient + a tighter key shadow), tuned per
+  theme. Colored/tinted shadows and accent **glow** on primary and focal elements (a soft seed-colored
+  bloom behind a key button, KPI, or the hero mark). Not one flat `box-shadow: 0 1px 2px`.
+- **Highlights and reflections.** Top edge highlights (a 1px inner light line), subtle glass /
+  frosted surfaces (`backdrop-filter: blur()` with translucency) where it suits, and gentle specular
+  sheen on primary buttons and cards. Give surfaces a sense of material.
+- **Motion is required, not decorative.** Staggered entrance on load, hover/press micro-interactions
+  with MD3 state layers, animated value changes (count-up, meter fill, a pulse when a key result
+  updates), and animated show/hide (both directions, never a `display:none` snap). A slow ambient
+  background motion (drifting gradient/aurora) is a nice touch. M3 `emphasized` easing.
+- **Always** wrap motion in `@media (prefers-reduced-motion: reduce)` and keep interactions 60fps
+  (animate `transform`/`opacity`, not layout). Effects must never cost legibility or AA contrast.
+
+These raise the bar; they do not relax the MD3 correctness rules. Tonal containers still carry meaning
+(no colored left-border bars), tokens still drive color (no raw hex in components), both themes still
+ship, and never an emoji or a dash.
 
 ## Info, help, and supporting surfaces
 
@@ -249,13 +316,16 @@ State which symbol + seed you chose and why (the context link).
 
 ## Deliver with a new UI
 
-1. Token file (color roles + type + shape) for light **and** dark.
+1. Token file (color roles + type + shape) for light **and** dark, with a vivid, on-trend seed.
 2. Theme toggle wired to system preference + persistence.
-3. Modern font loaded with `font-display: swap`.
+3. A real, beautiful variable font loaded (`font-display: swap`), embedded as a `woff2` data URI when
+   the surface must run offline / under a strict CSP. Never the bare system stack as the final look.
 4. `locales/{en,pt-BR,es}.json` + `t()` wiring + lang switch.
 5. Original, modern SVG icon set (currentColor, accessible labels). No emoji.
 6. Context-aware favicon set + manifest + tags.
-7. Designed empty / loading / error states.
+7. Depth and motion: layered/tinted shadows, accent glow, highlights or glass, and entrance +
+   interaction animations (all under `prefers-reduced-motion`).
+8. Designed empty / loading / error states.
 
 ## Forbidden
 
@@ -272,6 +342,12 @@ State which symbol + seed you chose and why (the context link).
 - Placeholder favicon (default framework icon).
 - lorem ipsum in shipped UI.
 - Contrast below AA in either theme.
+- The raw system font stack (`system-ui`/`-apple-system`) shipped as the intended typeface. Load or
+  embed a real, current variable face.
+- A timid, washed-out, grey-on-grey or default-Bootstrap-blue palette. Color must be vivid and
+  considered (saturated seed + a second accent + purposeful gradients).
+- Flat, shadowless, effect-free surfaces. Every surface needs layered/tinted depth and glow; every
+  view needs motion (entrance, interaction, value changes), always under `prefers-reduced-motion`.
 
 ## Mark gaps
 
