@@ -33,6 +33,10 @@ except Exception:
   fi
 fi
 
+# Reconcile state with artifacts on disk (repairs a state that lagged behind a
+# run). Done after the shipped-clear check so a merged feature still clears.
+python3 "$PIPELINE_PY" sync >/dev/null 2>&1 || true
+
 CURRENT="$(python3 "$PIPELINE_PY" next 2>/dev/null || true)"
 [ -z "$CURRENT" ] && exit 0
 

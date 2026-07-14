@@ -16,6 +16,8 @@ Subcommands:
   set-stage <stage> <state>             pending|drafting|approved
   detect-from-file <abs_path>           infer stage+state from output file
                                         path; auto-init pipeline if needed
+  sync                                  reconcile state with artifacts on disk
+                                        (repairs a state that lagged a run)
   read                                  print state JSON
   render                                print one-line status bar
   next                                  print next pending stage command
@@ -141,17 +143,65 @@ def slug(feature_id):
     return feature_id
 
 
+def _disk_stage_states(fid):
+    """Stage -> state inferred from the feature's artifacts on disk.
+    approved when the artifact carries an approval marker, else drafting."""
+    out = {}
+    if not fid:
+        return out
+    for s, d in STAGE_TO_OUTPUT_DIR.items():
+        p = os.path.join(d, f"{fid}.md")
+        if not os.path.exists(p):
+            continue
+        try:
+            out[s] = "approved" if "<!-- approved:" in open(p).read() else "drafting"
+        except OSError:
+            out[s] = "drafting"
+    return out
+
+
+def _newest_feature_id():
+    """Feature id of the most recently modified artifact across all stage dirs."""
+    fid, newest = None, -1.0
+    for d in STAGE_TO_OUTPUT_DIR.values():
+        try:
+            names = os.listdir(d)
+        except OSError:
+            continue
+        for n in names:
+            if not n.endswith(".md"):
+                continue
+            try:
+                m = os.path.getmtime(os.path.join(d, n))
+            except OSError:
+                continue
+            if m > newest:
+                newest, fid = m, n[:-3]
+    return fid
+
+
 def render_line():
     state = load_state()
     if not state or not state.get("pipeline"):
         return "idle · /product-manager:run · /sse:run · /pipeline:continue"
 
-    fid = state.get("feature_id")
-    name = slug(fid) if fid else f"starting {state.get('intent') or '?'}"
-
-    current = state.get("current")
     pipeline = state["pipeline"]
-    stages = state.get("stages", {})
+    # Self-heal: the state file can lag behind reality when a run advances the
+    # artifacts without updating it. Reconcile stage states (and the feature id)
+    # from the artifacts on disk before rendering — read-only, never saved.
+    fid = state.get("feature_id") or _newest_feature_id()
+    # Start from disk truth: no artifact = pending, marker = approved, else drafting.
+    disk = _disk_stage_states(fid)
+    stages = {s: disk.get(s, "pending") for s in pipeline}
+    # Overlay the live state only when it genuinely tracks this feature (a stale
+    # state for a different / no feature must not override the artifacts).
+    if state.get("feature_id") and state.get("feature_id") == fid:
+        for s, ss in state.get("stages", {}).items():
+            if s in stages:
+                stages[s] = ss
+    current = next((s for s in pipeline if stages.get(s) != "approved"), None)
+
+    name = slug(fid) if fid else f"starting {state.get('intent') or '?'}"
 
     if current is None:
         return f"{name} · complete ({'/'.join(pipeline)})"
@@ -344,12 +394,44 @@ def cmd_clear(_args):
     return 0
 
 
+def cmd_sync(_args):
+    """Reconcile state with the artifacts on disk and save. Repairs a state
+    file that lagged behind a run (feature_id unset, stages not advanced).
+    Safe to run anytime; a no-op when nothing has been produced yet."""
+    state = load_state()
+    fid = (state or {}).get("feature_id") or _newest_feature_id()
+    if not fid:
+        return 0
+    disk = _disk_stage_states(fid)
+    if not disk:
+        return 0
+    if not state:
+        state = init_state(fid, [s for s in ALL_STAGES if s in disk])
+    state["feature_id"] = fid
+    merge_pipeline(state, list(disk.keys()))
+    # Make every stage in the pipeline match disk truth: no artifact = pending,
+    # approval marker = approved, else drafting. Never downgrade an approved
+    # stage (protects a genuinely-approved stage whose artifact was removed).
+    for s in state["pipeline"]:
+        ds = disk.get(s)  # None when no artifact exists
+        if ds == "approved" or state["stages"].get(s) == "approved":
+            state["stages"][s] = "approved"
+        elif ds == "drafting":
+            state["stages"][s] = "drafting"
+        else:
+            state["stages"][s] = "pending"
+    recompute_current(state)
+    save_state(state)
+    return 0
+
+
 COMMANDS = {
     "init": cmd_init,
     "intent": cmd_intent,
     "set-feature": cmd_set_feature,
     "set-stage": cmd_set_stage,
     "detect-from-file": cmd_detect_from_file,
+    "sync": cmd_sync,
     "read": cmd_read,
     "render": cmd_render,
     "next": cmd_next,

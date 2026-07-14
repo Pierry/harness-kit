@@ -4,7 +4,10 @@
 
 set -e
 
-FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
+# Claude Code passes tool details as JSON on stdin (tool_input.file_path).
+# Fall back to the legacy env var for older hosts.
+FILE_PATH="$(python3 -c 'import json,sys; ti=json.load(sys.stdin).get("tool_input",{}); print(ti.get("file_path") or ti.get("path") or "")' 2>/dev/null || true)"
+[ -z "$FILE_PATH" ] && FILE_PATH="${CLAUDE_TOOL_FILE_PATH:-}"
 [ -z "$FILE_PATH" ] && exit 0
 
 PIPELINE_PY=".claude/scripts/pipeline.py"
