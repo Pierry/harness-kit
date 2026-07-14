@@ -5,6 +5,7 @@ import { Engine, STAGES, type PipelineState, type Stage } from './engine.js';
 import { C, stageColor, glyph } from './theme.js';
 import { Header } from './components/Header.js';
 import { StageRail } from './components/StageRail.js';
+import { StageDetail } from './components/StageDetail.js';
 import { ArtifactPane } from './components/ArtifactPane.js';
 import { GateModal } from './components/GateModal.js';
 import { FeatureList } from './components/FeatureList.js';
@@ -31,7 +32,12 @@ export function App({ engine, idea }: { engine: Engine; idea: string | null }) {
 
   useEffect(() => {
     bump();
-    return engine.watch(bump);
+    const stop = engine.watch(bump);
+    // Poll as a safety net: fsWatch misses events on some platforms / over
+    // network mounts, so a 1s tick guarantees the phases advance on screen
+    // even when the pipeline is driven by a separate Claude session.
+    const tick = setInterval(bump, 1000);
+    return () => { stop(); clearInterval(tick); };
   }, [engine]);
 
   const features = useMemo(() => engine.listFeatures(), [engine, rev]);
@@ -104,7 +110,22 @@ export function App({ engine, idea }: { engine: Engine; idea: string | null }) {
   const selected = stages[cursor];
   const relPath = selected ? engine.artifactPath(selected, featureId)?.replace(engine.target + '/', '') : null;
   const paneBody = running ? tail : selected ? engine.readArtifact(selected, featureId) : null;
-  const rows = Math.max(6, (stdout?.rows ?? 24) - (gate ? 14 : 5));
+  const detail = useMemo(
+    () => (view === 'feature' && selected ? engine.stageDetail(selected, featureId) : null),
+    [engine, selected, featureId, view, rev],
+  );
+  const showDetail = !!detail && !running;
+  const scores = useMemo(() => {
+    if (view !== 'feature') return {};
+    const out: Record<string, number | undefined> = {};
+    for (const s of stages) out[s.key] = engine.stageDetail(s, featureId).score;
+    return out;
+  }, [engine, stages, featureId, view, rev]);
+  const avgScore = useMemo(() => {
+    const v = Object.values(scores).filter((n): n is number => n != null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }, [scores]);
+  const rows = Math.max(6, (stdout?.rows ?? 24) - (gate ? 14 : 5) - (showDetail ? 7 : 0));
   const lineCount = (paneBody ?? '').split('\n').length;
   const maxScroll = Math.max(0, lineCount - rows);
   const clamp = (n: number) => Math.max(0, Math.min(n, maxScroll));
@@ -203,14 +224,17 @@ export function App({ engine, idea }: { engine: Engine; idea: string | null }) {
 
   return (
     <Box flexDirection="column">
-      <Header stages={stages} state={state} featureId={featureId} />
+      <Header stages={stages} state={state} featureId={featureId} avgScore={avgScore} />
       {!isActive && (
         <Box paddingX={1}><Text color={C.muted}>archived feature — read-only (esc for the list)</Text></Box>
       )}
       <Box>
-        <StageRail stages={stages} state={state} cursor={cursor} running={running} focused={focus === 'rail'} />
+        <StageRail stages={stages} state={state} cursor={cursor} running={running} focused={focus === 'rail'} scores={scores} />
         <ArtifactPane title={paneTitle} body={paneBody} rows={rows} tail={!!running} scroll={scroll} focused={focus === 'reader'} />
       </Box>
+      {showDetail && selected && (
+        <StageDetail stage={selected} state={state?.stages?.[selected.key] ?? 'pending'} detail={detail!} />
+      )}
       {gate && <GateModal title={gate.title} subtitle={gate.subtitle} unknowns={gate.unknowns} />}
       <Box paddingX={1}>
         <Text color={C.muted}>{hint}{!isRawModeSupported && '   (no TTY: read-only)'}</Text>

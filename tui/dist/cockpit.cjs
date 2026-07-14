@@ -13663,7 +13663,7 @@ var require_react_reconciler_development = __commonJS({
         var HostPortal = 4;
         var HostComponent = 5;
         var HostText = 6;
-        var Fragment = 7;
+        var Fragment2 = 7;
         var Mode = 8;
         var ContextConsumer = 9;
         var ContextProvider = 10;
@@ -17117,7 +17117,7 @@ var require_react_reconciler_development = __commonJS({
             }
           }
           function updateFragment2(returnFiber, current2, fragment, lanes, key2) {
-            if (current2 === null || current2.tag !== Fragment) {
+            if (current2 === null || current2.tag !== Fragment2) {
               var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key2);
               created.return = returnFiber;
               return created;
@@ -17486,7 +17486,7 @@ var require_react_reconciler_development = __commonJS({
             while (child !== null) {
               if (child.key === key2) {
                 switch (child.tag) {
-                  case Fragment: {
+                  case Fragment2: {
                     if (element.type === REACT_FRAGMENT_TYPE) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
@@ -21253,7 +21253,7 @@ var require_react_reconciler_development = __commonJS({
               var _resolvedProps2 = workInProgress2.elementType === type2 ? _unresolvedProps2 : resolveDefaultProps(type2, _unresolvedProps2);
               return updateForwardRef(current2, workInProgress2, type2, _resolvedProps2, renderLanes2);
             }
-            case Fragment:
+            case Fragment2:
               return updateFragment(current2, workInProgress2, renderLanes2);
             case Mode:
               return updateMode(current2, workInProgress2, renderLanes2);
@@ -21609,7 +21609,7 @@ var require_react_reconciler_development = __commonJS({
             case SimpleMemoComponent:
             case FunctionComponent:
             case ForwardRef:
-            case Fragment:
+            case Fragment2:
             case Mode:
             case Profiler:
             case ContextConsumer:
@@ -26094,7 +26094,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return fiber;
         }
         function createFiberFromFragment(elements, mode, lanes, key2) {
-          var fiber = createFiber(Fragment, elements, key2, mode);
+          var fiber = createFiber(Fragment2, elements, key2, mode);
           fiber.lanes = lanes;
           return fiber;
         }
@@ -60359,18 +60359,18 @@ var require_Box = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     var react_1 = __importStar(require_react());
-    var Box8 = react_1.forwardRef((_a2, ref) => {
+    var Box9 = react_1.forwardRef((_a2, ref) => {
       var { children } = _a2, style = __rest(_a2, ["children"]);
       const transformedStyle = Object.assign(Object.assign({}, style), { marginLeft: style.marginLeft || style.marginX || style.margin || 0, marginRight: style.marginRight || style.marginX || style.margin || 0, marginTop: style.marginTop || style.marginY || style.margin || 0, marginBottom: style.marginBottom || style.marginY || style.margin || 0, paddingLeft: style.paddingLeft || style.paddingX || style.padding || 0, paddingRight: style.paddingRight || style.paddingX || style.padding || 0, paddingTop: style.paddingTop || style.paddingY || style.padding || 0, paddingBottom: style.paddingBottom || style.paddingY || style.padding || 0 });
       return react_1.default.createElement("ink-box", { ref, style: transformedStyle }, children);
     });
-    Box8.displayName = "Box";
-    Box8.defaultProps = {
+    Box9.displayName = "Box";
+    Box9.defaultProps = {
       flexDirection: "row",
       flexGrow: 0,
       flexShrink: 1
     };
-    exports2.default = Box8;
+    exports2.default = Box9;
   }
 });
 
@@ -60385,7 +60385,7 @@ var require_Text = __commonJS({
     var react_1 = __importDefault(require_react());
     var chalk_1 = __importDefault(require_source());
     var colorize_1 = __importDefault(require_colorize());
-    var Text8 = ({ color, backgroundColor, dimColor, bold, italic, underline, strikethrough, inverse, wrap, children }) => {
+    var Text9 = ({ color, backgroundColor, dimColor, bold, italic, underline, strikethrough, inverse, wrap, children }) => {
       if (children === void 0 || children === null) {
         return null;
       }
@@ -60418,8 +60418,8 @@ var require_Text = __commonJS({
       };
       return react_1.default.createElement("ink-text", { style: { flexGrow: 0, flexShrink: 1, flexDirection: "row", textWrap: wrap }, internal_transform: transform }, children);
     };
-    Text8.displayName = "Text";
-    Text8.defaultProps = {
+    Text9.displayName = "Text";
+    Text9.defaultProps = {
       dimColor: false,
       bold: false,
       italic: false,
@@ -60427,7 +60427,7 @@ var require_Text = __commonJS({
       strikethrough: false,
       wrap: "wrap"
     };
-    exports2.default = Text8;
+    exports2.default = Text9;
   }
 });
 
@@ -62405,10 +62405,10 @@ var require_react_jsx_runtime_development = __commonJS({
             return jsxWithValidation(type2, props, key2, false);
           }
         }
-        var jsx8 = jsxWithValidationDynamic;
-        var jsxs8 = jsxWithValidationStatic;
-        exports2.jsx = jsx8;
-        exports2.jsxs = jsxs8;
+        var jsx9 = jsxWithValidationDynamic;
+        var jsxs9 = jsxWithValidationStatic;
+        exports2.jsx = jsx9;
+        exports2.jsxs = jsxs9;
       })();
     }
   }
@@ -62427,13 +62427,43 @@ var require_jsx_runtime = __commonJS({
 });
 
 // src/cockpit.tsx
-var import_ink7 = __toESM(require_build2(), 1);
+var import_ink8 = __toESM(require_build2(), 1);
 var import_node_path2 = require("node:path");
 
 // src/engine.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 var import_node_child_process = require("node:child_process");
+function formatEvent(line) {
+  const s = line.trim();
+  if (!s) return "";
+  let ev;
+  try {
+    ev = JSON.parse(s);
+  } catch {
+    return "";
+  }
+  if (ev.type === "assistant" && ev.message?.content) {
+    let out = "";
+    for (const c of ev.message.content) {
+      if (c.type === "text" && c.text?.trim()) {
+        out += c.text.trim() + "\n";
+      } else if (c.type === "tool_use") {
+        const a = c.input ?? {};
+        const arg2 = a.command ?? a.file_path ?? a.path ?? a.pattern ?? a.description ?? "";
+        out += `  \xB7 ${c.name}${arg2 ? " " + String(arg2).split("\n")[0].slice(0, 80) : ""}
+`;
+      }
+    }
+    return out;
+  }
+  if (ev.type === "result") {
+    const r = (ev.result ?? "").toString().trim();
+    return `${r ? r + "\n" : ""}[done \xB7 ${ev.subtype ?? ""}]
+`;
+  }
+  return "";
+}
 var STAGES = [
   { key: "intake", label: "INTAKE", short: "itk", desc: "harvest repo and context", dir: ".claude/runtime/outputs/intake", cmd: "/intake:run" },
   { key: "prd", label: "PRD", short: "prd", desc: "draft the business spec", dir: ".claude/runtime/outputs/pm/prd", cmd: "/product-manager:prd", gateAfter: true },
@@ -62539,14 +62569,36 @@ var Engine = class {
       }
     };
   }
-  /** Spawn `claude -p "<idea>? <command>"` to run one stage, streaming output. */
+  /** Spawn `claude -p "<idea>? <command>"` to run one stage, streaming output.
+   *
+   * Uses `--output-format stream-json --verbose`: plain `-p` prints ONLY the
+   * final result at the very end, so the pane would sit frozen for the whole
+   * run. stream-json emits an event per turn/tool as it happens, which we
+   * flatten into compact human lines so the pane shows live activity. */
   runStage(stage, idea2, onData, onExit) {
     const prompt = stage.key === "intake" && idea2 ? `${stage.cmd} ${idea2}` : stage.cmd;
-    const child = (0, import_node_child_process.spawn)(this.claudeBin, ["-p", prompt], {
-      cwd: this.target,
-      env: process.env
+    const child = (0, import_node_child_process.spawn)(
+      this.claudeBin,
+      ["-p", prompt, "--output-format", "stream-json", "--verbose"],
+      {
+        cwd: this.target,
+        env: process.env,
+        // Close child stdin (no TTY, no pipe) so `claude -p` does not wait 3s
+        // for stdin data and emit "no stdin data received" warning.
+        stdio: ["ignore", "pipe", "pipe"]
+      }
+    );
+    let buf = "";
+    child.stdout?.on("data", (b) => {
+      buf += b.toString();
+      let nl;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl);
+        buf = buf.slice(nl + 1);
+        const out = formatEvent(line);
+        if (out) onData(out);
+      }
     });
-    child.stdout?.on("data", (b) => onData(b.toString()));
     child.stderr?.on("data", (b) => onData(b.toString()));
     child.on("error", (e) => onData(`
 [cockpit] failed to spawn ${this.claudeBin}: ${e.message}
@@ -62587,6 +62639,143 @@ var Engine = class {
     }
     return out;
   }
+  /** Rich per-stage facts, all parsed from disk: eval score, tokens, duration,
+   * and the sensor/eval/guide catalog that gates this stage. Everything here
+   * is read-only and cheap; the cockpit recomputes it on every refresh. */
+  stageDetail(stage, featureId) {
+    const d = { sensors: [], evals: [], guides: [], hasReport: false, hasTrace: false };
+    const body = featureId ? this.readArtifact(stage, featureId) : null;
+    if (body) {
+      const m = body.match(/<!--\s*approved:\s*([0-9-]+)\s+score=([\d.]+)([^>]*)-->/);
+      if (m) {
+        d.approvedAt = m[1];
+        d.score = parseFloat(m[2]);
+        d.readyForHandoff = /ready-for-handoff:\s*true/.test(m[3]);
+      }
+      const t = body.match(/<!--\s*tokens:[^>]*?in=(\d+)\s+out=(\d+)\s+cache_r=(\d+)/);
+      if (t) d.tokens = { in: +t[1], out: +t[2], cacheRead: +t[3] };
+    }
+    let lo = Infinity, hi = 0;
+    for (const agent of ["pm", "sse"]) {
+      const md = (0, import_node_path.join)(this.target, ".claude", "runtime", "outputs", agent, ".markers");
+      let names2 = [];
+      try {
+        names2 = (0, import_node_fs.readdirSync)(md);
+      } catch {
+        continue;
+      }
+      for (const n of names2) {
+        if (!n.startsWith(`${featureId}.${stage.key}-`)) continue;
+        try {
+          const ts = JSON.parse((0, import_node_fs.readFileSync)((0, import_node_path.join)(md, n), "utf8")).timestamp;
+          const ms = ts ? Date.parse(ts) : NaN;
+          if (!Number.isNaN(ms)) {
+            lo = Math.min(lo, ms);
+            hi = Math.max(hi, ms);
+          }
+        } catch {
+        }
+      }
+    }
+    if (hi > lo) d.durationSec = Math.round((hi - lo) / 1e3);
+    const reportPath = (0, import_node_path.join)(this.target, (0, import_node_path.dirname)(stage.dir), "reports", `${featureId}.${stage.key}.json`);
+    let reportStatus = null;
+    try {
+      const r = JSON.parse((0, import_node_fs.readFileSync)(reportPath, "utf8"));
+      reportStatus = {};
+      for (const s of r.sensors ?? []) reportStatus[s.name] = s.status === "fail" ? "fail" : "pass";
+      d.hasReport = true;
+    } catch {
+    }
+    const prefix2 = new RegExp(`^${stage.key}[-.]`);
+    for (const agent of ["product-manager", "staff-software-engineer"]) {
+      for (const kind of ["sensors", "evals"]) {
+        const dir = (0, import_node_path.join)(this.target, ".claude", "agents", agent, kind);
+        let names2 = [];
+        try {
+          names2 = (0, import_node_fs.readdirSync)(dir);
+        } catch {
+          continue;
+        }
+        for (const n of names2) {
+          if (!n.endsWith(".md") || !prefix2.test(n)) continue;
+          const name = n.replace(/\.md$/, "");
+          if (kind === "sensors") {
+            if (!d.sensors.some((s) => s.name === name))
+              d.sensors.push({ name, status: reportStatus?.[name] ?? "configured" });
+          } else if (!d.evals.includes(name)) {
+            d.evals.push(name);
+          }
+        }
+      }
+    }
+    if (reportStatus) {
+      for (const [name, status] of Object.entries(reportStatus)) {
+        if (!d.sensors.some((s) => s.name === name)) d.sensors.push({ name, status });
+      }
+    }
+    const used = this.guidesUsedInWindow(featureId, stage.key);
+    if (used) d.hasTrace = true;
+    const catalog = (GUIDE_HINTS[stage.key] ?? []).filter(
+      (h) => (0, import_node_fs.existsSync)((0, import_node_path.join)(this.target, ".claude", "agents", "product-manager", "guides", `${h}.md`)) || (0, import_node_fs.existsSync)((0, import_node_path.join)(this.target, ".claude", "agents", "staff-software-engineer", "guides", `${h}.md`))
+    );
+    const names = new Set(catalog);
+    if (used) for (const g of used) names.add(g);
+    for (const name of names) d.guides.push({ name, used: used ? used.has(name) : false });
+    return d;
+  }
+  /** Guides read during a stage's run window, from the activity log. Returns a
+   * set (possibly empty) when the stage has a start marker + log entries, or
+   * null when there is no trace to attribute (fall back to catalog). */
+  guidesUsedInWindow(featureId, stageKey) {
+    if (!featureId) return null;
+    const starts = [];
+    for (const agent of ["pm", "sse"]) {
+      const md = (0, import_node_path.join)(this.target, ".claude", "runtime", "outputs", agent, ".markers");
+      let names = [];
+      try {
+        names = (0, import_node_fs.readdirSync)(md);
+      } catch {
+        continue;
+      }
+      for (const n of names) {
+        const m = n.match(new RegExp(`^${featureId}\\.(.+)-generate\\.start$`));
+        if (!m) continue;
+        try {
+          const ms = Date.parse(JSON.parse((0, import_node_fs.readFileSync)((0, import_node_path.join)(md, n), "utf8")).timestamp);
+          if (!Number.isNaN(ms)) starts.push({ key: m[1], ms });
+        } catch {
+        }
+      }
+    }
+    starts.sort((a, b) => a.ms - b.ms);
+    const idx = starts.findIndex((s) => s.key === stageKey);
+    if (idx < 0) return null;
+    const lo = starts[idx].ms;
+    const hi = idx + 1 < starts.length ? starts[idx + 1].ms : Infinity;
+    const logPath = (0, import_node_path.join)(this.target, ".claude", "runtime", "outputs", ".activity-log.jsonl");
+    let lines;
+    try {
+      lines = (0, import_node_fs.readFileSync)(logPath, "utf8").split("\n");
+    } catch {
+      return null;
+    }
+    const used = /* @__PURE__ */ new Set();
+    let sawAny = false;
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const e = JSON.parse(line);
+        const ms = (e.ts ?? 0) * 1e3;
+        if (ms >= lo && ms < hi) {
+          sawAny = true;
+          if (e.kind === "guide") used.add(e.name);
+        }
+      } catch {
+      }
+    }
+    return sawAny ? used : null;
+  }
   /** A readable title: first heading of the PRD (else intake/prp), stripped of prefix. */
   featureTitle(featureId) {
     for (const key2 of ["prd", "intake", "prp"]) {
@@ -62625,16 +62814,29 @@ var Engine = class {
       let reached = "pending";
       for (const s of STAGES) if (stages[s.key] !== "pending") reached = s.key;
       const done = STAGES.every((s) => stages[s.key] === "approved");
-      return { id, title: this.featureTitle(id), stages, reached, done, mtime, active: id === active };
+      const scored = STAGES.map((s) => this.stageDetail(s, id).score).filter(
+        (x) => x != null
+      );
+      const avgScore = scored.length ? scored.reduce((a, b) => a + b, 0) / scored.length : void 0;
+      return { id, title: this.featureTitle(id), stages, reached, done, mtime, active: id === active, avgScore };
     });
     feats.sort((a, b) => b.mtime - a.mtime);
     return feats;
   }
 };
+var GUIDE_HINTS = {
+  intake: ["pipeline"],
+  prd: ["prd-guidelines", "product-guidelines", "writing-style"],
+  prp: ["prp-guidelines", "writing-style"],
+  plan: ["pipeline", "coding-style"],
+  dev: ["coding-style", "commit-style", "conventions-override"],
+  test: ["coding-style"],
+  pr: ["commit-style"]
+};
 
 // src/App.tsx
 var import_react2 = __toESM(require_react(), 1);
-var import_ink6 = __toESM(require_build2(), 1);
+var import_ink7 = __toESM(require_build2(), 1);
 
 // src/theme.ts
 var C = {
@@ -62673,12 +62875,19 @@ var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 function Header({
   stages,
   state,
-  featureId
+  featureId,
+  avgScore
 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_ink.Box, { flexDirection: "column", paddingX: 1, children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_ink.Box, { justifyContent: "space-between", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_ink.Text, { bold: true, color: C.accent, children: "harness-kit cockpit" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_ink.Text, { color: C.muted, children: [
+        avgScore != null && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_ink.Text, { bold: true, color: avgScore >= 8 ? C.done : C.active, children: [
+          "avg ",
+          avgScore.toFixed(2),
+          "  \xB7",
+          "  "
+        ] }),
         featureId ?? "idle",
         state?.intent ? `  \xB7  ${state.intent}` : ""
       ] })
@@ -62705,13 +62914,14 @@ function StageRail({
   state,
   cursor,
   running,
-  focused
+  focused,
+  scores
 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
     import_ink2.Box,
     {
       flexDirection: "column",
-      width: 22,
+      width: 26,
       borderStyle: "round",
       borderColor: focused ? C.accent : C.muted,
       paddingX: 1,
@@ -62725,6 +62935,7 @@ function StageRail({
           const isCursor = i2 === cursor;
           const isRunning = running === s.key;
           const gate = s.gateAfter || s.gateBefore ? " \u2691" : "";
+          const score = scores?.[s.key];
           return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_ink2.Box, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_ink2.Text, { bold: true, color: C.accent, children: isCursor ? "\u25B8" : " " }),
             /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_ink2.Text, { bold: isCursor, color: stageColor[st], children: [
@@ -62733,7 +62944,11 @@ function StageRail({
               s.label.toLowerCase()
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_ink2.Text, { color: C.gate, children: gate }),
-            isRunning && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_ink2.Text, { color: C.active, children: " \u2026" })
+            isRunning && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_ink2.Text, { color: C.active, children: " \u2026" }),
+            !isRunning && score != null && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_ink2.Text, { color: C.done, children: [
+              " ",
+              score.toFixed(1)
+            ] })
           ] }, s.key);
         })
       ]
@@ -62741,9 +62956,109 @@ function StageRail({
   );
 }
 
-// src/components/ArtifactPane.tsx
+// src/components/StageDetail.tsx
 var import_ink3 = __toESM(require_build2(), 1);
 var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
+function StageDetail({
+  stage,
+  state,
+  detail
+}) {
+  const fmtDur = (s) => s == null ? null : s >= 60 ? `${Math.floor(s / 60)}m${s % 60}s` : `${s}s`;
+  const fmtK = (n) => n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : `${n}`;
+  const passed = state === "approved";
+  const gateMark = passed ? "\u2713" : state === "drafting" ? "\u2022" : "\u25CB";
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Box, { flexDirection: "column", borderStyle: "round", borderColor: C.muted, paddingX: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { bold: true, color: stageColor[state], children: [
+        glyph[state],
+        " ",
+        stage.label
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "  ",
+        stage.desc
+      ] }),
+      detail.score != null && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { bold: true, color: detail.score >= 8 ? C.done : C.active, children: [
+        "   ",
+        "score ",
+        detail.score.toFixed(2),
+        "/10"
+      ] }),
+      detail.readyForHandoff && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.done, children: "  handoff-ready" }),
+      detail.approvedAt && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "  \xB7 ",
+        detail.approvedAt
+      ] }),
+      fmtDur(detail.durationSec) && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "  \xB7 ",
+        fmtDur(detail.durationSec)
+      ] }),
+      detail.tokens && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "  \xB7 ",
+        "in ",
+        fmtK(detail.tokens.in),
+        " out ",
+        fmtK(detail.tokens.out)
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "gates",
+        detail.hasReport ? "" : "*",
+        " "
+      ] }),
+      detail.sensors.length === 0 && detail.evals.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.muted, children: "none" }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+        detail.sensors.map((s) => {
+          const mark = s.status === "pass" ? "\u2713" : s.status === "fail" ? "\u2717" : gateMark;
+          const col = s.status === "pass" ? C.done : s.status === "fail" ? C.hold : passed ? C.done : C.muted;
+          return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: col, children: [
+              mark,
+              " "
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.pending, children: [
+              s.name,
+              " "
+            ] })
+          ] }, s.name);
+        }),
+        detail.evals.map((e) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: passed ? C.done : C.muted, children: [
+            gateMark,
+            " "
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.accent, children: [
+            e,
+            " "
+          ] })
+        ] }, e))
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+        "guides",
+        detail.hasTrace ? "" : "*",
+        " "
+      ] }),
+      detail.guides.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.muted, children: "none" }) : detail.guides.map((g) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { bold: true, color: g.used ? C.done : C.muted, children: [
+          g.used ? "\u2713" : "\u25CB",
+          " "
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { bold: g.used, color: g.used ? "#e6edf5" : C.muted, children: [
+          g.name,
+          " "
+        ] })
+      ] }, g.name))
+    ] }),
+    (!detail.hasReport || !detail.hasTrace) && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.muted, children: "* catalog (no per-run trace yet) \u2014 rerun the stage to record real pass/fail + guides read" })
+  ] });
+}
+
+// src/components/ArtifactPane.tsx
+var import_ink4 = __toESM(require_build2(), 1);
+var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
 function ArtifactPane({
   title,
   body,
@@ -62758,8 +63073,8 @@ function ArtifactPane({
   const shown = lines.slice(start, start + rows);
   const above = start;
   const below = lines.length - (start + shown.length);
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
-    import_ink3.Box,
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(
+    import_ink4.Box,
     {
       flexDirection: "column",
       flexGrow: 1,
@@ -62767,62 +63082,62 @@ function ArtifactPane({
       borderColor: focused ? C.accent : C.muted,
       paddingX: 1,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Box, { justifyContent: "space-between", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Box, { flexGrow: 1, marginRight: 1, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { bold: true, color: C.accent, wrap: "truncate-middle", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Box, { justifyContent: "space-between", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Box, { flexGrow: 1, marginRight: 1, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { bold: true, color: C.accent, wrap: "truncate-middle", children: [
             focused ? "\u25A3 " : "",
             title
           ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: C.muted, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { color: C.muted, children: [
             above > 0 ? `\u25B2${above} ` : "",
             below > 0 ? `\u25BC${below}` : above > 0 ? "end" : ""
           ] })
         ] }),
-        body == null ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.muted, children: "no artifact yet \u2014 run this stage to generate it" }) : shown.map((l, i2) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { wrap: "truncate-end", children: l || " " }, i2))
+        body == null ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { color: C.muted, children: "no artifact yet \u2014 run this stage to generate it" }) : shown.map((l, i2) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { wrap: "truncate-end", children: l || " " }, i2))
       ]
     }
   );
 }
 
 // src/components/GateModal.tsx
-var import_ink4 = __toESM(require_build2(), 1);
-var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+var import_ink5 = __toESM(require_build2(), 1);
+var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
 function GateModal({
   title,
   subtitle,
   unknowns
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Box, { flexDirection: "column", borderStyle: "double", borderColor: C.gate, paddingX: 1, marginX: 1, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { bold: true, color: C.gate, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", borderStyle: "double", borderColor: C.gate, paddingX: 1, marginX: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { bold: true, color: C.gate, children: [
       "\u2691 ",
       title
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { color: "white", children: subtitle }),
-    unknowns.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Box, { flexDirection: "column", marginTop: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { color: C.muted, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: "white", children: subtitle }),
+    unknowns.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.muted, children: [
         "unresolved (",
         unknowns.length,
         ") \u2014 NEEDS REVIEW:"
       ] }),
-      unknowns.slice(0, 5).map((u, i2) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { color: C.gate, children: [
+      unknowns.slice(0, 5).map((u, i2) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.gate, children: [
         "  \u2022 ",
         u
       ] }, i2))
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Box, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { color: C.done, bold: true, children: "[a]" }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_ink4.Text, { color: "white", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.done, bold: true, children: "[a]" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: "white", children: [
         " approve & continue",
         "   "
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { color: C.hold, bold: true, children: "[x]" }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_ink4.Text, { color: "white", children: " hold" })
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.hold, bold: true, children: "[x]" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: "white", children: " hold" })
     ] }) })
   ] });
 }
 
 // src/components/FeatureList.tsx
-var import_ink5 = __toESM(require_build2(), 1);
-var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
+var import_ink6 = __toESM(require_build2(), 1);
+var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
 var CELL = 4;
 var TITLE_W = 26;
 function date(id) {
@@ -62830,41 +63145,41 @@ function date(id) {
   return m ? `${m[2]}-${m[3]}` : "";
 }
 function StageHeader() {
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: TITLE_W, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "feature" }) }),
-    STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: s.short }) }, s.key)),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: " reached" })
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: TITLE_W, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "feature" }) }),
+    STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: s.short }) }, s.key)),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: " reached  score" })
   ] });
 }
 function PipelineOverview() {
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "No features yet. The pipeline runs these seven stages in order:" }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.pending, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", marginTop: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "No features yet. The pipeline runs these seven stages in order:" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { flexDirection: "column", marginTop: 1, children: STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.pending, children: [
         glyph.pending,
         " "
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 9, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: true, color: "white", children: s.label.toLowerCase() }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 26, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, wrap: "truncate-end", children: s.desc }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: 8, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.gate, children: s.gateAfter || s.gateBefore ? "\u2691 gate" : "" }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: s.cmd })
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: 9, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: true, color: "white", children: s.label.toLowerCase() }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: 26, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, wrap: "truncate-end", children: s.desc }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: 8, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.gate, children: s.gateAfter || s.gateBefore ? "\u2691 gate" : "" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: s.cmd })
     ] }, s.key)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { marginTop: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "Start one with " }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.accent, children: '/pipeline:run "<idea>"' }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: " in Claude Code." })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { marginTop: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "Start one with " }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.accent, children: '/pipeline:run "<idea>"' }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: " in Claude Code." })
     ] })
   ] });
 }
 function FeatureList({ features, cursor }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", flexGrow: 1, borderStyle: "round", borderColor: C.accent, paddingX: 1, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { justifyContent: "space-between", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { bold: true, color: C.accent, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", flexGrow: 1, borderStyle: "round", borderColor: C.accent, paddingX: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { justifyContent: "space-between", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { bold: true, color: C.accent, children: [
         "FEATURES (",
         features.length,
         ")"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Text, { color: C.muted, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
         glyph.pending,
         " pending ",
         "  ",
@@ -62878,21 +63193,22 @@ function FeatureList({ features, cursor }) {
         " gate"
       ] })
     ] }),
-    features.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(PipelineOverview, {}) : /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { flexDirection: "column", marginTop: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(StageHeader, {}),
+    features.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(PipelineOverview, {}) : /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", marginTop: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StageHeader, {}),
       features.map((f, i2) => {
         const isCursor = i2 === cursor;
         const reachedStage = STAGES.find((s) => s.key === f.reached);
-        return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_ink5.Box, { width: TITLE_W, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: true, color: C.accent, children: isCursor ? "\u25B8 " : "  " }),
-            /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { bold: isCursor, color: isCursor ? "white" : void 0, wrap: "truncate-end", children: f.title })
+        return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { width: TITLE_W, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: true, color: C.accent, children: isCursor ? "\u25B8 " : "  " }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: isCursor, color: isCursor ? "white" : void 0, wrap: "truncate-end", children: f.title })
           ] }),
-          STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: stageColor[f.stages[s.key] ?? "pending"], children: glyph[f.stages[s.key] ?? "pending"] }) }, s.key)),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { children: " " }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: f.done ? C.done : C.active, children: f.done ? "done" : reachedStage?.label.toLowerCase() ?? "-" }),
-          f.active && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.accent, children: " \u25CF live" }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_ink5.Text, { color: C.muted, children: "  " + date(f.id) })
+          STAGES.map((s) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: CELL, justifyContent: "center", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: stageColor[f.stages[s.key] ?? "pending"], children: glyph[f.stages[s.key] ?? "pending"] }) }, s.key)),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { children: " " }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { width: 8, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: f.done ? C.done : C.active, children: f.done ? "done" : reachedStage?.label.toLowerCase() ?? "-" }) }),
+          f.avgScore != null && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: true, color: f.avgScore >= 8 ? C.done : C.active, children: "  avg " + f.avgScore.toFixed(2) }),
+          f.active && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.accent, children: " \u25CF live" }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "  " + date(f.id) })
         ] }, f.id);
       })
     ] })
@@ -62900,11 +63216,11 @@ function FeatureList({ features, cursor }) {
 }
 
 // src/App.tsx
-var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
 function App({ engine: engine2, idea: idea2 }) {
-  const { exit: exit2 } = (0, import_ink6.useApp)();
-  const { isRawModeSupported } = (0, import_ink6.useStdin)();
-  const { stdout } = (0, import_ink6.useStdout)();
+  const { exit: exit2 } = (0, import_ink7.useApp)();
+  const { isRawModeSupported } = (0, import_ink7.useStdin)();
+  const { stdout } = (0, import_ink7.useStdout)();
   const [rev, setRev] = (0, import_react2.useState)(0);
   const [view, setView] = (0, import_react2.useState)("list");
   const [featureId, setFeatureId] = (0, import_react2.useState)(null);
@@ -62919,7 +63235,12 @@ function App({ engine: engine2, idea: idea2 }) {
   const bump = () => setRev((r) => r + 1);
   (0, import_react2.useEffect)(() => {
     bump();
-    return engine2.watch(bump);
+    const stop = engine2.watch(bump);
+    const tick = setInterval(bump, 1e3);
+    return () => {
+      stop();
+      clearInterval(tick);
+    };
   }, [engine2]);
   const features = (0, import_react2.useMemo)(() => engine2.listFeatures(), [engine2, rev]);
   const activeState = (0, import_react2.useMemo)(() => engine2.readState(), [engine2, rev]);
@@ -63002,11 +63323,26 @@ function App({ engine: engine2, idea: idea2 }) {
   const selected = stages[cursor];
   const relPath = selected ? engine2.artifactPath(selected, featureId)?.replace(engine2.target + "/", "") : null;
   const paneBody = running ? tail : selected ? engine2.readArtifact(selected, featureId) : null;
-  const rows = Math.max(6, (stdout?.rows ?? 24) - (gate ? 14 : 5));
+  const detail = (0, import_react2.useMemo)(
+    () => view === "feature" && selected ? engine2.stageDetail(selected, featureId) : null,
+    [engine2, selected, featureId, view, rev]
+  );
+  const showDetail = !!detail && !running;
+  const scores = (0, import_react2.useMemo)(() => {
+    if (view !== "feature") return {};
+    const out = {};
+    for (const s of stages) out[s.key] = engine2.stageDetail(s, featureId).score;
+    return out;
+  }, [engine2, stages, featureId, view, rev]);
+  const avgScore = (0, import_react2.useMemo)(() => {
+    const v = Object.values(scores).filter((n) => n != null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }, [scores]);
+  const rows = Math.max(6, (stdout?.rows ?? 24) - (gate ? 14 : 5) - (showDetail ? 7 : 0));
   const lineCount = (paneBody ?? "").split("\n").length;
   const maxScroll = Math.max(0, lineCount - rows);
   const clamp = (n) => Math.max(0, Math.min(n, maxScroll));
-  (0, import_ink6.useInput)(
+  (0, import_ink7.useInput)(
     (input, key2) => {
       if (input === "q" || key2.ctrl && input === "c") {
         child.current?.kill();
@@ -63063,22 +63399,22 @@ function App({ engine: engine2, idea: idea2 }) {
   );
   if (view === "list") {
     const activeStages = engine2.stagesInPlay(activeState);
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { paddingX: 1, justifyContent: "space-between", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { bold: true, color: C.accent, children: "harness-kit cockpit" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: engine2.target.split("/").pop() })
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { flexDirection: "column", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { paddingX: 1, justifyContent: "space-between", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { bold: true, color: C.accent, children: "harness-kit cockpit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { color: C.muted, children: engine2.target.split("/").pop() })
       ] }),
-      activeState?.feature_id && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { paddingX: 1, flexDirection: "column", marginBottom: 1, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
+      activeState?.feature_id && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { paddingX: 1, flexDirection: "column", marginBottom: 1, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { color: C.muted, children: [
           "active run: ",
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: "white", children: activeState.feature_id }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { color: "white", children: activeState.feature_id }),
           activeState.intent ? `  \xB7  ${activeState.intent}` : ""
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { children: activeStages.map((s, i2) => {
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Box, { children: activeStages.map((s, i2) => {
           const st = activeState.stages?.[s.key] ?? "pending";
-          return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_react2.default.Fragment, { children: [
-            i2 > 0 && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: " \u2500 " }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { bold: true, color: stageColor[st], children: [
+          return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react2.default.Fragment, { children: [
+            i2 > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { color: C.muted, children: " \u2500 " }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { bold: true, color: stageColor[st], children: [
               glyph[st],
               " ",
               s.label
@@ -63086,8 +63422,8 @@ function App({ engine: engine2, idea: idea2 }) {
           ] }, s.key);
         }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FeatureList, { features, cursor: featCursor }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FeatureList, { features, cursor: featCursor }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { color: C.muted, children: [
         "jk move \xB7 enter open feature \xB7 r refresh \xB7 q quit",
         !isRawModeSupported && "   (no TTY: read-only)"
       ] }) })
@@ -63095,15 +63431,16 @@ function App({ engine: engine2, idea: idea2 }) {
   }
   const paneTitle = running ? `running: ${running}` : selected ? `${selected.label} \u2014 ${relPath ?? "(no file yet)"}` : "artifact";
   const hint = gate ? "a approve \xB7 x hold \xB7 tab read \xB7 jk scroll \xB7 esc back" : focus === "reader" ? "READER \xB7 jk/space/b scroll \xB7 g/G top\xB7end \xB7 tab rail \xB7 esc back" : `jk move \xB7 enter run${isActive ? " \xB7 m mark done" : ""} \xB7 tab read \xB7 esc back \xB7 q quit`;
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { flexDirection: "column", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Header, { stages, state, featureId }),
-    !isActive && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Text, { color: C.muted, children: "archived feature \u2014 read-only (esc for the list)" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Box, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StageRail, { stages, state, cursor, running, focused: focus === "rail" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ArtifactPane, { title: paneTitle, body: paneBody, rows, tail: !!running, scroll, focused: focus === "reader" })
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { flexDirection: "column", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Header, { stages, state, featureId, avgScore }),
+    !isActive && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { color: C.muted, children: "archived feature \u2014 read-only (esc for the list)" }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(StageRail, { stages, state, cursor, running, focused: focus === "rail", scores }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ArtifactPane, { title: paneTitle, body: paneBody, rows, tail: !!running, scroll, focused: focus === "reader" })
     ] }),
-    gate && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(GateModal, { title: gate.title, subtitle: gate.subtitle, unknowns: gate.unknowns }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_ink6.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_ink6.Text, { color: C.muted, children: [
+    showDetail && selected && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(StageDetail, { stage: selected, state: state?.stages?.[selected.key] ?? "pending", detail }),
+    gate && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GateModal, { title: gate.title, subtitle: gate.subtitle, unknowns: gate.unknowns }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Box, { paddingX: 1, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { color: C.muted, children: [
       hint,
       !isRawModeSupported && "   (no TTY: read-only)"
     ] }) })
@@ -63111,7 +63448,7 @@ function App({ engine: engine2, idea: idea2 }) {
 }
 
 // src/cockpit.tsx
-var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
 var argv = process.argv.slice(2);
 var dashIdx = argv.indexOf("--");
 var idea = dashIdx >= 0 ? argv.slice(dashIdx + 1).join(" ").trim() || null : null;
@@ -63119,21 +63456,21 @@ var positional = (dashIdx >= 0 ? argv.slice(0, dashIdx) : argv).filter((a) => !a
 var target = (0, import_node_path2.resolve)(positional[0] || process.cwd());
 var engine = new Engine(target);
 if (!engine.isInstalled()) {
-  (0, import_ink7.render)(
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Box, { flexDirection: "column", borderStyle: "round", borderColor: "red", paddingX: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_ink7.Text, { color: "red", bold: true, children: [
+  (0, import_ink8.render)(
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_ink8.Box, { flexDirection: "column", borderStyle: "round", borderColor: "red", paddingX: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_ink8.Text, { color: "red", bold: true, children: [
         "harness-kit not found at ",
         target
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_ink7.Text, { dimColor: true, children: "run `hk install` here first, or pass a target repo: `hk cockpit <path>`" })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_ink8.Text, { dimColor: true, children: "run `hk install` here first, or pass a target repo: `hk cockpit <path>`" })
     ] })
   );
   process.exit(1);
 }
 if (process.stdin.isTTY) {
-  (0, import_ink7.render)(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
+  (0, import_ink8.render)(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
 } else {
-  const { unmount } = (0, import_ink7.render)(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
+  const { unmount } = (0, import_ink8.render)(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App, { engine, idea }), { exitOnCtrlC: false });
   setTimeout(() => {
     unmount();
     process.exit(0);

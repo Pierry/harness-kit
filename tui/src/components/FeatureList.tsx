@@ -24,7 +24,7 @@ function StageHeader() {
           <Text color={C.muted}>{s.short}</Text>
         </Box>
       ))}
-      <Text color={C.muted}> reached</Text>
+      <Text color={C.muted}> reached  score</Text>
     </Box>
   );
 }
@@ -106,9 +106,16 @@ export function FeatureList({ features, cursor }: { features: Feature[]; cursor:
                   </Box>
                 ))}
                 <Text> </Text>
-                <Text color={f.done ? C.done : C.active}>
-                  {f.done ? 'done' : reachedStage?.label.toLowerCase() ?? '-'}
-                </Text>
+                <Box width={8}>
+                  <Text color={f.done ? C.done : C.active}>
+                    {f.done ? 'done' : reachedStage?.label.toLowerCase() ?? '-'}
+                  </Text>
+                </Box>
+                {f.avgScore != null && (
+                  <Text bold color={f.avgScore >= 8 ? C.done : C.active}>
+                    {'  avg ' + f.avgScore.toFixed(2)}
+                  </Text>
+                )}
                 {f.active && <Text color={C.accent}> ● live</Text>}
                 <Text color={C.muted}>{'  ' + date(f.id)}</Text>
               </Box>

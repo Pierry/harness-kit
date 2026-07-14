@@ -17,7 +17,26 @@ import time
 from pathlib import Path
 
 ACTIVITY_FILE = Path(".claude/.activity")
+# Durable, append-only log of every sensor/eval/guide the agent actually reads,
+# with a timestamp. The cockpit correlates each entry against a stage's marker
+# window to show the real per-run set of sensors/evals/guides used. Capped so it
+# cannot grow without bound.
+LOG_FILE = Path(".claude/runtime/outputs/.activity-log.jsonl")
+LOG_CAP = 2000
 TTL_SECONDS = 60
+
+
+def _append_log(entry: dict):
+    try:
+        LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with LOG_FILE.open("a") as f:
+            f.write(json.dumps(entry) + "\n")
+        # Trim to the last LOG_CAP lines when it drifts past 1.5x the cap.
+        lines = LOG_FILE.read_text().splitlines()
+        if len(lines) > int(LOG_CAP * 1.5):
+            LOG_FILE.write_text("\n".join(lines[-LOG_CAP:]) + "\n")
+    except OSError:
+        pass
 
 
 def cmd_set(args):
@@ -27,7 +46,9 @@ def cmd_set(args):
     if kind not in ("sensor", "eval", "guide"):
         return 1
     ACTIVITY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    ACTIVITY_FILE.write_text(json.dumps({"kind": kind, "name": name, "ts": time.time()}))
+    ts = time.time()
+    ACTIVITY_FILE.write_text(json.dumps({"kind": kind, "name": name, "ts": ts}))
+    _append_log({"kind": kind, "name": name, "ts": ts})
     return 0
 
 

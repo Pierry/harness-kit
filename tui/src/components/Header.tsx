@@ -7,10 +7,12 @@ export function Header({
   stages,
   state,
   featureId,
+  avgScore,
 }: {
   stages: Stage[];
   state: PipelineState | null;
   featureId: string | null;
+  avgScore?: number | null;
 }) {
   return (
     <Box flexDirection="column" paddingX={1}>
@@ -19,6 +21,11 @@ export function Header({
           harness-kit cockpit
         </Text>
         <Text color={C.muted}>
+          {avgScore != null && (
+            <Text bold color={avgScore >= 8 ? C.done : C.active}>
+              avg {avgScore.toFixed(2)}  ·{'  '}
+            </Text>
+          )}
           {featureId ?? 'idle'}
           {state?.intent ? `  ·  ${state.intent}` : ''}
         </Text>
