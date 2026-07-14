@@ -326,6 +326,7 @@
 <header>
   <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
   <nav>
+    <a class="hide-sm" href="#why" data-i18n="nav.why">why</a>
     <a class="hide-sm" href="#fronts" data-i18n="nav.fronts">fronts</a>
     <a class="hide-sm" href="#brief">brief</a>
     <a class="hide-sm" href="#pipeline">pipeline</a>
@@ -371,9 +372,45 @@
     </div>
   </section>
 
+  <!-- WHY THIS EXISTS -->
+  <section class="block reveal" id="why">
+    <div class="sec-head"><span class="n">01</span><h2 data-i18n="why.title">Why this exists</h2></div>
+    <p class="sec-sub" data-i18n="why.sub">Most features get built twice. Once in a hurry to see the thing work, and again when you realize nobody wrote down the problem it solved, the acceptance criteria drifted, and the review was a rubber stamp. The parts that make a feature correct are the first to get skipped when you move fast with an AI agent. harness-kit puts them back, and does the writing for you.</p>
+    <div class="grid4">
+      <div class="card"><span class="tag" data-i18n="why.c1t">the problem</span><h3 data-i18n="why.c1h">Shipping on vibes skips four things</h3><p data-i18n="why.c1p">A clear problem statement, real acceptance criteria, your conventions, and an honest review. Done by hand for every feature, they quietly rot.</p></div>
+      <div class="card"><span class="tag" data-i18n="why.c2t">same shape</span><h3 data-i18n="why.c2h">The same pipeline every time</h3><p data-i18n="why.c2p">Quality stops depending on who is at the keyboard or how tired they are. Every feature takes the same six stages, in the same order.</p></div>
+      <div class="card"><span class="tag" data-i18n="why.c3t">gated twice</span><h3 data-i18n="why.c3h">Nothing advances weak</h3><p data-i18n="why.c3p">A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you.</p></div>
+      <div class="card"><span class="tag" data-i18n="why.c4t">measurable</span><h3 data-i18n="why.c4h">You can watch it improve</h3><p data-i18n="why.c4p">Every approved stage records a score, so you know whether your specs, or your tests, are getting better across runs.</p></div>
+    </div>
+    <p class="sec-sub" data-i18n="why.impact" style="margin:34px 0 0">What you get: one command takes a raw idea to a merged pull request. Six documents, a check and a scored review at each stage, and two moments where a human decides, is this the right direction, and is this PR good to open. You spend your attention there, not on formatting a spec.</p>
+    <div class="diagram" style="margin-top:26px">
+      <pre class="mermaid">
+sequenceDiagram
+    actor You
+    participant PM as product-manager
+    participant Gate as sensor + eval
+    participant SSE as staff-engineer
+    participant GH as GitHub
+    You->>PM: idea
+    PM->>Gate: PRD
+    Gate-->>You: pass + score
+    You->>PM: approve direction
+    PM->>Gate: PRP
+    Gate-->>PM: pass + score
+    PM->>SSE: approved spec
+    SSE->>Gate: plan, then dev, then test
+    Gate-->>SSE: pass + score at each
+    You->>SSE: approve the PR
+    SSE->>GH: open PR
+    GH-->>You: merged
+      </pre>
+    </div>
+    <p class="diagram-cap" data-i18n="why.cap">idea in, merged PR out &middot; two human decisions, everything else on rails</p>
+  </section>
+
   <!-- THE FOUR FRONTS -->
   <section class="block reveal" id="fronts">
-    <div class="sec-head"><span class="n">01</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
+    <div class="sec-head"><span class="n">02</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
     <p class="sec-sub" data-i18n="fronts.sub">harness-kit is one product with four surfaces. Each does one job, and they chain: shape the idea, run the pipeline, watch its quality, drive it from a terminal. Start anywhere.</p>
     <div class="grid4">
       <a class="card frontcard glowable" href="#brief"><span class="glow"></span>
@@ -407,7 +444,7 @@
   <!-- FRONT 1 · BRIEF BUILDER -->
   <section class="block reveal" id="brief">
     <span class="fronttag" data-i18n="brief.eyebrow">Front 1 &middot; the on-ramp</span>
-    <div class="sec-head"><span class="n">02</span><h2 data-i18n="brief.title">Brief builder</h2></div>
+    <div class="sec-head"><span class="n">03</span><h2 data-i18n="brief.title">Brief builder</h2></div>
     <p class="sec-sub" data-i18n="brief.sub">A single web page that turns a rough idea into a well-formed <code class="inline">/golden-path</code> prompt. Fill squad, problem, hypothesis, and metric; it validates each field against the PRD conventions as you type, and builds the exact prompt to paste into Claude Code. No blank-page problem.</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -428,7 +465,7 @@
   <!-- FRONT 2 · THE PIPELINE -->
   <section class="block reveal" id="pipeline">
     <span class="fronttag" data-i18n="s01.eyebrow">Front 2 &middot; the engine</span>
-    <div class="sec-head"><span class="n">03</span><h2 data-i18n="s01.title">The pipeline</h2></div>
+    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s01.title">The pipeline</h2></div>
     <p class="sec-sub" data-i18n="s01.sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -469,7 +506,7 @@ flowchart LR
   <!-- GOLDEN PATH -->
   <section class="block reveal" id="golden-path">
     <span class="fronttag" data-i18n="s03.eyebrow">Front 2 &middot; run it</span>
-    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s03.title">The golden path</h2></div>
+    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s03.title">The golden path</h2></div>
     <p class="sec-sub" data-i18n="s03.sub">One command, idea to merged PR.</p>
     <div class="steps">
       <div class="step glowable"><span class="glow"></span>
@@ -508,7 +545,7 @@ flowchart LR
 
   <!-- OTHER WAYS -->
   <section class="block reveal" id="commands">
-    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
+    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
     <p class="sec-sub" data-i18n="s04.sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
     <div class="tablewrap">
       <table>
@@ -533,7 +570,7 @@ flowchart LR
   <!-- FRONT 3 · QUALITY -->
   <section class="block reveal" id="quality">
     <span class="fronttag" data-i18n="qual.eyebrow">Front 3 &middot; the feedback</span>
-    <div class="sec-head"><span class="n">06</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
+    <div class="sec-head"><span class="n">07</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
     <p class="sec-sub" data-i18n="qual.sub">Scores used to get lost in chat once a stage was approved. The quality dashboard persists per-phase signal across every run and answers one question: is each stage getting better or worse over time?</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -552,7 +589,7 @@ flowchart LR
   <!-- FRONT 4 · COCKPIT -->
   <section class="block reveal" id="cockpit">
     <span class="fronttag" data-i18n="s0c.eyebrow">Front 4 &middot; the control surface</span>
-    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
+    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
     <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, humans on the loop at two gates.</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -577,7 +614,7 @@ flowchart LR
 
   <!-- INSTALL -->
   <section class="block reveal" id="install">
-    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s02.title">Install</h2></div>
+    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s02.title">Install</h2></div>
     <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
     <div class="code">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
@@ -598,7 +635,7 @@ flowchart LR
 
   <!-- CONTEXT OPTIMIZATION -->
   <section class="block reveal" id="context">
-    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s05.title">Context optimization</h2></div>
+    <div class="sec-head"><span class="n">10</span><h2 data-i18n="s05.title">Context optimization</h2></div>
     <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
     <div class="tablewrap">
       <table>
@@ -630,7 +667,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- AGENTS -->
   <section class="block reveal" id="agents">
-    <div class="sec-head"><span class="n">10</span><h2 data-i18n="s06.title">The agents</h2></div>
+    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s06.title">The agents</h2></div>
     <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
       <div class="card glowable"><span class="glow"></span>
@@ -657,7 +694,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- FOUNDATIONS -->
   <section class="block reveal" id="foundations">
-    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s07.title">Foundations</h2></div>
+    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s07.title">Foundations</h2></div>
     <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
       <div class="ref glowable"><span class="glow"></span>
@@ -693,7 +730,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- DOCS -->
   <section class="block reveal" id="docs">
-    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s08.title">Docs</h2></div>
+    <div class="sec-head"><span class="n">13</span><h2 data-i18n="s08.title">Docs</h2></div>
     <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
@@ -782,6 +819,15 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.cta1": "Instalar", "hero.cta2": "Abrir o construtor de brief",
       "hero.gifbar": "o pipeline completo &middot; demo", "hero.gifcap": "o pipeline completo, num passo a passo", "hero.merged": "PR mergeado",
       "nav.fronts": "frentes",
+      "nav.why": "por quê",
+      "why.title": "Por que isso existe",
+      "why.sub": "A maioria das features é construída duas vezes. Uma na correria pra ver funcionar, e outra quando você percebe que ninguém anotou o problema que ela resolvia, os critérios de aceite mudaram, e a revisão foi carimbo. As partes que deixam a feature correta são as primeiras a serem puladas quando você anda rápido com um agente de IA. O harness-kit devolve essas partes, e escreve elas por você.",
+      "why.c1t": "o problema", "why.c1h": "Ir no feeling pula quatro coisas", "why.c1p": "Um enunciado claro do problema, critérios de aceite de verdade, suas convenções, e uma revisão honesta. Feitas na mão a cada feature, elas apodrecem.",
+      "why.c2t": "mesma forma", "why.c2h": "O mesmo pipeline sempre", "why.c2p": "A qualidade para de depender de quem está no teclado ou de quão cansado você está. Toda feature passa pelas mesmas seis etapas, na mesma ordem.",
+      "why.c3t": "dois gates", "why.c3h": "Nada avança fraco", "why.c3p": "Um sensor determinístico checa a estrutura, uma avaliação com LLM pontua a qualidade. Saída fraca se corrige antes de chegar em você.",
+      "why.c4t": "mensurável", "why.c4h": "Dá pra ver melhorar", "why.c4p": "Toda etapa aprovada registra uma nota, então você sabe se suas specs, ou seus testes, estão melhorando a cada rodada.",
+      "why.impact": "O que você ganha: um comando leva uma ideia crua até um PR mergeado. Seis documentos, um check e uma avaliação pontuada em cada etapa, e dois momentos em que um humano decide: essa é a direção certa, e esse PR está bom pra abrir. Sua atenção fica aí, não em formatar spec.",
+      "why.cap": "ideia entra, PR mergeado sai &middot; duas decisões humanas, o resto nos trilhos",
       "fronts.title": "As quatro frentes",
       "fronts.sub": "O harness-kit é um produto com quatro superfícies. Cada uma faz um trabalho, e elas se encadeiam: modele a ideia, rode o pipeline, acompanhe a qualidade, dirija pelo terminal. Comece por qualquer uma.",
       "fronts.f1h": "Vire a ideia num prompt",
@@ -884,6 +930,15 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.cta1": "Instalar", "hero.cta2": "Abrir el constructor de brief",
       "hero.gifbar": "el pipeline completo &middot; demo", "hero.gifcap": "el pipeline completo, en un recorrido", "hero.merged": "PR fusionado",
       "nav.fronts": "frentes",
+      "nav.why": "por qué",
+      "why.title": "Por qué existe",
+      "why.sub": "La mayoría de las features se construyen dos veces. Una a las apuradas para verla funcionar, y otra cuando te das cuenta de que nadie anotó el problema que resolvía, los criterios de aceptación se desviaron, y la revisión fue un sello. Las partes que hacen correcta a una feature son las primeras en saltarse cuando vas rápido con un agente de IA. harness-kit las devuelve, y las escribe por ti.",
+      "why.c1t": "el problema", "why.c1h": "Ir por intuición se salta cuatro cosas", "why.c1p": "Un enunciado claro del problema, criterios de aceptación reales, tus convenciones, y una revisión honesta. Hechas a mano en cada feature, se pudren.",
+      "why.c2t": "misma forma", "why.c2h": "El mismo pipeline siempre", "why.c2p": "La calidad deja de depender de quién está en el teclado o de qué tan cansado estás. Cada feature pasa por las mismas seis etapas, en el mismo orden.",
+      "why.c3t": "dos gates", "why.c3h": "Nada avanza flojo", "why.c3p": "Un sensor determinista revisa la estructura, una evaluación con LLM puntúa la calidad. La salida floja se corrige antes de llegar a ti.",
+      "why.c4t": "medible", "why.c4h": "Puedes verlo mejorar", "why.c4p": "Cada etapa aprobada registra una nota, así sabes si tus specs, o tus tests, están mejorando entre corridas.",
+      "why.impact": "Lo que obtienes: un comando lleva una idea cruda hasta un PR fusionado. Seis documentos, un check y una evaluación puntuada en cada etapa, y dos momentos donde un humano decide: es la dirección correcta, y este PR está listo para abrir. Tu atención va ahí, no a formatear un spec.",
+      "why.cap": "idea entra, PR fusionado sale &middot; dos decisiones humanas, el resto sobre rieles",
       "fronts.title": "Los cuatro frentes",
       "fronts.sub": "harness-kit es un producto con cuatro superficies. Cada una hace un trabajo, y se encadenan: moldea la idea, corre el pipeline, vigila su calidad, condúcelo desde una terminal. Empieza por cualquiera.",
       "fronts.f1h": "Convierte la idea en el prompt",
