@@ -242,7 +242,18 @@
   /* front eyebrow inside a section head */
   .fronttag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--gold); text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
   .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
-  .card::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
+  /* enumerated ghost index, why cards only */
+  #why .grid4 { counter-reset: whyidx; }
+  #why .grid4 .card { counter-increment: whyidx; }
+  #why .grid4 .card > * { position: relative; z-index: 1; }
+  #why .grid4 .card::before {
+    content: counter(whyidx, decimal-leading-zero);
+    position: absolute; top: 8px; right: 20px; z-index: 0; pointer-events: none;
+    font-family: var(--mono); font-weight: 800; font-size: 54px; line-height: 1;
+    letter-spacing: -2px; color: var(--faint); opacity: .12;
+    transition: opacity .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+  }
+  #why .grid4 .card:hover::before { opacity: .4; color: var(--accent); transform: translateY(-2px); }
   .card .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); text-transform: lowercase; }
   .card h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 10px 0 8px; letter-spacing: -0.4px; }
   .card p { margin: 0 0 14px; color: var(--dim); font-size: 15px; }
