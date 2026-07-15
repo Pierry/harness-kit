@@ -288,14 +288,13 @@
 
   /* references */
   .refs { display: grid; gap: 14px; }
-  .ref { padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
-  .ref::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--accent), var(--gold)); }
-  .ref .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); }
-  .ref h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 10px 0 6px; letter-spacing: -0.4px; }
-  .ref p { margin: 0 0 12px; color: var(--dim); font-size: 15px; }
-  .ref ul { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 9px; }
-  .ref li { font-size: 14.5px; color: var(--dim); padding-left: 20px; position: relative; }
-  .ref li::before { content: "\2192"; position: absolute; left: 0; color: var(--gold); font-family: var(--mono); }
+  .ref { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
+  .ref .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
+  .ref h3 { font-family: var(--display); font-weight: 700; font-size: 21px; margin: 8px 0 6px; letter-spacing: -0.5px; }
+  .ref p { margin: 0; color: var(--dim); font-size: 15px; }
+  .ref ul { margin: 20px 0 0; padding-left: 0; list-style: none; }
+  .ref li { font-size: 14.5px; line-height: 1.6; color: var(--dim); padding: 13px 0; border-top: 1px solid var(--hairline); }
+  .ref li:last-child { padding-bottom: 0; }
   .ref li b { color: var(--text); font-weight: 600; }
 
   /* gates note */
