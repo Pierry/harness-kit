@@ -23,6 +23,7 @@ context-library/writing-style-*.md
 .claude/runtime/outputs/sse/sdd/
 .claude/runtime/outputs/sse/tokens/
 .claude/runtime/outputs/sse/.markers/
+.claude/runtime/outputs/.activity-log.jsonl
 
 # Context cache (repomix packs, graphify graphs)
 .claude/runtime/cache/repomix/*
