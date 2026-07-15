@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>System Design Method &middot; harness-kit wiki</title>
+<meta name="description" content="The lens every topic playbook applies. Read before any single design." />
+<meta property="og:title" content="System Design Method &middot; harness-kit wiki" />
+<meta property="og:description" content="The lens every topic playbook applies. Read before any single design." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/System-Design-Method.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/System-Design-Method.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: System-Design-Method.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="system-design-method">System Design Method</h1>
+<p>The lens every topic playbook applies. Read before any single design.</p>
+<p>System design is a <strong>chain of decisions under constraint</strong>. You decide what to ingest, what to store,
+what to compute, what to serve. Each stage kills bad cost and keeps useful signal. The best design is
+not the one that does the most. It is the one that chooses best what to do.</p>
+<h2 id="the-shape-of-any-system">The shape of any system</h2>
+<p>Almost every nontrivial system has four capabilities plus two support planes.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Search engine example</th>
+<th>General</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Discover / ingest</td>
+<td>crawler</td>
+<td>get data in (API, events, uploads, crawl)</td>
+</tr>
+<tr>
+<td>Understand / model</td>
+<td>parser, extractor</td>
+<td>parse, validate, enrich, normalize</td>
+</tr>
+<tr>
+<td>Organize</td>
+<td>inverted index</td>
+<td>store for efficient query (index, schema, partition)</td>
+</tr>
+<tr>
+<td>Serve</td>
+<td>query path</td>
+<td>answer requests under a latency budget</td>
+</tr>
+</tbody>
+</table>
+<p>Support planes, almost always present:</p>
+<ul>
+<li><strong>Metadata / policy</strong>: rules, scheduling, dedup, config, quotas.</li>
+<li><strong>Observability / control</strong>: metrics, debugging, replay, backfill, allow/blocklists.</li>
+</ul>
+<h2 id="the-three-pillars-kleppmann-ddia">The three pillars (Kleppmann, DDIA)</h2>
+<p>Score every design against these. They are the non-functional spine.</p>
+<h3 id="reliability">Reliability</h3>
+<p>Works correctly under fault: hardware failure, software bug, human error. Design <em>for</em> failure,
+Werner Vogels: &quot;everything fails all the time&quot;. The tools are stability patterns (Nygard): timeouts,
+retries with exponential backoff, circuit breakers, bulkheads, idempotency. A reliable system assumes
+its dependencies will fail and degrades on purpose rather than by accident.</p>
+<h3 id="scalability">Scalability</h3>
+<p>Handles growth in load. The discipline: <strong>define load parameters first</strong> (QPS, payload size, fan-out,
+read/write ratio), then describe performance under that load (p50/p95/p99, throughput). Prefer
+horizontal over vertical scaling. Partition by a key that avoids hot spots. &quot;Scalable&quot; is not a
+property of a system; it is the answer to &quot;if load grows by X, what is our plan?&quot;</p>
+<h3 id="maintainability">Maintainability</h3>
+<p>Operable, simple, evolvable. John Ousterhout's <em>A Philosophy of Software Design</em>: build <strong>deep
+modules</strong>: simple interfaces hiding significant implementation. Complexity is the enemy; it
+accumulates in dependencies and obscurity. Observability is part of the design, not an afterthought.</p>
+<h2 id="numbers-every-engineer-should-know-jeff-dean">Numbers every engineer should know (Jeff Dean)</h2>
+<p>Use for back-of-envelope. Order of magnitude, not exact.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 cache reference</td>
+<td>~1 ns</td>
+</tr>
+<tr>
+<td>Branch mispredict</td>
+<td>~5 ns</td>
+</tr>
+<tr>
+<td>Main memory reference</td>
+<td>~100 ns</td>
+</tr>
+<tr>
+<td>Compress 1 KB</td>
+<td>~2 us</td>
+</tr>
+<tr>
+<td>SSD random read</td>
+<td>~16 us</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from memory</td>
+<td>~10 us</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from SSD</td>
+<td>~50 us</td>
+</tr>
+<tr>
+<td>Round trip within same datacenter</td>
+<td>~0.5 ms</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from disk</td>
+<td>~5 ms</td>
+</tr>
+<tr>
+<td>Disk seek</td>
+<td>~2 ms</td>
+</tr>
+<tr>
+<td>Round trip CA to Netherlands</td>
+<td>~150 ms</td>
+</tr>
+</tbody>
+</table>
+<p>Sizing math, always shown:</p>
+<pre><code>QPS         = DAU x actions/day / 86400
+peak QPS    = avg x (2 to 10)
+storage     = records x bytes/record x replication x retention
+bandwidth   = QPS x payload
+</code></pre>
+<p>If you cannot do the math, you do not understand the scale yet.</p>
+<h2 id="the-13-stage-method">The 13-stage method</h2>
+<p>An SDD walks these. The <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/templates/system-design.md" target="_blank" rel="noopener">template</a>
+mirrors them.</p>
+<ol>
+<li><strong>Problem + context</strong>: one-line frame. Who, scale, internal vs web-scale.</li>
+<li><strong>Requirements</strong>: functional, plus non-functional <em>with numbers</em> (latency SLO, throughput,
+availability, consistency model, cost ceiling).</li>
+<li><strong>Mental model</strong>: end-to-end flow, numbered or mermaid. See the whole path before any component.</li>
+<li><strong>High-level architecture</strong>: components + mermaid + the two support planes.</li>
+<li><strong>Deep dives</strong>: the 2-3 components that carry the risk: data structures, algorithm, hard
+trade-off. This is where staff separates from senior.</li>
+<li><strong>Data + storage</strong>: separate store by function and access pattern. KV/wide-column for random
+updates, object storage for blobs, search index for text, relational for transactions. Favor
+immutability (Helland: events over mutable state).</li>
+<li><strong>Scale + partitioning</strong>: sharding strategy, replication, rebalancing. Owner-per-partition for
+coordination. Stateless workers autoscale; stateful needs leadership + replicas.</li>
+<li><strong>Consistency + failure</strong>: pick a consistency model honestly (eventual is fine if it converges).
+Enumerate failure modes and how the design resists each. &quot;What breaks first?&quot;</li>
+<li><strong>Observability + ops</strong>: metrics per stage; the debugging tools that must exist (inspect one
+record's lifecycle, explain one request's result).</li>
+<li><strong>Security + compliance</strong>: least data stored, sandbox untrusted input, sanitize parsing, respect
+external policy.</li>
+<li><strong>Incremental plan</strong>: vertical slice first (prove end-to-end on small scope, reuse proven
+engines), then efficiency/quality, then real scale, then advanced.</li>
+<li><strong>Trade-offs</strong>: coverage vs quality, freshness vs cost, recall vs latency, complexity vs delivery
+speed, centralize vs partition.</li>
+<li><strong>Open questions / design review</strong>: what a reviewer should interrogate.</li>
+</ol>
+<h2 id="trade-off-discipline">Trade-off discipline</h2>
+<p>Never present one option as obvious. Name the alternative, the axis, the choice:</p>
+<blockquote>
+<p>Chose X over Y because {axis} matters more here, given {constraint}.</p>
+</blockquote>
+<p>A design with no stated trade-off is a design that hid one.</p>
+<h2 id="build-pragmatically">Build pragmatically</h2>
+<p>Do not reinvent the hard parts if your differentiation lives elsewhere. Use a proven engine (Lucene,
+Postgres, Kafka, a managed queue) for the treacherous-detail layer; spend the quarters on the
+pipeline and logic that is actually your edge. Reinvent only the part that is the product.</p>
+<h2 id="consistency-time-and-ordering">Consistency, time, and ordering</h2>
+<p>Leslie Lamport's <em>Time, Clocks, and the Ordering of Events in a Distributed System</em> (1978) is the root
+of distributed reasoning: in a distributed system there is no single global &quot;now&quot;; you reason about
+<em>causal</em> ordering, not wall-clock ordering. This underlies eventual consistency, vector clocks, and
+why &quot;just use timestamps&quot; is a trap (clock skew). Helland's <em>Life Beyond Distributed Transactions</em>
+extends it to the practical conclusion: at scale you give up cross-entity ACID and design around
+independent, idempotent, eventually-reconciled units.</p>
+<h2 id="the-cap-and-pacelc-framing">The CAP and PACELC framing</h2>
+<p>Under a network partition (P) you choose availability (A) or consistency (C): CAP (Brewer). PACELC
+adds: <em>else</em> (E), when there is no partition, you trade latency (L) against consistency (C). Most
+real designs are &quot;AP under partition, and trade latency for consistency in normal operation&quot;. Say
+which corner you sit in and why; it is rarely all-or-nothing per system, it is per operation.</p>
+<h2 id="the-canon">The canon</h2>
+<p>Cite when it sharpens a point.</p>
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Idea</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Martin Kleppmann</td>
+<td>reliability/scalability/maintainability; load params before perf</td>
+<td>DDIA (2017)</td>
+</tr>
+<tr>
+<td>Jeff Dean, Sanjay Ghemawat</td>
+<td>numbers everyone knows; MapReduce-shaped batch</td>
+<td>LADIS 2009; OSDI 2004</td>
+</tr>
+<tr>
+<td>Werner Vogels</td>
+<td>design for failure; eventual consistency at scale</td>
+<td>Dynamo (SOSP 2007)</td>
+</tr>
+<tr>
+<td>Pat Helland</td>
+<td>immutability; life beyond distributed transactions</td>
+<td>CIDR 2007; 2015</td>
+</tr>
+<tr>
+<td>Michael Nygard</td>
+<td>circuit breaker, bulkhead, timeout, backoff</td>
+<td>Release It! (2018)</td>
+</tr>
+<tr>
+<td>John Ousterhout</td>
+<td>deep modules, simple interfaces</td>
+<td>PoSD (2018)</td>
+</tr>
+<tr>
+<td>Leslie Lamport</td>
+<td>causal ordering, no global clock</td>
+<td>CACM 1978</td>
+</tr>
+<tr>
+<td>Eric Brewer</td>
+<td>CAP theorem</td>
+<td>PODC 2000</td>
+</tr>
+<tr>
+<td>Sam Newman</td>
+<td>service boundaries along business capability</td>
+<td>Building Microservices</td>
+</tr>
+<tr>
+<td>Gregor Hohpe</td>
+<td>the architect elevator: connect engine-room trade-off to business stake</td>
+<td>2020</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-harness-connection">The harness connection</h2>
+<p>This agent is itself a harness (Böckeler/Fowler). Guides = feedforward, sensors + evals = feedback,
+humans on the loop. The same control split the <em>design</em> needs: computational controls (tests,
+linters, schema checks) and inferential controls (semantic review). Both, always.</p>
+<h2 id="references">References</h2>
+<ul>
+<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017.</li>
+<li>Jeff Dean, <em>Designs, Lessons and Advice from Building Large Distributed Systems</em>, LADIS, 2009.</li>
+<li>Dean &amp; Ghemawat, <em>MapReduce: Simplified Data Processing on Large Clusters</em>, OSDI, 2004.</li>
+<li>DeCandia et al., <em>Dynamo: Amazon's Highly Available Key-value Store</em>, SOSP, 2007.</li>
+<li>Pat Helland, <em>Life Beyond Distributed Transactions</em>, CIDR, 2007.</li>
+<li>Pat Helland, <em>Immutability Changes Everything</em>, ACM Queue, 2015.</li>
+<li>Michael Nygard, <em>Release It!</em>, 2nd ed., Pragmatic Bookshelf, 2018.</li>
+<li>John Ousterhout, <em>A Philosophy of Software Design</em>, 2018.</li>
+<li>Leslie Lamport, <em>Time, Clocks, and the Ordering of Events in a Distributed System</em>, CACM, 1978.</li>
+<li>Eric Brewer, <em>Towards Robust Distributed Systems</em> (CAP), PODC keynote, 2000.</li>
+<li>Birgitta Böckeler, <em>Harness engineering for coding agent users</em>, martinfowler.com, 2026.</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/System-Design-Method" target="_blank" rel="noopener">System Design Method</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

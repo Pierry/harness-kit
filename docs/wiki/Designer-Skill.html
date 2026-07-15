@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Designer Skill &middot; harness-kit wiki</title>
+<meta name="description" content="A cross-cutting skill on the staff-software-engineer agent, applied when building something new with a UI: a new app, page, feature, or landing. It..." />
+<meta property="og:title" content="Designer Skill &middot; harness-kit wiki" />
+<meta property="og:description" content="A cross-cutting skill on the staff-software-engineer agent, applied when building something new with a UI: a new app, page, feature, or landing. It..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Designer-Skill.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Designer-Skill.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Designer-Skill.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="designer-skill">Designer Skill</h1>
+<p>A cross-cutting skill on the <code>staff-software-engineer</code> agent, applied when building <strong>something new</strong>
+with a UI: a new app, page, feature, or landing. It encodes the visual and UX defaults so a green-field
+interface ships looking deliberate and modern, not like a default template. It layers on top of the
+area skill (web/mobile); per-repo conventions in <code>.claude/conventions/web.md</code> still win, and if the
+repo already has a design system the agent uses that instead.</p>
+<p>Skill file:
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/staff-software-engineer/skills/designer/SKILL.md" target="_blank" rel="noopener"><code>skills/designer/SKILL.md</code></a>.
+Read by <code>/sse:plan</code> and <code>/sse:dev</code> when the work includes a new UI.</p>
+<h2 id="why-a-design-skill">Why a design skill</h2>
+<p>Most AI-built UIs converge on the same generic look: centered everything, default framework blue,
+gradients on every surface, emoji as icons, lorem ipsum, one theme, English-only. The designer skill
+is a feedforward guide (<a href="Guides.html">Guides</a>) that pushes the agent toward a higher bar before it writes a
+single component, the same way the coding-style guide shapes code. It is opinionated on purpose.</p>
+<h2 id="material-design-3-as-the-system">Material Design 3 as the system</h2>
+<p>Use M3 as the token system, not as a literal Google look. The point is structure: design with roles
+and scales, never hardcoded values.</p>
+<ul>
+<li><strong>Color roles.</strong> Define <code>primary</code>, <code>on-primary</code>, <code>primary-container</code>, <code>secondary</code>, <code>tertiary</code>,
+<code>surface</code>, <code>surface-container</code> (lowest to highest), <code>on-surface</code>, <code>on-surface-variant</code>, <code>outline</code>,
+<code>error</code>. Derive them from a single seed color (M3 dynamic color), and pick the seed from the
+product's context, not the default purple.</li>
+<li><strong>Type scale.</strong> display / headline / title / body / label, each L/M/S, mapped to CSS classes.</li>
+<li><strong>Shape scale.</strong> none 0, xs 4, s 8, m 12, l 16, xl 28, full. Cards <code>l</code>, buttons <code>full</code> or <code>m</code>.</li>
+<li><strong>Tonal elevation.</strong> Six levels via layered <code>surface-container</code> tints plus a subtle shadow. Prefer
+the container tint over heavy drop shadows.</li>
+<li><strong>State layers.</strong> hover 8%, focus 10%, pressed 10% of the <code>on-*</code> color over the component.</li>
+<li><strong>Motion.</strong> M3 emphasized easing <code>cubic-bezier(.2,0,0,1)</code>, standard 200-300ms, small 100ms.</li>
+</ul>
+<h2 id="dark-and-light-both-mandatory">Dark and light, both mandatory</h2>
+<p>Never ship a single theme.</p>
+<ul>
+<li>System preference first (<code>prefers-color-scheme</code>), user toggle second, choice persisted to
+<code>localStorage</code> and reflected on <code>:root[data-theme]</code>.</li>
+<li>Two token sets, light and dark. Dark is tonal, not pure black: a <code>#1A1C1E</code>-ish surface, elevated
+with lighter container tints rather than shadows.</li>
+<li>Verify contrast in both themes (see Accessibility).</li>
+</ul>
+<pre><code class="language-css">:root { color-scheme: light dark; }
+:root[data-theme=&quot;light&quot;] { --surface:#FDFCFF; --on-surface:#1A1C1E; --primary:#0B57D0; }
+:root[data-theme=&quot;dark&quot;]  { --surface:#1A1C1E; --on-surface:#E3E2E6; --primary:#A8C7FA; }
+</code></pre>
+<h2 id="modern-type">Modern type</h2>
+<ul>
+<li>Default <code>Inter</code> (variable) for UI and body; M3-native alternative <code>Roboto Flex</code>. Self-host or load
+with <code>font-display: swap</code>.</li>
+<li>Optional one display face for hero/headline only (<code>Space Grotesk</code>, <code>Sora</code>, <code>Plus Jakarta Sans</code>).</li>
+<li>Tabular numbers for data (<code>font-variant-numeric: tabular-nums</code>).</li>
+<li>Stack: <code>&quot;Inter&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif</code>.</li>
+</ul>
+<h2 id="behance-grade-polish">Behance-grade polish</h2>
+<p>The bar for &quot;new and good&quot; is top Behance UI work. Concretely:</p>
+<ul>
+<li><strong>8pt spacing grid</strong> (4/8/12/16/24/32/48/64). Generous whitespace; let layouts breathe.</li>
+<li><strong>Strong hierarchy.</strong> One clear focal point per view. Confident headline, calm body. Size, weight,
+and space carry hierarchy before color does.</li>
+<li><strong>Restrained palette.</strong> One brand seed, neutrals, one accent. Color earns attention.</li>
+<li><strong>Crisp components.</strong> Consistent radius, aligned grids, optical alignment, no orphaned elements.</li>
+<li><strong>Real content.</strong> Realistic copy and data, never lorem. Empty, loading, and error states are
+designed, not afterthoughts.</li>
+<li><strong>Micro-interactions.</strong> Hover, focus, press feedback on every interactive element. Subtle and fast.</li>
+<li><strong>Original, modern icons</strong> (see below), never emoji.</li>
+</ul>
+<h2 id="iconography-original-modern-never-emoji">Iconography: original, modern, never emoji</h2>
+<ul>
+<li><strong>Never use emojis.</strong> Not as icons, not in buttons, labels, headings, empty states, or copy. Emojis
+render differently per platform, break visual consistency, and read as unfinished. Hard rule.</li>
+<li><strong>Create original icons.</strong> Design a custom SVG set for the product's key actions and brand marks on a
+consistent grid (e.g. 24px, 2px stroke, rounded joins) with one visual language. The logo/brand glyph
+and primary actions should be original, not stock.</li>
+<li><strong>Modern style.</strong> Clean line or duotone, optically balanced, legible at 16-20px, pixel-snapped, with
+stroke weight matched to the type weight.</li>
+<li>If a full custom set is out of scope, use <strong>one</strong> modern open set as the base (Lucide, Material
+Symbols, Phosphor) and still draw the brand and hero marks original. Never mix icon families.</li>
+<li>Ship as inline SVG or a sprite, <code>currentColor</code>-driven so icons theme with light/dark; give each an
+accessible label (<code>aria-label</code> or <code>&lt;title&gt;</code>).</li>
+</ul>
+<h2 id="internationalization-en-pt-br-es">Internationalization (en, pt-BR, es)</h2>
+<p>Every user-facing string is translatable. Three locales ship: English (default), Brazilian
+Portuguese, Spanish.</p>
+<ul>
+<li>No hardcoded strings; a <code>t('key')</code> lookup with semantic keys (<code>cart.empty.title</code>).</li>
+<li><code>locales/{en,pt-BR,es}.json</code>, identical key sets across all three.</li>
+<li>Detect <code>navigator.language</code>, fall back to <code>en</code>; user can switch, persist the choice.</li>
+<li>Set <code>&lt;html lang&gt;</code> dynamically; format dates, numbers, and currency with <code>Intl</code> per locale; plurals
+via the i18n library's plural rules.</li>
+</ul>
+<h2 id="context-aware-favicon">Context-aware favicon</h2>
+<p>Generate a favicon that reflects the product's context, not a placeholder.</p>
+<ul>
+<li>Author as <strong>SVG</strong> (crisp, themeable), using the brand seed, light/dark aware.</li>
+<li>Derive the mark from context: the product's initial/monogram, or a glyph matching the domain (a cart
+for commerce, a chart for analytics). Legible at 16px.</li>
+<li>Ship <code>favicon.svg</code> (primary), <code>favicon.ico</code> 32, <code>apple-touch-icon.png</code> 180, and a <code>site.webmanifest</code>
+with 192 and 512 maskable PNGs, plus <code>theme-color</code> meta per scheme.</li>
+<li>State which symbol and seed were chosen and why (the context link).</li>
+</ul>
+<h2 id="accessibility-non-negotiable">Accessibility (non-negotiable)</h2>
+<ul>
+<li>Contrast: body text &gt;= 4.5:1, large text and UI &gt;= 3:1 (WCAG 2.2 AA), in <strong>both</strong> themes.</li>
+<li>Visible <code>:focus-visible</code> ring on every interactive element. Hit target &gt;= 44x44px.</li>
+<li>Respect <code>prefers-reduced-motion</code>. Semantic HTML, labeled inputs, keyboard reachable.</li>
+</ul>
+<h2 id="what-the-agent-delivers-with-a-new-ui">What the agent delivers with a new UI</h2>
+<ol>
+<li>Token file (color roles, type, shape) for light and dark.</li>
+<li>Theme toggle wired to system preference and persistence.</li>
+<li>Modern font loaded with <code>font-display: swap</code>.</li>
+<li><code>locales/{en,pt-BR,es}.json</code> plus <code>t()</code> wiring and a language switch.</li>
+<li>Original, modern SVG icon set (currentColor, accessible labels), no emoji.</li>
+<li>Context-aware favicon set, manifest, and link tags.</li>
+<li>Designed empty, loading, and error states.</li>
+</ol>
+<h2 id="forbidden">Forbidden</h2>
+<p>Emojis anywhere (UI, icons, buttons, copy); stock/generic icons for brand or primary marks; mixing
+icon families; hardcoded colors instead of tokens; a single theme; hardcoded user-facing strings; a
+placeholder favicon; lorem ipsum in shipped UI; contrast below AA in either theme.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Agents.html">Agents</a> and <a href="Guides.html">Guides</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, where <code>/sse:plan</code> and <code>/sse:dev</code> read this skill</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Material Design 3 specification, m3.material.io (color roles, type scale, elevation, motion).</li>
+<li>WCAG 2.2, Web Content Accessibility Guidelines (contrast, focus, targets).</li>
+<li>Inter typeface, rsms.me/inter; Roboto Flex (Google Fonts).</li>
+<li><code>Intl</code> (ECMAScript Internationalization API) for locale-aware formatting.</li>
+<li>Web App Manifest and favicon best practices (MDN).</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Designer-Skill" target="_blank" rel="noopener">Designer Skill</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

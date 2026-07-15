@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pipeline and Stages &middot; harness-kit wiki</title>
+<meta name="description" content="harness-kit carries one feature through six gated stages:" />
+<meta property="og:title" content="Pipeline and Stages &middot; harness-kit wiki" />
+<meta property="og:description" content="harness-kit carries one feature through six gated stages:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Pipeline-and-Stages.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Pipeline-and-Stages.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Pipeline-and-Stages.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="pipeline-and-stages">Pipeline and Stages</h1>
+<p>harness-kit carries one feature through six gated stages:</p>
+<pre><code>prd → prp → plan → dev → test → pr
+</code></pre>
+<blockquote>
+<p><strong>v5 (live):</strong> a new <a href="Autonomy.html"><code>intake</code></a> stage runs before <code>prd</code>. It harvests context from the repo
+and the context library so the pipeline runs without stopping to ask for inputs, and every stage now
+follows the <a href="Orchestration-and-Subagents.html">orchestrator-plus-leaf-subagents</a> pattern: inputs via
+resolve-mark-proceed, evals dispatched to a fresh evaluator. The six gated stages below are unchanged;
+intake sits in front of them and the gating machinery stays the same.</p>
+</blockquote>
+<p>The first two belong to the <strong>product-manager</strong> agent, the last four to the
+<strong>staff-software-engineer</strong> agent. Each stage is a small <a href="Harness-Engineering.html">harness</a>: a guide tells
+the agent how to write, references give it context, a <a href="Sensors.html">sensor</a> enforces structure, an
+<a href="Evals.html">eval</a> scores quality, and an approval marker gates the next stage.</p>
+<h2 id="anatomy-of-every-stage">Anatomy of every stage</h2>
+<pre><code>GUIDE     how to write it          pipeline.md · coding-style.md · templates/
+REF       context to pull in       AGENTS.md · prp/&lt;feature&gt;.md · conventions/{area}.md
+SENSOR    must-pass structure      deterministic, blocks approval
+EVAL      scored rubric            LLM-judge, threshold 8.0, retry x3
+</code></pre>
+<p>The flow inside a stage:</p>
+<ol>
+<li>The agent reads the guides and references and writes the artifact to
+<code>.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md</code>.</li>
+<li>On save, deterministic <strong>sensors</strong> fire. Failure blocks and returns feedback; the agent fixes only
+the failed parts.</li>
+<li>The <strong>eval</strong> scores the artifact 0-10. Below 8.0 retries (up to 3), regenerating only the
+low-scoring dimensions.</li>
+<li>On pass, the agent appends an <strong>approval marker</strong> <code>&lt;!-- approved: {date} score={n} --&gt;</code>.</li>
+<li><strong>Token spend</strong> for the phase is recorded and an inline <code>&lt;!-- tokens: ... --&gt;</code> comment is appended.</li>
+</ol>
+<p>The approval marker is the gate: the next stage checks for it before starting.</p>
+<h2 id="the-stages">The stages</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Agent</th>
+<th>Artifact</th>
+<th>Gates (sensors · evals)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prd</code></td>
+<td>product-manager</td>
+<td>Product Requirements Document</td>
+<td><code>prd-structure</code>, <code>prd-acceptance-criteria</code> · <code>prd-quality</code>, <code>prd-readiness</code></td>
+</tr>
+<tr>
+<td><code>prp</code></td>
+<td>product-manager</td>
+<td>Product Requirements Prompt (eng handoff)</td>
+<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code>, <code>link-validator</code> · <code>prp-quality</code>, <code>prp-context-readiness</code></td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>staff-software-engineer</td>
+<td>technical plan</td>
+<td><code>plan-structure</code> · <code>plan-quality</code></td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>staff-software-engineer</td>
+<td>code + commits</td>
+<td><code>code-conventions</code>, <code>test-coverage</code>, <code>dev-structure</code> · <code>dev-quality</code></td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>staff-software-engineer</td>
+<td>test run report</td>
+<td><code>test-structure</code> · <code>test-quality</code></td>
+</tr>
+<tr>
+<td><code>pr</code></td>
+<td>staff-software-engineer</td>
+<td>pull request</td>
+<td><code>pr-structure</code> · <code>pr-quality</code> · arms <code>pr-monitor</code></td>
+</tr>
+</tbody>
+</table>
+<p>System design (the <strong>system-architect</strong> agent) is an <em>optional front stage before <code>prp</code>/<code>plan</code></em>: a
+strong <a href="index.html">System Design Doc</a> feeds a sharper PRP and a grounded plan. It is not part of the default
+six-stage pipeline.</p>
+<h2 id="approval-markers-and-token-accounting">Approval markers and token accounting</h2>
+<ul>
+<li><strong>Approval marker</strong>: <code>&lt;!-- approved: YYYY-MM-DD score=N --&gt;</code> (the PRP also carries
+<code>ready-for-handoff: true</code>). Its presence is what lets the next stage begin.</li>
+<li><strong>Tokens</strong>: hooks bracket each phase with start/end markers, then <code>token-phase.py</code> sums usage from
+the Claude transcript and writes <code>.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json</code>. All
+stages of one feature append to the <strong>same</strong> file by reusing the <code>feature_id</code>, so you get the whole
+lifecycle's cost in one place. Token accounting never blocks a stage; if the transcript is
+unreadable it logs and exits clean.</li>
+</ul>
+<h2 id="status-bar">Status bar</h2>
+<p>A live indicator tracks the active feature across all stages:</p>
+<pre><code>idle · /product-manager:run · /sse:run · /pipeline:continue
+billing-fix [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next /sse:plan · sensor: plan-structure
+billing-fix · complete (prd/prp/plan/dev/test/pr)
+</code></pre>
+<p>State persists at <code>.claude/.pipeline-state.json</code>. Close the session and reopen, <code>/pipeline:continue</code>
+resumes at the next pending stage. When the PR merges, the monitor clears state automatically.</p>
+<h2 id="single-stage-and-detour-commands">Single-stage and detour commands</h2>
+<p>Every stage is also its own command, so you can run just the part you need:</p>
+<pre><code>/product-manager:prd | :prp
+/sse:plan | :dev | :test | :pr
+/sse:run --local        plan → dev → test, no PR
+/pipeline:continue      resume next pending stage
+/pipeline:reset         abandon the active run
+</code></pre>
+<p>Same sensors, same evals, same artifacts, you lose the one-command convenience, not the gating.</p>
+<h2 id="the-sdd-variant-spec-driven-loop">The SDD variant (spec-driven loop)</h2>
+<p><code>/sse:sdd</code> replaces the single-shot <code>dev → test</code> with a goal loop:</p>
+<pre><code>prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval]  →  [user gate]  →  pr
+                         ↑ loop, cap 3 iterations          stops local
+</code></pre>
+<ul>
+<li>A pre-flight sensor <code>prp-has-acceptance-criteria</code> blocks if the PRP is not testable.</li>
+<li>The loop predicate is built from the PRP's <code>Success criteria (verifiable)</code> + <code>Validation gates</code>.</li>
+<li>Each iteration's <code>spec-satisfied</code> eval runs in a <strong>fresh session</strong> (no worker context) and returns
+PASS/FAIL, not a score. FAIL re-enters with a <code>next_iter_focus</code> hint.</li>
+<li>The PR is <strong>never</strong> auto-opened; you review the transcript at
+<code>.claude/runtime/outputs/sse/sdd/{feature_id}.md</code> and run <code>/sse:pr</code> when ready.</li>
+</ul>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Golden-Path.html">Golden Path</a>: running all six stages with one command</li>
+<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>: the gates in detail</li>
+<li><a href="Agents.html">Agents</a>: who owns which stage</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Pipeline-and-Stages" target="_blank" rel="noopener">Pipeline and Stages</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

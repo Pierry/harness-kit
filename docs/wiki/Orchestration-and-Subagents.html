@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orchestration and Subagents &middot; harness-kit wiki</title>
+<meta name="description" content="harness-kit&#x27;s original pipeline is carried by two monolithic agents: product-manager runs prd then prp inline, and staff-software-engineer runs plan →..." />
+<meta property="og:title" content="Orchestration and Subagents &middot; harness-kit wiki" />
+<meta property="og:description" content="harness-kit&#x27;s original pipeline is carried by two monolithic agents: product-manager runs prd then prp inline, and staff-software-engineer runs plan →..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Orchestration-and-Subagents.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Orchestration-and-Subagents.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Orchestration-and-Subagents.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="orchestration-and-subagents">Orchestration and Subagents</h1>
+<blockquote>
+<p><strong>Status: live (v5).</strong> The orchestrator-and-leaf topology is in place across every stage: <code>intake</code>
+is a read-only subagent, each stage's eval is dispatched to a fresh evaluator that did not author the
+artifact, and inputs follow resolve-mark-proceed. The canonical shape lives at
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
+Model tiering to Haiku for the cheapest checks is still <em>(planned)</em>.</p>
+</blockquote>
+<p>harness-kit's original pipeline is carried by two monolithic agents: <code>product-manager</code> runs <code>prd</code> then
+<code>prp</code> inline, and <code>staff-software-engineer</code> runs <code>plan → dev → test → pr</code> inline. Inside each agent, the
+sensors and evals run in the same context as the author. This page explains why v5 breaks that into an
+<strong>orchestrator plus small, single-purpose subagents</strong>, and, just as importantly, where it deliberately
+does <em>not</em>.</p>
+<h2 id="why-subagents">Why subagents</h2>
+<p>A subagent is a fresh, isolated context invoked through the Task tool. Splitting work into subagents
+pays off in exactly three situations, and v5 uses each of them:</p>
+<ol>
+<li><strong>Context isolation.</strong> A stage that reads hundreds of files (<code>intake</code>, <code>dev</code>) should not carry that
+bulk into the stages after it. Each subagent boots clean and returns only a distilled result.</li>
+<li><strong>Parallelism.</strong> Genuinely independent work runs concurrently: a panel of reviewers, or <code>dev</code>
+fanning out over independent modules.</li>
+<li><strong>Adversarial separation.</strong> The agent that writes an artifact must not be the agent that grades it.
+A fresh critic with no stake in the text gives an honest score.</li>
+</ol>
+<p>The third is the strongest reason. Today the same agent writes a PRD and then evaluates it, which is
+grade-your-own-homework: the score is inflated because the grader is attached to the work. A separate
+evaluator, booted fresh and handed only the artifact, has nothing to defend.</p>
+<p>This is not a new idea in harness-kit. The SDD loop already runs its <code>spec-satisfied</code> eval in a <strong>fresh
+session with no worker context</strong> (see <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>). v5 generalizes that
+one instance into the rule for every gate.</p>
+<h2 id="the-over-decomposition-trap">The over-decomposition trap</h2>
+<p>Every subagent hop has a cost: a fresh context boot, re-reading files it does not inherit (subagents
+share no memory), added latency, and added tokens. So the goal is <strong>not</strong> one subagent per step. Split
+only when a hop buys one of the three payoffs above. Otherwise, keep the work inline or, better, in a
+deterministic script.</p>
+<p>The dividing line is judgment versus determinism:</p>
+<ul>
+<li>A check that is a structural rule, &quot;does the PRD contain the required sections?&quot;, is a <strong>sensor
+script</strong>. It does not need a model, and a model would only make it slower and less reliable.</li>
+<li>A check that requires reading and weighing, &quot;is this hypothesis actually testable?&quot;, is an <strong>eval
+subagent</strong>.</li>
+</ul>
+<p>harness-kit already keeps its deterministic sensors as scripts. v5 preserves that. Decomposition adds
+subagents for <em>judgment and isolation</em>, not for work that code already does better.</p>
+<h2 id="three-concerns-separated">Three concerns, separated</h2>
+<p>The core move is to stop tangling three different responsibilities inside one agent:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Who owns it in v5</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Coordination</strong> — sequencing, state, markers, retries, gates</td>
+<td>one <strong>orchestrator</strong> (the main session)</td>
+<td>Never writes an artifact. Only dispatches and commits state.</td>
+</tr>
+<tr>
+<td><strong>Generation</strong> — write the PRD, PRP, plan, code</td>
+<td><strong>author subagents</strong></td>
+<td>Stateless. Explicit inputs, structured output.</td>
+</tr>
+<tr>
+<td><strong>Verification</strong> — sensor + eval</td>
+<td><strong>verifier subagents</strong>, separate from the author</td>
+<td>The grader never wrote the thing it grades.</td>
+</tr>
+</tbody>
+</table>
+<p>The monolithic agents mixed all three. Separating them is what makes the gates trustworthy and the
+contexts clean.</p>
+<h2 id="the-topology">The topology</h2>
+<pre><code>/pipeline:run &quot;&lt;one-line idea&gt;&quot;
+  │  orchestrator = main session: owns .pipeline-state.json, markers, gates
+  │
+  ├─ intake        subagent   harvest repo + context-library → intake.md
+  │      ↓ orchestrator reads unknowns[], decides the PRD gate
+  ├─ prd-author    subagent   write PRD
+  ├─ prd-sensor    script     structural pass/fail (no model)
+  ├─ prd-eval      subagent   adversarial score, fresh context
+  │      ↓ score ≥ 8.0 → orchestrator writes approval marker → next stage
+  ├─ prp-author / prp-eval
+  ├─ planner
+  ├─ dev × N       subagents  fan out only over independent modules
+  ├─ tester
+  ├─ reviewer × 3  subagents  parallel, distinct lenses (correctness · security · repro)
+  └─ pr-author
+</code></pre>
+<p>The orchestrator is a coordinator, not a worker. It spawns each leaf, reads the leaf's structured
+return, and commits the resulting state transition. Leaves never talk to each other; all information
+flows through the orchestrator and the artifacts on disk.</p>
+<h2 id="the-adversarial-split">The adversarial split</h2>
+<p>The rule that makes gates honest:</p>
+<blockquote>
+<p>The subagent that authors an artifact is never the subagent that evaluates it.</p>
+</blockquote>
+<p>The evaluator is booted with no memory of how the artifact was written. It receives only the artifact
+and the rubric, and it is prompted to find what is wrong, not to defend what is there. For high-stakes
+gates a <strong>panel</strong> replaces a single judge: three evaluators with distinct lenses run in parallel and a
+majority decides. Diversity of lens catches failure modes that a single reviewer, or three identical
+reviewers, would miss.</p>
+<h2 id="model-tiering">Model tiering</h2>
+<p>Separating concerns lets each subagent run on the right-sized model:</p>
+<table>
+<thead>
+<tr>
+<th>Work</th>
+<th>Model</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deterministic sensors</td>
+<td><em>(none — script)</em></td>
+<td>Structural rules do not need inference.</td>
+</tr>
+<tr>
+<td>Mechanical / cheap judgment</td>
+<td>Haiku <em>(planned)</em></td>
+<td>Fast, cheap, good enough for narrow checks.</td>
+</tr>
+<tr>
+<td>Authoring and adversarial eval</td>
+<td>Opus</td>
+<td>The parts that need real reasoning.</td>
+</tr>
+</tbody>
+</table>
+<p>A monolithic agent has to run everything at one tier. Decomposition lets the cheap work be cheap and
+reserves the strong model for authoring and judgment.</p>
+<h2 id="claude-code-constraints-shape-the-design">Claude Code constraints shape the design</h2>
+<p>Subagents in Claude Code are <strong>stateless leaves</strong>: they cannot mutate shared state, they inherit no
+memory from the caller, and nesting is limited (a subagent cannot freely spawn its own subagents). This
+is not a limitation to fight; it dictates a clean design:</p>
+<ul>
+<li>The <strong>orchestrator owns all state.</strong> <code>.claude/.pipeline-state.json</code> and the marker files are written
+by the orchestrator, through the existing <code>pipeline.py</code> and <code>marker.sh</code>, never by a leaf.</li>
+<li>Leaves <strong>return, they do not commit.</strong> A subagent fills an artifact and reports a structured result.
+The orchestrator reads that result and performs the state transition.</li>
+<li>The existing <strong>hook, marker, and token machinery is untouched.</strong> Subagents slot in underneath it: a
+leaf writes the artifact, the orchestrator flips state, and the same post-write hooks fire as before.</li>
+</ul>
+<p>Nothing that works today is thrown away. Subagents enter as leaves under the coordination layer that
+already exists.</p>
+<h2 id="contracts">Contracts</h2>
+<p>Reliable orchestration needs explicit contracts. Each subagent is given:</p>
+<ul>
+<li><strong>Explicit inputs</strong> — file paths, not &quot;the context&quot;. <code>prd-author</code> is handed the path to <code>intake.md</code>
+and the guide paths, not a vague instruction to &quot;use what you know&quot;.</li>
+<li><strong>Structured output</strong> — a defined shape the orchestrator can parse and branch on. For example,
+<code>intake</code> returns <code>{ squad, problem, repos[], customers[], unknowns[] }</code>, and the orchestrator reads
+<code>unknowns[]</code> to decide whether the PRD gate needs the human.</li>
+</ul>
+<p>Without contracts, orchestration degrades into guesswork about what a leaf produced. With them, the
+control flow is deterministic even though the leaves are inferential.</p>
+<h2 id="how-it-rolled-out-a-vertical-slice-first">How it rolled out: a vertical slice first</h2>
+<p>v5 did not rebuild both monoliths at once. That would be a large, hard-to-debug change. The rollout
+proved a <strong>single vertical slice</strong> — the <code>prd</code> stage — through the new pattern end to end first:</p>
+<pre><code>intake (subagent) → prd-author → prd-sensor (script) → prd-eval (subagent, fresh context)
+</code></pre>
+<p>Once that slice worked against a real repository, it became the template, captured as
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
+Every other stage (<code>prp</code>, <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code>, and the <code>system-design</code> stages) was then a
+replication of that validated pattern rather than a simultaneous experiment: each reads its inputs via
+resolve-mark-proceed and dispatches its eval to a fresh evaluator. New stages follow the same file.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a>: the intake subagent and gated autonomy</li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: the stages the orchestrator drives</li>
+<li><a href="Agents.html">Agents</a>: the agents being decomposed</li>
+<li><a href="Harness-Engineering.html">Harness Engineering</a>: computational vs inferential controls</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents" target="_blank" rel="noopener">Orchestration and Subagents</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

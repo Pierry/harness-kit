@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Autonomy &middot; harness-kit wiki</title>
+<meta name="description" content="harness-kit&#x27;s original design stops and asks the human for inputs before each artifact: the PRD agent asks for squad, problem, customers, hypothesis,..." />
+<meta property="og:title" content="Autonomy &middot; harness-kit wiki" />
+<meta property="og:description" content="harness-kit&#x27;s original design stops and asks the human for inputs before each artifact: the PRD agent asks for squad, problem, customers, hypothesis,..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Autonomy.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Autonomy.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Autonomy.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="autonomy">Autonomy</h1>
+<blockquote>
+<p><strong>Status: live (v5).</strong> The <code>intake</code> stage and the resolve-mark-proceed disposition are rolled out
+across every stage (prd, prp, plan, dev, test, pr, and system-design). The canonical shape lives at
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
+A few refinements are still <em>(planned)</em> and marked inline: model tiering to Haiku for cheap checks,
+and populating each org's <code>context-library/repos.md</code> from the shipped template.</p>
+</blockquote>
+<p>harness-kit's original design stops and asks the human for inputs before each artifact: the PRD agent
+asks for squad, problem, customers, hypothesis, and bet link; the PRP agent asks for repo paths. Every
+question is a place the run halts. The autonomy work removes the <em>trivial</em> questions without removing
+the <em>real</em> decisions, so one command carries an idea end to end and only pauses where a human genuinely
+adds judgment.</p>
+<h2 id="questions-are-missing-context-in-disguise">Questions are missing context in disguise</h2>
+<p>An agent asks a question when it lacks the context to proceed. There are two ways to remove the
+question:</p>
+<ol>
+<li><strong>Delete it and let the agent guess.</strong> This produces confident, wrong artifacts: a hallucinated
+squad, an invented metric, a plausible-but-fake customer. Worse than asking.</li>
+<li><strong>Give the agent a way to find the answer itself.</strong> The repository, its history, and the context
+library already hold most of what the questions were fishing for. Read them first, ask only for
+what is genuinely external.</li>
+</ol>
+<p>harness-kit takes the second path. This mirrors what happens when a coding agent is turned loose on a
+well-structured repository with no bespoke setup: it reads the code, the README, the recent commits,
+and infers intent. The autonomy work makes that reading step <strong>explicit and mandatory</strong>, so inference
+happens before any question is raised.</p>
+<p>In harness-engineering terms this is a shift from <strong>feedback</strong> to <strong>feedforward</strong> (see
+<a href="Harness-Engineering.html">Harness Engineering</a>). Asking the human mid-run is feedback: the agent produces a
+gap and waits for a correction. Harvesting context up front is feedforward: the agent is handed what it
+needs before it starts, so the gap never forms.</p>
+<h2 id="the-intake-stage">The intake stage</h2>
+<p>Autonomy is anchored by a new first stage, <code>intake</code>, that runs before <code>prd</code>. It is a
+<a href="Orchestration-and-Subagents.html">subagent</a> whose entire job is to gather context and commit it to a single
+artifact the rest of the pipeline reads.</p>
+<pre><code>intake  →  prd  →  prp  →  plan  →  dev  →  test  →  pr
+  │
+  └─ reads:  target repo (code, README, recent commits, open PRs/issues)
+             context-library/ (business-info, squads/, metrics/, decisions/)
+             git remotes and repo registry
+  └─ emits:  .claude/runtime/outputs/intake/{feature_id}.md
+             { squad, problem, customers[], hypothesis, repos[], metrics, unknowns[] }
+</code></pre>
+<p>Because it is a subagent, intake runs in an isolated context. Its heavy exploration, potentially
+hundreds of files read, never pollutes the context of the stages that follow. They receive only the
+distilled <code>intake.md</code>, not the raw search.</p>
+<p>The intake artifact is the single source of the answers the PRD agent used to ask for. The PRD agent no
+longer interrogates the human; it reads <code>intake.md</code>.</p>
+<h2 id="resolve-mark-proceed">Resolve, mark, proceed</h2>
+<p>Every input the pipeline needs has one of three dispositions. This replaces the binary
+<em>ask-or-block</em>.</p>
+<table>
+<thead>
+<tr>
+<th>Disposition</th>
+<th>When</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Resolve</strong></td>
+<td>The answer is in the repo or context library</td>
+<td>Intake writes the value into <code>intake.md</code>. No human contact.</td>
+</tr>
+<tr>
+<td><strong>Mark</strong></td>
+<td>The answer is genuinely unknowable from available context (e.g. a bet link, an exec's target)</td>
+<td>Intake writes <code>NOT FOUND - NEEDS REVIEW: {detail}</code> and adds it to <code>unknowns[]</code>. The run <strong>continues.</strong></td>
+</tr>
+<tr>
+<td><strong>Proceed</strong></td>
+<td>Always</td>
+<td>The pipeline never blocks on a missing input mid-run. Unknowns are surfaced at the next gate, not as an interrupt.</td>
+</tr>
+</tbody>
+</table>
+<p>The evals already tolerate a bounded number of unresolved markers (<code>prp-context-quality</code> blocks only
+above five <code>NEEDS REVIEW</code>/<code>TBD</code> markers). Autonomy leans on that existing tolerance: a few honest
+unknowns are acceptable and visible; they are not a reason to halt.</p>
+<p>The rule in one line: <strong>resolve from context, mark what you cannot, never stop to ask.</strong></p>
+<h2 id="gated-autonomy-humans-on-the-loop-not-in-it">Gated autonomy: humans on the loop, not in it</h2>
+<p>Full autonomy is not the goal. Unattended generation with no human checkpoint is both dangerous and
+expensive to undo. The goal is to move the human from <strong>in the loop</strong> (answering an input before every
+artifact) to <strong>on the loop</strong> (approving direction at the points where review is cheap and a mistake is
+expensive), a distinction drawn from Böckeler's harness-engineering writing.</p>
+<p>harness-kit places human gates only at high-leverage, low-reversibility boundaries:</p>
+<pre><code>intake → prd → [ GATE: approve direction ] → prp → plan →
+dev → test → [ GATE: approve PR before it opens ] → pr
+</code></pre>
+<ul>
+<li><strong>The PRD gate</strong> costs the human ~30 seconds and prevents an entire dev run aimed in the wrong
+direction. This is the single most valuable checkpoint in the pipeline.</li>
+<li><strong>The PR gate</strong> guards the one outward-facing, hard-to-retract action: opening a pull request.</li>
+</ul>
+<p>Everything between the gates runs without interruption. Two decisions, not a dozen questions.</p>
+<p>A <code>--yolo</code> flag removes even these gates for trusted, low-risk flows, collapsing the whole pipeline to
+a single unattended command. It is honored by the <code>/pipeline:run</code> orchestrator.</p>
+<h2 id="what-stays-deterministic">What stays deterministic</h2>
+<p>Not every removed question needs an LLM. Some are lookups, and a lookup should be code, not inference:</p>
+<ul>
+<li><strong>Repo paths.</strong> A <code>context-library/repos.md</code> registry maps <code>squad → repo paths</code>, so the PRP and SSE
+stages resolve targets by table lookup instead of asking. It ships as <code>repos-template.md</code>; each org
+fills in its own <em>(planned per-org)</em>. When the registry has no entry, intake falls back to
+auto-detecting from the current working directory and git remotes.</li>
+<li><strong>feature_id.</strong> Already computed deterministically as <code>{YYYY-MM-DD}-{squad}-{slug}</code>.</li>
+</ul>
+<p>Keeping these in code makes them cheap and reliable, and reserves the agents for the parts that
+actually need judgment.</p>
+<h2 id="how-it-plugs-into-the-existing-harness">How it plugs into the existing harness</h2>
+<p>Autonomy adds one stage and changes the disposition of inputs. It does <strong>not</strong> replace the gating
+machinery:</p>
+<ul>
+<li>Sensors and evals still fire on every stage. An autonomously-produced PRD is held to the same
+<code>prd-structure</code> and <code>prd-quality</code> bars as a hand-guided one.</li>
+<li>Markers, token accounting, and <code>.pipeline-state.json</code> are unchanged. Intake is just another stage
+that writes an artifact and flips state through the same hooks.</li>
+<li><code>/pipeline:continue</code> still resumes at the next pending stage, so an autonomous run that fails midway
+is as resumable as any other.</li>
+</ul>
+<p>The pipeline gets more independent without getting less governed. The gates that make the output
+trustworthy stay exactly where they were.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a>: the intake subagent and the
+orchestrator that owns state</li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: where intake sits and how gates work</li>
+<li><a href="Harness-Engineering.html">Harness Engineering</a>: feedforward vs feedback, humans on vs in the loop</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy" target="_blank" rel="noopener">Autonomy</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

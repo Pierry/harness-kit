@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Evals (inferential feedback) &middot; harness-kit wiki</title>
+<meta name="description" content="Evals are the inferential, LLM-based feedback control. Where a sensor checks structure deterministically, an eval judges meaning: is this PRD clear, is..." />
+<meta property="og:title" content="Evals (inferential feedback) &middot; harness-kit wiki" />
+<meta property="og:description" content="Evals are the inferential, LLM-based feedback control. Where a sensor checks structure deterministically, an eval judges meaning: is this PRD clear, is..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Evals.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Evals.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Evals.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="evals-inferential-feedback">Evals (inferential feedback)</h1>
+<p>Evals are the <strong>inferential, LLM-based</strong> feedback control. Where a <a href="Sensors.html">sensor</a> checks structure
+deterministically, an eval judges <em>meaning</em>: is this PRD clear, is this design's trade-off real, does
+this plan actually follow from the PRP. An eval is an LLM-judge scored 0-10 against a rubric, with a
+pass <strong>threshold of 8.0</strong> and <strong>up to 3 retries</strong>.</p>
+<h2 id="why-you-need-inferential-controls">Why you need inferential controls</h2>
+<p>No regex can tell you a problem statement is vague, a hypothesis is unfalsifiable, or a design hid its
+hardest trade-off. That is semantic judgment, and only a language model can do it at this granularity.
+The cost: it is probabilistic, so you calibrate it with a rubric and weights rather than trusting a
+bare &quot;rate this 1-10&quot;.</p>
+<h2 id="anatomy-of-an-eval">Anatomy of an eval</h2>
+<p>A rubric is a markdown file: weighted dimensions, each with a 0/5/10 anchor, a threshold, and a strict
+output format.</p>
+<pre><code class="language-markdown"># Eval: Design Quality
+Type: LLM-judge
+Mode: quality gate
+Threshold: weighted total &gt;= 8.0
+
+## Rubric
+### Requirements rigor (weight 15%)
+Numeric targets + back-of-envelope math?
+- 10: numeric targets + sizing math
+- 5: some numbers, no math
+- 0: prose only
+...
+
+## On failure (total below 8.0)
+Retry. Regenerate lowest-scoring sections only. Max 3 attempts.
+
+## Output format
+{ &quot;scores&quot;: {...}, &quot;weighted_total&quot;: 0.0, &quot;feedback&quot;: [&quot;dimension: issue with line ref&quot;] }
+</code></pre>
+<p><code>weighted_total = sum(score x weight%) / 100</code>. The judge must cite a line or section when it scores a
+dimension below 7, so the feedback is actionable, not a vibe.</p>
+<h2 id="the-retry-loop">The retry loop</h2>
+<pre><code>generate -&gt; sensors (hard gate) -&gt; eval (score)
+   ^                                   |
+   |          below 8.0                v
+   +------ regenerate weak sections ---+   (max 3 attempts, then blocker)
+</code></pre>
+<p>Critically, the retry regenerates <strong>only the low-scoring dimensions</strong>, not the whole artifact, and the
+judge's per-dimension feedback says which. After 3 failed attempts the stage returns a blocker rather
+than shipping something sub-threshold.</p>
+<h2 id="weights-encode-what-matters">Weights encode what matters</h2>
+<p>The weights are where you express priorities. In the PRD-quality rubric, <em>metric completeness</em> and
+<em>clarity</em> carry the most weight because a PRD lives or dies on a crisp problem and measurable success.
+In the design-quality rubric, <em>architecture + deep dives</em> and <em>trade-off discipline</em> dominate because
+that is what separates a staff design from a box diagram. Tuning weights is a &quot;human on the loop&quot;
+action: you change what the gate cares about once, and it applies to every future artifact.</p>
+<h2 id="calibration-and-anti-rubber-stamp">Calibration and anti-rubber-stamp</h2>
+<p>An eval that always passes is worthless. Two practices keep it honest:</p>
+<ul>
+<li><strong>Anchored scales.</strong> Each dimension defines what 0, 5, and 10 look like, so the judge is not guessing
+what &quot;7&quot; means.</li>
+<li><strong>Adversarial framing where it matters.</strong> The system-architect's <code>design-review-depth</code> eval scores a
+<em>review</em> and explicitly fails one that rubber-stamps: a review with no named gaps, flat severity, or
+generic &quot;consider improving&quot; advice scores low by design.</li>
+</ul>
+<h2 id="evals-in-harness-kit">Evals in harness-kit</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Evals</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prd</code></td>
+<td><code>prd-quality</code>, <code>prd-readiness</code></td>
+</tr>
+<tr>
+<td><code>prp</code></td>
+<td><code>prp-quality</code>, <code>prp-context-readiness</code></td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td><code>plan-quality</code></td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td><code>dev-quality</code></td>
+</tr>
+<tr>
+<td><code>pr</code></td>
+<td><code>pr-quality</code></td>
+</tr>
+<tr>
+<td>system design</td>
+<td><code>design-quality</code>, <code>design-review-depth</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-passfail-variant-spec-satisfied">The PASS/FAIL variant: spec-satisfied</h2>
+<p>The spec-driven loop (<code>/sse:sdd</code>) uses a different eval shape. Instead of a 0-10 score, <code>spec-satisfied</code>
+returns <strong>PASS/FAIL</strong> against the PRP's <code>Success criteria (verifiable)</code> and <code>Validation gates</code>. A
+<code>FAIL</code> re-enters the dev↔test loop with a <code>next_iter_focus</code> hint; the loop runs at most 3 iterations.
+It runs in a <strong>fresh session</strong> with no worker context, so the judge is not biased by the implementer's
+narrative. This is an eval used as a <em>goal predicate</em> rather than a quality score.</p>
+<h2 id="sensor-first-eval-second">Sensor first, eval second</h2>
+<p>Order matters: sensors run before evals. There is no point spending an LLM call scoring the prose of an
+artifact that is missing half its sections. The deterministic gate clears the cheap, objective failures
+first; the eval judges only well-formed artifacts.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Sensors.html">Sensors</a>: the deterministic gate that runs first</li>
+<li><a href="Guides.html">Guides</a>: feedforward that reduces how often evals fail</li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: where evals sit in a stage</li>
+</ul>
+<h2 id="what-the-score-is-not">What the score is not</h2>
+<p>The judge returns per-dimension scores and a weighted total, and until recently nothing checked that
+the total followed from the scores. It does now: pipe the judge's JSON through the score verifier,
+which reads the weights out of the rubric and recomputes.</p>
+<pre><code>.claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
+</code></pre>
+<p>Exit 0 prints the number the approval marker should carry. Exit 2 means the judge inflated the total,
+scored a dimension the rubric does not weight, or skipped one it does, in which case the score is
+meaningless and you do not approve on it.</p>
+<p>That fixes the computable half only. Two limits stand, and it is worth being blunt about them:</p>
+<ul>
+<li><strong>The scores are not validated against human labels.</strong> 8.0 is a convention, not a calibrated
+boundary. <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Husain</a> argues uncalibrated 1-10 scales mean
+different things to different graders and that binary judgments plus measured human agreement are
+what make an eval trustworthy. We do not do that yet.</li>
+<li><strong>A fresh evaluator is not an unbiased one.</strong> Dispatching a judge with no prior context removes the
+author's stake in the text, but LLM judges still inflate scores for output from their own family
+(<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Panickssery et al.</a>). A fresh Claude judging Claude is still
+self-preference. Fixing it properly needs a different model family or a human.</li>
+</ul>
+<p>Read the feedback, not just the number. The score is a signal that catches weak artifacts, not a
+measurement.</p>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Evals" target="_blank" rel="noopener">Evals (inferential feedback)</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

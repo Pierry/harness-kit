@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>URL Shortener &middot; harness-kit wiki</title>
+<meta name="description" content="The product fits in one sentence: take a long URL, return a short URL, redirect the user to the original. That is exactly why it is a great interview..." />
+<meta property="og:title" content="URL Shortener &middot; harness-kit wiki" />
+<meta property="og:description" content="The product fits in one sentence: take a long URL, return a short URL, redirect the user to the original. That is exactly why it is a great interview..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/URL-Shortener.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/URL-Shortener.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: URL-Shortener.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="url-shortener">URL Shortener</h1>
+<blockquote>
+<p>System Design series #1 (EP22). Topic skill: <code>skills/url-shortener/</code>.
+Design a TinyURL / bit.ly at scale, from requirement to operation.</p>
+</blockquote>
+<h2 id="1-the-problem-and-why-it-is-deceptive">1. The problem and why it is deceptive</h2>
+<p>The product fits in one sentence: take a long URL, return a short URL, redirect the user to the
+original. That is exactly why it is a great interview trap. Underneath sit almost every core system
+design theme: read-heavy load, unique key generation, cache, partitioning, consistency, abuse,
+analytics, multi-region, cost, and architecture evolution.</p>
+<p>The single most important framing: there are <strong>two very different flows</strong>.</p>
+<ul>
+<li><strong>Create</strong>: moderate write. One link is created once.</li>
+<li><strong>Resolve</strong>: huge read, latency-critical. That one link may be read millions of times.</li>
+</ul>
+<p>Design the architecture around redirect. Everything else bends to it. Anyone who starts drawing Kafka
+in the first three minutes is answering the wrong question. Product and priority first, technology
+second.</p>
+<h2 id="2-requirements">2. Requirements</h2>
+<p><strong>Functional:</strong> long URL to unique short URL; resolve short to redirect; optional expiry; custom
+alias; basic analytics (click, timestamp, user agent, referer, approximate country); disable/ban
+malicious links.</p>
+<p><strong>Non-functional, in priority order:</strong></p>
+<ol>
+<li><strong>Redirect availability.</strong> If create fails for a few seconds it is bad; if redirect fails the
+product dies.</li>
+<li>Low redirect latency, tens of ms on cache hit.</li>
+<li>Durability, once a code is issued, the mapping must never vanish.</li>
+<li>Horizontal read scale.</li>
+<li>Security / anti-abuse, this product becomes a phishing/malware/spam vector fast.</li>
+<li>Observability and auditability.</li>
+</ol>
+<p><strong>Staff-level extras</strong> that separate a senior answer from a staff answer: TTL links, logical
+delete/tombstone, optional dedup, preview page for suspicious links, rate limit per account/IP/tenant,
+multi-tenant custom domains, and <strong>different SLAs for redirect vs analytics</strong>.</p>
+<h2 id="3-scale-sizing-back-of-envelope">3. Scale sizing (back-of-envelope)</h2>
+<p>Assumptions: 100M new links/month, 3B redirects/month, read:write ~30:1, peak 5x average, 5-year
+retention.</p>
+<pre><code>Writes:  100M / 2.6M s  ~ 38 wps avg,   ~200 wps peak.   Trivial.
+Reads:   3B   / 2.6M s  ~ 1157 rps avg, ~6k rps peak.    Comfortable.
+</code></pre>
+<p>But enterprise clients, a viral campaign, an event QR code, or global usage can push reads to tens or
+hundreds of thousands per second. Design to grow even if v1 is small.</p>
+<p><strong>Storage:</strong> ~1 KB/record (code 8-10 B, long URL ~500 B, metadata 100-200 B). 6B records over 5 years
+= ~6 TB raw, 15-25 TB with indexes, replication, and backup. The crucial distinction: <strong>hot data is
+small, total data is large.</strong> That drives heavy caching in front of durable, partitionable storage.</p>
+<p><strong>Analytics:</strong> 3B events/month. Never a synchronous counter on the transactional DB. Decouple it.</p>
+<h2 id="4-api">4. API</h2>
+<pre><code>POST /v1/links   {long_url, custom_alias?, expires_at?, domain?, idempotency_key?}
+              -&gt; {short_url, code, created_at, expires_at}
+
+GET /{code}   -&gt; 301 if the mapping is immutable (lowest perceived latency on repeat)
+                 302/307 if you want flexibility (avoids aggressive client caching when target
+                 may change)
+</code></pre>
+<p>The 301-vs-302 choice is <strong>control vs efficiency</strong>. 301 is cached hard by clients and intermediaries,
+so repeat redirects are instant but you lose the ability to change or revoke cheaply. 302 keeps
+control at the cost of a server round trip each time. Product questions that change the architecture:
+can a link be edited after create? can an alias be reused after expiry? same long URL = same code or
+not? These drive idempotency, cache, and invalidation.</p>
+<h2 id="5-data-model">5. Data model</h2>
+<p>Two domains, deliberately separated.</p>
+<p><strong>Transactional links table</strong></p>
+<pre><code>code PK, long_url, url_hash?, owner_id?, domain, created_at, expires_at?,
+status(active|disabled|expired|banned), is_custom, redirect_type, metadata_json
+</code></pre>
+<p>Indexes: PK on <code>code</code>, <code>(owner_id, created_at)</code>, <code>expires_at</code> if TTL cleanup is frequent, <code>url_hash</code>
+if dedup.</p>
+<p><strong>Analytics events</strong> (asynchronous, columnar / data lake / stream)</p>
+<pre><code>code, timestamp, ip_prefix or hashed IP, user_agent_hash, referer_domain, country, device_type
+</code></pre>
+<p>Never on the synchronous redirect path.</p>
+<h2 id="6-theory-short-code-generation">6. Theory, short-code generation</h2>
+<p>The classic interview core. Four approaches, with their failure modes.</p>
+<h3 id="a-hash-of-the-long-url-truncated-base62">A. Hash of the long URL, truncated, base62</h3>
+<p>Deterministic and trivially dedup-able, but truncation <strong>collides</strong>, the same input always yields the
+same code (bad when two users want distinct links for the same landing page), and the output is
+predictable and enumerable.</p>
+<h3 id="b-sequential-id-base62-encoded">B. Sequential ID, base62 encoded</h3>
+<p>Simple, short, collision-free with a good generator. But a pure sequential ID is <strong>predictable</strong>: it
+leaks your total volume and is trivially scrapeable by incrementing.</p>
+<h3 id="c-unique-id--reversible-obfuscation-base62---recommended">C. Unique ID + reversible obfuscation, base62  ← recommended</h3>
+<p>Generate a 64-bit unique ID, pass it through a <strong>keyed bijection</strong> (a Feistel network or another
+bijective permutation), then base62-encode. The bijection preserves uniqueness (no collisions) while
+destroying predictability (you cannot guess neighbors without the key). Optional fixed-length pad.</p>
+<blockquote>
+<p><strong>Why a Feistel network?</strong> It is a construction (Horst Feistel, IBM, 1970s, the basis of DES) that
+turns any function into an invertible permutation over a fixed bit-width. For short codes it gives
+you a 1:1, reversible, key-dependent scramble of the ID space, uniqueness for free, unpredictability
+by construction. This is the standard &quot;encrypt the counter&quot; trick.</p>
+</blockquote>
+<h3 id="base62-and-code-length">Base62 and code length</h3>
+<p>Base62 = <code>[A-Za-z0-9]</code>. Capacity: <code>62^7 ~ 3.5 trillion</code>, <code>62^8 ~ 218 trillion</code>. Seven characters fit
+most platforms; eight gives operational slack. Custom aliases bypass this entirely.</p>
+<h3 id="staff-framing">Staff framing</h3>
+<p>Centrally-coordinated unique ID by ranges (or decentralized with a uniqueness guarantee), reversible
+bijection to cut predictability, base62 encode, and <strong>validate uniqueness in storage as the last line
+of defense</strong> (a unique index catches the impossible).</p>
+<h2 id="7-theory-unique-id-generation">7. Theory, unique ID generation</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>How</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DB auto-increment</td>
+<td>the database hands out the next integer</td>
+<td>fine for MVP; central hotspot; blocks active multi-region</td>
+</tr>
+<tr>
+<td><strong>Snowflake-style</strong></td>
+<td><code>timestamp | worker id | local sequence</code> in 64 bits</td>
+<td>horizontal, roughly time-ordered, DB-independent; watch clock skew, worker-id coordination, bit layout</td>
+</tr>
+<tr>
+<td><strong>Range allocation</strong></td>
+<td>a service hands each instance a block of 1M IDs to consume locally</td>
+<td>very simple, near-zero per-request coordination; wastes IDs on restart (usually fine), needs reliable refill</td>
+</tr>
+</tbody>
+</table>
+<p>Twitter's <strong>Snowflake</strong> (2010) is the canonical 64-bit scheme: ~41 bits timestamp, ~10 bits machine,
+~12 bits sequence. For a URL shortener, range allocation or snowflake both work well.</p>
+<h2 id="8-create-flow">8. Create flow</h2>
+<ol>
+<li>Validate the URL (see below).</li>
+<li>If custom alias, check availability and policy.</li>
+<li>Generate the code.</li>
+<li>Persist to the transactional DB.</li>
+<li>Write-through to cache.</li>
+<li>Return <code>short_url</code>.</li>
+</ol>
+<p><strong>URL validation is not cosmetic.</strong> Accept only http/https. Block SSRF targets: <code>127.0.0.1</code>,
+<code>169.254.169.254</code> (cloud metadata), RFC1918 private ranges, internal hostnames. Canonicalize. Enforce
+a size limit. Handle punycode and suspicious characters. (SSRF, Server-Side Request Forgery, is the
+real risk: your validator fetching an attacker-supplied internal URL.)</p>
+<p><strong>Idempotency.</strong> Store the response per <code>idempotency_key</code> for a short window so a client retry after a
+timeout does not mint duplicate links.</p>
+<p><strong>Dedup, default no.</strong> Globally deduping by long URL breaks per-campaign and per-tenant analytics,
+leaks privacy (a user learns someone else already shortened a link), and blocks distinct links for the
+same landing page. If you want it, dedup only as an internal storage optimization, separating the
+logical link entity from the physical URL target.</p>
+<h2 id="9-redirect-flow-the-heart">9. Redirect flow (the heart)</h2>
+<pre class="mermaid">sequenceDiagram
+  Client-&gt;&gt;Edge: GET /abc123X
+  Edge-&gt;&gt;Cache: lookup code
+  alt cache hit
+    Cache--&gt;&gt;Edge: target
+  else miss
+    Edge-&gt;&gt;DB: read (replica), validate status + expiry
+    DB--&gt;&gt;Edge: target
+    Edge-&gt;&gt;Cache: populate (TTL)
+  end
+  Edge-)Analytics: emit click event (async)
+  Edge--&gt;&gt;Client: 301/302 Location
+</pre>
+<p><strong>Negative caching.</strong> If someone hammers random codes, every miss hits the DB, a miss storm. Cache
+the &quot;nonexistent&quot; result for a short TTL (30-60s).</p>
+<p><strong>TTL choice.</strong> If the mapping is immutable, TTL can be hours and invalidation nearly disappears. If
+links can be disabled or edited, choose a short TTL, event-based invalidation, or split layers: keep
+the destination near-immutable (cached hard) and use a fast <strong>blacklist</strong> layer for urgent blocks.</p>
+<h2 id="10-theory-cache-and-the-read-path">10. Theory, cache and the read path</h2>
+<p>This is a textbook <strong>cache-heavy read path</strong>.</p>
+<ul>
+<li><strong>L1</strong> local in-process cache for extreme hot keys (small, short TTL).</li>
+<li><strong>L2</strong> distributed cache (Redis) shared across instances.</li>
+<li><strong>DB</strong> as source of truth.</li>
+</ul>
+<p><strong>Hot key problem.</strong> A viral link concentrates load. Beyond a good cache, staff thinks about:</p>
+<ul>
+<li><strong>Single-flight</strong> (request coalescing) on miss: if 1000 requests miss simultaneously, exactly one
+fetches the DB and the rest wait on its result. Without this, a cold hot-key causes a <strong>cache
+stampede</strong> (a.k.a. thundering herd / dog-piling) that can topple the DB.</li>
+<li><strong>Refresh-ahead:</strong> refresh a hot entry before it expires so it never goes cold under load. The
+probabilistic variant (Vattani et al., <em>Optimal Probabilistic Cache Stampede Prevention</em>, 2015)
+refreshes early with a probability that rises as expiry approaches.</li>
+<li>Ensure the hot value fits in L1; limit concurrent refresh.</li>
+</ul>
+<h2 id="11-theory-storage-choice">11. Theory, storage choice</h2>
+<p>The workload: PK lookup by code, few relations, moderate write, very high read, strong durability.
+SQL or a persistent KV both fit. What matters is efficient key lookup, mature replication, reliable
+backup/restore, and team familiarity.</p>
+<p><strong>Pragmatic pick:</strong> a mature relational database (Postgres) with partitioning when needed, read
+replicas, and heavy cache in front. Evolve to a Dynamo/Cassandra-style distributed KV only when scale
+truly forces it. The staff answer is the <strong>smallest system that holds the load with margin and
+evolves safely</strong>, not the most exotic technology. (Amazon Dynamo, DeCandia et al. 2007, is the
+reference for the distributed-KV end of that spectrum: consistent hashing, quorum reads/writes,
+eventual consistency.)</p>
+<h2 id="12-partitioning">12. Partitioning</h2>
+<p>Partition by <code>code</code> or its internal ID.</p>
+<ul>
+<li><strong>Hash partition:</strong> even distribution, good for random lookup; harder rebalancing, no time
+locality. <strong>Consistent hashing</strong> (Karger et al., 1997) minimizes the keys that move when you add or
+remove a node, the standard technique.</li>
+<li><strong>Range partition by time/ID:</strong> good archive and lifecycle, good locality, but a monotonic ID
+creates a hot newest shard.</li>
+</ul>
+<p>For redirect lookup, prefer hash or a pseudo-random distribution over the obfuscated ID. Analytics
+partitions differently (by time).</p>
+<h2 id="13-consistency">13. Consistency</h2>
+<ul>
+<li><strong>Strong consistency required:</strong> custom-alias uniqueness (unique index on <code>(domain, code)</code>), link
+persisted before the success response, critical admin status changes.</li>
+<li><strong>Eventual consistency acceptable:</strong> analytics, cross-region DR replication, aggregated dashboards.</li>
+</ul>
+<p><strong>Read-after-write.</strong> If a user creates a link and immediately clicks it, they expect it to work, even
+if a read replica has not caught up. Resolve via region-sticky reads for a few seconds, write-through
+cache (the cleanest, the redirect reads the cache the create just wrote), or a fallback to primary
+when the replica lags.</p>
+<h2 id="14-multi-region">14. Multi-region</h2>
+<p>Separate create and resolve.</p>
+<ul>
+<li><strong>Resolve</strong> is read-dominant and cacheable, push to edge and multiple regions, stateless regional
+service with a strong regional cache.</li>
+<li><strong>Create</strong> can start single-writer per primary region, which simplifies alias uniqueness and ID
+generation.</li>
+</ul>
+<p>Evolution: (1) one create region, many redirect regions with replica + cache; (2) multi-region create
+with per-region ID ranges/namespaces; (3) sophisticated active-active only if the business demands it.
+Avoid premature active-active.</p>
+<h2 id="15-analytics-without-hurting-redirect">15. Analytics without hurting redirect</h2>
+<blockquote>
+<p>Redirect is path A. Analytics is path B. Never tightly couple them.</p>
+</blockquote>
+<p>Redirect responds fast; the click event goes to a queue or log; consumers aggregate counters per
+minute/hour/day/country/device/referer; dashboards query a separate analytical store. If the queue
+dies: best-effort (drop analytics, keep redirect), short local buffer with retry, or sampling under
+degradation. Always preserve redirect first. Retention tiers: raw 30 days, hourly aggregate 1 year,
+daily aggregate 5 years. For unique-visitor counts at this volume, <strong>HyperLogLog</strong> (Flajolet et al.,
+2007) estimates cardinality in kilobytes instead of storing every ID.</p>
+<h2 id="16-security-and-anti-abuse">16. Security and anti-abuse</h2>
+<p>Risks: phishing, malware distribution, spam, link enumeration, open-redirect abuse, SSRF during
+validation. Controls: rate limit per IP/token/tenant/suspicious ASN, domain reputation at create
+time, safe-browsing checks (sync or async by risk), fast link disable, preview interstitial for
+suspicious links, progressive friction/CAPTCHA, stronger auth for high-volume accounts.</p>
+<p><strong>Anti-enumeration:</strong> obfuscation + adequate code length + rate limit on the resolve endpoint +
+scan-pattern monitoring. <strong>Privacy:</strong> minimize, truncate, or short-window-hash IPs.</p>
+<h2 id="17-lifecycle-and-custom-alias">17. Lifecycle and custom alias</h2>
+<p><strong>Expiry:</strong> persist <code>expires_at</code>, validate at read time (do not rely only on an offline cleanup job,
+an expired link could otherwise survive in cache), evict on expiry, run an async cleanup job for
+archive/logical delete. <strong>Tombstone</strong> banned or removed links to prevent reuse and aid audit.</p>
+<p><strong>Custom alias</strong> needs strong consistency (unique index on <code>(domain, code)</code>), reserved words (admin,
+login, api), per-tenant policy, and no collision with internal routes. It is a minority of traffic but
+high value, so a stricter create flow is justified.</p>
+<h2 id="18-observability">18. Observability</h2>
+<p>Metrics: create/resolve QPS, resolve p50/p95/p99, cache hit ratio per layer, errors by class,
+not-found rate, banned/expired access rate, create-to-first-resolve propagation time, analytics
+pipeline throughput and lag. Logs: sampled access logs, audit logs for admin operations, structured
+with correlation id. Tracing: full on create; sample on the hot resolve path. Alerts:
+cache-hit-ratio drop, p99 rise, redirect error over threshold, abnormal 404 growth (scan), analytics
+backlog growth.</p>
+<h2 id="19-failure-modes">19. Failure modes</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache down</td>
+<td>DB avalanche</td>
+<td>rate limit + circuit breaker, L1 for hot keys, degrade analytics, shed suspicious traffic</td>
+</tr>
+<tr>
+<td>DB degraded</td>
+<td>misses and creates suffer</td>
+<td>serve hot keys from cache, queue/retry creates, failover to promoted replica, protect alias ops</td>
+</tr>
+<tr>
+<td>Region down</td>
+<td>regional outage</td>
+<td>DNS/anycast to another region, pre-warmed replicas/caches; create may pause, redirect must survive</td>
+</tr>
+<tr>
+<td>Reputation system down</td>
+<td>abuse risk</td>
+<td>degraded mode with local rules, more friction for new users, later review of links from the window</td>
+</tr>
+</tbody>
+</table>
+<h2 id="20-roadmap">20. Roadmap</h2>
+<ol>
+<li><strong>MVP robust</strong>: one region, stateless API, Postgres primary + replica, Redis cache, range ID
+generator, analytics on a queue, basic offline dashboard.</li>
+<li><strong>Medium scale</strong>: L1 local cache, hot-key control, DB partitioning or distributed storage,
+multi-region redirect, maturer analytics, layered reputation.</li>
+<li><strong>Global scale</strong>: multi-region create with per-region ranges, tested automatic failover,
+per-tenant custom domains, premium branded links with per-client SLA, edge compute for some
+redirects.</li>
+</ol>
+<h2 id="21-common-mistakes">21. Common mistakes</h2>
+<p>Start from technology not requirements; let analytics block the critical redirect path; truncated hash
+without discussing collision and predictability; ignore security and abuse; shard too early when
+relational + cache still holds; skip cache invalidation, expiry, and read-after-write; skip operations
+(metrics, failover, degradation).</p>
+<h2 id="references">References</h2>
+<ul>
+<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017 (load params, consistency,
+replication, partitioning).</li>
+<li>DeCandia et al., <em>Dynamo: Amazon's Highly Available Key-value Store</em>, SOSP, 2007 (distributed KV,
+consistent hashing, eventual consistency).</li>
+<li>Karger et al., <em>Consistent Hashing and Random Trees</em>, STOC, 1997.</li>
+<li>Twitter Engineering, <em>Announcing Snowflake</em>, 2010 (distributed unique IDs).</li>
+<li>Horst Feistel, <em>Cryptography and Computer Privacy</em>, Scientific American, 1973 (Feistel networks).</li>
+<li>Flajolet et al., <em>HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm</em>,
+2007.</li>
+<li>Vattani, Chierichetti, Lowenstein, <em>Optimal Probabilistic Cache Stampede Prevention</em>, VLDB, 2015.</li>
+<li>Michael Nygard, <em>Release It!</em>, 2nd ed., 2018 (circuit breaker, bulkhead, single-flight thinking).</li>
+<li>OWASP, <em>Server-Side Request Forgery Prevention Cheat Sheet</em>.</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/URL-Shortener" target="_blank" rel="noopener">URL Shortener</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

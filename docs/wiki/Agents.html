@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agents &middot; harness-kit wiki</title>
+<meta name="description" content="harness-kit ships three agents. Each lives under .claude/agents/&lt;name&gt;/ with its own README, sensors, evals, guides, and skills, and is registered in..." />
+<meta property="og:title" content="Agents &middot; harness-kit wiki" />
+<meta property="og:description" content="harness-kit ships three agents. Each lives under .claude/agents/&lt;name&gt;/ with its own README, sensors, evals, guides, and skills, and is registered in..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Agents.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Agents.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Agents.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="agents">Agents</h1>
+<p>harness-kit ships three agents. Each lives under <code>.claude/agents/&lt;name&gt;/</code> with its own README,
+sensors, evals, guides, and skills, and is registered in
+<a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md" target="_blank" rel="noopener"><code>AGENTS.md</code></a>. All three are also
+invokable as sub-agents via the Task tool.</p>
+<h2 id="product-manager">product-manager</h2>
+<p>Turns a problem into an engineering-ready spec. Two artifacts, two skills:</p>
+<ul>
+<li><strong><code>prd</code></strong>: Product Requirements Document, business-facing.</li>
+<li><strong><code>prp</code></strong>: Product Requirements Prompt, the engineering handoff.</li>
+</ul>
+<p>Entry: <code>/product-manager:run</code> (full PRD → PRP), or <code>/product-manager:prd</code> / <code>:prp</code> solo. Gated by
+<code>prd-structure</code>/<code>prd-quality</code> and <code>prp-*</code> sensors and evals. Can publish to Confluence when
+<code>JIRA_USERNAME</code> + <code>JIRA_API_TOKEN</code> are set.</p>
+<h2 id="staff-software-engineer">staff-software-engineer</h2>
+<p>Turns an approved PRP into a merged PR. Picks the right <strong>area skill</strong> from the repo's files:</p>
+<ul>
+<li><strong><code>backend</code></strong>, <strong><code>web</code></strong>, <strong><code>mobile</code></strong>, <strong><code>devops</code></strong>: discipline conventions, overridable per repo
+via <code>.claude/conventions/{area}.md</code>.</li>
+<li><strong><code>designer</code></strong>: a cross-cutting skill applied when building a new UI: Material Design 3, dark/light
+theme, modern type, Behance-grade polish, i18n (en, pt-BR, es), context-aware favicon. Layers on top
+of the area skill. See <a href="Designer-Skill.html">Designer Skill</a>.</li>
+</ul>
+<p>Entry: <code>/sse:run</code> (plan → dev → test → pr → monitor), <code>/sse:run --local</code> (no PR), or the single-stage
+commands. The <strong>SDD variant</strong> <code>/sse:sdd</code> runs a spec-driven loop (plan once, dev↔test↔eval until the
+PRP is satisfied, cap 3 iterations, no auto PR). See <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>.</p>
+<h2 id="system-architect">system-architect</h2>
+<p>Turns a system/problem into a rigorous <strong>System Design Doc</strong>, then runs an adversarial <strong>design
+review</strong>. Like the SSE agent picks an area skill, this agent picks a <strong>topic skill</strong>: one per classic
+system design problem, drawn from the System Design podcast series:</p>
+<ul>
+<li><strong><code>design</code></strong>: generic fallback for any system.</li>
+<li><strong><code>review</code></strong>: adversarial staff-level review of an existing design.</li>
+<li><strong><code>url-shortener</code></strong> (<a href="URL-Shortener.html">#1</a>), <strong><code>rate-limiter</code></strong> (<a href="Rate-Limiter.html">#2</a>),
+<strong><code>search-engine</code></strong> (<a href="Search-Engine.html">#3</a>): topic playbooks.</li>
+</ul>
+<p>Entry: <code>/system-design:run</code> (design → review), <code>/system-design:design</code>, <code>/system-design:review</code>. Gated
+by <code>design-structure</code>/<code>design-rigor</code> sensors and <code>design-quality</code>/<code>design-review-depth</code> evals. The
+deep theory and references for each topic live in this wiki. Method:
+<a href="System-Design-Method.html">System Design Method</a>.</p>
+<h2 id="the-pattern-they-share">The pattern they share</h2>
+<p>All three follow the same harness shape, guides (feedforward), sensors + evals (feedback), an
+approval marker per artifact, token accounting per phase, and a skill the orchestrator dispatches to.
+The product-manager and staff-software-engineer agents chain into the six-stage
+<a href="Golden-Path.html">golden path</a>; the system-architect agent is an optional front stage before it.</p>
+<h2 id="v5-from-monoliths-to-orchestrator--leaves">v5: from monoliths to orchestrator + leaves</h2>
+<p>Today each agent runs its stages inline, and the sensors and evals run in the same context as the
+author. v5 decomposes this into an <strong>orchestrator</strong> (the main session, owning state and gates) that
+dispatches small, single-purpose <strong>leaf subagents</strong>: an <code>intake</code> harvester, per-stage authors,
+adversarial evaluators that never wrote the artifact they grade, and parallel reviewer panels. The
+agents above remain the conceptual owners of their stages; internally, each stage becomes a set of
+leaves the orchestrator coordinates. See <a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a>
+and <a href="Autonomy.html">Autonomy</a>.</p>
+<h2 id="routing">Routing</h2>
+<p>When you type a slash command the entry point is unambiguous. When you describe work in natural
+language, the main session consults the routing table in
+<a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md" target="_blank" rel="noopener"><code>AGENTS.md</code></a>:</p>
+<table>
+<thead>
+<tr>
+<th>Intent</th>
+<th>Route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>idea → merged PR</td>
+<td><code>/golden-path</code></td>
+</tr>
+<tr>
+<td>draft a spec</td>
+<td><code>product-manager</code></td>
+</tr>
+<tr>
+<td>ship an approved PRP</td>
+<td><code>staff-software-engineer</code></td>
+</tr>
+<tr>
+<td>design a system at scale</td>
+<td><code>system-architect</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="adding-an-agent">Adding an agent</h2>
+<ol>
+<li>Create <code>.claude/agents/&lt;name&gt;.md</code> (or <code>&lt;name&gt;/agent.md</code> with bundled assets).</li>
+<li>Register it in <code>AGENTS.md</code> under the right section.</li>
+<li>Add <code>.claude/commands/&lt;name&gt;.md</code> if it is slash-invocable.</li>
+<li>Wire lifecycle hooks under <code>.claude/runtime/hooks/&lt;name&gt;/</code> if it needs them.</li>
+</ol>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a> · <a href="Golden-Path.html">Golden Path</a> · <a href="Harness-Engineering.html">Harness Engineering</a></li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Agents" target="_blank" rel="noopener">Agents</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

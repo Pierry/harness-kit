@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Harness Engineering &middot; harness-kit wiki</title>
+<meta name="description" content="The theory harness-kit is built on. Read this to understand why the repo is shaped the way it is, guides, sensors, evals, gated stages." />
+<meta property="og:title" content="Harness Engineering &middot; harness-kit wiki" />
+<meta property="og:description" content="The theory harness-kit is built on. Read this to understand why the repo is shaped the way it is, guides, sensors, evals, gated stages." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Harness-Engineering.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Harness-Engineering.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Harness-Engineering.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="harness-engineering">Harness Engineering</h1>
+<p>The theory harness-kit is built on. Read this to understand <em>why</em> the repo is shaped the way it is,
+guides, sensors, evals, gated stages.</p>
+<h2 id="agent--model--harness">Agent = Model + Harness</h2>
+<p>The term <strong>harness</strong> is shorthand for everything in a coding agent except the model itself.</p>
+<pre><code>Agent = Model + Harness
+</code></pre>
+<p>The model generates. The harness is the scaffolding around it: the prompts and guides that steer it
+before it acts, the tools it can call, the checks that catch its mistakes after it acts, the
+permissions, the memory, the context it sees. You usually cannot change the model. You can change the
+harness. <strong>Harness engineering</strong> is the practice of improving the harness to raise the probability of
+good output and to let the agent self-correct before a human ever sees the result.</p>
+<p>Source: Birgitta Böckeler, <em>Harness engineering for coding agent users</em>, in Martin Fowler's <em>Exploring
+Gen AI</em> series, martinfowler.com (2026). The companion piece, <em>Maintainability sensors for coding
+agents</em>, develops the sensor half.</p>
+<h2 id="feedforward-and-feedback">Feedforward and feedback</h2>
+<p>The harness has two kinds of control, borrowed from control theory.</p>
+<ul>
+<li><strong>Feedforward controls (guides)</strong> anticipate the agent's behavior and steer it <em>before</em> it acts.
+Examples: a writing-style guide, a template, a coding convention, an example of good output. In
+harness-kit these are the <a href="Guides.html"><code>guides/</code></a>.</li>
+<li><strong>Feedback controls (sensors and evals)</strong> observe <em>after</em> the agent acts and help it self-correct.
+Examples: a linter, a test, a structure check, a scored review. In harness-kit these are the
+<a href="Sensors.html"><code>sensors/</code></a> and <a href="Evals.html"><code>evals/</code></a>.</li>
+</ul>
+<p>Feedback is most powerful when its signal is <strong>optimized for LLM consumption</strong>: a sensor that does
+not just say &quot;failed&quot; but says &quot;missing section X; add it with these fields&quot; gives the agent exactly
+what it needs to fix itself in the next turn.</p>
+<h2 id="computational-and-inferential-controls">Computational and inferential controls</h2>
+<p>Cutting the other way, controls are either:</p>
+<ul>
+<li><strong>Computational (deterministic)</strong>: linters, tests, schema checks, structure rules. Same input,
+same verdict, every time. Cheap, fast, exact, but blind to meaning. harness-kit's <strong>sensors</strong> are
+computational.</li>
+<li><strong>Inferential (LLM-based)</strong>: semantic judgment: &quot;is this PRD clear?&quot;, &quot;does this design name its
+trade-offs?&quot;. Handles meaning that no regex can, but is probabilistic and must be calibrated.
+harness-kit's <strong>evals</strong> are inferential.</li>
+</ul>
+<p>You need both. A structure check cannot tell you the prose is vague; an LLM judge cannot be trusted to
+deterministically enforce &quot;exactly one H1 heading&quot;. The discipline is to push everything you <em>can</em> make
+deterministic into a sensor, and reserve the eval for genuine semantic judgment.</p>
+<h2 id="what-the-controls-regulate">What the controls regulate</h2>
+<p>Böckeler frames three dimensions a harness regulates:</p>
+<ol>
+<li><strong>Functional behavior</strong>: does it do the right thing? (tests, acceptance criteria)</li>
+<li><strong>Maintainability</strong>: is it clean, simple, conventional? (linters, structure, style)</li>
+<li><strong>Architecture fitness</strong>: does it fit the intended design and constraints? (fitness functions,
+convention overrides)</li>
+</ol>
+<p>harness-kit's gates touch all three: sensors enforce structure and conventions (maintainability,
+fitness), evals score clarity and rigor (functional intent), and the per-repo <code>conventions/</code> files
+pin architecture fitness.</p>
+<h2 id="humans-outside-in-or-on-the-loop">Humans outside, in, or on the loop</h2>
+<p>Three postures for human involvement, by how the human relates to the agent's work:</p>
+<ul>
+<li><strong>Human outside the loop</strong>: fully autonomous; the agent ships without review. Rare, high-risk.</li>
+<li><strong>Human in the loop</strong>: the human reviews each individual output. Safe, but does not scale: your
+review rate caps the agent's throughput.</li>
+<li><strong>Human on the loop</strong>: the human maintains and improves the <em>harness</em> (the guides, sensors, evals)
+rather than inspecting every output. The harness reviews the outputs; the human reviews the harness.</li>
+</ul>
+<p>&quot;Humans on the loop&quot; is the only posture that scales with agent throughput, and it is the posture
+harness-kit is designed for. You do not hand-approve every artifact's prose; you tune the rubric once
+and the rubric judges every artifact. When the agent drifts, you fix the guide, not the output.</p>
+<h2 id="how-harness-kit-instantiates-it">How harness-kit instantiates it</h2>
+<p>Every stage of every pipeline is a small harness:</p>
+<pre><code>GUIDE     feedforward      how to write it          (guides/, templates/, examples/)
+REF       context          what to pull in          (AGENTS.md, prior artifacts, conventions/)
+SENSOR    deterministic    must-pass structure      (blocks approval, regex via sensor-runner.py)
+EVAL      inferential      scored rubric            (LLM-judge, threshold 8.0, retry x3)
+</code></pre>
+<p>The artifact only advances when the sensor passes and the eval clears 8.0. Nothing advances on vibes.
+This is the same split, computational + inferential, feedforward + feedback, applied to PRDs, PRPs,
+plans, code, tests, PRs, and (in the system-architect agent) System Design Docs.</p>
+<p>The payoff of writing the harness in <strong>plain markdown</strong> (guides, sensors, evals are all markdown; only
+the runner and hooks are code) is that the harness is legible and bendable. You can read exactly what
+will be checked, and change it, without touching the model.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Guides.html">Guides</a>: the feedforward controls</li>
+<li><a href="Sensors.html">Sensors</a>: deterministic feedback</li>
+<li><a href="Evals.html">Evals</a>: inferential feedback</li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: how a stage is assembled</li>
+<li><a href="Golden-Path.html">Golden Path</a>: the paved road through all stages</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Birgitta Böckeler, <em>Harness engineering for coding agent users</em>, martinfowler.com, 2026.</li>
+<li>Birgitta Böckeler, <em>Maintainability sensors for coding agents</em>, martinfowler.com, 2026.</li>
+<li>Martin Fowler, <em>Exploring Gen AI</em> (essay series).</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Harness-Engineering" target="_blank" rel="noopener">Harness Engineering</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

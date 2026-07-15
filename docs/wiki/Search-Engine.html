@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Search Engine &middot; harness-kit wiki</title>
+<meta name="description" content="Most people picture a simple box: the user types a query, gets ten links, done. Underneath is a large pipeline. You discover pages, decide what is..." />
+<meta property="og:title" content="Search Engine &middot; harness-kit wiki" />
+<meta property="og:description" content="Most people picture a simple box: the user types a query, gets ten links, done. Underneath is a large pipeline. You discover pages, decide what is..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Search-Engine.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Search-Engine.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Search-Engine.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="search-engine">Search Engine</h1>
+<blockquote>
+<p>System Design series #3 (EP24). Topic skill: <code>skills/search-engine/</code>.
+Design a web search engine with crawler, indexing, ranking, and serving at scale.</p>
+</blockquote>
+<h2 id="1-the-problem-and-why-it-is-deceptive">1. The problem and why it is deceptive</h2>
+<p>Most people picture a simple box: the user types a query, gets ten links, done. Underneath is a large
+pipeline. You discover pages, decide what is worth fetching, download content without harming third-
+party sites, parse and extract text/links/metadata, normalize, deduplicate, build an inverted index,
+compute offline features, optionally build embeddings, and finally serve queries in a few milliseconds
+with relevant ranking.</p>
+<p>The architecture changes enormously with the goal. Internal documentation search is one problem.
+Public web-scale search is another world. One sentence captures the system:</p>
+<blockquote>
+<p>A search engine is a <strong>distributed factory that turns URLs into rankable documents.</strong></p>
+</blockquote>
+<p>It is a <strong>chain of decisions</strong>: what to discover, fetch, store, index, retrieve, and promote. Each
+stage kills bad cost and keeps useful signal.</p>
+<h2 id="2-four-subsystems--two-support-planes">2. Four subsystems + two support planes</h2>
+<ul>
+<li><strong>Crawler</strong>: discover and fetch pages.</li>
+<li><strong>Processing pipeline</strong>: parse, clean, extract, enrich.</li>
+<li><strong>Indexing pipeline</strong>: build the indexes.</li>
+<li><strong>Query serving</strong>: analyze the query, retrieve candidates, rank, assemble the result.</li>
+<li>Support: <strong>metadata / policy</strong> (robots.txt, politeness, canonical rules, scheduling, dedup) and
+<strong>observability / control</strong> (metrics, debugging, reprocess, backfill, allow/blocklists).</li>
+</ul>
+<h2 id="3-requirements">3. Requirements</h2>
+<p><strong>Functional:</strong> accept seeds; discover links recursively; respect crawl policy (robots.txt, delays,
+per-host limits); fetch HTML (optionally PDFs, feeds, images); parse and extract text, links, title,
+headings, anchor text, canonical, language, timestamp, structured metadata; detect duplicates and
+near-duplicates; build an inverted index for lexical search; optionally a vector index for semantic
+recall; answer queries with paging, snippets, filters, relevance ranking; re-crawl periodically for
+freshness.</p>
+<p><strong>Non-functional:</strong> horizontal scalability at every stage; high offline throughput; <strong>low serving
+latency</strong> (typically &lt; 200 ms end to end, ideally well under); high availability on the query path;
+eventual consistency between crawl and search is acceptable if it converges; predictable cost; safe,
+non-abusive behavior toward third-party sites; enough observability to explain why a page is not
+indexed or why a query returned what it did.</p>
+<h2 id="4-end-to-end-mental-model">4. End-to-end mental model</h2>
+<pre class="mermaid">flowchart LR
+  seeds --&gt; frontier --&gt; fetcher --&gt; parser --&gt; extractor --&gt; dedup
+  dedup --&gt; docstore --&gt; index
+  index --&gt; serving
+  serving --&gt; analyzer --&gt; retriever --&gt; ranker --&gt; result
+</pre>
+<p>Seeds → frontier picks an eligible URL → fetcher downloads → parser turns bytes into a structured
+document → extractor produces clean text, outlinks, metadata → deduplicator decides new/exact/near-dup
+→ document store persists the canonical version → indexing tokenizes and builds postings lists →
+offline jobs compute global signals (e.g. link-graph popularity) → at query time the analyzer
+normalizes, the retriever finds candidates, the ranker scores, the result builder assembles snippets.</p>
+<h2 id="5-the-crawler-the-heart">5. The crawler (the heart)</h2>
+<h3 id="url-frontier">URL frontier</h3>
+<p>The central structure. It is <strong>not one queue</strong>. A serious implementation separates three concepts:</p>
+<ul>
+<li><strong>URL-seen store</strong>: has this URL appeared before? (Bloom filter in front of a persistent store.)</li>
+<li><strong>Crawl-state store</strong>: last attempt status, content hash, HTTP code, response time, next recrawl
+window.</li>
+<li><strong>Scheduler priority queues</strong>: pick the next URL respecting priority and politeness.</li>
+</ul>
+<blockquote>
+<p><strong>Why a Bloom filter?</strong> (Burton Bloom, 1970.) A probabilistic set membership structure: it answers
+&quot;have I seen this URL?&quot; in O(1) and a few bits per element, with no false negatives and a tunable
+false-positive rate. At web scale you cannot keep every seen URL in memory exactly; the Bloom filter
+gives you &quot;definitely new&quot; vs &quot;probably seen, go check the store&quot; cheaply.</p>
+</blockquote>
+<h3 id="multi-queue-per-host">Multi-queue per host</h3>
+<p>A single global queue creates two problems: <strong>hot domains</strong> (one heavily-linked domain fills the
+queue) and <strong>lost politeness</strong> (you fire many concurrent requests at one host, looking like a DDoS).
+The fix: one pending queue per host, each with a <code>next_eligible_timestamp</code>; a global heap orders hosts
+by lowest eligible time and highest priority. When a host becomes eligible, pop a URL, fetch, update
+backoff, reinsert the host. This gives <strong>fairness and politeness together</strong>.</p>
+<h3 id="canonicalization">Canonicalization</h3>
+<p>Normalize before enqueue: lowercase host, drop fragments, default ports, clean irrelevant query
+params, resolve relative paths, drop known session ids, normalize trailing slash. Skipping this
+explodes duplicates and crawl cost.</p>
+<h3 id="robotstxt-and-politeness">robots.txt and politeness</h3>
+<p>Cache robots.txt per host with a TTL; respect allow/disallow and crawl-delay (the Robots Exclusion
+Protocol, now <strong>RFC 9309</strong>, 2022). Politeness is not a fixed sleep:</p>
+<pre><code>next_request_allowed = max(min_delay, k * observed_latency, robots_crawl_delay)
+</code></pre>
+<p>plus max concurrency per host and exponential backoff on errors. This avoids hammering slow sites.</p>
+<h3 id="fetcher">Fetcher</h3>
+<p>Stateless, heavy I/O: async networking, connection pooling, DNS cache, TLS reuse, gzip/brotli, redirect
+limits, max download size, content-type sniffing (do not trust the header alone), and <strong>conditional GET</strong>
+(<code>ETag</code> / <code>If-Modified-Since</code>) for cheap recrawl. Persist metadata: status code, headers, final URL
+after redirects, response time, body checksum.</p>
+<h3 id="crawler-traps">Crawler traps</h3>
+<p>The web has infinite false pages: calendars generating endless date pages, e-commerce facet
+combinations, arbitrary-parameter URLs, a site's own internal search, pagination loops. Guardrails:
+crawl budget per host, fan-out limit per page, parameter regex blocklists, a template-repeat score,
+depth limits. Without these, <strong>80% of cost goes to the worst 5% of the web.</strong></p>
+<h2 id="6-crawl-scheduling-where-money-becomes-strategy">6. Crawl scheduling (where money becomes strategy)</h2>
+<p>Crawling the whole web every day is impossible for almost everyone. With a finite budget of requests,
+bandwidth, and CPU, scheduling is a business decision. A rough crawl score:</p>
+<pre><code>crawl_score ~ quality * freshness_need * business_priority / fetch_cost
+</code></pre>
+<p>(Intuition, not a literal universal formula.) <strong>Adaptive recrawl:</strong> changed twice in a short interval
+→ shrink the window; unchanged many times → grow it; errors → back off. Far better than a fixed cron.
+<strong>Freshness tiers</strong> A/B/C/D (minutes → rarely) by domain, URL pattern, or dynamic score.</p>
+<h2 id="7-theory-deduplication">7. Theory, deduplication</h2>
+<p>Web search without dedup is chaos: the same content appears with/without www, http/https, different
+params, print pages, syndication, mirrors, republications, and soft duplicates.</p>
+<p>Three levels:</p>
+<ol>
+<li><strong>URL duplicate</strong>: same normalized URL.</li>
+<li><strong>Exact content duplicate</strong>: same hash of clean text.</li>
+<li><strong>Near-duplicate</strong>: almost-equal content.</li>
+</ol>
+<p>For near-duplicates you fingerprint with <strong>shingles + MinHash</strong> (Broder, 1997) or <strong>SimHash</strong>
+(Charikar, 2002). MinHash estimates Jaccard similarity between shingle sets from a few hash minima;
+SimHash maps a document to a bit vector where Hamming distance tracks similarity, so you can cluster by
+fingerprint cheaply. Store a <code>document_fingerprint</code> and a <code>canonical_document_id</code>; many URLs map to one
+canonical document. Dedup <strong>early and in layers</strong>, or you pay to process expensive duplicates, and you
+consolidate ranking signals (inbound links, clicks) onto the canonical.</p>
+<h2 id="8-storage-by-function">8. Storage by function</h2>
+<ul>
+<li><strong>Raw content store</strong>: the original response, compressed, in cheap object storage, for reprocessing
+and audit.</li>
+<li><strong>Parsed document store</strong>: <code>doc_id, canonical_url, fetch_time, title, clean_text, language, outgoing_links, anchors_in, headers, content_type, quality_signals, fingerprint</code>.</li>
+<li><strong>Crawl metadata store</strong>: operational state with frequent random updates: <code>url, host, discovered_at, last_fetch_status, last_success_at, next_fetch_at, retry_count, robots_policy_version, blocked_reason</code>. A KV/wide-column store fits better than object storage here.</li>
+</ul>
+<h2 id="9-theory-the-inverted-index">9. Theory, the inverted index</h2>
+<p>The classic lexical structure. Instead of storing terms per document, store, for each term, the list
+of documents it appears in. That list is a <strong>postings list</strong>:</p>
+<pre><code>term: crawler
+postings: [(doc1, tf=3, positions=[4,18,22]), (doc7, tf=1, positions=[9])]
+</code></pre>
+<p>Per posting: <code>doc_id</code>, term frequency, positions (for phrase queries), field info (title vs body),
+optional payloads.</p>
+<h3 id="build-pipeline">Build pipeline</h3>
+<p>Tokenize → normalize (lowercase, strip accents, stem/lemmatize) → drop stopwords where sensible → emit
+<code>term → posting</code> pairs → <strong>sort-merge by term</strong> → compress postings → persist immutable segments →
+publish a new index version. This is naturally distributable, model it as <strong>MapReduce</strong> (Dean &amp;
+Ghemawat, 2004) or streaming with batch compaction.</p>
+<h3 id="sharding">Sharding</h3>
+<p>Two strategies: <strong>document sharding</strong> (each shard holds a subset of documents and their terms) vs
+<strong>term sharding</strong> (each shard holds a subset of terms). Document sharding usually simplifies serving,
+replication, and rebalancing: a query fans out to all document shards, each returns a local top-K, and
+an aggregator merges.</p>
+<h3 id="segments-and-merge">Segments and merge</h3>
+<p>Updating a big index in place is expensive. The Lucene model (Doug Cutting) uses <strong>immutable segments</strong>
+plus periodic background merges: cheap sequential writes, simple snapshots, easy rollback, concurrent
+serving during reindex. Costs: background merge work, deleted docs linger as tombstones until merge,
+and more segments raise query cost.</p>
+<h3 id="compression">Compression</h3>
+<p>Postings must be compressed or the index explodes: delta encoding of doc ids, variable-byte encoding,
+frame-of-reference, bit packing, and <strong>skip lists</strong> to jump over blocks. Goal: read fast without
+burning CPU on decompression.</p>
+<h2 id="10-query-serving-the-online-path">10. Query serving (the online path)</h2>
+<pre class="mermaid">sequenceDiagram
+  Client-&gt;&gt;Gateway: query
+  Gateway-&gt;&gt;Analyzer: normalize, parse operators, classify intent
+  Analyzer-&gt;&gt;Shards: fan-out
+  Shards--&gt;&gt;Ranker: top-K + partial scores
+  Ranker-&gt;&gt;Assembler: full features -&gt; final score
+  Assembler--&gt;&gt;Client: snippets + results
+</pre>
+<h3 id="analyzer">Analyzer</h3>
+<p>Normalize case, tokenize, optional spell-correction, synonym expansion, language detection, operator
+parsing (quotes, <code>-</code>, <code>site:</code>, <code>filetype:</code>), and <strong>intent classification</strong> (navigational /
+informational / transactional / fresh). Intent changes ranking: the same words can want different
+things.</p>
+<h3 id="candidate-retrieval">Candidate retrieval</h3>
+<p>You do not rank the whole web. First recall a candidate set via <strong>BM25</strong> on the lexical index, field
+filters, title/anchor boosts, optionally <strong>ANN</strong> search over embeddings, or a hybrid union. Typically
+top-N per shard (~500-1000), then merge.</p>
+<blockquote>
+<p><strong>BM25</strong> (Robertson &amp; Zaragoza, <em>The Probabilistic Relevance Framework: BM25 and Beyond</em>) is the
+standard lexical relevance function: it rewards term frequency with saturation and penalizes long
+documents, with tunable parameters <code>k1</code> and <code>b</code>. It is the workhorse baseline that strong systems
+still build on.</p>
+</blockquote>
+<h3 id="ranking">Ranking</h3>
+<p>The final score combines families of features:</p>
+<ul>
+<li><strong>Textual match</strong>: BM25, term-in-title, term-in-heading, term proximity, phrase match, anchor-text
+match.</li>
+<li><strong>Document</strong>: domain authority, page quality, freshness, spam score, language match, structure.</li>
+<li><strong>Query</strong>: intent, freshness need, entity type, ambiguity.</li>
+<li><strong>Behavioral (if available)</strong>: CTR, long clicks, query reformulations, dwell time, fast abandonment.</li>
+</ul>
+<p>A simple start is a weighted linear score, e.g.
+<code>0.45*bm25 + 0.20*title + 0.15*authority + 0.10*freshness + 0.10*anchor</code>. Mature systems move to
+<strong>learning-to-rank</strong>: but only with good features and click data, or you buy expensive complexity.</p>
+<h3 id="result-assembly">Result assembly</h3>
+<p>Highlighted snippet, canonical URL, clean title, breadcrumbs, date when relevant, sitelinks, and
+dedup of near-identical results. A good snippet drives perceived quality; it is not cosmetic.</p>
+<h2 id="11-theory-the-link-graph-and-global-signals">11. Theory, the link graph and global signals</h2>
+<p>A real web search engine does not live on page text alone. The <strong>link graph</strong> is a strong global
+signal: if many relevant pages point to a document, that suggests authority. Build a directed graph
+(vertices = documents or domains, edges = hyperlinks, weights consider context, link position, anchor
+text) and run <strong>offline batch</strong> jobs (daily/hourly, never on the query path) to compute authority,
+hub, centrality, and domain reputation.</p>
+<blockquote>
+<p><strong>PageRank</strong> (Brin &amp; Page, <em>The Anatomy of a Large-Scale Hypertextual Web Search Engine</em>, 1998) is
+the famous approximation: a page's importance is the stationary distribution of a random surfer
+following links with a damping factor. Modern practice combines it with many anti-spam checks, or
+link farms and spam networks manipulate it. <strong>HITS</strong> (Kleinberg, 1999) is the related hub/authority
+formulation.</p>
+</blockquote>
+<h2 id="12-spam-abuse-and-quality">12. Spam, abuse, and quality</h2>
+<p>Open search attracts adversaries. Abuse: keyword stuffing, hidden text, doorway pages, link farms,
+cloaking, mass low-value content, aggressive duplication, deceptive redirects. Defenses: a spam
+classifier on content + link-graph features, domain reputation, per-template/cluster limits,
+boilerplate detection, mass-similarity checks, manual review for strategic cases, and a click/bounce
+feedback loop. <strong>Without a quality layer, the best index in the world serves garbage fast.</strong></p>
+<h2 id="13-freshness-vs-cost">13. Freshness vs cost</h2>
+<p>More freshness means more crawl, processing, and cost. Less means stale, inconsistent results and lost
+trust. The answer is rarely uniform, use <strong>tiers</strong>: Tier A (very dynamic, high value) recrawled in
+minutes/hours; Tier B daily; Tier C weekly/monthly; Tier D rarely. Tier by domain, URL pattern, or
+dynamic score.</p>
+<h2 id="14-index-publishing-and-consistency">14. Index publishing and consistency</h2>
+<p>Index and documents are rarely synchronized in real time. Operate with <strong>versions</strong>: workers build
+new segments, a <strong>manifest</strong> describes the complete index version, the publisher commits it
+atomically, query servers <strong>warm up</strong> the new version, then <strong>swap</strong>. Benefits: simple rollback,
+serving without downtime, read consistency per version. For frequent updates, combine a base snapshot
+with smaller delta indexes.</p>
+<h2 id="15-hybrid-search-lexical--semantic">15. Hybrid search (lexical + semantic)</h2>
+<p>Many teams jump straight to embeddings. For general search, lexical remains the foundation; embeddings
+complement it, they do not automatically replace it. Lexical is precise for rare terms, names, codes,
+and specific queries; semantic helps recall for natural language, synonyms, and varied phrasing; hybrid
+ranking usually beats either alone. Implementation: inverted index for lexical recall, an <strong>ANN</strong> index
+(e.g. HNSW) for document embeddings, query embedding generated online or cached, union of both
+candidate sets, final ranker decides. But generating embeddings, storing vectors, and running ANN at
+scale is not cheap, do it only when the problem demands it.</p>
+<h2 id="16-scale-and-partitioning">16. Scale and partitioning</h2>
+<p>Frontier partitioned by host hash (one owner per host so politeness coordination stays in one place).
+Fetchers stateless, autoscaling. Index: e.g. 64 logical shards × 2-3 replicas, leader publishes
+segments, followers serve, gradual rebalancing. Link-graph jobs as heavy distributed batch in windows
+, never on the query path.</p>
+<h2 id="17-observability-and-sre">17. Observability and SRE</h2>
+<ul>
+<li><strong>Crawl:</strong> URLs discovered/min, fetch success rate, bytes/min, latency per host, robots block rate,
+errors by DNS/timeout/TLS/4xx/5xx, frontier backlog per partition, recrawl lag.</li>
+<li><strong>Indexing:</strong> docs parsed/min, duplicate rate, index size, merge duration, fetch-to-index-publish
+lag, failures per stage.</li>
+<li><strong>Serving:</strong> QPS, p50/p95/p99, error rate, fan-out time, cache hit rate, top queries, zero-result
+queries, CTR, reformulation rate.</li>
+</ul>
+<p>Mandatory debugging tools: <strong>URL inspection</strong> (crawl + index status of one URL), <strong>query explain</strong>
+(which shards answered, candidates, features, final score), <strong>host dashboard</strong> (errors, politeness,
+backlog, blocks per host), and document replay through the pipeline. Without these, the team spends
+its life guessing.</p>
+<h2 id="18-failure-modes">18. Failure modes</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Central scheduler bottleneck</td>
+<td>single process</td>
+<td>partition the frontier, distribute ownership</td>
+</tr>
+<tr>
+<td>Huge cost from late dedup</td>
+<td>dedup only at the end</td>
+<td>layered dedup: URL, exact, near</td>
+</tr>
+<tr>
+<td>p99 blows up</td>
+<td>excessive fan-out</td>
+<td>balanced sharding, caches, candidate pruning</td>
+</tr>
+<tr>
+<td>Relevance stagnates</td>
+<td>no feedback loop</td>
+<td>instrument clicks, abandonment, zero-results; continuous offline analysis</td>
+</tr>
+<tr>
+<td>Crawler stuck in traps</td>
+<td>no per-host budget/heuristics</td>
+<td>crawl budget per domain, dynamic blocks, param filters</td>
+</tr>
+<tr>
+<td>Index publish breaks serving</td>
+<td>unversioned publish</td>
+<td>atomic snapshots + warmup before swap</td>
+</tr>
+</tbody>
+</table>
+<h2 id="19-incremental-plan">19. Incremental plan</h2>
+<ol>
+<li><strong>Vertical slice</strong>: small seed set, HTML only, per-host frontier with basic politeness, simple
+parser, basic inverted index (Lucene/OpenSearch is fine), BM25 query, URL-inspection tool.</li>
+<li><strong>Efficiency / quality</strong>: exact + near dedup, better canonicalization, adaptive recrawl, initial
+quality scoring, better snippets, more observability.</li>
+<li><strong>Real scale</strong>: partitioned frontier, distributed fetchers, sharded versioned index, link-graph
+jobs, multi-factor ranking, disaster recovery + replay.</li>
+<li><strong>Advanced relevance</strong>: learning-to-rank, behavioral signals, hybrid embeddings, personalization,
+sophisticated anti-spam.</li>
+</ol>
+<p>Advanced relevance on top of bad ingestion is expensive makeup. The order matters.</p>
+<h2 id="20-operational-summary-the-north-star">20. Operational summary (the north star)</h2>
+<ul>
+<li>A good crawler is not the one that downloads the most pages. It is the one that <strong>chooses best what
+to download.</strong></li>
+<li>A good parser is not the one that reads perfect HTML. It is the one that <strong>survives broken web and
+still extracts useful signal.</strong></li>
+<li>A good index is not the one that stores everything. It is the one that <strong>organizes information to
+retrieve relevant candidates fast.</strong></li>
+<li>Good ranking is not the most complex. It is the one that <strong>combines local signals, global signals,
+and query intent</strong> well.</li>
+<li>Good operations is not never failing. It is <strong>explaining fast why it failed and recovering without
+chaos.</strong></li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Sergey Brin &amp; Lawrence Page, <em>The Anatomy of a Large-Scale Hypertextual Web Search Engine</em>, WWW,
+1998 (PageRank).</li>
+<li>Jon Kleinberg, <em>Authoritative Sources in a Hyperlinked Environment</em> (HITS), JACM, 1999.</li>
+<li>Stephen Robertson &amp; Hugo Zaragoza, <em>The Probabilistic Relevance Framework: BM25 and Beyond</em>, 2009.</li>
+<li>Andrei Broder, <em>On the Resemblance and Containment of Documents</em> (shingling/MinHash), 1997.</li>
+<li>Moses Charikar, <em>Similarity Estimation Techniques from Rounding Algorithms</em> (SimHash), STOC, 2002.</li>
+<li>Burton Bloom, <em>Space/Time Trade-offs in Hash Coding with Allowable Errors</em> (Bloom filter), CACM,
+1970.</li>
+<li>Dean &amp; Ghemawat, <em>MapReduce: Simplified Data Processing on Large Clusters</em>, OSDI, 2004.</li>
+<li>Manning, Raghavan &amp; Schütze, <em>Introduction to Information Retrieval</em>, Cambridge, 2008 (inverted
+index, tokenization, ranking).</li>
+<li>Apache Lucene documentation (immutable segments, merge policy).</li>
+<li><em>RFC 9309: Robots Exclusion Protocol</em>, 2022.</li>
+<li>Malkov &amp; Yashunin, <em>Efficient and robust approximate nearest neighbor search using HNSW graphs</em>,
+2016 (ANN for hybrid search).</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Search-Engine" target="_blank" rel="noopener">Search Engine</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

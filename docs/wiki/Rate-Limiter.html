@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rate Limiter &middot; harness-kit wiki</title>
+<meta name="description" content="From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does not solve the whole problem. When the system..." />
+<meta property="og:title" content="Rate Limiter &middot; harness-kit wiki" />
+<meta property="og:description" content="From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does not solve the whole problem. When the system..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Rate-Limiter.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Rate-Limiter.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Rate-Limiter.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="rate-limiter">Rate Limiter</h1>
+<blockquote>
+<p>System Design series #2. Topic skill: <code>skills/rate-limiter/</code>.
+Design distributed rate limiting at scale, from algorithm to operation.</p>
+</blockquote>
+<h2 id="1-the-problem-and-why-it-is-deceptive">1. The problem and why it is deceptive</h2>
+<p>From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does
+not solve the whole problem. When the system grows, the questions that matter are bigger than the
+algorithm:</p>
+<ul>
+<li><strong>Where</strong> is the limit enforced, edge, gateway, service, or all of them?</li>
+<li><strong>What is the key</strong>: user, token, IP, tenant, endpoint, method, region?</li>
+<li>Is the limit <strong>hard or soft</strong>?</li>
+<li>What happens when the rate-limit <strong>storage fails</strong>: fail open or fail closed?</li>
+<li>How do you stop <strong>abusive bursts</strong> without destroying legitimate throughput?</li>
+<li>How do you do this across <strong>many replicas</strong> without races and without a central bottleneck?</li>
+</ul>
+<p>The organizing question, asked first:</p>
+<blockquote>
+<p><strong>What exactly am I protecting, and how much imprecision do I accept to protect it without
+destroying latency and simplicity?</strong></p>
+</blockquote>
+<p>That one question drives almost every decision here.</p>
+<h2 id="2-why-rate-limiting-exists-five-goals-at-once">2. Why rate limiting exists (five goals at once)</h2>
+<ol>
+<li><strong>Protect finite capacity</strong> of a system.</li>
+<li><strong>Fairness</strong> between clients, tenants, users.</li>
+<li><strong>Reduce blast radius</strong>: a client in a loop, a deploy generating anomalous traffic.</li>
+<li><strong>Sustain commercial models</strong>: free / pro / enterprise plans.</li>
+<li><strong>Control cost</strong>: services that call expensive dependencies (LLM, search, third parties).</li>
+</ol>
+<p>A good design is a set of <strong>overlapping limits</strong> (global, tenant, user, endpoint, IP security), not a
+single counter. <strong>Policy first, Redis second.</strong></p>
+<h2 id="3-where-to-enforce-defense-in-depth">3. Where to enforce (defense in depth)</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Good for</th>
+<th>Limit type</th>
+<th>Caveat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Edge / CDN</td>
+<td>absorb volumetric abuse, L7 DDoS, block early</td>
+<td>coarse</td>
+<td>lacks rich business context</td>
+</tr>
+<tr>
+<td>API Gateway</td>
+<td>most common place; per token/user/tenant/endpoint</td>
+<td>generic API</td>
+<td>if it bottlenecks, the whole platform feels it</td>
+</tr>
+<tr>
+<td>Inside the service</td>
+<td>limit depends on domain context (expensive report, LLM inference)</td>
+<td>semantic / cost</td>
+<td>closest to the truth, furthest from the edge</td>
+</tr>
+</tbody>
+</table>
+<p>The mature architecture is <strong>layered</strong>: edge for coarse protection, gateway for generic API limits,
+service for semantic/cost limits. Each layer catches what the layer above cannot see. This is the same
+&quot;defense in depth&quot; idea as security layering.</p>
+<h2 id="4-the-limit-key">4. The limit key</h2>
+<p>Choose the dimension(s) consciously: user, token, IP, tenant, endpoint, method, region, often a
+composite. The key choice sets:</p>
+<ul>
+<li><strong>Cardinality</strong>: how many distinct counters exist, which drives store load and hot-key risk.</li>
+<li><strong>Abuse surface</strong>: an IP limit is easy to evade behind NAT/proxies; a token limit ties to identity.</li>
+</ul>
+<p>Composite keys (tenant + endpoint) localize limits precisely but multiply the counter count.</p>
+<h2 id="5-theory-the-algorithms">5. Theory, the algorithms</h2>
+<p>This is the part everyone names and few explain. Each row is a different answer to &quot;how do we count&quot;.</p>
+<h3 id="fixed-window-counter">Fixed window counter</h3>
+<p>Count requests in a fixed clock bucket (e.g. per minute), reset at the boundary. Cheap, one counter
+per key. <strong>Flaw: boundary burst.</strong> A client can send a full window at 11:59:59 and another full window
+at 12:00:00, ~2x the intended rate across the boundary.</p>
+<h3 id="sliding-window-log">Sliding window log</h3>
+<p>Store a timestamp per request, count those within the trailing window. <strong>Exact and fair.</strong> Cost:
+memory and CPU grow with traffic, since you keep every timestamp in the window. Fine at low volume,
+expensive at scale.</p>
+<h3 id="sliding-window-counter">Sliding window counter</h3>
+<p>Approximate the sliding window with two fixed buckets (current + previous) weighted by the elapsed
+fraction of the current window:</p>
+<pre><code>estimate = current_count + previous_count * (1 - elapsed_fraction)
+</code></pre>
+<p>Smooths the boundary burst, one or two counters per key, a single atomic operation. The common
+production compromise between fixed-window cheapness and sliding-log accuracy.</p>
+<h3 id="leaky-bucket">Leaky bucket</h3>
+<p>Requests enter a queue that drains at a constant rate; overflow is rejected. Produces a smooth,
+constant <strong>output</strong> rate, good for shaping traffic into a downstream that wants steady flow.</p>
+<h3 id="token-bucket---industry-default">Token bucket  ← industry default</h3>
+<p>A bucket holds up to <code>capacity</code> tokens. Tokens refill at a constant <code>rate</code>. Each request consumes one
+token; if the bucket is empty, reject (or queue). The key property: it <strong>separates the allowed burst
+(capacity) from the sustained rate (refill)</strong>. A client can burst up to <code>capacity</code> instantly, then is
+held to <code>rate</code> thereafter. This matches how platforms want to behave: &quot;you may spike a little, but
+your steady-state is capped.&quot;</p>
+<pre><code>on request:
+  now = clock()
+  tokens = min(capacity, tokens + (now - last_refill) * rate)
+  last_refill = now
+  if tokens &gt;= 1: tokens -= 1; allow
+  else: reject (429, Retry-After)
+</code></pre>
+<p>Token bucket is the classic traffic-shaping algorithm from networking (see Tanenbaum, <em>Computer
+Networks</em>); it is what most API platforms and cloud providers expose.</p>
+<h3 id="choosing">Choosing</h3>
+<p>Default to <strong>token bucket</strong> when you want sustained rate + controlled burst; <strong>sliding window counter</strong>
+when you want a simple, near-exact rolling limit with a sub-ms check. Make the check <strong>atomic</strong>: a Lua
+script in Redis runs read-decide-write in one server-side operation, so concurrent replicas cannot
+race.</p>
+<h2 id="6-state-and-storage">6. State and storage</h2>
+<ul>
+<li>Per-key bucket/counter in an in-memory store (Redis), <strong>TTL-bounded</strong> (e.g. 2 windows) so cold keys
+expire and memory stays bounded.</li>
+<li><strong>Atomic decision:</strong> a single Lua script does refill/weight + check + decrement in one round trip.</li>
+<li><strong>Limit config</strong> (key to quota/refill) in a config service with a short local cache,
+<strong>hot-reloadable</strong> without redeploy.</li>
+</ul>
+<h2 id="7-theory-hot-keys">7. Theory, hot keys</h2>
+<p>One tenant with disproportionate traffic concentrates load on one store shard (a hot key). Mitigations:</p>
+<ul>
+<li><strong>Local budgets.</strong> Each node is granted a slice of the global budget and decrements it locally,
+reconciling with the central store periodically. This trades exactness (you may over-admit by up to
+one budget-slice per node) for a huge drop in central-store pressure. This is Helland's &quot;data on the
+outside, reconciled asynchronously&quot; applied to counters.</li>
+<li><strong>Composite limits</strong> spread a tenant across sub-keys (tenant+endpoint), so no single counter is hot.</li>
+<li><strong>Local pre-check / token pre-filter</strong> before the central call: a saturating key is throttled at the
+node before it touches the shared store.</li>
+<li><strong>Shard the store by key</strong> (consistent hashing), so one key's operations stay on one shard.</li>
+</ul>
+<h2 id="8-fail-open-vs-fail-closed">8. Fail-open vs fail-closed</h2>
+<p>When the rate-limit store fails, decide <em>deliberately</em>.</p>
+<ul>
+<li><strong>Fail-open (allow):</strong> protects legitimate traffic from your own outage, but drops protection during
+the outage.</li>
+<li><strong>Fail-closed (deny):</strong> preserves protection, but turns a limiter outage into an availability
+incident.</li>
+</ul>
+<p>Most platforms <strong>fail open</strong> on the generic path and <strong>fail closed</strong> only where the limit guards a
+hard capacity or cost ceiling. State which posture each layer takes, and why. Pair it with a <strong>circuit
+breaker</strong> (Nygard) so a slow store does not add latency to every request, once the store is detected
+unhealthy, the limiter stops calling it and applies the fallback posture immediately.</p>
+<h2 id="9-hard-vs-soft-limits">9. Hard vs soft limits</h2>
+<p>A <strong>hard</strong> limit rejects (<code>429 Too Many Requests</code> + <code>Retry-After</code>). A <strong>soft</strong> limit warns, degrades,
+or queues but still serves. Cost and fairness limits are often soft with escalating friction; security
+and capacity limits are hard.</p>
+<h2 id="10-multi-region">10. Multi-region</h2>
+<p>Strict global accuracy across regions would require a synchronous cross-region hop on every request,
+which destroys latency. The realistic compromise is <strong>regional budgets with reconciliation</strong>: each
+region enforces a local share of the global limit and reconciles asynchronously. You accept bounded
+over-admit (a global limit of N might briefly admit a bit more than N) in exchange for low latency.
+Reserve strict global counting for the few limits that genuinely need it. This is the CAP/PACELC
+trade-off made concrete: under normal operation you trade consistency for latency.</p>
+<h2 id="11-shadow-mode-the-highest-leverage-practice">11. Shadow mode (the highest-leverage practice)</h2>
+<p>Before enforcing a hard limit, run it in <strong>observation mode</strong>: the system computes the block decision
+but <strong>does not apply it</strong>, and emits what it <em>would</em> have blocked. This catches misconfigured policies
+before they cause an incident, you see &quot;this new limit would have 429'd 40% of tenant X's legitimate
+traffic&quot; in a dashboard instead of in a 3am page. Promote a limit from shadow to enforce only after
+the shadow metrics look right.</p>
+<h2 id="12-observability">12. Observability</h2>
+<p>Essential metrics:</p>
+<ul>
+<li>requests <strong>allowed</strong> per policy,</li>
+<li>requests <strong>blocked</strong> (429) per policy and dimension,</li>
+<li><strong>decision latency</strong>: the limiter must add near-zero to the request path,</li>
+<li>store op latency,</li>
+<li>fail-open events,</li>
+<li>top-throttled keys,</li>
+<li>shadow-mode would-block counts.</li>
+</ul>
+<p>At 3am someone must be able to answer: <strong>which limit fired, in which dimension, was the policy wrong,
+was there a traffic regression?</strong> If the design cannot answer that, it is not operationally governable
+, and &quot;operationally governable&quot; is the real bar, not a pretty algorithm.</p>
+<h2 id="13-failure-modes">13. Failure modes</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Store down</td>
+<td>no central counting</td>
+<td>chosen posture (fail-open default) + local fallback budget + circuit breaker + alert</td>
+</tr>
+<tr>
+<td>Hot key saturates a shard</td>
+<td>shard CPU spike, latency</td>
+<td>local pre-filter + composite keys + local budgets</td>
+</tr>
+<tr>
+<td>Bad policy pushed</td>
+<td>mass false 429s</td>
+<td>shadow mode first; fast config rollback; per-policy block-rate alert</td>
+</tr>
+<tr>
+<td>Gateway limiter becomes the bottleneck</td>
+<td>platform-wide latency</td>
+<td>push coarse limits to edge, keep the gateway check O(1)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="14-incremental-plan">14. Incremental plan</h2>
+<ol>
+<li><strong>Vertical slice</strong>: one enforcement layer (gateway), fixed or sliding window, single Redis, one
+limit key, <code>429 + Retry-After</code>, allow/deny metrics.</li>
+<li><strong>Correctness / ops</strong>: token bucket via atomic Lua, fail-open + circuit breaker, shadow mode,
+hot-reload config, per-policy metrics.</li>
+<li><strong>Scale</strong>: sharded store, hot-key local budgets + pre-filter, layered enforcement
+(edge/gateway/service).</li>
+<li><strong>Global</strong>: regional budgets with reconciliation, composite policies, cost/LLM semantic limits in
+the service.</li>
+</ol>
+<h2 id="15-trade-offs-to-state-explicitly">15. Trade-offs to state explicitly</h2>
+<p>Accuracy vs latency (exact global count vs local budget); fail-open vs fail-closed; central store vs
+local budgets; one limit key vs composite; enforce now vs shadow first; per-layer placement (catch
+early at edge vs rich context in service).</p>
+<h2 id="16-a-worked-filled-example">16. A worked, filled example</h2>
+<p>The repo ships a complete filled SDD for a distributed rate limiter (sliding-window-counter variant,
+200k QPS, sub-ms budget, fail-open) as the agent's good example:
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/examples/good-system-design-example.md" target="_blank" rel="noopener"><code>good-system-design-example.md</code></a>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li>Andrew Tanenbaum, <em>Computer Networks</em>, token bucket and leaky bucket traffic shaping.</li>
+<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, 2017, consistency vs latency, accepting
+bounded imprecision.</li>
+<li>Michael Nygard, <em>Release It!</em>, 2nd ed., 2018, circuit breaker, bulkhead, fail-fast as a stability
+decision.</li>
+<li>Werner Vogels / Amazon, design for failure (the store <em>will</em> fail).</li>
+<li>Pat Helland, <em>Life Beyond Distributed Transactions</em>, CIDR 2007, local budgets as independent,
+asynchronously-reconciled state.</li>
+<li>Eric Brewer, CAP theorem (PODC 2000); Abadi, PACELC (2012): the latency-vs-consistency framing for
+multi-region budgets.</li>
+<li>Stripe Engineering, <em>Scaling your API with rate limiters</em>, token bucket in production practice.</li>
+<li>Redis docs, <em>Rate limiting with Redis</em> and <code>EVAL</code>/Lua for atomic decisions.</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Rate-Limiter" target="_blank" rel="noopener">Rate Limiter</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

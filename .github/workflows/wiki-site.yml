@@ -1,0 +1,65 @@
+name: wiki to site
+
+# The wiki is the source of truth and stays editable in the browser. This job is
+# what carries it onto the site, so readers who never open GitHub get the same
+# depth, and so crawlers see real prose instead of a client-side fetch.
+#
+# The `gollum` event fires when a wiki page is created or edited. Pushing the
+# regenerated HTML back to main does not re-fire it, so this cannot loop.
+
+on:
+  gollum:
+  workflow_dispatch:
+  # The generator and its template also decide the output, so a change to either
+  # has to reach the published pages without waiting for the next wiki edit.
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build-wiki.py"
+      - "docs/assets/wiki.css"
+      - "requirements-docs.txt"
+      - ".github/workflows/wiki-site.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-site
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: render wiki pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Check out the wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: .wiki-src
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the markdown renderer
+        run: pip install -r requirements-docs.txt
+
+      - name: Render the wiki into docs/wiki
+        run: python3 scripts/build-wiki.py .wiki-src --out docs/wiki
+
+      - name: Commit the result if it changed
+        run: |
+          rm -rf .wiki-src
+          if git diff --quiet -- docs/wiki; then
+            echo "wiki pages already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/wiki
+          git commit -m "docs(site): regenerate the wiki pages from the wiki"
+          git push

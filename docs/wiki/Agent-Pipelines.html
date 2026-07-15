@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Pipelines &middot; harness-kit wiki</title>
+<meta name="description" content="One sequence diagram per agent, showing what actually happens between the command you type and the artifact you get back: which sensors run, which eval..." />
+<meta property="og:title" content="Agent Pipelines &middot; harness-kit wiki" />
+<meta property="og:description" content="One sequence diagram per agent, showing what actually happens between the command you type and the artifact you get back: which sensors run, which eval..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Agent-Pipelines.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/Agent-Pipelines.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Agent-Pipelines.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="agent-pipelines">Agent Pipelines</h1>
+<p>One sequence diagram per agent, showing what actually happens between the command you type and the
+artifact you get back: which sensors run, which eval scores the result, and where the gate sits.</p>
+<p><a href="Pipeline-and-Stages.html">Pipeline and Stages</a> describes the stages themselves. <a href="Sensors.html">Sensors</a> and
+<a href="Evals.html">Evals</a> describe the two kinds of feedback. This page is the wiring.</p>
+<h2 id="what-every-stage-shares">What every stage shares</h2>
+<p>The same loop runs at every stage of every agent, so read it once and the three diagrams below get
+much shorter:</p>
+<ol>
+<li>The agent generates the artifact under <code>.claude/runtime/outputs/</code>.</li>
+<li><strong>Sensors</strong> check it deterministically. Pass or fail, no score, no judgment.</li>
+<li>An <strong>eval</strong> scores it. The evaluator is a fresh sub-agent (Task tool, <code>general-purpose</code>) that gets
+only the artifact path and the rubric path. The author never grades its own work.</li>
+<li>Below the threshold, the agent regenerates only the failed or low-scoring sections and tries
+again. <strong>Maximum three attempts</strong>, then it returns a blocker instead of proceeding.</li>
+<li>On success it appends an approval marker: <code>&lt;!-- approved: {YYYY-MM-DD} score={weighted-total} --&gt;</code>.
+That marker is the gate the next stage checks.</li>
+</ol>
+<p>The threshold is <strong>weighted total &gt;= 8.0</strong> for every scored eval: <code>prd-quality</code>, <code>prp-quality</code>,
+<code>plan-quality</code>, <code>dev-quality</code>, <code>test-quality</code>, <code>pr-quality</code>, <code>design-quality</code>, and
+<code>design-review-depth</code>.</p>
+<p>Human gates belong to the orchestrator, not to the agents. <code>/pipeline:run</code> stops at exactly two:
+approve the direction after the PRD, and approve the PR before it opens. Individual stages never add
+gates of their own.</p>
+<h2 id="product-manager">product-manager</h2>
+<p><code>prd → prp</code>. Entry point <code>/product-manager:run</code>. Inputs come from the intake artifact rather than
+from you, so the agent does not stop to ask.</p>
+<pre class="mermaid">sequenceDiagram
+    actor You
+    participant PM as product-manager
+    participant S as sensors
+    participant E as eval (fresh judge)
+
+    You-&gt;&gt;PM: /product-manager:run
+    PM-&gt;&gt;PM: read intake artifact for {feature_id}
+    PM-&gt;&gt;S: PRD → prd-structure, prd-acceptance-criteria
+    S--&gt;&gt;PM: pass or fail, retry up to 3
+    PM-&gt;&gt;E: prd-quality, then prd-readiness (advisory)
+    E--&gt;&gt;PM: weighted total, needs &gt;= 8.0
+    PM-&gt;&gt;PM: append approval marker to the PRD
+    Note over PM: pre-prp-check.sh refuses to start&lt;br/&gt;the PRP without an approved PRD
+    PM-&gt;&gt;S: PRP → prp-structure, prp-context-quality, prp-links
+    S--&gt;&gt;PM: pass or fail, retry up to 3
+    PM-&gt;&gt;E: prp-quality, then prp-context-readiness
+    E--&gt;&gt;PM: score plus one-shot likelihood
+    PM--&gt;&gt;You: PRP marked ready-for-handoff
+</pre>
+<p>Artifacts land at <code>.claude/runtime/outputs/pm/prd/{feature_id}.md</code> and
+<code>.claude/runtime/outputs/pm/prp/{feature_id}.md</code>.</p>
+<p>Two details the diagram compresses. <code>prd-readiness</code> is advisory and has no numeric threshold, so it
+reports without blocking. <code>prp-context-readiness</code> is the real handoff gate: it passes only when every
+structural sensor passed, <code>shippable</code> is yes or partial, there are at most two blocking questions,
+and <code>one_shot_likelihood &gt;= 0.7</code>.</p>
+<h2 id="staff-software-engineer">staff-software-engineer</h2>
+<p><code>plan → dev → test → pr</code>. Entry point <code>/sse:run</code>. It reads the latest approved PRP and auto-detects
+the area skill (<code>backend</code>, <code>web</code>, <code>mobile</code>, <code>devops</code>) from the repo's files, layering the <code>designer</code>
+skill on top when the work is clearly a new UI.</p>
+<pre class="mermaid">sequenceDiagram
+    actor You
+    participant SSE as staff-software-engineer
+    participant S as sensors
+    participant E as eval (fresh judge)
+    participant GH as GitHub
+
+    You-&gt;&gt;SSE: /sse:run
+    SSE-&gt;&gt;SSE: read approved PRP, detect area skill
+    SSE-&gt;&gt;S: plan → plan-structure
+    S--&gt;&gt;SSE: pass
+    SSE-&gt;&gt;E: plan-quality
+    E--&gt;&gt;SSE: score &gt;= 8.0, plan approved
+    SSE-&gt;&gt;S: dev → code-conventions, test-coverage after each step
+    S--&gt;&gt;SSE: fail means fix and retry, hard stop after 3
+    SSE-&gt;&gt;E: dev-quality on the dev summary
+    E--&gt;&gt;SSE: score &gt;= 8.0, dev approved
+    SSE-&gt;&gt;SSE: detect and run the repo&#x27;s test command
+    SSE-&gt;&gt;E: test-quality, approved only when exit code is 0
+    E--&gt;&gt;SSE: score &gt;= 8.0, test approved
+    Note over You,SSE: /pipeline:run stops here for the PR gate&lt;br/&gt;/sse:run --local stops for good
+    SSE-&gt;&gt;GH: gh pr create --draft
+    GH--&gt;&gt;SSE: PR url
+    SSE-&gt;&gt;E: pr-quality
+    E--&gt;&gt;SSE: score &gt;= 8.0, PR approved
+    SSE-&gt;&gt;GH: /sse:pr-monitor polls for the merge
+    GH--&gt;&gt;You: merged, pipeline state cleared
+</pre>
+<p>Artifacts land under <code>.claude/runtime/outputs/sse/{plan,dev,test,pr}/{feature_id}.md</code>.</p>
+<p>The <code>dev</code> stage is the only one that gates twice: <code>code-conventions</code> and <code>test-coverage</code> run against
+the code after each implementation step, and <code>dev-structure</code> plus <code>dev-quality</code> then run against the
+written summary. Failing tests are never retried automatically; the agent returns a blocker and lets
+you decide.</p>
+<h3 id="the-sdd-variant">The SDD variant</h3>
+<p><code>/sse:sdd</code> replaces the linear dev and test stages with a goal loop. It plans once, then iterates
+until the PRP's own spec is satisfied. It is local-only and never opens a PR.</p>
+<pre class="mermaid">sequenceDiagram
+    participant SSE as staff-software-engineer
+    participant Sup as supervisor eval (fresh session)
+
+    SSE-&gt;&gt;SSE: prp-has-acceptance-criteria, fail blocks the run
+    SSE-&gt;&gt;SSE: /sse:plan once, wait for the approval marker
+    loop up to 3 iterations
+        SSE-&gt;&gt;SSE: /sse:dev, later passes get --focus from the last verdict
+        SSE-&gt;&gt;SSE: /sse:test
+        SSE-&gt;&gt;Sup: PRP, dev summary, test report, git diff main...HEAD
+        Sup--&gt;&gt;SSE: PASS breaks the loop, FAIL returns next_iter_focus
+    end
+    SSE-&gt;&gt;SSE: write the transcript, approved on PASS, blocked at the cap
+</pre>
+<p>The predicate is built from the PRP itself: every bullet under <code>Success criteria (verifiable)</code> must
+be met by both code and a test, and every command in the <code>Validation gates</code> block must exit 0. The
+supervisor runs in a fresh session so the worker's context cannot leak into its own grading. Hitting
+the three-iteration cap is real signal that the spec and the code disagree.</p>
+<h2 id="system-architect">system-architect</h2>
+<p><code>design → review</code>. Entry point <code>/system-design:run</code>. This agent is an optional front stage before the
+PRP, not part of the golden path. It picks a <strong>topic skill</strong> the same way the staff engineer picks an
+area skill: <code>url-shortener</code>, <code>rate-limiter</code>, or <code>search-engine</code> when the problem matches one, and the
+generic <code>design</code> skill otherwise.</p>
+<pre class="mermaid">sequenceDiagram
+    actor You
+    participant SA as system-architect
+    participant S as sensors (self-applied)
+    participant E as eval (fresh judge)
+
+    You-&gt;&gt;SA: /system-design:run
+    SA-&gt;&gt;SA: route to a topic skill, or fall back to generic design
+    SA-&gt;&gt;S: design → design-structure, design-rigor
+    S--&gt;&gt;SA: a missing section, number, or mermaid diagram blocks
+    SA-&gt;&gt;E: design-quality
+    E--&gt;&gt;SA: score &gt;= 8.0, design approved
+    SA-&gt;&gt;SA: adversarial review, the 10 staff questions
+    SA-&gt;&gt;S: review → design-structure, review variant
+    S--&gt;&gt;SA: 10 questions answered, verdict present
+    SA-&gt;&gt;E: design-review-depth
+    E--&gt;&gt;SA: score &gt;= 8.0
+    SA--&gt;&gt;You: verdict ship, revise, or block
+</pre>
+<p>Artifacts land at <code>.claude/runtime/outputs/architect/design/{feature_id}.md</code> and
+<code>.claude/runtime/outputs/architect/review/{feature_id}.md</code>.</p>
+<p>This agent is deliberately hook-free: its sensors are self-applied markdown rules rather than scripts
+run by <code>settings.json</code> hooks, which keeps it portable to any tool that reads <code>AGENTS.md</code>. The review
+defaults to skeptical and interrogates rather than summarizes. A <code>block</code> verdict is terminal, the
+design is not marked ready and the run surfaces the blockers instead.</p>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, the stages and their artifacts</li>
+<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>, the two feedback mechanisms</li>
+<li><a href="Agents.html">Agents</a>, what each agent is for</li>
+<li><a href="Golden-Path.html">Golden Path</a>, the end-to-end front door</li>
+<li><a href="System-Design-Method.html">System Design Method</a>, the method behind the architect</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines" target="_blank" rel="noopener">Agent Pipelines</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

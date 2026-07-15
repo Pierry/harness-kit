@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>harness-kit Wiki &middot; harness-kit wiki</title>
+<meta name="description" content="The knowledge base for harness-kit: a set of Claude Code agents that carry a raw idea to a merged PR through one gated pipeline, plus a..." />
+<meta property="og:title" content="harness-kit Wiki &middot; harness-kit wiki" />
+<meta property="og:description" content="The knowledge base for harness-kit: a set of Claude Code agents that carry a raw idea to a merged PR through one gated pipeline, plus a..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/index.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/index.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: Home.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="harness-kit-wiki">harness-kit Wiki</h1>
+<p>The knowledge base for <a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">harness-kit</a>: a set of Claude Code
+agents that carry a raw idea to a merged PR through one gated pipeline, plus a system-architect agent
+that turns a problem into a rigorous System Design Doc.</p>
+<p>The repo holds the condensed, agent-facing form (guides, sensors, evals as terse markdown). This wiki
+is the human-facing depth: the theory behind the harness, how each control works, and full study
+material with references for each system design.</p>
+<h2 id="the-harness">The harness</h2>
+<p>How and why harness-kit is built the way it is.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="Harness-Engineering.html">Harness Engineering</a></td>
+<td><code>Agent = Model + Harness</code>, feedforward vs feedback, computational vs inferential controls, humans on the loop (Böckeler/Fowler)</td>
+</tr>
+<tr>
+<td><a href="Guides.html">Guides</a></td>
+<td>feedforward controls: templates, examples, writing style, conventions</td>
+</tr>
+<tr>
+<td><a href="Sensors.html">Sensors</a></td>
+<td>deterministic feedback: structure checks, the sensor runner, hard gates</td>
+</tr>
+<tr>
+<td><a href="Evals.html">Evals</a></td>
+<td>inferential feedback: LLM-judge rubrics, threshold 8.0, retry, spec-satisfied</td>
+</tr>
+<tr>
+<td><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></td>
+<td>the six gated stages, anatomy of a stage, markers, tokens, status bar, SDD loop</td>
+</tr>
+<tr>
+<td><a href="Golden-Path.html">Golden Path</a></td>
+<td>the paved road, the five properties, detours, per-discipline paving</td>
+</tr>
+<tr>
+<td><a href="Agents.html">Agents</a></td>
+<td>product-manager, staff-software-engineer, system-architect</td>
+</tr>
+<tr>
+<td><a href="Designer-Skill.html">Designer Skill</a></td>
+<td>M3, dark/light theme, modern type, Behance polish, i18n, favicon for new UIs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Start here:</strong> <a href="Harness-Engineering.html">Harness Engineering</a> explains the whole mental model; everything
+else is a detailed view of one part.</p>
+<h2 id="v5-autonomy-and-subagents">v5: autonomy and subagents</h2>
+<p>The pipeline is moving from <em>humans in the loop</em> (answer an input before every artifact) to <em>humans on
+the loop</em> (approve direction at two gates, everything between runs on its own), carried by an
+orchestrator that dispatches small, single-purpose subagents.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="Autonomy.html">Autonomy</a></td>
+<td>the <code>intake</code> stage, resolve-mark-proceed, gated autonomy, feedforward over feedback</td>
+</tr>
+<tr>
+<td><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></td>
+<td>orchestrator + leaf subagents, the adversarial writer/critic split, model tiering, Claude Code constraints</td>
+</tr>
+</tbody>
+</table>
+<p>These pages describe the v5 model, now live across every stage. The canonical shape is
+<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>;
+a couple of refinements (Haiku tiering, per-org <code>repos.md</code>) are still marked <em>(planned)</em> inline.</p>
+<h2 id="system-design">System design</h2>
+<p>The <code>system-architect</code> agent and its topic playbooks. Each episode of the System Design series becomes
+a skill plus a detailed page here: theory, reference architecture, trade-offs, and citations.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Design problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="System-Design-Method.html">System Design Method</a></td>
+<td>the 13-stage method, the three pillars, back-of-envelope numbers, the canon</td>
+</tr>
+<tr>
+<td><a href="URL-Shortener.html">URL Shortener</a> (#1)</td>
+<td>read-heavy key lookup, short-code generation, cache, abuse</td>
+</tr>
+<tr>
+<td><a href="Rate-Limiter.html">Rate Limiter</a> (#2)</td>
+<td>distributed throttling, token bucket, fail-open, multi-region budgets</td>
+</tr>
+<tr>
+<td><a href="Search-Engine.html">Search Engine</a> (#3)</td>
+<td>web crawler, indexing, ranking, query serving at scale</td>
+</tr>
+</tbody>
+</table>
+<p>More episodes land as new playbooks and new pages. Candidates: API gateway, distributed queue, news
+feed, distributed cache, notification system.</p>
+<h2 id="how-the-two-halves-connect">How the two halves connect</h2>
+<p>A System Design Doc is an optional front stage before the main pipeline: a strong design feeds a
+sharper PRP and a grounded plan. The same harness shape, guides, sensors, evals, gated approval,
+runs under both halves.</p>
+<h2 id="global-references">Global references</h2>
+<ul>
+<li>Birgitta Böckeler, <em>Harness engineering for coding agent users</em> &amp; <em>Maintainability sensors for
+coding agents</em>, martinfowler.com, 2026.</li>
+<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017.</li>
+<li>Jeff Dean, <em>Designs, Lessons and Advice from Building Large Distributed Systems</em>, LADIS, 2009.</li>
+<li>Werner Vogels (design for failure), Pat Helland (immutability, distributed transactions), Michael
+Nygard (<em>Release It!</em>), John Ousterhout (<em>A Philosophy of Software Design</em>).</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/Home" target="_blank" rel="noopener">harness-kit Wiki</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

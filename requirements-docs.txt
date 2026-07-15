@@ -1,0 +1,4 @@
+# Build-time only, for scripts/build-wiki.py. Not a runtime dependency of the
+# plugin: nothing under .claude/ imports this, and the npm package never ships it.
+# The wiki-site workflow installs it; locally, pip install -r requirements-docs.txt.
+markdown-it-py>=3.0,<4

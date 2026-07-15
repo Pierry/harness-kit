@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>References &middot; harness-kit wiki</title>
+<meta name="description" content="The literature harness-kit is built on, and what each source actually changed here. Sources that only confirmed what we already did are not worth..." />
+<meta property="og:title" content="References &middot; harness-kit wiki" />
+<meta property="og:description" content="The literature harness-kit is built on, and what each source actually changed here. Sources that only confirmed what we already did are not worth..." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/References.html" />
+<meta property="og:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://pierry.github.io/harness-kit/preview.gif" />
+<link rel="canonical" href="https://pierry.github.io/harness-kit/wiki/References.html" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<meta id="theme-color" name="theme-color" content="#08090c" />
+<!--
+  GENERATED FILE - DO NOT EDIT.
+  Source: References.md in the harness-kit wiki. Edit the wiki page; the
+  wiki-site workflow regenerates this file on the gollum event.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/tokens.css" />
+<link rel="stylesheet" href="../assets/wiki.css" />
+</head>
+<body>
+<header>
+  <a class="wordmark" href="../index.html">harness<span class="dash">-</span>kit
+    <span class="sub">wiki</span></a>
+  <nav>
+    <a class="hide-sm" href="../index.html">usage guide</a>
+    <a class="hide-sm" href="index.html">wiki home</a>
+    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+    <span class="controls">
+      <button type="button" class="themebtn" id="themebtn"
+              aria-label="Toggle dark / light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12"
+             cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41
+             1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
+             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </nav>
+</header>
+
+<button type="button" class="navtoggle" id="navtoggle" aria-expanded="false"
+        aria-controls="wikinav">Contents</button>
+
+<div class="wikishell">
+  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
+<ul>
+<li><a href="index.html">Home</a></li>
+</ul>
+<p><strong>The harness</strong></p>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
+<li><a href="References.html">References</a></li>
+<li><a href="Guides.html">Guides</a></li>
+<li><a href="Sensors.html">Sensors</a></li>
+<li><a href="Evals.html">Evals</a></li>
+<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
+<li><a href="Golden-Path.html">Golden Path</a></li>
+<li><a href="Agents.html">Agents</a></li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
+<li><a href="Designer-Skill.html">Designer Skill</a></li>
+</ul>
+<p><strong>v5: autonomy</strong></p>
+<ul>
+<li><a href="Autonomy.html">Autonomy</a></li>
+<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
+</ul>
+<p><strong>System design</strong></p>
+<ul>
+<li><a href="System-Design-Method.html">System Design Method</a></li>
+<li><a href="URL-Shortener.html">URL Shortener</a></li>
+<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
+<li><a href="Search-Engine.html">Search Engine</a></li>
+</ul>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+</aside>
+  <main class="wikibody">
+<h1 id="references">References</h1>
+<p>The literature harness-kit is built on, and what each source actually changed here. Sources that only
+confirmed what we already did are not worth listing; these are the ones that cost us a commit.</p>
+<h2 id="the-harness">The harness</h2>
+<p><strong>Böckeler, <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener">Harness engineering for coding agent users</a></strong>
+(martinfowler.com). The foundation. Guides are <strong>feedforward</strong>, they steer the agent before it acts.
+Sensors are <strong>feedback</strong>, they observe after and let it self-correct. Both come in two execution
+types: <strong>computational</strong> (deterministic, CPU-run, cheap enough for every change) and <strong>inferential</strong>
+(needs a model's judgment). The whole pipeline is this shape, and <code>Execution: computational | inferential</code> on every sensor is this taxonomy made literal.</p>
+<p><strong>Böckeler, <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html" target="_blank" rel="noopener">Maintainability sensors for coding agents</a></strong>
+(martinfowler.com). The follow-up, and the most expensive article on this page.</p>
+<p>Three findings landed directly in the code:</p>
+<ol>
+<li><em>&quot;The agent reliably ignores sensor checks unless hardwired via hooks or extensions&quot;</em>, and markdown
+guides alone are <strong>&quot;quite unreliable&quot;</strong>. <code>code-conventions.md</code> was a markdown file politely asking
+the agent to run the linter. <a href="Sensors.html"><code>code-maintainability</code></a> now runs it.</li>
+<li>The warning about <em>&quot;a false sense of security and an illusion of quality&quot;</em>. We had built exactly
+that: sensors declaring themselves deterministic hard gates while checking nothing, and a quality
+log recording them as <code>passed</code> on every run. Hence exit 3 (<code>inferential</code>, never a pass) and exit 2
+(a computational sensor that wires up no check is broken, not passing).</li>
+<li>The limits that bound complexity, max function arguments, file length, function length, cyclomatic
+complexity, <em>&quot;weren't even active in ESLint's default preset, I had to configure maximums for them
+first&quot;</em>. Same is true of ruff. They are configured in <code>pyproject.toml</code> now, and CI runs them. That
+immediately found real debt.</li>
+</ol>
+<p>Her warning about <strong>feedback overload</strong>, <em>&quot;sending it into a spiral of over-engineered refactorings&quot;</em>,
+is why the one complexity violation we found is a named per-file ignore with the reason written down,
+rather than a refactor of untested code to satisfy a rule added yesterday.</p>
+<p><strong>Fowler, <a href="https://martinfowler.com/bliki/AgenticProgramming.html" target="_blank" rel="noopener">Agentic Programming</a></strong>
+(martinfowler.com). Names the shift the pipeline assumes: humans stop typing code and start reviewing
+it, <em>&quot;still responsible for what the software does&quot;</em> but through <em>&quot;code review, examining test
+results, and reviewing outputs from other sensors&quot;</em>. Harness engineering is the central skill. This is
+the argument for why the two human gates are where they are.</p>
+<h2 id="evals-and-the-judge">Evals and the judge</h2>
+<p><strong>Husain, <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Using LLM-as-a-Judge for evaluation</a></strong> and
+<a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener">Your AI product needs evals</a>. The critique that lands on our
+rubrics: uncalibrated 1-10 scales get interpreted differently by every grader, binary judgments are
+more reliable, and the thing that actually matters is <strong>measured agreement between the judge and human
+labels</strong>. harness-kit does not do that yet. Our 8.0 threshold is a convention, not a calibrated
+boundary, and <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener">pipeline-pattern.md</a>
+says so out loud rather than implying the score is a measurement.</p>
+<p><strong>Panickssery et al., <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Self-Preference Bias in LLM-as-a-Judge</a></strong>
+(arXiv). LLM judges systematically prefer text from their own family, tracking perplexity: they rate
+what is familiar to them higher than humans do. Dispatching a <em>fresh</em> evaluator, which we do, removes
+the author's context but not this. A fresh Claude judging Claude's prose is still self-preference. An
+honest mitigation is a different model family or human labels; we have neither yet, and the wiki
+should not pretend otherwise.</p>
+<p>These two together are why <code>eval-score.py</code> exists. It cannot make the judgment trustworthy, but the
+arithmetic was never a judgment call: it reads the weights out of the rubric and recomputes the total,
+so at minimum the number follows from the scores.</p>
+<h2 id="testing-the-harness-itself">Testing the harness itself</h2>
+<p>No citation needed for the biggest lesson. harness-kit gated every artifact it produced and had
+nothing gating itself: no tests, no CI, no linter. That is how a one-word heading mismatch disabled
+~30 section assertions across three sensors and nobody noticed. The test that would have caught it on
+day zero is four lines, and it is now generic over every sensor, including ones not written yet.</p>
+<p>The harness needs a harness.</p>
+<h2 id="the-engineering-canon-system-architect">The engineering canon (system-architect)</h2>
+<p>The <a href="System-Design-Method.html">system design method</a> draws on Kleppmann (<em>Designing Data-Intensive
+Applications</em>), Jeff Dean's latency numbers, Vogels on eventual consistency, Helland on data on the
+outside vs inside, Nygard (<em>Release It!</em>) on stability patterns, and Ousterhout (<em>A Philosophy of
+Software Design</em>) on complexity. Those inform the design rubric and the ten staff questions rather
+than the harness mechanics.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="Harness-Engineering.html">Harness Engineering</a>: the theory, in depth</li>
+<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>: the two feedback halves as implemented</li>
+<li><a href="Agent-Pipelines.html">Agent Pipelines</a>: where each gate sits per agent</li>
+</ul>
+
+    <p class="editnote">This page mirrors
+      <a href="https://github.com/Pierry/harness-kit/wiki/References" target="_blank" rel="noopener">References</a>
+      in the wiki. Edit it there.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>harness-kit &middot; idea to merged PR, through one gated pipeline</span>
+    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const MERMAID_VARS = {
+    dark: {
+      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
+      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
+      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14",
+      clusterBorder: "#2b323e", edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e",
+      fontSize: "14px",
+    },
+    light: {
+      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
+      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
+      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8",
+      clusterBorder: "#d6cfe4", edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4",
+      fontSize: "14px",
+    },
+  };
+  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
+  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
+  let mermaidBusy = false;
+  async function renderMermaid(theme) {
+    if (mermaidBusy || !mermaidNodes.length) return;
+    mermaidBusy = true;
+    mermaid.initialize({
+      startOnLoad: false, theme: "base", securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
+    });
+    mermaidNodes.forEach((n) => {
+      n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src;
+    });
+    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
+    mermaidBusy = false;
+  }
+
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById("theme-color");
+  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
+    renderMermaid(theme);
+  }
+  const storedTheme = localStorage.getItem("hk-theme");
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  document.getElementById("themebtn").addEventListener("click", () => {
+    theme = theme === "light" ? "dark" : "light";
+    localStorage.setItem("hk-theme", theme);
+    applyTheme(theme);
+  });
+
+  const toggle = document.getElementById("navtoggle");
+  const nav = document.getElementById("wikinav");
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  const here = location.pathname.split("/").pop() || "index.html";
+  nav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("here");
+  });
+</script>
+</body>
+</html>

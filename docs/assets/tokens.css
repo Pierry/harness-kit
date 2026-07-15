@@ -1,0 +1,63 @@
+/*
+  The design tokens for the whole site: the landing page and every generated
+  wiki page link this file. It exists so those two never drift: the wiki pages
+  are written by scripts/build-wiki.py, and a copy of the palette in the
+  generator's template would be a second source of truth that nobody updates.
+
+  Type: Bricolage Grotesque (display) - Hanken Grotesk (body) - JetBrains Mono (code).
+  Light theme swaps the surfaces via the data-theme attribute on <html>.
+*/
+:root {
+  --bg: #08090c; --bg-2: #0b0d11; --surface: #101319; --elev: #161a22;
+  --border: #1d222c; --border-strong: #2b323e;
+  --text: #edeff3; --dim: #9aa3b2; --faint: #5e6776;
+  --accent: #a78bfa; --accent-2: #c4b3ff; --accent-dim: #7c6ad9;
+  --gold: #fcc04a; --gold-deep: #e0a020;
+  --success: #6ee7b7; --success-dim: #34d399; --danger: #fb7185;
+  --code-bg: #0a0c10;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --sans: "Hanken Grotesk", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 28px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+  /* theme-swappable surfaces */
+  --link-hover: #fff;
+  --hairline: #ffffff0a;
+  --chip-bg: #ffffff06;
+  --card-bg: linear-gradient(180deg, #ffffff05, #ffffff00);
+  --hover-bg: #ffffff07;
+  --bar-bg: linear-gradient(180deg, var(--elev), #12151c);
+  --shadow: 0 20px 60px #00000055;
+  --header-bg: linear-gradient(180deg, #08090ce8, #08090cb0);
+  --noise-op: .035;
+  --mesh:
+    radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
+    radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
+    radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  --glow: #a78bfa22;
+}
+:root[data-theme="light"] {
+  --bg: #faf9fc; --bg-2: #f1eef8; --surface: #ffffff; --elev: #ffffff;
+  --border: #e7e3f0; --border-strong: #d6cfe4;
+  --text: #1b1822; --dim: #54506a; --faint: #8a849c;
+  --accent: #7c5cf0; --accent-2: #6442d8; --accent-dim: #7c6ad9;
+  --gold: #b07908; --gold-deep: #8f6206;
+  --success: #0f9d6b; --success-dim: #0f9d6b; --danger: #e11d48;
+  --code-bg: #f6f4fb;
+  --link-hover: #000;
+  --hairline: #1b18220f;
+  --chip-bg: #ffffff;
+  --card-bg: #ffffff;
+  --hover-bg: #f1eef8;
+  --bar-bg: linear-gradient(180deg, #f1eef8, #e9e5f2);
+  --shadow: 0 16px 44px #2a206814;
+  --header-bg: linear-gradient(180deg, #faf9fce8, #faf9fcb8);
+  --noise-op: .02;
+  --mesh:
+    radial-gradient(60% 50% at 78% -8%, #7c5cf014, transparent 62%),
+    radial-gradient(48% 42% at 12% 8%, #f0a91e12, transparent 60%),
+    radial-gradient(55% 50% at 50% 120%, #12b07410, transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  --glow: #7c5cf01f;
+}

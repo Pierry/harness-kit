@@ -27,61 +27,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/tokens.css" />
 <style>
-  :root {
-    --bg: #08090c; --bg-2: #0b0d11; --surface: #101319; --elev: #161a22;
-    --border: #1d222c; --border-strong: #2b323e;
-    --text: #edeff3; --dim: #9aa3b2; --faint: #5e6776;
-    --accent: #a78bfa; --accent-2: #c4b3ff; --accent-dim: #7c6ad9;
-    --gold: #fcc04a; --gold-deep: #e0a020;
-    --success: #6ee7b7; --success-dim: #34d399; --danger: #fb7185;
-    --code-bg: #0a0c10;
-    --display: "Bricolage Grotesque", system-ui, sans-serif;
-    --sans: "Hanken Grotesk", system-ui, sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 28px;
-    --ease: cubic-bezier(.22,.61,.36,1);
-    /* theme-swappable surfaces */
-    --link-hover: #fff;
-    --hairline: #ffffff0a;
-    --chip-bg: #ffffff06;
-    --card-bg: linear-gradient(180deg, #ffffff05, #ffffff00);
-    --hover-bg: #ffffff07;
-    --bar-bg: linear-gradient(180deg, var(--elev), #12151c);
-    --shadow: 0 20px 60px #00000055;
-    --header-bg: linear-gradient(180deg, #08090ce8, #08090cb0);
-    --noise-op: .035;
-    --mesh:
-      radial-gradient(60% 50% at 78% -8%, #a78bfa1f, transparent 62%),
-      radial-gradient(48% 42% at 12% 8%, #fcc04a14, transparent 60%),
-      radial-gradient(55% 50% at 50% 120%, #34d39912, transparent 60%),
-      linear-gradient(180deg, var(--bg), var(--bg-2));
-    --glow: #a78bfa22;
-  }
-  :root[data-theme="light"] {
-    --bg: #faf9fc; --bg-2: #f1eef8; --surface: #ffffff; --elev: #ffffff;
-    --border: #e7e3f0; --border-strong: #d6cfe4;
-    --text: #1b1822; --dim: #54506a; --faint: #8a849c;
-    --accent: #7c5cf0; --accent-2: #6442d8; --accent-dim: #7c6ad9;
-    --gold: #b07908; --gold-deep: #8f6206;
-    --success: #0f9d6b; --success-dim: #0f9d6b; --danger: #e11d48;
-    --code-bg: #f6f4fb;
-    --link-hover: #000;
-    --hairline: #1b18220f;
-    --chip-bg: #ffffff;
-    --card-bg: #ffffff;
-    --hover-bg: #f1eef8;
-    --bar-bg: linear-gradient(180deg, #f1eef8, #e9e5f2);
-    --shadow: 0 16px 44px #2a206814;
-    --header-bg: linear-gradient(180deg, #faf9fce8, #faf9fcb8);
-    --noise-op: .02;
-    --mesh:
-      radial-gradient(60% 50% at 78% -8%, #7c5cf014, transparent 62%),
-      radial-gradient(48% 42% at 12% 8%, #f0a91e12, transparent 60%),
-      radial-gradient(55% 50% at 50% 120%, #12b07410, transparent 60%),
-      linear-gradient(180deg, var(--bg), var(--bg-2));
-    --glow: #7c5cf01f;
-  }
+  /* Design tokens live in assets/tokens.css, shared with the generated wiki pages. */
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
@@ -342,6 +290,7 @@
     <a class="hide-sm" href="#pipeline">pipeline</a>
     <a class="hide-sm" href="#quality">quality</a>
     <a class="hide-sm" href="#cockpit">cockpit</a>
+    <a class="hide-sm" href="wiki/">wiki</a>
     <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
     <span class="controls">
       <span class="langsw" role="group" aria-label="Language">
@@ -612,7 +561,7 @@ sequenceDiagram
     <p class="diagram-cap" data-i18n="s01.capSA"><b>system-architect</b> &middot; design &#8594; review &middot; optional front stage before the PRP &middot; block is terminal</p>
     <div class="note" style="margin-top:28px">
       <span class="ic">&#9670;</span>
-      <p data-i18n="s01.note2">The evaluator is always a <b>fresh sub-agent</b> that gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines">Agent Pipelines</a> wiki page.</p>
+      <p data-i18n="s01.note2">The evaluator is always a <b>fresh sub-agent</b> that gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="wiki/Agent-Pipelines.html">Agent Pipelines</a> wiki page.</p>
     </div>
   </section>
 
@@ -721,7 +670,7 @@ sequenceDiagram
     </div>
     <div class="note">
       <span class="ic">&#9670;</span>
-      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">tab</code> focus the reader &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy">Autonomy</a> and <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents">Orchestration &amp; Subagents</a>.</p>
+      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">tab</code> focus the reader &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="wiki/Autonomy.html">Autonomy</a> and <a href="wiki/Orchestration-and-Subagents.html">Orchestration &amp; Subagents</a>.</p>
     </div>
   </section>
 
@@ -800,7 +749,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
         <h3 data-i18n="c3.h">Design the system</h3>
         <p data-i18n="c3.p">Turns a problem into a rigorous System Design Doc, then an adversarial review. Topic playbooks per classic design.</p>
         <div class="skills"><span>url-shortener</span><span>rate-limiter</span><span>search-engine</span></div>
-        <div class="more"><a href="https://github.com/Pierry/harness-kit/wiki" data-i18n="c3.more">Theory &amp; references in the wiki &#8594;</a></div>
+        <div class="more"><a href="wiki/" data-i18n="c3.more">Theory &amp; references in the wiki &#8594;</a></div>
       </div>
     </div>
   </section>
@@ -835,7 +784,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
         <h3 data-i18n="r3.h">The System Design series</h3>
         <p data-i18n="r3.p">The system-architect topic skills adapt one classic problem each, with the theory, diagrams, and references per design.</p>
         <ul>
-          <li data-i18n="r3.li1"><a href="https://github.com/Pierry/harness-kit/wiki"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
+          <li data-i18n="r3.li1"><a href="wiki/"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
         </ul>
       </div>
     </div>
@@ -986,7 +935,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lê o artefato de intake, nunca para pra te perguntar",
       "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev é a única etapa com gate duplo, no código e no resumo",
       "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes do PRP &middot; block é terminal",
-      "s01.note2": "O avaliador é sempre um <b>sub-agente novo</b> que recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines\">Agent Pipelines</a> da wiki.",
+      "s01.note2": "O avaliador é sempre um <b>sub-agente novo</b> que recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> da wiki.",
       "s02.title": "Instalação",
       "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
       "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
@@ -1035,7 +984,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "r2.li4": "<b>Jeff Dean</b> (números que todo engenheiro deveria saber), <b>Werner Vogels</b> (projete para a falha), <b>Pat Helland</b> (imutabilidade, eventos no lugar de estado mutável), Leslie Lamport, Sam Newman, Gregor Hohpe.",
       "r3.tag": "os playbooks de tópico", "r3.h": "A série System Design",
       "r3.p": "As skills de tópico do system-architect adaptam um problema clássico cada, com a teoria, diagramas e referências por design.",
-      "r3.li1": "<a href=\"https://github.com/Pierry/harness-kit/wiki\"><b>A wiki</b></a>: uma página por problema clássico: url-shortener, rate-limiter, search-engine.",
+      "r3.li1": "<a href=\"wiki/\"><b>A wiki</b></a>: uma página por problema clássico: url-shortener, rate-limiter, search-engine.",
       "s08.title": "Docs", "s08.sub": "Vá além desta página.",
       "d1.t": "Golden path", "d1.d": "o passo a passo completo da porta de entrada",
       "d2.t": "Comandos e gates", "d2.d": "cada comando, cada sensor e eval",
@@ -1107,7 +1056,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lee el artefacto de intake, nunca se detiene a preguntarte",
       "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev es la única etapa con gate doble, en el código y en el resumen",
       "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes del PRP &middot; block es terminal",
-      "s01.note2": "El evaluador siempre es un <b>sub-agente nuevo</b> que recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines\">Agent Pipelines</a> de la wiki.",
+      "s01.note2": "El evaluador siempre es un <b>sub-agente nuevo</b> que recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> de la wiki.",
       "s02.title": "Instalación",
       "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
       "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
@@ -1156,7 +1105,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "r2.li4": "<b>Jeff Dean</b> (números que todo ingeniero debería saber), <b>Werner Vogels</b> (diseña para el fallo), <b>Pat Helland</b> (inmutabilidad, eventos en vez de estado mutable), Leslie Lamport, Sam Newman, Gregor Hohpe.",
       "r3.tag": "los playbooks de tema", "r3.h": "La serie System Design",
       "r3.p": "Las skills de tema del system-architect adaptan un problema clásico cada una, con la teoría, diagramas y referencias por diseño.",
-      "r3.li1": "<a href=\"https://github.com/Pierry/harness-kit/wiki\"><b>La wiki</b></a>: una página por problema clásico: url-shortener, rate-limiter, search-engine.",
+      "r3.li1": "<a href=\"wiki/\"><b>La wiki</b></a>: una página por problema clásico: url-shortener, rate-limiter, search-engine.",
       "s08.title": "Docs", "s08.sub": "Ve más allá de esta página.",
       "d1.t": "Golden path", "d1.d": "el recorrido completo de la puerta de entrada",
       "d2.t": "Comandos y gates", "d2.d": "cada comando, cada sensor y eval",
