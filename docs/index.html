@@ -1133,6 +1133,14 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       el.innerHTML = k in dict ? dict[k] : el.dataset.i18nDefault;
     });
     langButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+    /* The wiki is generated per language into its own directory, so send the
+       reader to the one they are already reading in. Without this, switching to
+       PT here and clicking through to the wiki drops you back into English. */
+    const sub = lang === "en" ? "" : lang + "/";
+    document.querySelectorAll('a[href^="wiki/"]').forEach((a) => {
+      const page = (a.dataset.wikiHref ||= a.getAttribute("href").replace(/^wiki\/(en|pt|es)\//, "wiki/"));
+      a.setAttribute("href", page.replace(/^wiki\//, "wiki/" + sub));
+    });
     localStorage.setItem("hk-lang", lang);
   }
   function detectLang() {

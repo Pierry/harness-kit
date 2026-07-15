@@ -1,22 +1,29 @@
 name: wiki to site
 
-# The wiki is the source of truth and stays editable in the browser. This job is
-# what carries it onto the site, so readers who never open GitHub get the same
-# depth, and so crawlers see real prose instead of a client-side fetch.
+# The wiki is the source of truth for English and stays editable in the browser.
+# This job is what carries it onto the site, so readers who never open GitHub get
+# the same depth, and so crawlers see real prose instead of a client-side fetch.
 #
 # The `gollum` event fires when a wiki page is created or edited. Pushing the
 # regenerated HTML back to main does not re-fire it, so this cannot loop.
+#
+# pt and es are translated by hand into wiki-i18n/. That means editing an English
+# page here leaves them stale, so the build refuses to publish until they catch
+# up. A gollum edit failing this job is the system working: it is the difference
+# between "we'll translate it later" and the site quietly serving stale prose.
 
 on:
   gollum:
   workflow_dispatch:
-  # The generator and its template also decide the output, so a change to either
-  # has to reach the published pages without waiting for the next wiki edit.
+  # The generator, its template and the translations all decide the output, so a
+  # change to any of them has to reach the published pages without waiting for
+  # the next wiki edit.
   push:
     branches: [main]
     paths:
       - "scripts/build-wiki.py"
       - "docs/assets/wiki.css"
+      - "wiki-i18n/**"
       - "requirements-docs.txt"
       - ".github/workflows/wiki-site.yml"
 

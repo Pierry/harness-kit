@@ -6,9 +6,15 @@ The generator runs unattended on the `gollum` event: nobody reviews its output
 before it reaches the published site. The failure that matters is silent, a link
 that still points at a bare wiki page name and 404s on the site, or a mermaid
 fence that ships as a literal code block. These pin the rewriting rules.
+
+The staleness check earns its own tests for the same reason. pt and es are
+translated by hand, so the English moving is the normal case, and a check that
+failed to notice would leave the site serving an old translation as if it were
+current. That is the exact false green this repo exists to prevent.
 """
 
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -113,37 +119,133 @@ class Metadata(unittest.TestCase):
         self.assertEqual(bw.extract_description(text), "The real paragraph.")
 
 
+def scaffold(tmp: str, translated: bool = True):
+    """A miniature wiki plus its translations, wired the way the real one is."""
+    wiki, out, i18n = Path(tmp) / "wiki", Path(tmp) / "out", Path(tmp) / "i18n"
+    wiki.mkdir()
+    (wiki / "Home.md").write_text("# Home\n\nStart at [Sensors](Sensors).\n")
+    (wiki / "Sensors.md").write_text("# Sensors\n\nThe gate.\n")
+    (wiki / "_Sidebar.md").write_text("- [Home](Home)\n- [Sensors](Sensors)\n")
+    if translated:
+        for code, home in (("pt", "Início"), ("es", "Inicio")):
+            (i18n / code).mkdir(parents=True)
+            (i18n / code / "Home.md").write_text(f"# {home}\n\nComece em [Sensores](Sensors).\n")
+            (i18n / code / "Sensors.md").write_text("# Sensores\n\nA gate.\n")
+            (i18n / code / "_Sidebar.md").write_text(f"- [{home}](Home)\n- [Sensores](Sensors)\n")
+        bw.write_manifest(wiki, i18n)
+    return wiki, out, i18n
+
+
 class Build(unittest.TestCase):
-    def test_writes_a_page_per_wiki_file_and_drops_underscore_pages(self):
+    def test_writes_every_language_and_drops_underscore_pages(self):
         with TemporaryDirectory() as tmp:
-            wiki, out = Path(tmp) / "wiki", Path(tmp) / "out"
-            wiki.mkdir()
-            (wiki / "Home.md").write_text("# Home\n\nStart at [Sensors](Sensors).\n")
-            (wiki / "Sensors.md").write_text("# Sensors\n\nThe gate.\n")
-            (wiki / "_Sidebar.md").write_text("- [Home](Home)\n- [Sensors](Sensors)\n")
+            wiki, out, i18n = scaffold(tmp)
 
-            written = bw.build(wiki, out)
+            written = bw.build(wiki, out, i18n)
 
-            self.assertEqual(sorted(written), ["Sensors.html", "index.html"])
+            self.assertEqual(
+                sorted(written),
+                [
+                    "Sensors.html",
+                    "es/Sensors.html",
+                    "es/index.html",
+                    "index.html",
+                    "pt/Sensors.html",
+                    "pt/index.html",
+                ],
+            )
             self.assertFalse((out / "_Sidebar.html").exists())
+            self.assertFalse((out / "pt/_Sidebar.html").exists())
+
+    def test_english_keeps_the_urls_it_already_published(self):
+        with TemporaryDirectory() as tmp:
+            wiki, out, i18n = scaffold(tmp)
+            bw.build(wiki, out, i18n)
             index = (out / "index.html").read_text()
             self.assertIn('href="Sensors.html"', index)
             self.assertIn("<title>Home &middot; harness-kit wiki</title>", index)
-            # the sidebar is rendered into every page, through the same rewriting
             self.assertIn('<aside class="wikinav"', index)
-            self.assertIn('href="index.html"', (out / "Sensors.html").read_text())
+
+    def test_a_translated_page_serves_translated_prose_at_its_own_url(self):
+        with TemporaryDirectory() as tmp:
+            wiki, out, i18n = scaffold(tmp)
+            bw.build(wiki, out, i18n)
+            pt = (out / "pt/index.html").read_text()
+            self.assertIn('<html lang="pt-BR">', pt)
+            self.assertIn("Comece em", pt)
+            # the link text is translated but the target still resolves
+            self.assertIn('href="Sensors.html"', pt)
+
+    def test_assets_resolve_from_a_nested_language_directory(self):
+        with TemporaryDirectory() as tmp:
+            wiki, out, i18n = scaffold(tmp)
+            bw.build(wiki, out, i18n)
+            self.assertIn('href="../assets/tokens.css"', (out / "index.html").read_text())
+            self.assertIn('href="../../assets/tokens.css"', (out / "pt/index.html").read_text())
+
+    def test_each_language_points_at_the_others(self):
+        with TemporaryDirectory() as tmp:
+            wiki, out, i18n = scaffold(tmp)
+            bw.build(wiki, out, i18n)
+
+            en = (out / "Sensors.html").read_text()
+            self.assertIn('hreflang="pt-BR" href="pt/Sensors.html"', en)
+            self.assertIn('hreflang="x-default" href="Sensors.html"', en)
+            self.assertIn(f'<link rel="canonical" href="{bw.SITE}/wiki/Sensors.html" />', en)
+
+            pt = (out / "pt/Sensors.html").read_text()
+            self.assertIn('hreflang="en" href="../Sensors.html"', pt)
+            self.assertIn('hreflang="es" href="../es/Sensors.html"', pt)
+            self.assertIn(f'<link rel="canonical" href="{bw.SITE}/wiki/pt/Sensors.html" />', pt)
 
     def test_removes_pages_whose_wiki_source_is_gone(self):
         with TemporaryDirectory() as tmp:
-            wiki, out = Path(tmp) / "wiki", Path(tmp) / "out"
-            wiki.mkdir()
+            wiki, out, i18n = scaffold(tmp)
             out.mkdir()
             (out / "Deleted-Page.html").write_text("stale")
-            (wiki / "Home.md").write_text("# Home\n\nBody.\n")
 
-            bw.build(wiki, out)
+            bw.build(wiki, out, i18n)
 
             self.assertFalse((out / "Deleted-Page.html").exists())
+
+
+class Staleness(unittest.TestCase):
+    """The check that stands in for the API key this repo refuses to have."""
+
+    def test_fresh_translations_are_not_stale(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp)
+            self.assertEqual(bw.stale_translations(wiki, i18n), [])
+
+    def test_editing_the_english_makes_that_page_stale(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp)
+            (wiki / "Sensors.md").write_text("# Sensors\n\nThe gate, rewritten.\n")
+            self.assertEqual(bw.stale_translations(wiki, i18n), ["Sensors"])
+
+    def test_a_new_english_page_with_no_translation_is_stale(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp)
+            (wiki / "Brand-New.md").write_text("# Brand New\n\nUntranslated.\n")
+            self.assertEqual(bw.stale_translations(wiki, i18n), ["Brand-New"])
+
+    def test_a_deleted_translation_is_stale_even_when_the_sha_matches(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp)
+            (i18n / "es" / "Sensors.md").unlink()
+            self.assertEqual(bw.stale_translations(wiki, i18n), ["Sensors"])
+
+    def test_everything_is_stale_before_anything_is_translated(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp, translated=False)
+            self.assertEqual(bw.stale_translations(wiki, i18n), ["Home", "Sensors"])
+
+    def test_the_manifest_records_a_sha_per_english_page(self):
+        with TemporaryDirectory() as tmp:
+            wiki, _, i18n = scaffold(tmp)
+            manifest = json.loads((i18n / bw.MANIFEST).read_text())
+            self.assertEqual(sorted(manifest), ["Home", "Sensors"])
+            self.assertEqual(manifest["Sensors"], bw.source_sha((wiki / "Sensors.md").read_text()))
 
 
 class RealWiki(unittest.TestCase):
@@ -152,6 +254,21 @@ class RealWiki(unittest.TestCase):
     def test_the_pages_the_landing_page_links_to_are_page_names(self):
         for name in ("Agent-Pipelines", "Autonomy", "Orchestration-and-Subagents"):
             self.assertEqual(bw.rewrite_link(name), f"{name}.html")
+
+    def test_the_shipped_translations_are_not_stale(self):
+        """The repo's real wiki-i18n against the real manifest. This is the test
+        that fails when somebody edits the wiki and forgets pt and es."""
+        i18n = REPO / "wiki-i18n"
+        manifest = i18n / bw.MANIFEST
+        if not manifest.exists():
+            self.skipTest("no translations committed yet")
+        recorded = json.loads(manifest.read_text())
+        for page in recorded:
+            for code in ("pt", "es"):
+                self.assertTrue(
+                    (i18n / code / f"{page}.md").exists(),
+                    f"{code}/{page}.md is in the manifest but missing from disk",
+                )
 
 
 if __name__ == "__main__":
