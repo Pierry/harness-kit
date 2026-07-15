@@ -34,6 +34,9 @@ jobs:
       - name: Every sensor declares its execution type and wires up real checks
         run: |
           python3 .claude/scripts/check-sensors.py
+      - name: Every rubric's weights sum to 100 and match the keys it asks for
+        run: |
+          python3 -m unittest tests.test_eval_score.RealRubrics -v
 
   lint:
     name: lint

@@ -42,9 +42,26 @@ mapping is another candidate.
 
 ## 3. Sensors
 
-Deterministic, structural, run via the committed runner
-(`.claude/runtime/scripts/{agent}/run-sensors.sh`). Never improvise inline grep/for loops. Sensors stay
-scripts: a structural rule does not need a model. Unchanged from v4.
+Run via the committed runner (`.claude/runtime/scripts/{agent}/run-sensors.sh`). Never improvise
+inline grep/for loops. A structural rule does not need a model.
+
+Every sensor declares how it is enforced, per Böckeler's
+[taxonomy](https://martinfowler.com/articles/harness-engineering.html):
+
+- **`Execution: computational`** — the runner enforces it. Deterministic, cheap, runs on every change.
+  A computational sensor that wires up no check the runner understands exits 2 (spec error). It is not
+  a pass: it is a broken sensor.
+- **`Execution: inferential`** — needs judgment, so a model or a human applies it. The runner refuses
+  it (exit 3) and every caller records `inferential`, never `pass`.
+
+That split is load-bearing. Three sensors once declared `deterministic / hard gate` while expressing
+their checks as prose the runner had no handler for; it returned 0 and the quality log recorded them
+as `passed` on every run, against a check that never happened. If you are the sensor, say so and say
+what you found. A claimed pass that nothing verified is worse than a missing sensor: it is the
+"illusion of quality" Böckeler names in
+[Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html).
+
+Check your work with `python3 .claude/scripts/check-sensors.py`, which prints the enforcement ledger.
 
 ## 4. Eval: adversarial
 
@@ -61,6 +78,26 @@ grading its own work inflates it. Below threshold (8.0) retries per
 
 For the highest-stakes gates, use a **panel**: three evaluators with distinct lenses run in parallel and
 a majority decides.
+
+**Verify the arithmetic, do not trust it.** Pipe the judge's JSON through the score verifier. It reads
+the weights out of the rubric, recomputes the total from the dimension scores, and rejects a judge
+that scored a dimension the rubric does not weight, skipped one it does, or wrote a total its own
+scores do not support:
+
+```
+.claude/scripts/eval-score.py --rubric {evals/x-quality.md} --scores judge.json
+```
+
+Exit 0 prints the number the approval marker should carry. Exit 1 is below threshold (retry). Exit 2
+means the judge's output is malformed and the score is meaningless, so do not approve on it.
+
+**What this does not fix.** The dimension scores are still unvalidated against human labels, and the
+threshold of 8.0 is a convention, not a calibrated boundary. Two known biases apply and neither is
+mitigated here: LLM judges inflate scores for output from their own family
+([Panickssery et al.](https://arxiv.org/abs/2410.21819)), and uncalibrated 1-10 scales get interpreted
+differently by every grader ([Husain](https://hamel.dev/blog/posts/llm-judge/), who recommends binary
+judgments plus measured agreement with human labels). Treat the score as a rough signal that catches
+weak artifacts, not as a measurement. Read the feedback, not just the number.
 
 ## 5. Marker, gates, return
 

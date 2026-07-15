@@ -36,13 +36,15 @@ Retry. Regenerate weakest section only. Max 3 attempts.
 {
   "scores": {
     "plan_fidelity": 0,
-    "files_touched": 0,
+    "files_touched_specificity": 0,
     "commit_hygiene": 0,
     "test_coverage": 0,
     "convention_adherence": 0,
     "blocker_quality": 0
   },
   "weighted_total": 0.0,
-  "feedback": ["dimension: specific issue with file or sha ref"]
+  "feedback": [
+    "dimension: specific issue with file or sha ref"
+  ]
 }
 ```

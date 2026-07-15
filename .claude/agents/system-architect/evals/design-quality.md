@@ -52,11 +52,13 @@ Retry. Regenerate lowest-scoring sections only. Max 3 attempts.
     "mental_model": 0,
     "architecture_deep_dives": 0,
     "scale_consistency_failure": 0,
-    "tradeoff_discipline": 0,
+    "trade_off_discipline": 0,
     "pragmatism_incrementalism": 0,
     "canon_voice": 0
   },
   "weighted_total": 0.0,
-  "feedback": ["dimension: specific issue with section ref"]
+  "feedback": [
+    "dimension: specific issue with section ref"
+  ]
 }
 ```

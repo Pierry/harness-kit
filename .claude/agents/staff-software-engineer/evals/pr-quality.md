@@ -40,9 +40,11 @@ Retry. Regenerate weakest section only. Max 3 attempts.
     "test_plan_completeness": 0,
     "links_and_refs": 0,
     "risk_callouts": 0,
-    "draft_readiness": 0
+    "draft_readiness_signal": 0
   },
   "weighted_total": 0.0,
-  "feedback": ["dimension: specific issue with body line ref"]
+  "feedback": [
+    "dimension: specific issue with body line ref"
+  ]
 }
 ```

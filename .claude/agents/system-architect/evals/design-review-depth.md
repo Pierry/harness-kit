@@ -38,11 +38,13 @@ Retry. Deepen the weakest dimension. Max 3 attempts. A review that rubber-stamps
     "question_coverage": 0,
     "severity_calibration": 0,
     "specificity": 0,
-    "cost_failure_focus": 0,
-    "skepticism_tradeoff_catch": 0
+    "cost_and_failure_focus": 0,
+    "skepticism_trade_off_catch": 0
   },
   "weighted_total": 0.0,
   "verdict": "ship|revise|block",
-  "feedback": ["dimension: specific issue with section ref"]
+  "feedback": [
+    "dimension: specific issue with section ref"
+  ]
 }
 ```

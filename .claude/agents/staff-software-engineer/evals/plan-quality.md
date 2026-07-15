@@ -36,13 +36,15 @@ Retry. Regenerate weakest section only. Max 3 attempts.
 {
   "scores": {
     "scope_clarity": 0,
-    "files_touched": 0,
+    "files_touched_specificity": 0,
     "execution_flow": 0,
     "risk_awareness": 0,
     "rollout": 0,
     "tests": 0
   },
   "weighted_total": 0.0,
-  "feedback": ["dimension: specific issue with line ref"]
+  "feedback": [
+    "dimension: specific issue with line ref"
+  ]
 }
 ```

@@ -40,9 +40,11 @@ Retry. Regenerate weakest section only. Max 3 attempts.
     "coverage_of_changes": 0,
     "command_reproducibility": 0,
     "duration_sanity": 0,
-    "regression_risk": 0
+    "regression_risk_callouts": 0
   },
   "weighted_total": 0.0,
-  "feedback": ["dimension: specific issue with test name or output ref"]
+  "feedback": [
+    "dimension: specific issue with test name or output ref"
+  ]
 }
 ```
