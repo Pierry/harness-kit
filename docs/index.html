@@ -512,6 +512,89 @@ flowchart LR
       </pre>
     </div>
     <p class="diagram-cap" data-i18n="s01.cap2">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
+
+    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:48px 0 6px" data-i18n="s01.h4">Each agent, end to end</h3>
+    <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub3">The same gated loop, once per agent. These are the three pipelines you actually run: what the command does, which sensors fire, which eval scores it, and where the gate sits. Every scored eval uses the same 8.0 threshold and the same three-attempt retry.</p>
+    <div class="diagram">
+      <pre class="mermaid">
+sequenceDiagram
+    actor You
+    participant PM as product-manager
+    participant S as sensors
+    participant E as eval (fresh judge)
+    You->>PM: /product-manager:run
+    PM->>PM: read intake artifact
+    PM->>S: PRD &#8594; structure, acceptance criteria
+    S-->>PM: pass or fail, retry up to 3
+    PM->>E: prd-quality
+    E-->>PM: score, needs &#8805; 8.0
+    PM->>PM: approval marker on the PRD
+    Note over PM,E: no approved PRD, no PRP. the hook refuses to start it
+    PM->>S: PRP &#8594; structure, context, links
+    S-->>PM: pass or fail, retry up to 3
+    PM->>E: prp-quality, prp-context-readiness
+    E-->>PM: score, needs &#8805; 8.0
+    PM-->>You: PRP ready for handoff
+      </pre>
+    </div>
+    <p class="diagram-cap" data-i18n="s01.capPM"><b>product-manager</b> &middot; prd &#8594; prp &middot; reads the intake artifact, never stops to ask you</p>
+    <div class="diagram">
+      <pre class="mermaid">
+sequenceDiagram
+    actor You
+    participant SSE as staff-engineer
+    participant S as sensors
+    participant E as eval (fresh judge)
+    participant GH as GitHub
+    You->>SSE: /sse:run
+    SSE->>SSE: read approved PRP, detect area skill
+    SSE->>S: plan &#8594; plan-structure
+    S-->>SSE: pass
+    SSE->>E: plan-quality
+    E-->>SSE: score &#8805; 8.0, approved
+    SSE->>S: dev &#8594; conventions, coverage, structure
+    S-->>SSE: fail means fix and retry, stop after 3
+    SSE->>E: dev-quality
+    E-->>SSE: score &#8805; 8.0, approved
+    SSE->>SSE: detect and run the test suite
+    SSE->>E: test-quality, only if exit code is 0
+    E-->>SSE: score &#8805; 8.0, approved
+    Note over You,GH: the PR gate. --local stops here for good
+    SSE->>GH: gh pr create --draft
+    GH-->>SSE: PR url
+    SSE->>E: pr-quality
+    E-->>SSE: score &#8805; 8.0, approved
+    SSE->>GH: pr-monitor polls for the merge
+    GH-->>You: merged, state cleared
+      </pre>
+    </div>
+    <p class="diagram-cap" data-i18n="s01.capSSE"><b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev is the one stage gated twice, on the code and on the summary</p>
+    <div class="diagram">
+      <pre class="mermaid">
+sequenceDiagram
+    actor You
+    participant SA as system-architect
+    participant S as sensors
+    participant E as eval (fresh judge)
+    You->>SA: /system-design:run
+    SA->>SA: route to a topic skill, or generic design
+    SA->>S: design &#8594; structure, rigor
+    S-->>SA: a missing number or diagram blocks
+    SA->>E: design-quality
+    E-->>SA: score &#8805; 8.0, approved
+    SA->>SA: adversarial review, 10 staff questions
+    SA->>S: review &#8594; structure, review variant
+    S-->>SA: questions answered, verdict present
+    SA->>E: design-review-depth
+    E-->>SA: score &#8805; 8.0
+    SA-->>You: verdict ship, revise, or block
+      </pre>
+    </div>
+    <p class="diagram-cap" data-i18n="s01.capSA"><b>system-architect</b> &middot; design &#8594; review &middot; optional front stage before the PRP &middot; block is terminal</p>
+    <div class="note" style="margin-top:28px">
+      <span class="ic">&#9670;</span>
+      <p data-i18n="s01.note2">The evaluator is always a <b>fresh sub-agent</b> that gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines">Agent Pipelines</a> wiki page.</p>
+    </div>
   </section>
 
   <!-- GOLDEN PATH -->
@@ -875,6 +958,12 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.h3": "Como uma etapa tem gate",
       "s01.sub2": "O mesmo loop roda em toda etapa. O agente gera o artefato, um sensor checa a estrutura, um eval pontua a qualidade, e só então um humano aprova. Falhas se autocorrigem antes de chegar em você.",
       "s01.cap2": "guides orientam antes &middot; sensors dão feedback determinístico &middot; evals dão feedback inferencial &middot; humanos seguem no loop",
+      "s01.h4": "Cada agente, ponta a ponta",
+      "s01.sub3": "O mesmo loop com gate, uma vez por agente. Estes são os três pipelines que você roda de verdade: o que o comando faz, quais sensors disparam, qual eval pontua e onde fica o gate. Todo eval pontuado usa o mesmo limiar 8.0 e as mesmas três tentativas.",
+      "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lê o artefato de intake, nunca para pra te perguntar",
+      "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev é a única etapa com gate duplo, no código e no resumo",
+      "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes do PRP &middot; block é terminal",
+      "s01.note2": "O avaliador é sempre um <b>sub-agente novo</b> que recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines\">Agent Pipelines</a> da wiki.",
       "s02.title": "Instalação",
       "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
       "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
@@ -986,6 +1075,12 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.h3": "Cómo una etapa tiene gate",
       "s01.sub2": "El mismo loop corre en cada etapa. El agente genera el artefacto, un sensor revisa su estructura, un eval puntúa su calidad, y solo entonces un humano aprueba. Los fallos se autocorrigen antes de llegar a ti.",
       "s01.cap2": "guides orientan antes &middot; sensors dan feedback determinista &middot; evals dan feedback inferencial &middot; humanos siguen en el loop",
+      "s01.h4": "Cada agente, de punta a punta",
+      "s01.sub3": "El mismo loop con gate, una vez por agente. Estos son los tres pipelines que realmente corres: qué hace el comando, qué sensors se disparan, qué eval lo puntúa y dónde está el gate. Todo eval puntuado usa el mismo umbral 8.0 y los mismos tres intentos.",
+      "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lee el artefacto de intake, nunca se detiene a preguntarte",
+      "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev es la única etapa con gate doble, en el código y en el resumen",
+      "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes del PRP &middot; block es terminal",
+      "s01.note2": "El evaluador siempre es un <b>sub-agente nuevo</b> que recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines\">Agent Pipelines</a> de la wiki.",
       "s02.title": "Instalación",
       "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
       "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
