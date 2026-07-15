@@ -303,7 +303,13 @@ export class Engine {
     try {
       const r = JSON.parse(readFileSync(reportPath, 'utf8'));
       reportStatus = {};
-      for (const s of r.sensors ?? []) reportStatus[s.name] = s.status === 'fail' ? 'fail' : 'pass';
+      // Take the report's status as written. Collapsing everything that is not
+      // 'fail' into 'pass' is how 'inferential' (a model applies it, nothing
+      // machine-checked it) and 'error' (broken sensor spec) used to render green.
+      const known: SensorStatus[] = ['pass', 'fail', 'inferential', 'error'];
+      for (const s of r.sensors ?? []) {
+        reportStatus[s.name] = known.includes(s.status) ? (s.status as SensorStatus) : 'configured';
+      }
       d.hasReport = true;
     } catch { /* no report yet */ }
 
@@ -458,7 +464,9 @@ export interface Feature {
   avgScore?: number; // mean eval score across the stages that have one
 }
 
-export type SensorStatus = 'pass' | 'fail' | 'configured';
+// 'inferential': applied by a model, never machine-checked, so never 'pass'.
+// 'error': the sensor spec declares computational work but wires up no check.
+export type SensorStatus = 'pass' | 'fail' | 'inferential' | 'error' | 'configured';
 
 export interface StageDetail {
   score?: number; // eval score out of 10, from the approval comment

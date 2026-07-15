@@ -1,6 +1,7 @@
 # Sensor: Design Rigor
 
 Type: deterministic
+Execution: inferential
 Mode: hard gate
 
 The design must be quantified and trade-off aware, not hand-wavy prose.

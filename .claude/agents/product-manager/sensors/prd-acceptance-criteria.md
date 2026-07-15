@@ -1,6 +1,7 @@
 # Sensor: PRD Acceptance Criteria
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
 ## Required sections

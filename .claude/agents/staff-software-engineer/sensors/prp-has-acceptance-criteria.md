@@ -1,6 +1,7 @@
 # Sensor: PRP Has Acceptance Criteria
 
 Type: structural
+Execution: inferential
 Mode: hard gate
 
 `/sse:sdd` uses PRP as load-bearing spec. Goal-loop predicate built from PRP. PRP missing testable criteria → predicate undefined → loop cannot judge done. Block early.

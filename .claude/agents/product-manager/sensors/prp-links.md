@@ -1,6 +1,7 @@
 # Sensor: PRP Links
 
 Type: deterministic
+Execution: computational
 Mode: warn-then-gate
 
 Implemented in scripts/link-validator.py. Same rules when agent self-checks.

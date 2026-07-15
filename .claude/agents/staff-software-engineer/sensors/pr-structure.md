@@ -1,6 +1,7 @@
 # Sensor: PR Structure
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
 Validates PR record at `.claude/runtime/outputs/sse/pr/{feature_id}.md`.

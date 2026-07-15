@@ -1,6 +1,7 @@
 # Sensor: Test Coverage
 
 Type: heuristic
+Execution: inferential
 Mode: hard gate
 
 Every feature or bugfix must include tests for changed code.

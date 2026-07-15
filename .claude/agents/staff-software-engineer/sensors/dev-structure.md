@@ -1,6 +1,7 @@
 # Sensor: Dev Structure
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
 Validates dev summary doc at `.claude/runtime/outputs/sse/dev/{feature_id}.md`.

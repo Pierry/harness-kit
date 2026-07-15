@@ -1,6 +1,7 @@
 # Sensor: Code Conventions
 
 Type: deterministic (via project-specific tooling)
+Execution: inferential
 Mode: hard gate
 
 Run lint and format checks for area being touched.

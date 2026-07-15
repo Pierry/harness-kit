@@ -54,9 +54,20 @@ export function StageDetail({
           <>
             {detail.sensors.map((s) => {
               // Real status from the report wins; otherwise imply from approval.
-              const mark = s.status === 'pass' ? '✓' : s.status === 'fail' ? '✗' : gateMark;
+              // 'inferential' and 'error' must never inherit the approved-stage
+              // green: nothing machine-checked them, and saying otherwise is the
+              // illusion of quality the sensors exist to prevent.
+              const mark =
+                s.status === 'pass' ? '✓'
+                : s.status === 'fail' ? '✗'
+                : s.status === 'error' ? '!'
+                : s.status === 'inferential' ? '~'
+                : gateMark;
               const col =
-                s.status === 'pass' ? C.done : s.status === 'fail' ? C.hold : passed ? C.done : C.muted;
+                s.status === 'pass' ? C.done
+                : s.status === 'fail' || s.status === 'error' ? C.hold
+                : s.status === 'inferential' ? C.active
+                : passed ? C.done : C.muted;
               return (
                 <Text key={s.name}>
                   <Text color={col}>{mark} </Text>

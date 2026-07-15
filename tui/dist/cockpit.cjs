@@ -62683,7 +62683,10 @@ var Engine = class {
     try {
       const r = JSON.parse((0, import_node_fs.readFileSync)(reportPath, "utf8"));
       reportStatus = {};
-      for (const s of r.sensors ?? []) reportStatus[s.name] = s.status === "fail" ? "fail" : "pass";
+      const known = ["pass", "fail", "inferential", "error"];
+      for (const s of r.sensors ?? []) {
+        reportStatus[s.name] = known.includes(s.status) ? s.status : "configured";
+      }
       d.hasReport = true;
     } catch {
     }
@@ -63010,8 +63013,8 @@ function StageDetail({
       ] }),
       detail.sensors.length === 0 && detail.evals.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_ink3.Text, { color: C.muted, children: "none" }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
         detail.sensors.map((s) => {
-          const mark = s.status === "pass" ? "\u2713" : s.status === "fail" ? "\u2717" : gateMark;
-          const col = s.status === "pass" ? C.done : s.status === "fail" ? C.hold : passed ? C.done : C.muted;
+          const mark = s.status === "pass" ? "\u2713" : s.status === "fail" ? "\u2717" : s.status === "error" ? "!" : s.status === "inferential" ? "~" : gateMark;
+          const col = s.status === "pass" ? C.done : s.status === "fail" || s.status === "error" ? C.hold : s.status === "inferential" ? C.active : passed ? C.done : C.muted;
           return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_ink3.Text, { color: col, children: [
               mark,

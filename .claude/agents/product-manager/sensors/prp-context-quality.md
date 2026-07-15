@@ -1,6 +1,7 @@
 # Sensor: PRP Context Quality
 
 Type: deterministic plus heuristic
+Execution: computational
 Mode: hard gate
 
 PRP must give executor enough context to ship without coming back to ask.

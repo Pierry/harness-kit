@@ -33,17 +33,27 @@ set_activity() { [ -x "$ACTIVITY" ] && python3 "$ACTIVITY" set "$1" "$2" 2>/dev/
 clear_activity() { [ -x "$ACTIVITY" ] && python3 "$ACTIVITY" clear 2>/dev/null || true; }
 
 FAILURES=()
+INFERENTIAL=()
 for sensor in "$AGENT_DIR"/sensors/${PHASE}-*.md; do
   [ -f "$sensor" ] || continue
   sname="$(basename "$sensor" .md)"
   set_activity sensor "$sname"
-  if ! python3 "$SCRIPTS_DIR/sensor-runner.py" \
+  python3 "$SCRIPTS_DIR/sensor-runner.py" \
         --sensor "$sensor" \
-        --artifact "$FILE_PATH" >&2; then
-    FAILURES+=("$sname")
-  fi
+        --artifact "$FILE_PATH" >&2
+  # 0 pass | 1 check failed | 2 broken spec (block, loudly) | 3 inferential (a
+  # model must apply it; never record it as a pass)
+  case $? in
+    0) ;;
+    3) INFERENTIAL+=("$sname") ;;
+    *) FAILURES+=("$sname") ;;
+  esac
   clear_activity
 done
+
+if [ ${#INFERENTIAL[@]} -gt 0 ]; then
+  echo "[hook] ${PHASE} inferential sensors, not machine-checked: ${INFERENTIAL[*]}" >&2
+fi
 
 if [ ${#FAILURES[@]} -gt 0 ]; then
   echo "[hook] ${PHASE} sensor failures: ${FAILURES[*]}" >&2

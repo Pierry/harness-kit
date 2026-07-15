@@ -1,6 +1,7 @@
 # Sensor: Test Structure
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
 Validates test report at `.claude/runtime/outputs/sse/test/{feature_id}.md`.

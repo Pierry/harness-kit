@@ -42,8 +42,15 @@ for sensor in "$@"; do
       python3 "$here/sensor-runner.py" --sensor "$sensor" --artifact "$artifact"; srrc=$?
       ;;
   esac
-  [ "$srrc" -ne 0 ] && rc=1
-  status="pass"; [ "$srrc" -ne 0 ] && status="fail"
+  # 0 pass | 1 check failed | 2 broken sensor spec | 3 inferential.
+  # An inferential sensor is not machine-checked, so it is never a pass and
+  # never green in the report. It also must not fail the run: a model applies it.
+  case "$srrc" in
+    0) status="pass" ;;
+    3) status="inferential" ;;
+    2) status="error"; rc=1 ;;
+    *) status="fail"; rc=1 ;;
+  esac
   results="${results}${name}|${status}
 "
 done

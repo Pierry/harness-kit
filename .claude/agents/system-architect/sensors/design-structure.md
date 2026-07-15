@@ -1,9 +1,13 @@
 # Sensor: Design Structure
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
-## Design doc, required sections (all present, in order)
+Applies to a **design** artifact. The review artifact has its own sensor, `review-structure.md`,
+because the two share no sections and one file cannot gate both.
+
+## Required sections
 
 - Problem and Context
 - Requirements
@@ -19,24 +23,26 @@ Mode: hard gate
 - Trade-offs
 - Open Questions and Design Review
 
-## Review doc, required (when sensor runs on a review artifact)
-
-- all 10 staff questions answered (table rows non-empty)
-- Findings section with at least 1 finding and a severity tag
-- Verdict present: ship | revise | block
-
 ## Forbidden tokens
 
-lorem, TODO, FIXME, xxx, placeholder, {System Name}, {feature_id}, {N}, {...}
+- lorem
+- TODO
+- FIXME
+- xxx
+- placeholder
+- {System Name}
+- {feature_id}
+- {N}
+- {...}
 
-(Unfilled template tokens block. Fill or mark `NOT FOUND - NEEDS REVIEW`.)
+Unfilled template tokens block. Fill them, or mark `NOT FOUND - NEEDS REVIEW`.
 
 ## Markdown rules
 
 - exactly 1 H1 heading
 - no em-dash
 - no ASCII box-drawing
-- at least 2 mermaid blocks in a design doc (flow + architecture)
+- at least 2 mermaid blocks (flow + architecture)
 
 ## On failure
 

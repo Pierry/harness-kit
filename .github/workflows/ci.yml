@@ -1,0 +1,58 @@
+name: ci
+
+# The harness gates every artifact it produces but had nothing gating itself.
+# That is how three sensors shipped with a dead required-sections check: the
+# runner accepted `(all must be present, in order)`, the sensors wrote `(all
+# present, in order)`, nothing ran, and every artifact passed. These jobs are
+# the harness's own sensors.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    name: harness tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run the harness test suite
+        run: python3 -m unittest discover -s tests -v
+
+  sensor-contract:
+    name: sensor contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Every sensor declares its execution type and wires up real checks
+        run: |
+          python3 .claude/scripts/check-sensors.py
+
+  cockpit:
+    name: cockpit build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci --prefix tui || npm install --prefix tui
+      - run: npm run build --prefix tui
+
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

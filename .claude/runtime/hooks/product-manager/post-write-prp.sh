@@ -26,19 +26,29 @@ fi
 echo "[hook] Running PRP sensors on $(basename "$FILE_PATH")" >&2
 
 FAILURES=()
+INFERENTIAL=()
 for sensor in "$AGENT_DIR"/sensors/prp-*.md; do
   [ -f "$sensor" ] || continue
-  if ! python3 "$SCRIPTS_DIR/sensor-runner.py" \
+  python3 "$SCRIPTS_DIR/sensor-runner.py" \
         --sensor "$sensor" \
-        --artifact "$FILE_PATH" >&2; then
-    FAILURES+=("$(basename "$sensor")")
-  fi
+        --artifact "$FILE_PATH" >&2
+  # 0 pass | 1 check failed | 2 broken spec (block, loudly) | 3 inferential (a
+  # model must apply it; never record it as a pass)
+  case $? in
+    0) ;;
+    3) INFERENTIAL+=("$(basename "$sensor")") ;;
+    *) FAILURES+=("$(basename "$sensor")") ;;
+  esac
 done
 
 if ! python3 "$SCRIPTS_DIR/link-validator.py" \
       --artifact "$FILE_PATH" \
       --repo-root "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" >&2; then
   FAILURES+=("link-validator")
+fi
+
+if [ ${#INFERENTIAL[@]} -gt 0 ]; then
+  echo "[hook] inferential sensors, not machine-checked: ${INFERENTIAL[*]}" >&2
 fi
 
 if [ ${#FAILURES[@]} -gt 0 ]; then

@@ -1,6 +1,7 @@
 # Sensor: PRD Structure
 
 Type: deterministic
+Execution: computational
 Mode: hard gate
 
 ## Required sections (all present, in order)

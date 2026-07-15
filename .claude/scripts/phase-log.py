@@ -70,8 +70,15 @@ def count_gaps(text):
 
 
 def run_sensors(stage, artifact):
-    """Re-run the stage sensors. Returns {passed:[], failed:[], skipped:[]}."""
-    result = {"passed": [], "failed": [], "skipped": []}
+    """Re-run the stage sensors.
+
+    `inferential` is its own bucket on purpose. These sensors are applied by a
+    model, not machine-checked, so recording them as passed is a false green.
+    This log used to do exactly that: code-conventions and test-coverage were
+    piped through the runner, which returned 0 without checking anything, and
+    every run recorded them as passed.
+    """
+    result = {"passed": [], "failed": [], "inferential": [], "skipped": []}
     entry = STAGE_SENSORS.get(stage)
     if not entry:
         return result
@@ -92,7 +99,13 @@ def run_sensors(stage, artifact):
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 timeout=60,
             )
-            (result["passed"] if proc.returncode == 0 else result["failed"]).append(name)
+            # 0 pass | 1 check failed | 2 broken sensor spec | 3 inferential
+            if proc.returncode == 0:
+                result["passed"].append(name)
+            elif proc.returncode == 3:
+                result["inferential"].append(name)
+            else:
+                result["failed"].append(name)
         except Exception:
             result["skipped"].append(name)
     return result
