@@ -18,7 +18,7 @@
       "Bash(.claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
       "Bash(bash .claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
       "Read(outputs/**)",
-      "Write(outputs/**)",
+      "Edit(outputs/**)",
       "mcp__claude-in-chrome__tabs_context_mcp",
       "mcp__claude-in-chrome__find",
       "mcp__claude-in-chrome__read_console_messages",

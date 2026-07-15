@@ -90,7 +90,7 @@ jq -s '.[] | select(.feature_id | contains("dispatch"))' .claude/runtime/outputs
 
 ## Engineering handoff
 
-After a PRP is approved, engineering picks it up via the [staff-software-engineer plugin](../staff-software-engineer/README.md). The SSE plugin reads `.claude/runtime/outputs/pm/prp/{feature_id}.md` and runs plan → dev → test → pr stages, all writing to the same `.claude/runtime/outputs/pm/tokens/{feature_id}.json` file. Full feature lifecycle in one token log.
+After a PRP is approved, engineering picks it up via the [staff-software-engineer plugin](../staff-software-engineer/README.md). The SSE plugin reads `.claude/runtime/outputs/pm/prp/{feature_id}.md` and runs plan → dev → test → pr stages, writing its own token log to `.claude/runtime/outputs/sse/tokens/{feature_id}.json` (v1, per the SSE `guides/pipeline.md`). Merging both into one file per feature is v2.
 
 Engineering can choose:
 - `/sse:run`, full pipeline through merged PR
@@ -101,7 +101,7 @@ Engineering can choose:
 
 The repo's status-line (`.claude/hooks/status-line.sh`) detects PM activity automatically. If any PRD or PRP file under this plugin was modified in the last hour, it switches the status bar to pipeline mode and falls back to the engineering picker otherwise.
 
-The status bar tracks the active feature across both plugins (PM and SSE). Seven stages in order: prd, prp, plan, dev, test, pr. State per stage: pending, drafting, approved.
+The status bar tracks the active feature across both plugins (PM and SSE). Six stages in order: prd, prp, plan, dev, test, pr. State per stage: pending, drafting, approved.
 
 Examples (PM portion):
 

@@ -66,10 +66,10 @@ Run the deterministic dev-structure sensor on the saved summary via the committe
 
 Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this dev summary. Hand it only the artifact path and the one rubric path; it scores against the rubrics and reports weighted totals plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
-Append approval marker only when code gates pass and dev-quality eval is >= 8.0. Use the committed script (do NOT inline `printf >>`); it appends `<!-- approved: {YYYY-MM-DD} -->`:
+Append approval marker only when code gates pass and dev-quality eval is >= 8.0. Append with the **Edit tool**, not Bash: post-eval-sse.sh fires on Edit, and a Bash append skips token accounting and the score log. Keep `score=` in the shape, phase-log.py only parses markers that carry it:
 
 ```
-.claude/scripts/marker.sh approve .claude/runtime/outputs/sse/dev/{feature_id}.md {score}
+<!-- approved: {YYYY-MM-DD} score={N} -->
 ```
 
 After approval, reply with this exact shape (name actual sensors/evals/guides that ran):

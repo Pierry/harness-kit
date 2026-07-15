@@ -35,7 +35,10 @@ Print header card. Format: `.claude/scripts/stage-card.md`.
 
    For iter in 1..3:
 
-   a. Write marker `.claude/runtime/outputs/sse/.markers/{feature_id}.sdd-iter{N}-dev.start`.
+   a. Write the iter start marker via the committed script (do NOT inline `date`/`printf`):
+      ```
+      .claude/scripts/marker.sh start .claude/runtime/outputs/sse/.markers/{feature_id}.sdd-iter{N}-dev.start
+      ```
    b. Invoke `/sse:dev`. If iter > 1, pass `--focus="{next_iter_focus from prior eval}"`.
    c. Invoke `/sse:test`. Capture report path.
    d. Run supervisor eval `.claude/agents/staff-software-engineer/evals/spec-satisfied.md`. **Use fresh session** (Task tool with subagent_type=general-purpose, prompt includes PRP path + dev summary path + test report path + `git diff main...HEAD`). Worker context must not leak.

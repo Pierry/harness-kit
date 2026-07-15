@@ -10,10 +10,10 @@ Prerequisites:
 - All previous gates passed (plan approved, dev approved, test approved).
 - Branch pushed to origin with current changes.
 
-Before opening, write phase start marker:
+Before opening, write the phase start marker by running this script. Do NOT inline `date`/`printf` (command-substitution + redirect always trips the permission prompt):
 
 ```
-.claude/runtime/outputs/sse/.markers/{feature_id}.pr-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/sse/.markers/{feature_id}.pr-generate.start
 ```
 
 Read:
@@ -43,10 +43,10 @@ Document gates (run on saved record):
 
 Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this PR record. Hand it only the artifact path and the one rubric path; it scores against the rubrics and reports weighted totals plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
-Append approval marker only when sensor passes and pr-quality eval is >= 8.0:
+Append approval marker only when sensor passes and pr-quality eval is >= 8.0. Append with the **Edit tool**, not Bash: post-eval-sse.sh fires on Edit, and a Bash append skips token accounting and the score log. Keep `score=` in the shape, phase-log.py only parses markers that carry it:
 
 ```
-<!-- approved: {YYYY-MM-DD} ready-for-handoff: true -->
+<!-- approved: {YYYY-MM-DD} score={N} ready-for-handoff: true -->
 ```
 
 Reply with this exact shape:

@@ -14,10 +14,10 @@ Detect project test command (in order):
 5. pytest (pyproject.toml or pytest.ini): `pytest`
 6. Otherwise, infer the runner from the repo: package.json scripts, build files, Makefile targets, CI config (`.github/workflows/`), or project conventions. If it genuinely cannot be inferred, mark `NOT FOUND - NEEDS REVIEW: test runner` in the report and proceed (report it). Do NOT ask the user.
 
-Before running, write phase start marker:
+Before running, write the phase start marker by running this script. Do NOT inline `date`/`printf` (command-substitution + redirect always trips the permission prompt):
 
 ```
-.claude/runtime/outputs/sse/.markers/{feature_id}.test-generate.start
+.claude/scripts/marker.sh start .claude/runtime/outputs/sse/.markers/{feature_id}.test-generate.start
 ```
 
 Run test command. Capture stdout and stderr.
@@ -35,10 +35,10 @@ Document gates (run on saved report):
 
 Run the evals **adversarially**: dispatch a fresh evaluator via the Task tool (`subagent_type: general-purpose`) that did not author this test report. Hand it only the artifact path and the one rubric path; it scores against the rubrics and reports weighted totals plus the low-scoring dimensions. Below threshold (8.0) retries per pipeline.md, regenerating only the flagged dimensions.
 
-Append approval marker only when exit code is 0 and test-quality eval is >= 8.0:
+Append approval marker only when exit code is 0 and test-quality eval is >= 8.0. Append with the **Edit tool**, not Bash: post-eval-sse.sh fires on Edit, and a Bash append skips token accounting and the score log. Keep `score=` in the shape, phase-log.py only parses markers that carry it:
 
 ```
-<!-- approved: {YYYY-MM-DD} -->
+<!-- approved: {YYYY-MM-DD} score={N} -->
 ```
 
 Tests fail, return blocker with failing test names and snippet of failure output. Don't retry automatically; let user decide.

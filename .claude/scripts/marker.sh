@@ -17,6 +17,14 @@
 #       Append the approval marker to <artifact_path> using today's UTC date.
 #       Pass the literal word "handoff" as the 3rd arg to add
 #       `ready-for-handoff: true` (PRP stage).
+#
+#       NOT wired into any stage command, and deliberately so. The post-eval-*
+#       hooks are registered on PostToolUse matcher `Edit`, so a Bash append
+#       fires nothing: no {phase}-validate.end, no token-phase.py, no
+#       phase-log.py, no `<!-- published: -->`. Stage commands append the
+#       approval marker with the Edit tool instead, which is already
+#       allowlisted via Edit(.claude/runtime/outputs/**). Kept only for
+#       out-of-band/manual approval of an artifact whose hooks already ran.
 set -euo pipefail
 
 cmd="${1:-}"
