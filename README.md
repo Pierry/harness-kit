@@ -63,7 +63,7 @@ Doing all four by hand for every feature is tedious, so over time they rot. harn
 ## Why it matters
 
 - **Same pipeline every time.** Quality stops depending on who is at the keyboard or how tired they are.
-- **Every stage is gated twice.** A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you.
+- **Every stage is gated twice.** A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you. Every sensor declares whether a script enforces it or a model applies it, and one that nothing machine-checked can never report a pass.
 - **You stay on the loop, not in it.** You approve the direction and the PR. The agents do the typing. When something is off, you improve a guide or a gate, not the individual output.
 - **It is measurable.** Every approved stage records a score, so you can see whether your PRDs, or your tests, are getting better or worse across runs.
 
@@ -215,6 +215,10 @@ flowchart LR
 
 This is the harness-engineering split: **guides** steer before the work, **sensors** give deterministic feedback, **evals** give judgment-based feedback, and humans stay on the loop, improving the guides and gates rather than fixing each output by hand. See [Foundations](#foundations).
 
+**Sensors say how they are enforced.** Böckeler splits controls into *computational* (deterministic, CPU-run) and *inferential* (needs judgment), and every sensor here declares which it is. A computational one is enforced by the runner; an inferential one is applied by a model and is logged as `inferential`, never as a pass. A sensor that claims to be computational but wires up no real check is a hard error, not a pass.
+
+That distinction is not academic. Sensors here once declared themselves deterministic hard gates while expressing their checks as prose the runner could not parse. The runner returned 0, the quality log recorded them as `passed` on every run, and nothing had been checked. `python3 .claude/scripts/check-sensors.py` prints the enforcement ledger, and CI fails a sensor that lies about it.
+
 ### 3. Quality dashboard
 
 The feedback surface. Scores used to disappear into the chat once a stage was approved. The dashboard keeps that signal across every run and answers one question: is each stage getting better or worse over time?
@@ -229,8 +233,10 @@ Every time a stage is approved, a hook appends one entry (deterministic, no toke
 |---|---|
 | `score` | the eval score parsed from the approval marker |
 | `gaps` | how many `NOT FOUND - NEEDS REVIEW` markers are left in the document |
-| `sensors` | the stage sensors re-run against the document, pass or fail |
+| `sensors` | the stage sensors re-run against the document: `passed`, `failed`, `inferential` (a model applied it, nothing machine-checked it) or `not_checked` (the repo configures no tooling for it) |
 | `status` | `failed` if a sensor blocked, `degraded` if the score is low or there are gaps, otherwise `ok` |
+
+`inferential` and `not_checked` are deliberately not green. A sensor that reports a pass nobody verified is worse than a missing one: it is the [illusion of quality](https://martinfowler.com/articles/sensors-for-coding-agents.html) the gates exist to prevent.
 
 Drop that JSON on the page, which is a single static file with no build and no network, and it renders the trend by stage, the failure rate, the score against the threshold, the sensors that block most often, and the full run table. [More](docs/quality/README.md).
 
@@ -304,8 +310,19 @@ This is not an invented method. harness-kit is a concrete implementation of **ha
 
 **The harness model** comes from Birgitta Böckeler (Thoughtworks / martinfowler.com):
 
-- [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html): guides (feedforward), sensors (deterministic feedback), evals (judgment-based feedback), humans on the loop. Every stage gate here is exactly this.
-- [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html): the sensor idea our structure checks implement.
+- [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html): guides (feedforward), sensors (deterministic feedback), evals (judgment-based feedback), humans on the loop. Every stage gate here is exactly this, and the computational/inferential split is this taxonomy made literal in every sensor's `Execution:` header.
+- [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html): the follow-up, and the article that cost us the most commits. Three findings landed straight in the code. That an agent "reliably ignores sensor checks unless hardwired", and that markdown guides alone are "quite unreliable", is why `code-maintainability` runs the repo's linter instead of asking the agent to. Her warning about "a false sense of security and an illusion of quality" described what we had built. And her point that the limits which actually bound complexity are off by default is why `pyproject.toml` configures them and CI runs them.
+
+**Agentic programming**, also Fowler:
+
+- [Agentic Programming](https://martinfowler.com/bliki/AgenticProgramming.html): humans stop typing code and start reviewing it, "still responsible for what the software does", through "code review, examining test results, and reviewing outputs from other sensors". The argument for why the two human gates sit where they do.
+
+**Evals, and their limits:**
+
+- [Using LLM-as-a-Judge for evaluation](https://hamel.dev/blog/posts/llm-judge/), Hamel Husain: uncalibrated 1-10 scales mean different things to different graders, and what makes an eval trustworthy is measured agreement with human labels. harness-kit does not do that yet, and the 8.0 threshold is a convention rather than a calibrated boundary.
+- [Self-Preference Bias in LLM-as-a-Judge](https://arxiv.org/abs/2410.21819), Panickssery et al.: judges inflate scores for output from their own family. Dispatching a fresh evaluator removes the author's stake in the text but not this. Read the eval feedback, not just the number.
+
+Full mapping of what each source changed, in the [References](https://github.com/Pierry/harness-kit/wiki/References) wiki page.
 
 **The system-design canon** behind the `system-architect` agent (full mapping in [`design-method.md`](.claude/agents/system-architect/guides/design-method.md)):
 
