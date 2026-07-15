@@ -42,8 +42,21 @@ Either way, still respect the no-emoji and no-em-dash hard rules.
 
 Write code in small commits (1-4 files, < 100 lines ideal). Conventional Commits format.
 
-Code gates (run after each implementation step):
-- .claude/agents/staff-software-engineer/sensors/code-conventions.md (lint, formatting, banned patterns)
+Code gates (run after each implementation step). One is machine-run, two are yours to apply:
+
+Run this. It executes the repo's own tooling (lint, typecheck, ruff, ktlint, checkstyle, gitleaks):
+
+```
+.claude/runtime/scripts/staff-software-engineer/run-sensors.sh {any-artifact} .claude/agents/staff-software-engineer/sensors/code-maintainability.md
+```
+
+Exit 4 means the repo configures no tooling it knows. That is **not** a pass, nothing was checked.
+Report it as a gap; do not claim the gate passed.
+
+Apply these yourself, they need judgment no script has (`Execution: inferential`). Read them with the
+Read tool, never `cat` in a loop. You are the sensor here, so say plainly which you applied and what
+you found; claiming a pass you did not verify is the failure these gates exist to prevent:
+- .claude/agents/staff-software-engineer/sensors/code-conventions.md (conventions, banned patterns)
 - .claude/agents/staff-software-engineer/sensors/test-coverage.md (every feature/bugfix has tests)
 
 Any gate fails, fix and retry. Max 3 attempts. Hard stop after 3.

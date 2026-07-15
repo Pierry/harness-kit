@@ -74,7 +74,10 @@ def main() -> int:
         )
 
     if failures:
-        print(f"[link-validator] {args.artifact.name} FAILED ({len(failures)} issue(s)):", file=sys.stderr)
+        print(
+            f"[link-validator] {args.artifact.name} FAILED ({len(failures)} issue(s)):",
+            file=sys.stderr,
+        )
         for f in failures:
             print(f"  - {f}", file=sys.stderr)
         return 1

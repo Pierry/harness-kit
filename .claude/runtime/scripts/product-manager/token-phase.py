@@ -198,7 +198,8 @@ def main() -> int:
             pass
 
     print(
-        f"[token-phase] {args.phase}: in={tokens['input']} out={tokens['output']} cache_r={tokens['cache_read']}",
+        f"[token-phase] {args.phase}: in={tokens['input']} "
+        f"out={tokens['output']} cache_r={tokens['cache_read']}",
         file=sys.stderr,
     )
     return 0

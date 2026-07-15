@@ -46,9 +46,10 @@ def main() -> int:
         md = s.read_text(encoding="utf-8")
         declared = "Execution:" in md
         execution = sr.execution_type(md)
-        # `*links*` is dispatched to link-validator.py by run-sensors.sh, so it
-        # never reaches this runner and has no parseable checks here.
-        validator = "links" in s.name
+        # run-sensors.sh dispatches these to a purpose-built executable rather
+        # than to sensor-runner, so they legitimately parse to no markdown checks.
+        dispatched = {"links": "link-validator.py", "maintainability": "maintainability.sh"}
+        validator = next((v for k, v in dispatched.items() if k in s.name), None)
         checks = sr.parsed_checks(md)
         rel = s.relative_to(REPO / ".claude/agents")
 
@@ -59,13 +60,7 @@ def main() -> int:
                 f"{rel}: Execution: computational but wires up no check the runner "
                 f"understands, so it would report green without checking anything"
             )
-        rows.append(
-            (
-                str(rel),
-                execution,
-                "link-validator.py" if validator else (", ".join(checks) or "-"),
-            )
-        )
+        rows.append((str(rel), execution, validator or (", ".join(checks) or "-")))
 
     width = max(len(r[0]) for r in rows)
     for name, execution, checks in rows:

@@ -226,7 +226,10 @@ def render_line():
         and all(stages.get(s) == "pending" for s in pipeline)
     )
     if no_work_started:
-        return f"{name} [{shape}] · /product-manager:run · /sse:run · /pipeline:continue · /pipeline:reset"
+        return (
+            f"{name} [{shape}] · /product-manager:run · /sse:run "
+            f"· /pipeline:continue · /pipeline:reset"
+        )
 
     if prev:
         return f"{name} [{shape}] · {prev} approved · {current} {cur_state} · next {next_cmd}"

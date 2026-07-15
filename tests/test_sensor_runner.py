@@ -13,6 +13,7 @@ it covers sensors that do not exist yet.
 Run: python3 -m pytest tests/ -q     (or: python3 tests/test_sensor_runner.py)
 """
 
+import importlib.util
 import subprocess
 import sys
 import unittest
@@ -23,9 +24,6 @@ RUNNER = REPO / ".claude/runtime/scripts/product-manager/sensor-runner.py"
 SENSOR_DIRS = sorted((REPO / ".claude/agents").glob("*/sensors"))
 
 EXIT_PASS, EXIT_FAIL, EXIT_SPEC_ERROR, EXIT_INFERENTIAL = 0, 1, 2, 3
-
-sys.path.insert(0, str(RUNNER.parent))
-import importlib.util
 
 spec = importlib.util.spec_from_file_location("sensor_runner", RUNNER)
 sr = importlib.util.module_from_spec(spec)
@@ -45,9 +43,11 @@ def all_sensors():
 
 
 def runs_in_this_runner(sensor: Path) -> bool:
-    """run-sensors.sh dispatches `*links*` to link-validator.py instead, so
-    those sensors are computational but never reach sensor-runner."""
-    return "links" not in sensor.name
+    """run-sensors.sh dispatches some sensors to a purpose-built executable
+    instead of this runner: `*links*` to link-validator.py, `*maintainability*`
+    to maintainability.sh. They are computational but parse to no markdown
+    checks, so the markdown contract does not apply to them."""
+    return not any(k in sensor.name for k in ("links", "maintainability"))
 
 
 class HeadingMatching(unittest.TestCase):
@@ -127,7 +127,8 @@ class Checks(unittest.TestCase):
         self.assertFalse(any("mermaid" in f for f in sr.check_markdown_rules(self.SENSOR, two)))
 
     def test_em_dash_fails(self):
-        self.assertTrue(any("em-dash" in f for f in sr.check_markdown_rules(self.SENSOR, "# T\na — b")))
+        out = sr.check_markdown_rules(self.SENSOR, "# T\na — b")
+        self.assertTrue(any("em-dash" in f for f in out))
 
 
 class ExecutionContract(unittest.TestCase):

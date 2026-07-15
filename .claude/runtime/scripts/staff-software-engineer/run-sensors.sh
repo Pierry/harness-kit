@@ -30,13 +30,22 @@ for sensor in "$@"; do
     continue
   fi
   name="$(basename "$sensor" .md)"
-  python3 "$here/sensor-runner.py" --sensor "$sensor" --artifact "$artifact"; srrc=$?
+  case "$sensor" in
+    *maintainability*)
+      # Executes the repo's real tooling, not markdown checks.
+      "$here/maintainability.sh" --repo-root "$repo_root"; srrc=$?
+      ;;
+    *)
+      python3 "$here/sensor-runner.py" --sensor "$sensor" --artifact "$artifact"; srrc=$?
+      ;;
+  esac
   # 0 pass | 1 check failed | 2 broken sensor spec | 3 inferential.
   # An inferential sensor is not machine-checked, so it is never a pass and
   # never green in the report. It also must not fail the run: a model applies it.
   case "$srrc" in
     0) status="pass" ;;
     3) status="inferential" ;;
+    4) status="not-checked" ;;
     2) status="error"; rc=1 ;;
     *) status="fail"; rc=1 ;;
   esac

@@ -32,7 +32,7 @@ STAGE_SENSORS = {
     "prd":  ("pm",  ["prd-structure", "prd-acceptance-criteria"]),
     "prp":  ("pm",  ["prp-structure", "prp-context-quality", "prp-links"]),
     "plan": ("sse", ["plan-structure"]),
-    "dev":  ("sse", ["dev-structure", "code-conventions"]),
+    "dev":  ("sse", ["dev-structure", "code-conventions", "code-maintainability"]),
     "test": ("sse", ["test-structure", "test-coverage"]),
     "pr":   ("sse", ["pr-structure"]),
 }
@@ -40,13 +40,30 @@ STAGE_SENSORS = {
 BUCKET = {
     "pm": {
         "sensor_dir": ".claude/agents/product-manager/sensors",
-        "runner": ".claude/runtime/scripts/product-manager/sensor-runner.py",
+        "scripts": ".claude/runtime/scripts/product-manager",
     },
     "sse": {
         "sensor_dir": ".claude/agents/staff-software-engineer/sensors",
-        "runner": ".claude/runtime/scripts/staff-software-engineer/sensor-runner.py",
+        "scripts": ".claude/runtime/scripts/staff-software-engineer",
     },
 }
+
+
+def sensor_command(scripts_dir, sensor, artifact):
+    """Mirror the dispatch in run-sensors.sh.
+
+    Some sensors are executed by a purpose-built tool rather than by the
+    markdown runner. Sending them to sensor-runner instead makes it exit 2
+    (spec error), which this log would record as a failure.
+    """
+    name = os.path.basename(sensor)
+    if "links" in name:
+        return ["python3", os.path.join(scripts_dir, "link-validator.py"),
+                "--artifact", artifact, "--repo-root", os.getcwd()]
+    if "maintainability" in name:
+        return [os.path.join(scripts_dir, "maintainability.sh"), "--repo-root", os.getcwd()]
+    return ["python3", os.path.join(scripts_dir, "sensor-runner.py"),
+            "--sensor", sensor, "--artifact", artifact]
 
 DEFAULT_LOG = ".claude/runtime/outputs/quality/phase-log.json"
 APPROVED_RE = re.compile(r"<!--\s*approved:\s*(\S+)\s+score=([0-9]+(?:\.[0-9]+)?)")
@@ -78,14 +95,14 @@ def run_sensors(stage, artifact):
     piped through the runner, which returned 0 without checking anything, and
     every run recorded them as passed.
     """
-    result = {"passed": [], "failed": [], "inferential": [], "skipped": []}
+    result = {"passed": [], "failed": [], "inferential": [], "not_checked": [], "skipped": []}
     entry = STAGE_SENSORS.get(stage)
     if not entry:
         return result
     bucket, names = entry
     cfg = BUCKET[bucket]
-    runner = cfg["runner"]
-    if not os.path.isfile(runner):
+    scripts_dir = cfg["scripts"]
+    if not os.path.isdir(scripts_dir):
         result["skipped"] = list(names)
         return result
     for name in names:
@@ -95,15 +112,17 @@ def run_sensors(stage, artifact):
             continue
         try:
             proc = subprocess.run(
-                ["python3", runner, "--sensor", sensor, "--artifact", artifact],
+                sensor_command(scripts_dir, sensor, artifact),
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                timeout=60,
+                timeout=120,
             )
-            # 0 pass | 1 check failed | 2 broken sensor spec | 3 inferential
+            # 0 pass | 1 failed | 2 broken spec | 3 inferential | 4 no tooling
             if proc.returncode == 0:
                 result["passed"].append(name)
             elif proc.returncode == 3:
                 result["inferential"].append(name)
+            elif proc.returncode == 4:
+                result["not_checked"].append(name)
             else:
                 result["failed"].append(name)
         except Exception:

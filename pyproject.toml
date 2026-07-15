@@ -1,0 +1,42 @@
+# Maintainability limits for the harness's own Python (hooks, runners, scripts).
+#
+# These exist because of Böckeler, "Maintainability sensors for coding agents":
+# the rules that actually bound complexity are the ones nobody turns on. Her
+# words: max function arguments, file length, function length and cyclomatic
+# complexity "weren't even active in ESLint's default preset, I had to configure
+# maximums for them first". Same is true of ruff. So they are configured here,
+# and CI runs them.
+#
+# Run: ruff check .
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["node_modules", "demo", "tui", ".git"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle
+    "F",     # pyflakes
+    "C90",   # mccabe: cyclomatic complexity
+    "PLR0913",  # too many arguments
+    "PLR0912",  # too many branches
+    "PLR0915",  # too many statements
+    "S105", "S106",  # hardcoded secrets
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Named debt, not an exemption. md_to_storage is a 73-statement, complexity-18
+# markdown-to-Confluence-storage converter that predates these limits and has no
+# tests. Refactoring it to satisfy a freshly-added rule, with nothing to catch a
+# regression, is the "spiral of over-engineered refactorings" Böckeler warns
+# about. Write the tests first, then split it, then delete this line.
+"**/confluence-publish.py" = ["C901", "PLR0912", "PLR0915"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
+
+[tool.ruff.lint.pylint]
+max-args = 6
+max-branches = 14
+max-statements = 60
