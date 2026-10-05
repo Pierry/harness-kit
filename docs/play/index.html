@@ -62,8 +62,10 @@
   .btn.on { background: var(--ink); color: #fff; border-color: var(--ink); }
   .btn.primary { grid-column: 1 / -1; background: var(--yellow); border-color: var(--yellow); color: var(--ink); font-weight: 600; padding: 11px; font-size: 14px; }
   .btn.primary:hover { background: #EAB308; border-color: #EAB308; }
+  .btn.primary.busy { cursor: progress; background: #FDE68A; border-color: #FDE68A; display: inline-flex; align-items: center; justify-content: center; gap: 9px; }
+  .btn .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(25,25,25,0.2); border-top-color: var(--ink); animation: spin .7s linear infinite; }
 
-  .readouts { position: fixed; left: 28px; bottom: 26px; z-index: 4; display: grid; grid-template-columns: repeat(4, auto); gap: 10px 28px; pointer-events: none; }
+  .readouts { position: fixed; left: 28px; bottom: 26px; z-index: 4; display: grid; grid-template-columns: repeat(5, auto); gap: 10px 28px; pointer-events: none; }
   .ro .k { margin-bottom: 4px; }
   .ro .v { font: 500 15px var(--mono); color: var(--ink); white-space: nowrap; }
   .ro .v small { color: var(--faint); font-size: 12px; }
@@ -81,6 +83,33 @@
   .tag.req { font: 500 10.5px var(--mono); letter-spacing: 0; text-transform: none; background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 2px 7px; }
   .tag.req.ok { background: var(--yellow); border-color: var(--yellow); }
 
+  .tcard {
+    position: fixed; z-index: 3; width: 300px; transform: translate(-50%, -100%); pointer-events: none;
+    background: rgba(255, 255, 255, 0.66); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid rgba(25, 25, 25, 0.1); border-radius: 14px; padding: 12px 14px 11px; font: 12.5px/1.35 var(--sans); color: var(--ink);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); opacity: 0; transition: opacity .25s, transform .25s;
+  }
+  .tcard.show { opacity: 1; transform: translate(-50%, calc(-100% - 6px)); }
+  .tcard .h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .tcard .h b { font-weight: 700; letter-spacing: 0.02em; }
+  .tcard .h span { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .tcard .chk { display: flex; gap: 8px; align-items: flex-start; justify-content: flex-start; text-align: left; padding: 3px 0; color: var(--dim); transition: color .2s; }
+  .tcard .chk.done { color: var(--ink); }
+  .tcard .chk.sensor { font-family: var(--mono); font-size: 11.5px; }
+  .tcard .ic { flex: none; width: 15px; height: 15px; margin-top: 1px; border-radius: 50%; border: 1.5px solid rgba(25,25,25,0.2); display: grid; place-items: center; }
+  .tcard .run .ic { border-color: rgba(25,25,25,0.15); border-top-color: var(--ink); animation: spin .7s linear infinite; }
+  .tcard .ok .ic { background: #22C55E; border-color: #22C55E; animation: pop .25s ease-out; }
+  .tcard .bad .ic { background: #E5484D; border-color: #E5484D; animation: pop .25s ease-out; }
+  .tcard .ic svg { width: 9px; height: 9px; }
+  .tcard .f { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(25,25,25,0.1); display: flex; justify-content: space-between; align-items: center; font-weight: 600; min-height: 22px; }
+  .tcard .f .sc { font: 600 13px var(--mono); }
+  .tcard .f .verdict { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+  .tcard .f .verdict.ok { background: #22C55E; color: #fff; }
+  .tcard .f .verdict.bad { background: #E5484D; color: #fff; }
+  .tcard .f .verdict.you { background: var(--yellow); color: var(--ink); }
+  .tcard .note { margin-top: 6px; font-size: 11.5px; color: var(--dim); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pop { 0% { transform: scale(0.4); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
   #fallback { display: none; position: fixed; inset: 0; z-index: 10; background: var(--bg); align-items: center; justify-content: center; text-align: center; padding: 24px; }
   #fallback div { max-width: 460px; }
   #fallback h2 { font-family: var(--sans); font-weight: 600; font-size: 28px; letter-spacing: -0.02em; margin: 0 0 12px; }
@@ -125,7 +154,7 @@
 
 <section class="title">
   <h1 data-t="title">Every idea, through a harness.</h1>
-  <p data-t="lede">This block is your idea. The white base is the harness: guides and sensors. The amber is the model's work. Press Run and watch it pass six gates. Drag it, or cut it into requirements.</p>
+  <p data-t="lede">Your idea starts as eggs. Every gate it passes turns it into more of a pudim: batter, then the mold, the oven, and the plate. The checks on each gate are the real ones the harness runs.</p>
   <p class="hint" data-t="hint">Drag to pull or orbit · scroll to zoom · Knife: draw a line across the block</p>
 </section>
 
@@ -143,12 +172,16 @@
     <input id="strict" type="range" min="6" max="9.5" step="0.1" value="8" />
   </div>
   <div class="grp">
-    <div class="row"><label data-t="firm">Firmness</label><output id="firmV">1.0</output></div>
-    <input id="firm" type="range" min="0.3" max="3" step="0.1" value="1" />
+    <div class="row"><label data-t="firm">Firmness</label><output id="firmV">0.8</output></div>
+    <input id="firm" type="range" min="0.2" max="3" step="0.05" value="0.8" />
   </div>
   <div class="grp">
-    <div class="row"><label data-t="damp">Damping</label><output id="dampV">1.5</output></div>
-    <input id="damp" type="range" min="0" max="8" step="0.1" value="1.5" />
+    <div class="row"><label data-t="damp">Damping</label><output id="dampV">1.0</output></div>
+    <input id="damp" type="range" min="0" max="8" step="0.1" value="1.0" />
+  </div>
+  <div class="grp">
+    <div class="row"><label data-t="speed">Speed</label><output id="speedV">1x</output></div>
+    <input id="speed" type="range" min="0.5" max="4" step="0.25" value="1" />
   </div>
   <div class="btns">
     <button class="btn primary" id="run" data-t="run">Run the pipeline</button>
@@ -165,6 +198,7 @@
   <div class="ro"><span class="k" data-t="r.score">Score</span><span class="v" id="rScore">-</span></div>
   <div class="ro"><span class="k" data-t="r.judge">Judge</span><span class="v" id="rJudge">Claude</span></div>
   <div class="ro"><span class="k" data-t="r.retries">Retries</span><span class="v" id="rRetry">0</span></div>
+  <div class="ro"><span class="k" data-t="r.recipe">Recipe</span><span class="v" id="rRecipe">eggs</span></div>
   <div class="ro"><span class="k" data-t="r.reqs">Requirements</span><span class="v" id="rPieces">1</span></div>
   <div class="ro"><span class="k" data-t="r.mass">Mass</span><span class="v" id="rMass">-</span></div>
   <div class="ro"><span class="k" data-t="r.vol">Volume</span><span class="v" id="rVol">-</span></div>
@@ -173,6 +207,7 @@
 
 <div class="caption" id="caption"></div>
 <div id="tags"></div>
+<div class="tcard" id="tcard"></div>
 
 <div id="fallback"><div>
   <h2 data-t="fb.h">This page needs WebGPU.</h2>
@@ -195,9 +230,10 @@ const I18N = {
   en: {
     "nav.site": "guide", "nav.start": "getting started",
     title: "Every idea, through a harness.",
-    lede: "This block is your idea. The white base is the harness: guides and sensors. The amber is the model's work. Press Run and watch it pass six gates. Drag it, or cut it into requirements.",
+    lede: "Your idea starts as eggs. Every gate it passes turns it into more of a pudim: batter, then the mold, the oven, and the plate. The checks on each gate are the real ones the harness runs.",
     hint: "Drag to pull or orbit · scroll to zoom · Knife: draw a line across the block",
-    tool: "Tool", hand: "Hand", knife: "Knife", setup: "Setup", strict: "Threshold", firm: "Firmness", damp: "Damping",
+    recipe: ["eggs", "batter", "with condensed milk", "in the mold", "baked", "unmolded", "pudim"], cook: ["", "PRD done: the eggs became batter. The problem has a shape.", "PRP done: condensed milk in. The spec makes it richer.", "Plan done: into the mold, caramel ready.", "Dev done: baked. Now it holds.", "Test done: unmolded, the caramel runs.", "Merged. A pudim, from four lines and two decisions."], running: "Running", again: "Run again", "r.recipe": "Recipe",
+    tool: "Tool", hand: "Hand", knife: "Knife", setup: "Setup", strict: "Threshold", firm: "Firmness", damp: "Damping", speed: "Speed",
     run: "Run the pipeline", nudge: "Nudge", reset: "Reset", slow: "Slow motion", mesh: "Show mesh", pause: "Pause",
     "r.stage": "Stage", "r.score": "Score", "r.judge": "Judge", "r.retries": "Retries", "r.reqs": "Requirements",
     "r.mass": "Mass", "r.vol": "Volume", "r.ke": "Kinetic energy",
@@ -232,9 +268,10 @@ const I18N = {
   pt: {
     "nav.site": "guia", "nav.start": "primeiros passos",
     title: "Toda ideia, por dentro de um harness.",
-    lede: "Este bloco é a sua ideia. A base branca é o harness: guides e sensors. O âmbar é o trabalho do modelo. Aperte Rodar e veja passar por seis gates. Arraste, ou corte em requisitos.",
+    lede: "A sua ideia começa como ovos. A cada gate que passa, ela vira mais pudim: massa, depois a forma, o forno e o prato. As checagens de cada gate são as mesmas que o harness roda de verdade.",
     hint: "Arraste para puxar ou girar · role para zoom · Faca: desenhe uma linha sobre o bloco",
-    tool: "Ferramenta", hand: "Mão", knife: "Faca", setup: "Setup", strict: "Threshold", firm: "Firmeza", damp: "Amortecimento",
+    recipe: ["ovos", "massa", "com leite condensado", "na forma", "assado", "desenformado", "pudim"], cook: ["", "PRD aprovado: os ovos viraram massa. O problema ganhou forma.", "PRP aprovado: entrou o leite condensado. O spec deixa mais rico.", "Plano aprovado: para a forma, com a calda.", "Dev aprovado: assou. Agora para em pé.", "Testes aprovados: desenformou, a calda escorre.", "Mergeado. Um pudim, a partir de quatro linhas e duas decisões."], running: "Rodando", again: "Rodar de novo", "r.recipe": "Receita",
+    tool: "Ferramenta", hand: "Mão", knife: "Faca", setup: "Setup", strict: "Threshold", firm: "Firmeza", damp: "Amortecimento", speed: "Velocidade",
     run: "Rodar o pipeline", nudge: "Cutucar", reset: "Reiniciar", slow: "Câmera lenta", mesh: "Ver malha", pause: "Pausar",
     "r.stage": "Etapa", "r.score": "Nota", "r.judge": "Juiz", "r.retries": "Tentativas", "r.reqs": "Requisitos",
     "r.mass": "Massa", "r.vol": "Volume", "r.ke": "Energia cinética",
@@ -269,9 +306,10 @@ const I18N = {
   es: {
     "nav.site": "guía", "nav.start": "primeros pasos",
     title: "Toda idea, dentro de un harness.",
-    lede: "Este bloque es tu idea. La base blanca es el harness: guides y sensors. El ámbar es el trabajo del modelo. Presiona Correr y mira cómo pasa seis gates. Arrástralo, o córtalo en requisitos.",
+    lede: "Tu idea empieza como huevos. Cada gate que pasa la vuelve más flan: mezcla, luego el molde, el horno y el plato. Los checks de cada gate son los mismos que el harness corre de verdad.",
     hint: "Arrastra para jalar o girar · rueda para zoom · Cuchillo: dibuja una línea sobre el bloque",
-    tool: "Herramienta", hand: "Mano", knife: "Cuchillo", setup: "Setup", strict: "Threshold", firm: "Firmeza", damp: "Amortiguación",
+    recipe: ["huevos", "mezcla", "con leche condensada", "en el molde", "horneado", "desmoldado", "flan"], cook: ["", "PRD aprobado: los huevos se volvieron mezcla. El problema tomó forma.", "PRP aprobado: entró la leche condensada. El spec lo hace más rico.", "Plan aprobado: al molde, con el caramelo.", "Dev aprobado: horneado. Ahora se sostiene.", "Tests aprobados: desmoldado, el caramelo corre.", "Mergeado. Un flan, a partir de cuatro líneas y dos decisiones."], running: "Corriendo", again: "Correr de nuevo", "r.recipe": "Receta",
+    tool: "Herramienta", hand: "Mano", knife: "Cuchillo", setup: "Setup", strict: "Threshold", firm: "Firmeza", damp: "Amortiguación", speed: "Velocidad",
     run: "Correr el pipeline", nudge: "Empujar", reset: "Reiniciar", slow: "Cámara lenta", mesh: "Ver malla", pause: "Pausar",
     "r.stage": "Etapa", "r.score": "Nota", "r.judge": "Juez", "r.retries": "Intentos", "r.reqs": "Requisitos",
     "r.mass": "Masa", "r.vol": "Volumen", "r.ke": "Energía cinética",
@@ -313,7 +351,7 @@ function applyLang() {
   document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("on", b.dataset.l === LANG));
   try { localStorage.setItem("hk-lang", LANG); } catch {}
 }
-document.querySelectorAll(".lang button").forEach(b => b.onclick = () => { LANG = b.dataset.l; applyLang(); });
+document.querySelectorAll(".lang button").forEach(b => b.onclick = () => { LANG = b.dataset.l; applyLang(); if (typeof R !== "undefined" && R.signBG) R.initSigns(); });
 applyLang();
 
 // ---------------------------------------------------------------- math
@@ -444,40 +482,68 @@ function delaunay(pts) { // Bowyer-Watson
 }
 
 // ---------------------------------------------------------------- soft body
-const H = 2.0, LEVELS = [0, 0.4, 0.8, 1.2, 1.6, 2.0], SEAM = 2; // seam exactly at 40% of the height
-const SPACING = 0.95, DENS_PASTE = 1.3, DENS_CHEESE = 1.05;
+const H = 3.0, LEVELS = [0, 0.6, 1.2, 1.8, 2.4, 3.0], SEAM = 4; // custard up to 80%, caramel on top; seam on a layer boundary
+const SPACING = 1.1, DENS_PASTE = 1.35, DENS_CHEESE = 1.1; // caramel over custard
+// the recipe: what the soft body is at each point of the pipeline
+const RECIPE = {
+  egg:    { levels: [0, 0.55, 1.1, 1.65, 2.2, 2.75], seam: 5, profile: "egg", furinhos: false, bubbles: 0 },
+  batter: { levels: [0, 0.35, 0.7, 1.05], seam: 0, profile: "flat", furinhos: false, bubbles: 0.25 },
+  cream:  { levels: [0, 0.45, 0.9, 1.4], seam: 0, profile: "flat", furinhos: false, bubbles: 0.18 },
+  pudim:  { levels: [0, 0.6, 1.2, 1.8, 2.4, 3.0], seam: 4, profile: "pudim", furinhos: true, bubbles: 0.12 },
+};
+function profileScale(kind, f) {
+  if (kind === "egg") return Math.max(0.3, Math.pow(Math.sin(Math.PI * (0.06 + 0.88 * f)), 0.55)) * (1 - 0.14 * f);
+  if (kind === "flat") return 1 - 0.04 * f;
+  return 1 - 0.12 * f; // a pudim narrows toward the top
+}
+function circle(r, cx = 0, cz = 0, n = 28) { const c = []; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; c.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]); } return c; }
 
 class Body {
-  constructor(outline2D, y0 = 0, vel = [0, 0, 0]) {
-    const rounded = resample(roundPoly(outline2D, 0.75), SPACING * 0.82);
-    const nOut = rounded.length;
+  constructor(outline2D, y0 = 0, vel = [0, 0, 0], hole = null, opt = RECIPE.pudim) {
+    const LEV = opt.levels, SEAM_L = opt.seam, HT = LEV[LEV.length - 1];
+    const rounded = resample(roundPoly(outline2D, 0.95), SPACING * 0.82);
     const pts2 = rounded.slice();
+    const inHole = (q, m) => !!hole && Math.hypot(q[0] - hole.c[0], q[1] - hole.c[1]) < hole.r + m;
+    if (hole) { // the mold's center hole, kept wherever it still overlaps this piece
+      const nh = Math.max(10, Math.round(2 * Math.PI * hole.r / (SPACING * 0.7)));
+      for (let k = 0; k < nh; k++) { const a = k / nh * Math.PI * 2, q = [hole.c[0] + Math.cos(a) * hole.r, hole.c[1] + Math.sin(a) * hole.r];
+        if (insideDist(rounded, q) > SPACING * 0.4) pts2.push(q); }
+    }
     let minx = Infinity, minz = Infinity, maxx = -Infinity, maxz = -Infinity;
     for (const p of rounded) { minx = Math.min(minx, p[0]); minz = Math.min(minz, p[1]); maxx = Math.max(maxx, p[0]); maxz = Math.max(maxz, p[1]); }
     for (let x = minx + SPACING * 0.5; x < maxx; x += SPACING) for (let z = minz + SPACING * 0.5; z < maxz; z += SPACING) {
       const q = [x + (rnd() - 0.5) * 0.12, z + (rnd() - 0.5) * 0.12];
-      if (insideDist(rounded, q) > SPACING * 0.55) pts2.push(q);
+      if (insideDist(rounded, q) > SPACING * 0.55 && !inHole(q, SPACING * 0.55)) pts2.push(q);
     }
     let tris = delaunay(pts2).filter(t => {
       const cx = (pts2[t[0]][0] + pts2[t[1]][0] + pts2[t[2]][0]) / 3, cz = (pts2[t[0]][1] + pts2[t[1]][1] + pts2[t[2]][1]) / 3;
-      return insideDist(rounded, [cx, cz]) > -1e-3;
+      return insideDist(rounded, [cx, cz]) > -1e-3 && !inHole([cx, cz], -1e-3);
     });
-    this.outline = rounded; this.nOut = nOut; this.np2 = pts2.length;
-    const nL = LEVELS.length, n = pts2.length * nL;
+    // rim = edges used by one triangle only: the outer wall and the hole wall
+    const ecount = new Map();
+    for (const t of tris) {
+      const tcx = (pts2[t[0]][0] + pts2[t[1]][0] + pts2[t[2]][0]) / 3, tcz = (pts2[t[0]][1] + pts2[t[1]][1] + pts2[t[2]][1]) / 3;
+      for (const [a, b] of [[t[0], t[1]], [t[1], t[2]], [t[2], t[0]]]) {
+        const k = a < b ? a * 100000 + b : b * 100000 + a; ecount.set(k, ecount.has(k) ? null : [a, b, tcx, tcz]); } }
+    const rim = [...ecount.values()].filter(Boolean);
+    this.hole = hole; this.outline = rounded; this.np2 = pts2.length;
+    this.cx2 = rounded.reduce((a2, q) => a2 + q[0], 0) / rounded.length; this.cz2 = rounded.reduce((a2, q) => a2 + q[1], 0) / rounded.length;
+    const nL = LEV.length, n = pts2.length * nL;
     this.n = n;
     this.pos = new Float32Array(n * 3); this.prev = new Float32Array(n * 3); this.vel = new Float32Array(n * 3);
     this.invMass = new Float32Array(n); this.nrm = new Float32Array(n * 3);
     for (let l = 0; l < nL; l++) for (let i = 0; i < pts2.length; i++) {
       const k = l * pts2.length + i;
-      this.pos[k * 3] = pts2[i][0]; this.pos[k * 3 + 1] = y0 + LEVELS[l] * (H / 2.0); this.pos[k * 3 + 2] = pts2[i][1];
+      const taper = profileScale(opt.profile, LEV[l] / HT);
+      this.pos[k * 3] = this.cx2 + (pts2[i][0] - this.cx2) * taper; this.pos[k * 3 + 1] = y0 + LEV[l]; this.pos[k * 3 + 2] = this.cz2 + (pts2[i][1] - this.cz2) * taper;
       this.vel[k * 3] = vel[0]; this.vel[k * 3 + 1] = vel[1]; this.vel[k * 3 + 2] = vel[2];
     }
-    this.prev.set(this.pos);
+    this.prev.set(this.pos); this.rest = Float32Array.from(this.pos);
     // tets: each prism splits into three with a diagonal rule that agrees on shared faces
     const tets = [], mat = [];
     for (let l = 0; l < nL - 1; l++) for (const t of tris) {
       const s = t.slice().sort((a, b) => a - b), B = (i) => l * pts2.length + i, Tp = (i) => (l + 1) * pts2.length + i;
-      const add = (a, b, c, d) => { tets.push([a, b, c, d]); mat.push(l < SEAM ? 0 : 1); };
+      const add = (a, b, c, d) => { tets.push([a, b, c, d]); mat.push(l < SEAM_L ? 0 : 1); };
       add(B(s[0]), B(s[1]), B(s[2]), Tp(s[2]));
       add(B(s[0]), B(s[1]), Tp(s[1]), Tp(s[2]));
       add(B(s[0]), Tp(s[0]), Tp(s[1]), Tp(s[2]));
@@ -513,29 +579,38 @@ class Body {
     const up = () => [0, 1, 0], down = () => [0, -1, 0];
     const outward = (a, b, c) => { const m = [(this.pos[a*3]+this.pos[b*3]+this.pos[c*3])/3 - cen[0], 0, (this.pos[a*3+2]+this.pos[b*3+2]+this.pos[c*3+2])/3 - cen[2]]; return m; };
     for (const t of tris) {
-      cheese.push(...orient([t[0], t[1], t[2]], down));
-      paste.push(...orient(t.map(i => (nL - 1) * P + i), up));
-      seam.push(...orient(t.map(i => SEAM * P + i), up));
+      (SEAM_L > 0 ? cheese : paste).push(...orient([t[0], t[1], t[2]], down));
+      (SEAM_L < nL - 1 ? paste : cheese).push(...orient(t.map(i => (nL - 1) * P + i), up));
+      if (SEAM_L > 0 && SEAM_L < nL - 1) seam.push(...orient(t.map(i => SEAM_L * P + i), up));
     }
-    for (let i = 0; i < nOut; i++) { const j = (i + 1) % nOut;
+    for (const [i, j, tcx, tcz] of rim) {
+      const hint = () => [(pts2[i][0] + pts2[j][0]) / 2 - tcx, 0, (pts2[i][1] + pts2[j][1]) / 2 - tcz];
       for (let l = 0; l < nL - 1; l++) {
         const a = l * P + i, b = l * P + j, c = (l + 1) * P + j, d = (l + 1) * P + i;
-        const list = l < SEAM ? cheese : paste;
-        list.push(...orient([a, b, c], outward)); list.push(...orient([a, c, d], outward));
+        const list = l < SEAM_L ? cheese : paste;
+        list.push(...orient([a, b, c], hint)); list.push(...orient([a, c, d], hint));
       } }
     this.paste = new Uint32Array(paste); this.cheese = new Uint32Array(cheese); this.seam = new Uint32Array(seam);
     this.surface = new Uint32Array([...paste, ...cheese]);
-    // inclusions: requirement flecks and gap bubbles, skinned to paste tets with barycentric weights
+    this.restCentroid = this.centroid();
+    // inclusions: air bubbles inside the marshmallow (tet barycentric) and a coconut coat (surface barycentric)
     const pasteTets = []; let pv = 0;
     for (let t = 0; t < this.nt; t++) if (this.tetMat[t] === 1) { pv += this.restVol[t]; pasteTets.push([t, pv]); }
-    this.inc = [];
+    this.inc = []; this.opt = opt;
     const area = Math.abs(polyArea(rounded));
-    const nF = Math.max(2, Math.round(area * 0.55)), nB = Math.max(1, Math.round(area * 0.18));
-    for (let k = 0; k < nF + nB; k++) {
-      const r = rnd() * pv; let t = pasteTets.find(p => p[1] >= r)[0];
-      let w = [rnd(), rnd(), rnd(), rnd()].map(x => -Math.log(x + 1e-6)); const s = w.reduce((a, b) => a + b); w = w.map(x => x / s);
-      const fleck = k < nF;
-      this.inc.push({ t, w, kind: fleck ? 0 : 1, s: fleck ? 0.09 + rnd() * 0.08 : 0.05 + rnd() * 0.06 });
+    const nB = pasteTets.length ? Math.max(2, Math.round(area * (opt.bubbles || 0.12))) : 0;
+    for (let k = 0; k < nB; k++) {
+      const r = rnd() * pv; const t = pasteTets.find(p => p[1] >= r)[0];
+      let w = [rnd(), rnd(), rnd(), rnd()].map(x => -Math.log(x + 1e-6)); const sw = w.reduce((a2, b2) => a2 + b2); w = w.map(x => x / sw);
+      this.inc.push({ t, w, kind: 1, s: 0.05 + rnd() * 0.07 });
+    }
+    const cw = opt.furinhos ? this.cheese : [];
+    for (let i = 0; i < cw.length; i += 3) {
+      const a0 = cw[i], b0 = cw[i + 1], c0 = cw[i + 2];
+      if (this.pos[a0 * 3 + 1] + this.pos[b0 * 3 + 1] + this.pos[c0 * 3 + 1] < 0.2) continue;
+      const ar = V3.len(V3.cross(this.d(b0, a0), this.d(c0, a0))) / 2, nf = Math.round(ar * 6 + rnd() * 0.7);
+      for (let k = 0; k < nf; k++) { let u1 = rnd(), u2 = rnd(); if (u1 + u2 > 1) { u1 = 1 - u1; u2 = 1 - u2; }
+        this.inc.push({ v: [a0, b0, c0], w: [1 - u1 - u2, u1, u2], kind: 2, s: 0.035 + rnd() * 0.045 }); }
     }
     this.req = null; this.reqState = 0;
   }
@@ -561,16 +636,30 @@ class Body {
 
 // ---------------------------------------------------------------- world (XPBD)
 const world = {
-  bodies: [], g: -981, subs: 10, firm: 1, damp: 1.5, friction: 0.55, grab: null, drive: null, paused: false, slow: false,
-  reset() { seed = 7; this.bodies = [new Body([[-3.5, -2.5], [3.5, -2.5], [3.5, 2.5], [-3.5, 2.5]], 0.0)]; },
+  bodies: [], g: -981, subs: 10, firm: 0.8, damp: 1.0, speed: 1, friction: 0.55, grab: null, drive: null, paused: false, slow: false,
+  reset() { seed = 7; this.stage = 0;
+    this.bodies = [[-1.35, -0.9], [1.35, -0.9], [0, 1.45]].map(([x, z]) => new Body(circle(1.0, x, z, 18), 0.0, [0, 0, 0], null, RECIPE.egg)); },
+  transform(stage) { // the recipe advances: rebuild each piece as the next form, inheriting position and velocity
+    this.stage = stage;
+    const mv = (bs) => { const v = [0, 0, 0]; for (const b of bs) { const m = b.meanVel(); v[0] += m[0]; v[1] += m[1]; v[2] += m[2]; } return V3.scale(v, 1 / bs.length); };
+    const cen = (bs) => { const c = [0, 0, 0]; let n = 0; for (const b of bs) { const k = b.centroid(); c[0] += k[0] * b.n; c[2] += k[2] * b.n; n += b.n; } return [c[0] / n, 0, c[2] / n]; };
+    const pop = (v) => [v[0], 160, v[2]];
+    if (stage === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.1, c[0], c[2]), 0.02, pop(mv(this.bodies)), null, RECIPE.batter)]; }
+    else if (stage === 2) this.bodies = this.bodies.map(b => new Body(b.footprint(), 0.02, pop(b.meanVel()), null, RECIPE.cream));
+    else if (stage === 3) {
+      if (this.bodies.length === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.7, c[0], c[2]), 0.02, pop(mv(this.bodies)), { c: [c[0], c[2]], r: 1.15 }, RECIPE.pudim)]; }
+      else this.bodies = this.bodies.map(b => new Body(b.footprint(), 0.02, pop(b.meanVel()), null, RECIPE.pudim));
+    }
+    else for (const b of this.bodies) for (let i = 0; i < b.n; i++) b.vel[i*3+1] += stage === 6 ? 70 : 45;
+    this.version++;
+  },
   step(dt) {
     const sdt = dt / this.subs;
     const comp = { 0: 2.0e-5 / this.firm / 3, 1: 2.0e-5 / this.firm }; // cheese about 3x stiffer than paste
-    const hash = this.bodies.length > 1 ? this.buildHash() : null;
     for (let s = 0; s < this.subs; s++) {
       for (const b of this.bodies) this.preSolve(b, sdt);
       for (const b of this.bodies) this.solve(b, sdt, comp);
-      if (hash) this.collide(hash);
+      if (this.bodies.length > 1 && (s === this.subs - 1 || s === 4)) this.collide(this.buildHash());
       for (const b of this.bodies) this.postSolve(b, sdt);
     }
   },
@@ -625,7 +714,7 @@ const world = {
   buildHash() {
     const cell = 0.8, map = new Map();
     this.bodies.forEach((b, bi) => { for (let i = 0; i < b.n; i++) {
-      const k = Math.floor(b.pos[i*3]/cell) + "," + Math.floor(b.pos[i*3+1]/cell) + "," + Math.floor(b.pos[i*3+2]/cell);
+      const k = ((Math.floor(b.pos[i*3]/cell) + 512) * 1024 + (Math.floor(b.pos[i*3+1]/cell) + 512)) * 1024 + (Math.floor(b.pos[i*3+2]/cell) + 512);
       (map.get(k) || map.set(k, []).get(k)).push(bi, i); } });
     return { cell, map };
   },
@@ -636,7 +725,7 @@ const world = {
         const x = b.pos[i*3], y = b.pos[i*3+1], z = b.pos[i*3+2];
         const cx = Math.floor(x/h.cell), cy = Math.floor(y/h.cell), cz = Math.floor(z/h.cell);
         for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
-          const list = h.map.get((cx+dx) + "," + (cy+dy) + "," + (cz+dz)); if (!list) continue;
+          const list = h.map.get(((cx+dx+512) * 1024 + (cy+dy+512)) * 1024 + (cz+dz+512)); if (!list) continue;
           for (let k = 0; k < list.length; k += 2) { const oj = list[k]; if (oj <= bi) continue;
             const o = this.bodies[oj], j = list[k+1];
             const ex = o.pos[j*3]-b.pos[i*3], ey = o.pos[j*3+1]-b.pos[i*3+1], ez = o.pos[j*3+2]-b.pos[i*3+2], d2 = ex*ex+ey*ey+ez*ez;
@@ -668,7 +757,10 @@ const world = {
         if (poly.length < 3 || Math.abs(polyArea(poly)) < 1.4) continue;
         const cw = polyArea(poly) < 0 ? poly.reverse() : poly;
         const v = sideVel(sgn); v[0] += n[0] * sgn * 6; v[2] += n[1] * sgn * 6; // a small push apart, like the blade's wedge
-        const nb = new Body(cw, 0.02, v); nb.req = b.req; next.push(nb); made++;
+        let hole = null;
+        if (b.hole) { const now = b.centroid(), hc = [b.hole.c[0] + now[0] - b.restCentroid[0], b.hole.c[1] + now[2] - b.restCentroid[2]];
+          if (insideDist(cw, hc) > -b.hole.r * 0.9) hole = { c: hc, r: b.hole.r }; }
+        const nb = new Body(cw, 0.02, v, b.opt.profile === "pudim" ? hole : null, b.opt); nb.req = b.req; next.push(nb); made++;
       }
     }
     this.bodies = next; return made;
@@ -740,12 +832,22 @@ struct SOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1
   if (i.id < -0.5) {
     let dist = length(i.wp.xz - u.camPos.xz * vec2f(0.0, 0.0) - vec2f(u.info.y, 0.0));
     var albedo = vec3f(0.80, 0.785, 0.755);
-    let lane = smoothstep(4.2, 3.9, abs(i.wp.z)) * smoothstep(-6.0, -3.0, i.wp.x) * smoothstep(96.0, 92.0, i.wp.x);
+    let lane = smoothstep(4.2, 3.9, abs(i.wp.z)) * smoothstep(-6.0, -3.0, i.wp.x) * smoothstep(76.0, 72.0, i.wp.x);
     albedo = mix(albedo, vec3f(0.74, 0.725, 0.695), lane * 0.6);
     let tick = (1.0 - smoothstep(0.02, 0.06, abs(fract(i.wp.x / 2.0 + 0.5) - 0.5) * 2.0)) * lane * step(3.6, abs(i.wp.z)) ;
     albedo = mix(albedo, vec3f(0.45, 0.44, 0.42), tick * 0.5);
     let occ = floorOcclusion(i.wp);
-    let lit = albedo * (0.62 + 0.55 * max(dot(N, L), 0.0)) * occ;
+    var lit = albedo * (0.62 + 0.55 * max(dot(N, L), 0.0)) * occ;
+    var pud = 0.0;
+    for (var b = 0; b < i32(u.info.x); b++) {
+      let a = u.bodies[b * 2];
+      let ang = atan2(i.wp.z - a.y, i.wp.x - a.x);
+      let reach = 0.35 + 0.55 * vnoise1(ang * 2.2 + f32(b) * 3.1);
+      let d = roundedBox(i.wp.xz, a.xy, a.zw, min(a.z, a.w) * 0.98);
+      pud = max(pud, 1.0 - smoothstep(reach - 0.1, reach, d));
+    }
+    let caramel = vec3f(0.30, 0.10, 0.01) + studio(reflect(-V, N)) * 0.06 + ggx(N, V, L, 0.05, 0.04) * vec3f(10.0);
+    lit = mix(lit, caramel * mix(0.6, 1.0, occ), pud * 0.92 * step(4.5, u.params.w));
     let fog = smoothstep(60.0, 180.0, length(i.wp - u.camPos.xyz));
     return vec4f(mix(lit, studio(normalize(i.wp - u.camPos.xyz)) * 0.98, fog), 1.0);
   }
@@ -757,54 +859,71 @@ struct SOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1
     return vec4f(env * F * vec3f(0.92, 0.93, 0.95) + spec + vec3f(0.04), 1.0);
   }
   let gi = i32(floor(i.id + 0.01));
-  let isBeam = fract(i.id) > 0.25;
+  let fr = fract(i.id);
+  let isLight = fr > 0.25;
   let st = gateState(gi);
-  var base = vec3f(0.11, 0.11, 0.115);
-  let diff = base * (0.35 + 0.65 * max(dot(N, L), 0.0));
-  let spec = ggx(N, V, L, 0.35, 0.04) * vec3f(5.0);
+  let base = vec3f(0.075, 0.075, 0.08);
+  let diff = base * (0.4 + 0.6 * max(dot(N, L), 0.0));
+  let spec = ggx(N, V, L, 0.22, 0.05) * vec3f(6.0) + studio(reflect(-V, N)) * 0.05;
   var em = vec3f(0.0);
-  if (isBeam) {
+  if (isLight) {
     let pulse = 0.55 + 0.45 * sin(u.params.x * 9.0);
-    if (st > 0.5 && st < 1.5) { em = vec3f(3.2, 3.1, 2.9) * pulse; }
-    else if (st > 1.5 && st < 2.5) { em = YELLOW * 4.0; }
-    else if (st > 2.5 && st < 3.5) { em = vec3f(3.5, 0.35, 0.2) * pulse; }
-    else if (st > 3.5) { em = YELLOW * 3.0 * pulse; }
-    else { em = vec3f(0.18, 0.18, 0.17); }
+    var c = vec3f(0.42, 0.42, 0.41);                                        // not reached: grey
+    if (st > 0.5 && st < 1.5) { c = vec3f(3.0, 3.0, 2.9) * pulse; }        // testing: white pulse
+    else if (st > 1.5 && st < 2.5) { c = vec3f(0.25, 2.6, 0.75); }         // passed: green
+    else if (st > 2.5 && st < 3.5) { c = vec3f(3.4, 0.28, 0.2) * pulse; }  // failed: red, briefly
+    else if (st > 3.5) { c = YELLOW * 3.0 * pulse; }                        // your decision
+    em = c * select(1.0, 0.55, fr > 0.65);
   }
   return vec4f(diff + spec + em, 1.0);
 }
 
 // ---- dynamic surface (cheese base and seam are opaque white)
-struct DOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1) n: vec3f, @location(2) vz: f32 };
-@vertex fn vsDyn(@location(0) p: vec3f, @location(1) n: vec3f) -> DOut {
-  var o: DOut; o.pos = u.viewProj * vec4f(p, 1.0); o.wp = p; o.n = n; o.vz = -(u.view * vec4f(p, 1.0)).z; return o;
+struct DOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1) n: vec3f, @location(2) vz: f32, @location(3) rest: vec3f };
+@vertex fn vsDyn(@location(0) p: vec3f, @location(1) n: vec3f, @location(2) r: vec3f) -> DOut {
+  var o: DOut; o.pos = u.viewProj * vec4f(p, 1.0); o.wp = p; o.n = n; o.vz = -(u.view * vec4f(p, 1.0)).z; o.rest = r; return o;
 }
-fn cheese(wp: vec3f, N: vec3f) -> vec3f {
+fn hash1(x: f32) -> f32 { return fract(sin(x * 127.1 + 311.7) * 43758.5453); }
+fn vnoise1(x: f32) -> f32 { let i = floor(x); let f = fract(x); let w = f * f * (3.0 - 2.0 * f); return mix(hash1(i), hash1(i + 1.0), w); }
+fn cheese(wp: vec3f, N: vec3f, rest: vec3f) -> vec3f {
   let V = normalize(u.camPos.xyz - wp); let L = normalize(u.lightDir.xyz);
   let wrap = clamp((dot(N, L) + 0.45) / 1.45, 0.0, 1.0);
-  let albedo = vec3f(0.93, 0.915, 0.88);
-  let amb = studio(N) * 0.18;
-  let spec = ggx(N, V, L, 0.55, 0.03) * vec3f(5.0);
-  let rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.12;
-  return albedo * (wrap * 1.05 + amb) + spec + rim;
+  let stage = u.params.w;
+  if (stage < 0.5) { // eggshell
+    let speck = step(0.93, hash1(floor(rest.x * 9.0) * 7.3 + floor(rest.y * 9.0) * 3.1 + floor(rest.z * 9.0)));
+    let shell = mix(vec3f(0.96, 0.9, 0.81), vec3f(0.8, 0.68, 0.55), speck * 0.4);
+    return shell * (wrap * 0.95 + studio(N) * 0.22) + ggx(N, V, L, 0.45, 0.04) * vec3f(3.5);
+  }
+  var albedo = select(vec3f(0.99, 0.91, 0.6), vec3f(0.98, 0.76, 0.30), stage > 3.5); // raw custard, then baked
+  // caramel runs down the walls from the top: streak length varies around the rim
+  let s = rest.x * 1.9 + rest.z * 1.37;
+  let dripLen = 0.12 + 1.35 * pow(vnoise1(s * 1.6), 2.2);
+  let drip = smoothstep(2.4 - dripLen - 0.07, 2.4 - dripLen + 0.03, rest.y) * (1.0 - smoothstep(0.75, 0.9, abs(N.y))) * step(4.5, stage);
+  albedo = mix(albedo, vec3f(0.42, 0.15, 0.015), drip);
+  let amb = studio(N) * 0.2;
+  let sss = vec3f(1.0, 0.62, 0.18) * pow(clamp(1.0 - abs(dot(N, L)), 0.0, 1.0), 2.0) * 0.18 * (1.0 - drip);
+  let spec = ggx(N, V, L, mix(0.32, 0.07, drip), 0.035) * mix(vec3f(6.0), vec3f(16.0), drip) + studio(reflect(-V, N)) * 0.12 * drip;
+  let rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * vec3f(0.22, 0.17, 0.08);
+  return albedo * (wrap * 1.0 + amb) + sss + spec + rim;
 }
-@fragment fn fsCheese(i: DOut) -> @location(0) vec4f { return vec4f(cheese(i.wp, normalize(i.n)), 1.0); }
+@fragment fn fsCheese(i: DOut) -> @location(0) vec4f { return vec4f(cheese(i.wp, normalize(i.n), i.rest), 1.0); }
 @fragment fn fsSeam(i: DOut) -> @location(0) vec4f {
   var N = normalize(cross(dpdx(i.wp), dpdy(i.wp))); if (N.y < 0.0) { N = -N; }
-  return vec4f(cheese(i.wp, N) * 1.04, 1.0);
+  return vec4f(cheese(i.wp, N, i.rest) * vec3f(0.9, 0.7, 0.45), 1.0);
 }
 @fragment fn fsBack(i: DOut) -> @location(0) vec4f { return vec4f(i.vz, 0.0, 0.0, 1.0); }
 
 // ---- inclusions: requirement flecks and gap bubbles
 struct IOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1) n: vec3f, @location(2) kind: f32 };
 @vertex fn vsInc(@location(0) p: vec3f, @location(1) ip: vec4f, @location(2) kind: f32) -> IOut {
-  var o: IOut; var q = p * ip.w; if (kind < 0.5) { q.y *= 0.35; }
+  var o: IOut; var q = p * ip.w; if (kind < 0.5) { q = vec3f(q.x * 1.6, q.y * 0.3, q.z * 0.5); } if (kind > 1.5) { q = q * vec3f(1.0, 0.6, 1.0); }
   let w = q + ip.xyz; o.pos = u.viewProj * vec4f(w, 1.0); o.wp = w; o.n = normalize(p); o.kind = kind; return o;
 }
 @fragment fn fsInc(i: IOut) -> @location(0) vec4f {
   let V = normalize(u.camPos.xyz - i.wp); let L = normalize(u.lightDir.xyz); let N = normalize(i.n);
+  if (i.kind > 1.5) { return vec4f(vec3f(0.52, 0.33, 0.08) * (0.55 + 0.25 * max(dot(N, L), 0.0)), 1.0); }
   if (i.kind < 0.5) {
-    let c = vec3f(0.22, 0.075, 0.01) * (0.35 + 0.65 * max(dot(N, L), 0.0)) + ggx(N, V, L, 0.45, 0.04) * 2.0;
+    let c = vec3f(1.0, 0.985, 0.95) * (0.92 + 0.35 * max(dot(N, L), 0.0)) + ggx(N, V, L, 0.5, 0.04) * 1.2;
     return vec4f(c, 1.0);
   }
   let F = 0.05 + 0.95 * pow(1.0 - max(dot(N, V), 0.0), 3.0);
@@ -832,17 +951,22 @@ struct FOut { @builtin(position) pos: vec4f };
   var uv = (clip.xy / clip.w) * vec2f(0.5, -0.5) + vec2f(0.5);
   uv = clamp(uv, vec2f(0.0), vec2f(0.999));
   let behind = textureLoad(sceneTex, vec2i(uv * u.screen.xy), 0).rgb;
-  let sigma = vec3f(0.05, 0.42, 2.3);
+  // batter (yolk, then creamy with condensed milk) until the mold; caramel from then on
+  let stage = u.params.w;
+  var sigma = vec3f(0.35, 1.25, 3.4);
+  var tint = vec3f(0.85, 0.36, 0.04); var glowC = vec3f(1.0, 0.5, 0.06);
+  if (stage < 1.5) { sigma = vec3f(0.12, 0.5, 2.8); tint = vec3f(1.0, 0.68, 0.06); glowC = vec3f(1.0, 0.72, 0.1); }
+  else if (stage < 2.5) { sigma = vec3f(0.5, 0.65, 1.5); tint = vec3f(1.0, 0.86, 0.52); glowC = vec3f(1.0, 0.86, 0.5); }
   let Tr = exp(-sigma * thick);
   let NdL = max(dot(N, L), 0.0);
-  let scatterAmt = 1.0 - exp(-0.85 * thick);
-  let scatter = vec3f(1.0, 0.56, 0.06) * scatterAmt * (0.22 + 0.55 * NdL) * 0.75;
-  let thin = pow(clamp(1.0 - thick / 1.3, 0.0, 1.0), 2.0);
+  let scatterAmt = 1.0 - exp(-0.7 * thick);
+  let scatter = tint * scatterAmt * (0.18 + 0.45 * NdL) * select(1.0, 2.2, stage < 2.5);
+  let thin = pow(clamp(1.0 - thick / 0.9, 0.0, 1.0), 2.0);
   let backlit = pow(max(dot(-V, L) * 0.5 + 0.5, 0.0), 2.0);
-  let glow = vec3f(1.0, 0.62, 0.08) * thin * (0.35 + 1.4 * backlit);
-  let F = 0.035 + 0.965 * pow(1.0 - max(dot(N, V), 0.0), 5.0);
+  let glow = glowC * thin * (0.3 + 1.3 * backlit);
+  let F = 0.04 + 0.96 * pow(1.0 - max(dot(N, V), 0.0), 5.0);
   let refl = studio(reflect(-V, N));
-  let spec = ggx(N, V, L, 0.09, 0.035) * vec3f(14.0) + ggx(N, V, normalize(vec3f(0.7, 0.55, -0.35)), 0.12, 0.035) * vec3f(5.0);
+  let spec = ggx(N, V, L, 0.06, 0.04) * vec3f(18.0) + ggx(N, V, normalize(vec3f(0.7, 0.55, -0.35)), 0.1, 0.04) * vec3f(6.0);
   var col = mix(behind * Tr + scatter + glow, refl, F) + spec;
   if (u.params.z > 0.5) {
     let band = exp(-pow((i.wp.x - u.params.y) * 2.2, 2.0));
@@ -858,6 +982,28 @@ struct FOut { @builtin(position) pos: vec4f };
 @fragment fn fsLine() -> @location(0) vec4f { return vec4f(0.10, 0.09, 0.08, 0.55); }
 `;
 
+const SIGN_WGSL = /* wgsl */`
+struct U {
+  viewProj: mat4x4f, view: mat4x4f, invViewProj: mat4x4f,
+  camPos: vec4f, lightDir: vec4f, screen: vec4f, params: vec4f,
+  gates: array<vec4f, 2>, info: vec4f, bodies: array<vec4f, 48>,
+};
+@group(0) @binding(0) var<uniform> u: U;
+@group(1) @binding(0) var atlas: texture_2d<f32>;
+@group(1) @binding(1) var samp: sampler;
+struct O { @builtin(position) pos: vec4f, @location(0) uv: vec2f, @location(1) g: f32 };
+@vertex fn vs(@location(0) p: vec3f, @location(1) uv: vec2f, @location(2) g: f32) -> O {
+  var o: O; o.pos = u.viewProj * vec4f(p, 1.0); o.uv = uv; o.g = g; return o;
+}
+@fragment fn fs(i: O) -> @location(0) vec4f {
+  let a = textureSample(atlas, samp, i.uv).a;
+  let gi = i32(i.g + 0.01); let st = u.gates[gi / 4][gi % 4];
+  var c = vec3f(0.92, 0.92, 0.9);
+  if (st > 1.5 && st < 2.5) { c = vec3f(0.35, 2.2, 0.7); }
+  else if (st > 2.5 && st < 3.5) { c = vec3f(2.6, 0.3, 0.25); }
+  else if (st > 0.5 && st < 1.5) { c = vec3f(2.4, 2.4, 2.3); }
+  return vec4f(c, a);
+}`;
 const R = {
   async init() {
     if (!navigator.gpu) throw new Error("no webgpu");
@@ -883,8 +1029,9 @@ const R = {
     const statVB = [{ arrayStride: 28, attributes: [
       { shaderLocation: 0, offset: 0, format: "float32x3" }, { shaderLocation: 1, offset: 12, format: "float32x3" },
       { shaderLocation: 2, offset: 24, format: "float32" }] }];
-    const dynVB = [{ arrayStride: 24, attributes: [
-      { shaderLocation: 0, offset: 0, format: "float32x3" }, { shaderLocation: 1, offset: 12, format: "float32x3" }] }];
+    const dynVB = [{ arrayStride: 36, attributes: [
+      { shaderLocation: 0, offset: 0, format: "float32x3" }, { shaderLocation: 1, offset: 12, format: "float32x3" },
+      { shaderLocation: 2, offset: 24, format: "float32x3" }] }];
     const incVB = [{ arrayStride: 12, attributes: [{ shaderLocation: 0, offset: 0, format: "float32x3" }] },
       { arrayStride: 20, stepMode: "instance", attributes: [
         { shaderLocation: 1, offset: 0, format: "float32x4" }, { shaderLocation: 2, offset: 16, format: "float32" }] }];
@@ -904,27 +1051,67 @@ const R = {
     this.pLine = mk("vsLine", "fsLine", dynVB, { format: this.format, blend: {
       color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } } },
       "none", lay0, { topology: "line-list" });
+    await this.initSigns();
     // buffers
     this.MAXV = 60000; this.MAXI = 600000;
-    this.dynVB = d.createBuffer({ size: this.MAXV * 24, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+    this.dynVB = d.createBuffer({ size: this.MAXV * 36, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
     this.idxPaste = d.createBuffer({ size: this.MAXI * 4, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
     this.idxCheese = d.createBuffer({ size: this.MAXI * 4, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
     this.idxSeam = d.createBuffer({ size: this.MAXI * 4, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
     this.idxLine = d.createBuffer({ size: this.MAXI * 4, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
-    this.instVB = d.createBuffer({ size: 4000 * 20, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
-    this.propVB = d.createBuffer({ size: 64 * 28, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+    this.MAXINST = 24000; this.instVB = d.createBuffer({ size: this.MAXINST * 20, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+    this.propVB = d.createBuffer({ size: 512 * 28, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
     const ico = icosphere(); this.icoN = ico.length / 3;
     this.icoVB = d.createBuffer({ size: ico.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
     d.queue.writeBuffer(this.icoVB, 0, ico);
     const stat = staticScene(); this.statN = stat.length / 7;
     this.statVB = d.createBuffer({ size: stat.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
     d.queue.writeBuffer(this.statVB, 0, stat);
-    this.cpuV = new Float32Array(this.MAXV * 6); this.cpuI = new Float32Array(4000 * 5);
+    this.cpuV = new Float32Array(this.MAXV * 9); this.cpuI = new Float32Array(this.MAXINST * 5); this.ub = new Float32Array(272);
     this.topo = -1;
     this.resize(); addEventListener("resize", () => this.resize());
   },
+  async initSigns() {
+    const d = this.device, W = 1024, RH = 160, cv = document.createElement("canvas");
+    cv.width = W; cv.height = RH * 6;
+    try { await document.fonts.load("700 96px Inter"); await document.fonts.load("500 30px Inter"); } catch {}
+    const g = cv.getContext("2d"); g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#fff";
+    const subs = { en: ["the problem", "the spec", "the plan", "the code", "the tests", "the pull request"],
+      pt: ["o problema", "o spec", "o plano", "o código", "os testes", "o pull request"],
+      es: ["el problema", "el spec", "el plan", "el código", "los tests", "el pull request"] }[LANG] || [];
+    ["PRD", "PRP", "PLAN", "DEV", "TEST", "PR"].forEach((name, i) => {
+      g.font = "700 92px Inter, sans-serif"; g.fillText(name, W / 2, i * RH + 62);
+      g.font = "500 30px Inter, sans-serif"; g.globalAlpha = 0.6; g.fillText(subs[i] || "", W / 2, i * RH + 128); g.globalAlpha = 1;
+    });
+    const tex = d.createTexture({ size: [W, RH * 6], format: "rgba8unorm", usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT });
+    d.queue.copyExternalImageToTexture({ source: cv }, { texture: tex }, [W, RH * 6]);
+    const mod = d.createShaderModule({ code: SIGN_WGSL });
+    const bgl = d.createBindGroupLayout({ entries: [
+      { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {} }, { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} }] });
+    this.signBG = d.createBindGroup({ layout: bgl, entries: [{ binding: 0, resource: tex.createView() },
+      { binding: 1, resource: d.createSampler({ magFilter: "linear", minFilter: "linear" }) }] });
+    this.pSign = d.createRenderPipeline({ layout: d.createPipelineLayout({ bindGroupLayouts: [this.bgl0, bgl] }),
+      vertex: { module: mod, entryPoint: "vs", buffers: [{ arrayStride: 24, attributes: [
+        { shaderLocation: 0, offset: 0, format: "float32x3" }, { shaderLocation: 1, offset: 12, format: "float32x2" }, { shaderLocation: 2, offset: 20, format: "float32" }] }] },
+      fragment: { module: mod, entryPoint: "fs", targets: [{ format: "rgba16float", blend: {
+        color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } } }] },
+      primitive: { topology: "triangle-list", cullMode: "none" },
+      depthStencil: { format: "depth32float", depthWriteEnabled: false, depthCompare: "less-equal" } });
+    const v = [], hw = 3.0, y0 = 6.64, y1 = 7.66;
+    GATE_X.forEach((gx, i) => {
+      const v0 = i / 6 + 0.004, v1 = (i + 1) / 6 - 0.004;
+      for (const [x, flip] of [[gx - 0.255, false], [gx + 0.255, true]]) { // both faces read left to right
+        const zl = flip ? hw : -hw, zr = flip ? -hw : hw;
+        const q = [[x, y1, zl, 0, v0], [x, y1, zr, 1, v0], [x, y0, zr, 1, v1], [x, y1, zl, 0, v0], [x, y0, zr, 1, v1], [x, y0, zl, 0, v1]];
+        for (const r of q) v.push(r[0], r[1], r[2], r[3], r[4], i);
+      }
+    });
+    const arr = new Float32Array(v); this.signN = arr.length / 6;
+    this.signVB = d.createBuffer({ size: arr.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+    d.queue.writeBuffer(this.signVB, 0, arr);
+  },
   resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2), w = Math.max(1, Math.floor(innerWidth * dpr)), h = Math.max(1, Math.floor(innerHeight * dpr));
+    const dpr = Math.min(devicePixelRatio || 1, this.scale || 1.25), w = Math.max(1, Math.floor(innerWidth * dpr)), h = Math.max(1, Math.floor(innerHeight * dpr));
     this.canvas.width = w; this.canvas.height = h; this.W = w; this.H = h;
     const ov = document.getElementById("overlay"); ov.width = w; ov.height = h;
     const d = this.device, tex = (format, usage) => d.createTexture({ size: [w, h], format, usage });
@@ -954,21 +1141,25 @@ const R = {
     let k = 0, ni = 0;
     for (const b of world.bodies) {
       b.computeNormals();
-      for (let i = 0; i < b.n; i++) { this.cpuV.set([b.pos[i*3], b.pos[i*3+1], b.pos[i*3+2], b.nrm[i*3], b.nrm[i*3+1], b.nrm[i*3+2]], k); k += 6; }
-      for (const inc of b.inc) { if (ni >= 4000) break;
-        const t = inc.t * 4, p = [0, 0, 0];
-        for (let j = 0; j < 4; j++) { const v = b.tet[t + j]; p[0] += b.pos[v*3] * inc.w[j]; p[1] += b.pos[v*3+1] * inc.w[j]; p[2] += b.pos[v*3+2] * inc.w[j]; }
-        this.cpuI.set([p[0], p[1], p[2], inc.s, inc.kind], ni * 5); ni++; }
+      const V = this.cpuV, P = b.pos, Nn = b.nrm, Rs = b.rest;
+      for (let i = 0; i < b.n; i++) { V[k] = P[i*3]; V[k+1] = P[i*3+1]; V[k+2] = P[i*3+2]; V[k+3] = Nn[i*3]; V[k+4] = Nn[i*3+1]; V[k+5] = Nn[i*3+2];
+        V[k+6] = Rs[i*3]; V[k+7] = Rs[i*3+1]; V[k+8] = Rs[i*3+2]; k += 9; }
+      const I = this.cpuI;
+      for (const inc of b.inc) { if (ni >= this.MAXINST) break; if (inc.kind === 2 && (world.stage || 0) < 4) continue;
+        let x = 0, y = 0, z = 0;
+        if (inc.v) { for (let j = 0; j < 3; j++) { const v = inc.v[j], w = inc.w[j]; x += (P[v*3] + Nn[v*3] * 0.05) * w; y += (P[v*3+1] + Nn[v*3+1] * 0.05) * w; z += (P[v*3+2] + Nn[v*3+2] * 0.05) * w; } }
+        else { const t = inc.t * 4; for (let j = 0; j < 4; j++) { const v = b.tet[t + j], w = inc.w[j]; x += P[v*3] * w; y += P[v*3+1] * w; z += P[v*3+2] * w; } }
+        const o = ni * 5; I[o] = x; I[o+1] = y; I[o+2] = z; I[o+3] = inc.s; I[o+4] = inc.kind; ni++; }
     }
     q.writeBuffer(this.dynVB, 0, this.cpuV, 0, k);
     q.writeBuffer(this.instVB, 0, this.cpuI, 0, ni * 5);
     const props = knifeMesh(ui.knife); q.writeBuffer(this.propVB, 0, props);
     // uniforms
-    const ub = new Float32Array(272);
+    const ub = this.ub; ub.fill(0);
     ub.set(cam.viewProj, 0); ub.set(cam.view, 16); ub.set(M4.invert(cam.viewProj), 32);
     ub.set([...cam.eye, 1], 48); ub.set([...V3.norm([-0.45, 0.85, 0.35]), 0], 52);
     ub.set([this.W, this.H, 1 / this.W, 1 / this.H], 56);
-    ub.set([performance.now() / 1000, ui.scanX, ui.scanOn ? 1 : 0, 0], 60);
+    ub.set([performance.now() / 1000, ui.scanX, ui.scanOn ? 1 : 0, world.stage || 0], 60);
     ub.set(ui.gates.concat([0, 0]), 64);
     const nb = Math.min(24, world.bodies.length); ub.set([nb, cam.target[0], 0, 0], 72);
     for (let i = 0; i < nb; i++) { const b = world.bodies[i];
@@ -984,6 +1175,8 @@ const R = {
       depthStencilAttachment: { view: this.depthA.createView(), depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store" } });
     pass.setBindGroup(0, this.bg0);
     pass.setPipeline(this.pStatic); pass.setVertexBuffer(0, this.statVB); pass.draw(this.statN);
+    pass.setPipeline(this.pSign); pass.setBindGroup(1, this.signBG); pass.setVertexBuffer(0, this.signVB); pass.draw(this.signN);
+    pass.setPipeline(this.pStatic);
     if (ui.knife && ui.knife.vis > 0) { pass.setVertexBuffer(0, this.propVB); pass.draw(props.length / 7); }
     pass.setVertexBuffer(0, this.dynVB);
     pass.setPipeline(this.pCheese); pass.setIndexBuffer(this.idxCheese, "uint32"); pass.drawIndexed(this.nC);
@@ -1031,14 +1224,16 @@ function boxVerts(out, c, h, id, rot = null) { // centered box, optional rotatio
     }
   }
 }
-const GATE_X = [14, 28, 42, 56, 70, 84];
+const GATE_X = [11, 22, 33, 44, 55, 66];
 function staticScene() {
   const out = [], S = 400;
   for (const [x, z] of [[-S, -S], [S, -S], [S, S], [-S, -S], [S, S], [-S, S]]) out.push(x, 0, z, 0, 1, 0, -1);
   GATE_X.forEach((gx, i) => {
-    boxVerts(out, [gx, 2.6, -4.6], [0.28, 2.6, 0.28], i);
-    boxVerts(out, [gx, 2.6, 4.6], [0.28, 2.6, 0.28], i);
-    boxVerts(out, [gx, 5.35, 0], [0.34, 0.2, 4.9], i + 0.5);
+    boxVerts(out, [gx, 3.3, -6.2], [0.2, 3.3, 0.2], i);
+    boxVerts(out, [gx, 3.3, 6.2], [0.2, 3.3, 0.2], i);
+    boxVerts(out, [gx, 7.15, 0], [0.24, 0.62, 6.42], i);        // header panel carrying the name
+    boxVerts(out, [gx, 6.44, 0], [0.27, 0.07, 6.0], i + 0.5);   // status light under the panel
+    boxVerts(out, [gx, 0.012, 0], [0.1, 0.012, 6.0], i + 0.75); // threshold line on the floor
   });
   return new Float32Array(out);
 }
@@ -1055,7 +1250,7 @@ function knifeMesh(k) {
 }
 
 // ---------------------------------------------------------------- camera
-const cam = { yaw: -0.62, pitch: 0.5, dist: 30, target: [0, 1, 0], goal: [0, 1, 0], eye: [0, 0, 0], view: null, viewProj: null,
+const cam = { yaw: -0.62, pitch: 0.36, dist: 34, target: [0, 1, 0], goal: [0, 1, 0], eye: [0, 0, 0], view: null, viewProj: null,
   update(dt) {
     for (let i = 0; i < 3; i++) this.target[i] += (this.goal[i] - this.target[i]) * Math.min(1, dt * 2.2);
     const cp = Math.cos(this.pitch);
@@ -1069,6 +1264,92 @@ const cam = { yaw: -0.62, pitch: 0.5, dist: 30, target: [0, 1, 0], goal: [0, 1, 
 };
 
 // ---------------------------------------------------------------- UI state + pipeline director
+const CHECKS = {
+  en: [
+    ["sections: problem, customers, metrics, rollout", "Problem stated in one or two sentences", "Names who is affected", "Every metric has a baseline", "Kill criterion has a number"],
+    ["links resolve, structure complete", "Files listed with real paths", "Pattern cited as file:line", "Validation gates are commands", "One feature, nothing bundled"],
+    ["plan structure", "Steps in numbered order", "Every risk has a mitigation", "Names the test cases", "Phased rollout or a flag"],
+    ["linters and type checks", "Commits use Conventional prefixes", "Every change has a test", "Blockers named, or none"],
+    ["report structure", "Result matches the exit code", "Failures named with file:line", "Exact command recorded"],
+    ["PR structure", "Title has a Conventional type", "Summary says why", "Test plan is a checklist"],
+  ],
+  pt: [
+    ["seções: problema, clientes, métricas, rollout", "Problema em uma ou duas frases", "Diz quem é afetado", "Toda métrica tem baseline", "Critério de kill com número"],
+    ["links resolvem, estrutura completa", "Arquivos com caminho real", "Padrão citado como arquivo:linha", "Gates de validação são comandos", "Uma feature, nada misturado"],
+    ["estrutura do plano", "Passos em ordem numerada", "Todo risco tem mitigação", "Nomeia os casos de teste", "Rollout em fases ou flag"],
+    ["linters e checagem de tipos", "Commits com prefixo Conventional", "Toda mudança tem teste", "Bloqueios nomeados, ou nenhum"],
+    ["estrutura do relatório", "Resultado bate com o exit code", "Falhas com arquivo:linha", "Comando exato registrado"],
+    ["estrutura do PR", "Título com tipo Conventional", "Resumo diz o porquê", "Plano de teste em checklist"],
+  ],
+  es: [
+    ["secciones: problema, clientes, métricas, rollout", "Problema en una o dos frases", "Dice a quién afecta", "Toda métrica tiene baseline", "Criterio de kill con número"],
+    ["los links resuelven, estructura completa", "Archivos con ruta real", "Patrón citado como archivo:línea", "Gates de validación son comandos", "Una feature, nada mezclado"],
+    ["estructura del plan", "Pasos en orden numerado", "Todo riesgo tiene mitigación", "Nombra los casos de prueba", "Rollout por fases o flag"],
+    ["linters y chequeo de tipos", "Commits con prefijo Conventional", "Todo cambio tiene test", "Bloqueos nombrados, o ninguno"],
+    ["estructura del reporte", "El resultado coincide con el exit code", "Fallas con archivo:línea", "Comando exacto registrado"],
+    ["estructura del PR", "Título con tipo Conventional", "El resumen dice el porqué", "Plan de pruebas en checklist"],
+  ],
+};
+const GRAPH_CHECK = {
+  en: ["", "Each criterion has a REQ id", "Files recorded with evidence", "Scope gate: nothing outside the plan", "Tests linked to their REQ", "Trace table in the PR"],
+  pt: ["", "Cada critério tem um id REQ", "Arquivos registrados com evidência", "Gate de escopo: nada fora do plano", "Testes ligados ao seu REQ", "Tabela de rastreabilidade no PR"],
+  es: ["", "Cada criterio tiene un id REQ", "Archivos registrados con evidencia", "Gate de alcance: nada fuera del plan", "Tests vinculados a su REQ", "Tabla de trazabilidad en el PR"],
+};
+const CARD_TXT = {
+  en: { head: (j) => `sensor + eval · ${j}`, pass: "passed", fail: "back", you: "your call", back: (n, k) => `Going back to rewrite ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Failed three times. It stops and asks you.", decide: ["Is this the right problem? Approved.", "Ready to open the PR? Approved."] },
+  pt: { head: (j) => `sensor + eval · ${j}`, pass: "passou", fail: "voltando", you: "sua vez", back: (n, k) => `Voltando para reescrever ${n} ${n > 1 ? "checagens" : "checagem"} (${k}/3).`, stuck: "Falhou três vezes. Para e pergunta a você.", decide: ["É o problema certo? Aprovado.", "Pronto para abrir o PR? Aprovado."] },
+  es: { head: (j) => `sensor + eval · ${j}`, pass: "aprobó", fail: "volviendo", you: "tu turno", back: (n, k) => `Volviendo a reescribir ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Falló tres veces. Se detiene y te pregunta.", decide: ["¿Es el problema correcto? Aprobado.", "¿Listo para abrir el PR? Aprobado."] },
+};
+const ICON_OK = '<svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.2l2 2 4-4.4"/></svg>';
+const ICON_BAD = '<svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4"/></svg>';
+const card = {
+  el: null, gate: -1, items: [], prog: 0, foot: "", note: "", visible: false, hideIn: 0,
+  open(gate) {
+    this.el = this.el || document.getElementById("tcard");
+    const list = (CHECKS[LANG] || CHECKS.en)[gate].slice(), gl = (GRAPH_CHECK[LANG] || GRAPH_CHECK.en)[gate];
+    if (graphOn() && gl) list.push(gl);
+    this.gate = gate; this.items = list.map((t, i) => ({ t, st: "wait", sensor: i === 0 })); this.prog = -1; this.foot = ""; this.note = "";
+    this.visible = true; this.hideIn = 0; this.render();
+  },
+  progress(f) { // checks resolve one after another while the sensor scan sweeps
+    const n = this.items.length, done = Math.min(n, Math.floor(f * (n + 0.4)));
+    if (done === this.prog) return; this.prog = done;
+    this.items.forEach((it, i) => { if (it.st === "bad") return; it.st = i < done ? "ok" : i === done ? "run" : "wait"; });
+    this.render();
+  },
+  result(score, th, passed, retries) {
+    const C = CARD_TXT[LANG] || CARD_TXT.en, n = this.items.length;
+    let nFail = 0;
+    if (!passed) { nFail = th - score > 0.8 ? 2 : 1; const idx = [];
+      while (idx.length < nFail) { const k = 1 + Math.floor(rnd() * (n - 1)); if (!idx.includes(k)) idx.push(k); }
+      this.items.forEach((it, i) => it.st = idx.includes(i) ? "bad" : "ok"); }
+    else this.items.forEach(it => it.st = "ok");
+    const cmp = passed ? "≥" : "<";
+    this.foot = `<span class="sc">${score.toFixed(1)} ${cmp} ${th.toFixed(1)}</span><span class="verdict ${passed ? "ok" : "bad"}">${passed ? C.pass : C.fail}</span>`;
+    this.note = passed ? "" : (retries >= 3 ? C.stuck : C.back(nFail, retries));
+    this.hideIn = passed ? 2.6 : (retries >= 3 ? 0 : 2.8); this.render();
+  },
+  decide(which) { const C = CARD_TXT[LANG] || CARD_TXT.en;
+    this.foot = this.foot.replace(/<span class="verdict[^"]*">[^<]*<\/span>/, `<span class="verdict you">${C.you}</span>`);
+    this.note = C.decide[which]; this.hideIn = 2.6; this.render(); },
+  tick(dt) { if (this.hideIn > 0) { this.hideIn -= dt; if (this.hideIn <= 0) { this.visible = false; this.hideIn = 0; this.render(); } } },
+  hide() { this.visible = false; this.hideIn = 0; this.render(); },
+  render() {
+    if (!this.el) this.el = document.getElementById("tcard");
+    this.el.classList.toggle("show", this.visible);
+    if (this.gate < 0) return;
+    const C = CARD_TXT[LANG] || CARD_TXT.en;
+    const rows = this.items.map(it => `<div class="chk ${it.st === "run" ? "run" : it.st === "ok" ? "ok done" : it.st === "bad" ? "bad done" : ""}${it.sensor ? " sensor" : ""}"><span class="ic">${it.st === "ok" ? ICON_OK : it.st === "bad" ? ICON_BAD : ""}</span><span>${it.t}</span></div>`).join("");
+    this.el.innerHTML = `<div class="h"><b>${T().g[this.gate].toUpperCase()}</b><span>${C.head(judgeName())}</span></div>${rows}<div class="f">${this.foot}</div>${this.note ? `<div class="note">${this.note}</div>` : ""}`;
+  },
+  place() {
+    if (!this.visible || this.gate < 0 || !this.el) return;
+    const k = R.W / innerWidth, p = cam.project([GATE_X[this.gate], 9.4, 0]);
+    const x = Math.min(innerWidth - 160, Math.max(160, p[0] / k)), y = Math.max(this.el.offsetHeight + 70, p[1] / k);
+    this.el.style.left = x + "px"; this.el.style.top = y + "px";
+  },
+};
+const bursts = []; // gate verdicts: a check that pops on pass, a cross on fail
 const ui = { tool: "hand", setup: "plain", threshold: 8, mesh: false, gates: [0, 0, 0, 0, 0, 0], scanX: 0, scanOn: false, knife: null };
 const $ = (id) => document.getElementById(id);
 function seg(id, key, cb) { $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
@@ -1080,6 +1361,7 @@ const graphOn = () => ui.setup === "graph" || ui.setup === "both";
 $("strict").oninput = (e) => { ui.threshold = +e.target.value; $("strictV").textContent = ui.threshold.toFixed(1); };
 $("firm").oninput = (e) => { world.firm = +e.target.value; $("firmV").textContent = world.firm.toFixed(1); };
 $("damp").oninput = (e) => { world.damp = +e.target.value; $("dampV").textContent = world.damp.toFixed(1); };
+$("speed").oninput = (e) => { world.speed = +e.target.value; $("speedV").textContent = world.speed + "x"; };
 $("mesh").onclick = (e) => { ui.mesh = !ui.mesh; e.target.classList.toggle("on", ui.mesh); };
 $("slow").onclick = (e) => { world.slow = !world.slow; e.target.classList.toggle("on", world.slow); };
 $("pause").onclick = (e) => { world.paused = !world.paused; e.target.classList.toggle("on", world.paused); };
@@ -1095,8 +1377,9 @@ const director = {
   state: "idle", gate: 0, t: 0, retries: 0, score: 0,
   start() { if (this.state !== "idle" && this.state !== "done" && this.state !== "stuck") return;
     if (this.state === "done" || this.state === "stuck") { world.reset(); world.version++; }
-    ui.gates.fill(0); this.gate = 0; this.retries = 0; this.go("move"); $("rRetry").textContent = "0"; },
-  stop() { this.state = "idle"; world.drive = null; ui.scanOn = false; },
+    if (world.stage) { world.reset(); world.version++; }
+    ui.gates.fill(0); this.gate = 0; this.retries = 0; this.go("move"); $("rRetry").textContent = "0"; card.hide(); $("rRecipe").textContent = T().recipe[0]; },
+  stop() { this.state = "idle"; world.drive = null; ui.scanOn = false; card.hide(); },
   go(s) { this.state = s; this.t = 0; },
   centroid() { const c = [0, 0, 0]; let m = 0; for (const b of world.bodies) { const k = b.centroid(); c[0] += k[0] * b.n; c[1] += k[1] * b.n; c[2] += k[2] * b.n; m += b.n; } return V3.scale(c, 1 / Math.max(1, m)); },
   extentX() { let lo = Infinity, hi = -Infinity; for (const b of world.bodies) for (let i = 0; i < b.n; i++) { lo = Math.min(lo, b.pos[i*3]); hi = Math.max(hi, b.pos[i*3]); } return [lo, hi]; },
@@ -1105,44 +1388,51 @@ const director = {
     const c = this.centroid(); let vx = 0, vz = 0, nn = 0;
     for (const b of world.bodies) { const v = b.meanVel(); vx += v[0] * b.n; vz += v[2] * b.n; nn += b.n; } vx /= nn; vz /= nn;
     if (this.state === "move" || this.state === "bounce") {
-      const tx = this.state === "bounce" ? GATE_X[this.gate] - 9 : GATE_X[this.gate];
-      world.drive = { tx, k: 9, c: 4.5, centroid: c, vx, vz };
-      if (this.state === "move" && Math.abs(c[0] - tx) < 0.6 && Math.abs(vx) < 3) { world.drive = { tx, k: 14, c: 8, centroid: c, vx, vz }; this.go("scan"); ui.gates[this.gate] = 1;
-        const gName = L.g[this.gate].toUpperCase();
-        setCaption(L.cap[this.gate] + (graphOn() && L.capGraph[this.gate] ? "<br>" + L.capGraph[this.gate] : ""), 0);
-        $("rStage").textContent = L.g[this.gate]; void gName; }
-      if (this.state === "bounce" && this.t > 1.3) this.go("move");
+      const tx = this.state === "bounce" ? GATE_X[this.gate] - 7 : GATE_X[this.gate];
+      world.drive = { tx, k: 16, c: 6, centroid: c, vx, vz };
+      if (this.state === "move" && Math.abs(c[0] - tx) < 0.9 && Math.abs(vx) < 6) { world.drive = { tx, k: 14, c: 8, centroid: c, vx, vz }; this.go("scan"); ui.gates[this.gate] = 1;
+        card.open(this.gate); setCaption("");
+        $("rStage").textContent = L.g[this.gate]; }
+      if (this.state === "bounce" && this.t > 1.6 && ui.gates[this.gate] === 3) ui.gates[this.gate] = 0; // red only briefly, then grey again
+      if (this.state === "bounce" && this.t > 2.4) this.go("move");
     } else if (this.state === "scan") {
       world.drive = { tx: GATE_X[this.gate], k: 14, c: 8, centroid: c, vx, vz };
-      const dur = judgeName() === "Jev" ? 1.1 : 2.1, [lo, hi] = this.extentX();
-      ui.scanOn = true; ui.scanX = lo + (hi - lo) * Math.min(1, this.t / dur);
+      const dur = judgeName() === "Jev" ? 2.2 : 4.0, [lo, hi] = this.extentX();
+      ui.scanOn = true; ui.scanX = lo + (hi - lo) * Math.min(1, this.t / dur); card.progress(this.t / dur);
       if (this.t > dur) { ui.scanOn = false;
-        const base = 7.3 + rnd() * 1.6 + this.retries * 0.75 + (world.bodies.length > 1 ? 0.35 : 0);
-        this.score = Math.min(9.8, base);
+        // it is not easy: 10% pass on the first try, 60% after one rewrite, 95% after two
+        const passes = Math.random() < [0.10, 0.60, 0.95][Math.min(2, this.retries)];
+        const th0 = ui.threshold;
+        this.score = passes ? Math.min(9.9, th0 + 0.1 + Math.random() * 1.1) : Math.max(4.5, th0 - 0.3 - Math.random() * 1.5);
         const s = this.score.toFixed(1), th = ui.threshold.toFixed(1), g = L.g[this.gate].toUpperCase();
         $("rScore").innerHTML = `${s} <small>/ ${th}</small>`;
         $("rJudge").innerHTML = judgeName() === "Jev" ? `Jev <small>0.3 s</small>` : `Claude <small>~40 s</small>`;
+        void g; void s; void th;
         if (this.score >= ui.threshold) {
-          if (this.gate === 0 || this.gate === 5) { ui.gates[this.gate] = 4; this.go("decide"); setCaption(L.decide(this.gate === 0 ? 0 : 1), 2400); }
-          else this.pass(g, s, th);
-        } else if (this.retries >= 2) { ui.gates[this.gate] = 3; this.state = "stuck"; world.drive = null; setCaption(L.escalate(g), 6000); }
-        else { this.retries++; $("rRetry").textContent = String(this.retries); ui.gates[this.gate] = 3; this.go("bounce");
-          setCaption(L.fail(g, s, th, this.retries), 2600);
+          card.result(this.score, ui.threshold, true, this.retries);
+          if (this.gate === 0 || this.gate === 5) { ui.gates[this.gate] = 4; this.go("decide"); card.decide(this.gate === 0 ? 0 : 1); }
+          else this.pass();
+        } else if (this.retries >= 2) { ui.gates[this.gate] = 3; this.state = "stuck"; bursts.push({ gate: this.gate, ok: false, t: 0 }); world.drive = null; card.result(this.score, ui.threshold, false, 3); }
+        else { this.retries++; $("rRetry").textContent = String(this.retries); ui.gates[this.gate] = 3; this.go("bounce"); bursts.push({ gate: this.gate, ok: false, t: 0 });
+          card.result(this.score, ui.threshold, false, this.retries);
           for (const b of world.bodies) for (let i = 0; i < b.n; i++) { b.vel[i*3] -= 34; b.vel[i*3+1] += 40; } }
       }
+    } else if (this.state === "hold") {
+      world.drive = { tx: GATE_X[this.gate - 1] + 2, k: 10, c: 7, centroid: c, vx, vz };
+      if (this.t > 1.4) this.go("move");
     } else if (this.state === "decide") {
       world.drive = { tx: GATE_X[this.gate], k: 14, c: 8, centroid: c, vx, vz };
-      if (this.t > 1.6) this.pass(L.g[this.gate].toUpperCase(), this.score.toFixed(1), ui.threshold.toFixed(1));
+      if (this.t > 2.6) this.pass();
     } else if (this.state === "done") {
       world.drive = { tx: GATE_X[5] + 10, k: 6, c: 4, centroid: c, vx, vz };
     }
   },
-  pass(g, s, th) {
-    const L = T(); ui.gates[this.gate] = 2;
+  pass() {
+    const L = T(); ui.gates[this.gate] = 2; bursts.push({ gate: this.gate, ok: true, t: 0 });
+    world.transform(this.gate + 1); setCaption(L.cook[this.gate + 1], 2600); $("rRecipe").textContent = L.recipe[this.gate + 1];
     if (graphOn() && this.gate >= 1) for (const b of world.bodies) b.reqState = this.gate >= 4 ? 2 : 1;
-    if (this.gate < 5) { setCaption(L.pass(g, s, th), 1800); this.retries = 0; $("rRetry").textContent = "0"; this.gate++; this.go("move"); }
-    else { this.go("done"); $("rStage").textContent = L.merged; setCaption(L.done, 6000);
-      for (const b of world.bodies) for (let i = 0; i < b.n; i++) b.vel[i*3+1] += 70; }
+    if (this.gate < 5) { this.retries = 0; $("rRetry").textContent = "0"; this.gate++; this.go("hold"); }
+    else { this.go("done"); $("rStage").textContent = L.merged; setCaption(L.done, 6000); }
   },
 };
 
@@ -1197,7 +1487,6 @@ function numberReqs() { world.bodies.forEach((b, i) => { b.req = "REQ-" + String
 const tagsEl = document.getElementById("tags");
 function labels() {
   let html = "";
-  GATE_X.forEach((gx, i) => { const p = cam.project([gx, 6.2, 0]); if (p[2] > 0 && p[2] < 1) html += `<div class="tag" style="left:${p[0] / (R.W / innerWidth)}px;top:${p[1] / (R.W / innerWidth)}px">${T().g[i]}</div>`; });
   if (graphOn() && world.bodies.length) world.bodies.forEach((b, i) => {
     const c = b.centroid(), p = cam.project([c[0], c[1] + 2.2, c[2]]);
     const id = b.req || "REQ-" + String(i + 1).padStart(3, "0");
@@ -1205,6 +1494,12 @@ function labels() {
     html += `<div class="tag req${st}" style="left:${p[0] / (R.W / innerWidth)}px;top:${p[1] / (R.W / innerWidth)}px">${id}${b.reqState === 2 ? " ✓" : ""}</div>`;
   });
   tagsEl.innerHTML = html;
+}
+function runButton() {
+  const b = $("run"), L = T(), busy = !["idle", "done", "stuck"].includes(director.state);
+  const html = busy ? `<span class="spin"></span>${L.running} · ${L.g[director.gate].toUpperCase()}` : (director.state === "done" || director.state === "stuck" ? L.again : L.run);
+  if (b.dataset.html !== html) { b.innerHTML = html; b.dataset.html = html; }
+  b.classList.toggle("busy", busy);
 }
 function readouts() {
   let mass = 0, vol = 0, rest = 0, ke = 0;
@@ -1215,8 +1510,33 @@ function readouts() {
   $("rKe").innerHTML = `${(ke * 1e-7 * 1e6).toFixed(1)} <small>µJ</small>`;
   $("rPieces").textContent = String(world.bodies.length);
 }
-function overlay() {
+function drawBursts(dt) {
+  const k = R.W / innerWidth;
+  for (let i = bursts.length - 1; i >= 0; i--) {
+    const b = bursts[i]; b.t += dt; if (b.t > 1.6) { bursts.splice(i, 1); continue; }
+    const p = cam.project([GATE_X[b.gate], 7.15, 0]); if (p[2] <= 0 || p[2] >= 1) continue;
+    const t = b.t, pop = t < 0.35 ? 1 - Math.pow(1 - t / 0.35, 3) * Math.cos(t / 0.35 * 5) * 0.4 : 1;
+    const fade = t > 1.15 ? 1 - (t - 1.15) / 0.45 : 1, r = 26 * k * pop, x = p[0], y = p[1] - 6 * k * Math.min(1, t * 3);
+    og.globalAlpha = Math.max(0, fade);
+    og.strokeStyle = b.ok ? "#22C55E" : "#E5484D"; og.lineWidth = 3 * k;  // expanding ring
+    og.beginPath(); og.arc(x, y, r + 30 * k * Math.min(1, t / 0.6), 0, 7); og.globalAlpha = Math.max(0, fade * (1 - Math.min(1, t / 0.6))); og.stroke();
+    og.globalAlpha = Math.max(0, fade);
+    og.fillStyle = b.ok ? "#22C55E" : "#E5484D"; og.beginPath(); og.arc(x, y, r, 0, 7); og.fill();
+    og.strokeStyle = "#ffffff"; og.lineWidth = 5 * k; og.lineCap = "round"; og.lineJoin = "round";
+    const d = Math.min(1, Math.max(0, (t - 0.12) / 0.3)); // stroke draws itself
+    og.beginPath();
+    if (b.ok) { const a = [x - r * 0.42, y + r * 0.02], m = [x - r * 0.1, y + r * 0.34], e = [x + r * 0.44, y - r * 0.3];
+      const l1 = Math.hypot(m[0] - a[0], m[1] - a[1]), l2 = Math.hypot(e[0] - m[0], e[1] - m[1]), len = (l1 + l2) * d;
+      og.moveTo(a[0], a[1]);
+      if (len <= l1) og.lineTo(a[0] + (m[0] - a[0]) * len / l1, a[1] + (m[1] - a[1]) * len / l1);
+      else { og.lineTo(m[0], m[1]); const q = (len - l1) / l2; og.lineTo(m[0] + (e[0] - m[0]) * q, m[1] + (e[1] - m[1]) * q); } }
+    else { const s2 = r * 0.34 * d; og.moveTo(x - s2, y - s2); og.lineTo(x + s2, y + s2); og.moveTo(x + s2, y - s2); og.lineTo(x - s2, y + s2); }
+    og.stroke(); og.globalAlpha = 1;
+  }
+}
+function overlay(dt = 0.016) {
   og.clearRect(0, 0, ov.width, ov.height);
+  drawBursts(dt);
   if (drag && drag.mode === "knife") {
     og.strokeStyle = "#191919"; og.lineWidth = 2 * (R.W / innerWidth); og.setLineDash([10, 8]);
     og.beginPath(); og.moveTo(drag.a[0], drag.a[1]); og.lineTo(drag.b[0], drag.b[1]); og.stroke(); og.setLineDash([]);
@@ -1238,20 +1558,26 @@ async function main() {
   }
   world.reset(); world.version++;
   if (EMBED) { cam.dist = 24; cam.pitch = 0.42; setTimeout(() => director.start(), 900); }
-  let last = performance.now(), acc = 0, frames = 0, ro = 0, idleFor = 0;
+  let last = performance.now(), acc = 0, frames = 0, ro = 0, idleFor = 0, ftAvg = 0.016, ftCheck = 0;
   const STEP = 1 / 60;
   function tick(now) {
     let dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (!world.paused) {
-      acc += dt * (world.slow ? 0.25 : 1);
-      let n = 0; while (acc >= STEP && n < 3) { director.update(STEP); world.step(STEP); updateKnife(STEP); acc -= STEP; n++; }
-      if (n === 3) acc = 0;
+      const rate = (world.slow ? 0.25 : 1) * world.speed, cap = Math.ceil(3 * world.speed) + 1;
+      acc += dt * rate;
+      let n = 0; while (acc >= STEP && n < cap) { director.update(STEP); world.step(STEP); updateKnife(STEP); card.tick(STEP); acc -= STEP; n++; }
+      if (n === cap) acc = 0;
     }
     if (EMBED && (director.state === "done" || director.state === "stuck")) { idleFor += dt; if (idleFor > 5) { idleFor = 0; director.start(); } }
-    const c = director.centroid(); cam.goal = [c[0], 1, c[2] * 0.5];
-    cam.update(dt); R.frame(cam, ui); overlay();
-    if ((frames++ & 3) === 0) labels();
-    ro += dt; if (ro > 0.2) { ro = 0; readouts(); }
+    const c = director.centroid(); cam.goal = [c[0] + 2, 3.2, c[2] * 0.5];
+    cam.update(dt); R.frame(cam, ui); overlay(world.paused ? 0 : dt * (world.slow ? 0.25 : 1) * world.speed); card.place();
+    // keep it smooth: drop the render resolution when frames run long, raise it back when there is headroom
+    ftAvg = ftAvg * 0.95 + dt * 0.05;
+    if (++ftCheck > 90) { ftCheck = 0;
+      if (ftAvg > 0.022 && (R.scale || 1.25) > 0.75) { R.scale = Math.max(0.75, (R.scale || 1.25) - 0.25); R.resize(); }
+      else if (ftAvg < 0.0135 && (R.scale || 1.25) < 1.5) { R.scale = Math.min(1.5, (R.scale || 1.25) + 0.25); R.resize(); } }
+    if ((frames++ % 8) === 0) labels();
+    ro += dt; if (ro > 0.2) { ro = 0; readouts(); runButton(); }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
