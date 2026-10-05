@@ -83,13 +83,28 @@
   .tag.req { font: 500 10.5px var(--mono); letter-spacing: 0; text-transform: none; background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 2px 7px; }
   .tag.req.ok { background: var(--yellow); border-color: var(--yellow); }
 
-  .tcard {
-    position: fixed; z-index: 3; width: 300px; transform: translate(-50%, -100%); pointer-events: none;
-    background: rgba(255, 255, 255, 0.66); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
-    border: 1px solid rgba(25, 25, 25, 0.1); border-radius: 14px; padding: 12px 14px 11px; font: 12.5px/1.35 var(--sans); color: var(--ink);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); opacity: 0; transition: opacity .25s, transform .25s;
+  .tcard { position: fixed; z-index: 3; width: 300px; transform: translate(-50%, -100%); perspective: 1000px; pointer-events: none; opacity: 0; transition: opacity .25s; }
+  .tcard.show { opacity: 1; pointer-events: auto; cursor: pointer; }
+  .tcard .inner { display: grid; transform-style: preserve-3d; transition: transform .65s cubic-bezier(.2, .8, .2, 1); }
+  .tcard.flipped .inner { transform: rotateY(180deg); }
+  .tcard .face {
+    grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px; padding: 12px 14px 11px;
+    background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(25, 25, 25, 0.1); box-shadow: 0 12px 34px rgba(0, 0, 0, 0.1);
+    font: 12.5px/1.35 var(--sans); color: var(--ink);
   }
-  .tcard.show { opacity: 1; transform: translate(-50%, calc(-100% - 6px)); }
+  .tcard .back { transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 16px 18px; color: #fff; border: 0; }
+  .tcard .back.ok { background: rgba(22, 163, 74, 0.9); }
+  .tcard .back.bad { background: rgba(220, 38, 38, 0.9); }
+  .tcard .back.you { background: rgba(250, 204, 21, 0.95); color: var(--ink); }
+  .tcard .back .g { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+  .tcard .back .big { width: 54px; height: 54px; border-radius: 50%; background: rgba(255, 255, 255, 0.95); display: grid; place-items: center; margin: 2px 0 4px; }
+  .tcard .back.you .big { background: var(--ink); }
+  .tcard .back .big svg { width: 28px; height: 28px; }
+  .tcard .back .big path { stroke-dasharray: 40; stroke-dashoffset: 40; }
+  .tcard.flipped .back .big path { animation: draw .45s .35s ease-out forwards; }
+  .tcard .back .msg { font-size: 14px; font-weight: 600; line-height: 1.35; }
+  .tcard .back .sc { font: 500 12px var(--mono); opacity: 0.9; }
+  .tcard .back .hint, .tcard .front .hint { font-size: 10.5px; opacity: 0.7; margin-top: 2px; }
   .tcard .h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .tcard .h b { font-weight: 700; letter-spacing: 0.02em; }
   .tcard .h span { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
@@ -101,13 +116,7 @@
   .tcard .ok .ic { background: #22C55E; border-color: #22C55E; animation: pop .25s ease-out; }
   .tcard .bad .ic { background: #E5484D; border-color: #E5484D; animation: pop .25s ease-out; }
   .tcard .ic svg { width: 9px; height: 9px; }
-  .tcard .f { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(25,25,25,0.1); display: flex; justify-content: space-between; align-items: center; font-weight: 600; min-height: 22px; }
-  .tcard .f .sc { font: 600 13px var(--mono); }
-  .tcard .f .verdict { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
-  .tcard .f .verdict.ok { background: #22C55E; color: #fff; }
-  .tcard .f .verdict.bad { background: #E5484D; color: #fff; }
-  .tcard .f .verdict.you { background: var(--yellow); color: var(--ink); }
-  .tcard .note { margin-top: 6px; font-size: 11.5px; color: var(--dim); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes pop { 0% { transform: scale(0.4); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
   #fallback { display: none; position: fixed; inset: 0; z-index: 10; background: var(--bg); align-items: center; justify-content: center; text-align: center; padding: 24px; }
@@ -207,7 +216,7 @@
 
 <div class="caption" id="caption"></div>
 <div id="tags"></div>
-<div class="tcard" id="tcard"></div>
+<div class="tcard" id="tcard"><div class="inner"><div class="face front"></div><div class="face back"></div></div></div>
 
 <div id="fallback"><div>
   <h2 data-t="fb.h">This page needs WebGPU.</h2>
@@ -1296,22 +1305,25 @@ const GRAPH_CHECK = {
   es: ["", "Cada criterio tiene un id REQ", "Archivos registrados con evidencia", "Gate de alcance: nada fuera del plan", "Tests vinculados a su REQ", "Tabla de trazabilidad en el PR"],
 };
 const CARD_TXT = {
-  en: { head: (j) => `sensor + eval · ${j}`, pass: "passed", fail: "back", you: "your call", back: (n, k) => `Going back to rewrite ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Failed three times. It stops and asks you.", decide: ["Is this the right problem? Approved.", "Ready to open the PR? Approved."] },
-  pt: { head: (j) => `sensor + eval · ${j}`, pass: "passou", fail: "voltando", you: "sua vez", back: (n, k) => `Voltando para reescrever ${n} ${n > 1 ? "checagens" : "checagem"} (${k}/3).`, stuck: "Falhou três vezes. Para e pergunta a você.", decide: ["É o problema certo? Aprovado.", "Pronto para abrir o PR? Aprovado."] },
-  es: { head: (j) => `sensor + eval · ${j}`, pass: "aprobó", fail: "volviendo", you: "tu turno", back: (n, k) => `Volviendo a reescribir ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Falló tres veces. Se detiene y te pregunta.", decide: ["¿Es el problema correcto? Aprobado.", "¿Listo para abrir el PR? Aprobado."] },
+  en: { flip: "tap to see the checks", flipBack: "tap for the verdict", head: (j) => `sensor + eval · ${j}`, pass: "passed", fail: "back", you: "your call", back: (n, k) => `Going back to rewrite ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Failed three times. It stops and asks you.", decide: ["Is this the right problem? Approved.", "Ready to open the PR? Approved."] },
+  pt: { flip: "toque para ver as checagens", flipBack: "toque para ver o resultado", head: (j) => `sensor + eval · ${j}`, pass: "passou", fail: "voltando", you: "sua vez", back: (n, k) => `Voltando para reescrever ${n} ${n > 1 ? "checagens" : "checagem"} (${k}/3).`, stuck: "Falhou três vezes. Para e pergunta a você.", decide: ["É o problema certo? Aprovado.", "Pronto para abrir o PR? Aprovado."] },
+  es: { flip: "toca para ver los checks", flipBack: "toca para ver el resultado", head: (j) => `sensor + eval · ${j}`, pass: "aprobó", fail: "volviendo", you: "tu turno", back: (n, k) => `Volviendo a reescribir ${n} check${n > 1 ? "s" : ""} (${k}/3).`, stuck: "Falló tres veces. Se detiene y te pregunta.", decide: ["¿Es el problema correcto? Aprobado.", "¿Listo para abrir el PR? Aprobado."] },
 };
 const ICON_OK = '<svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.2l2 2 4-4.4"/></svg>';
 const ICON_BAD = '<svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4"/></svg>';
-const card = {
-  el: null, gate: -1, items: [], prog: 0, foot: "", note: "", visible: false, hideIn: 0,
+const BIG_OK = '<svg viewBox="0 0 28 28" fill="none" stroke="#16A34A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5l4.6 4.6L21.5 9"/></svg>';
+const BIG_BAD = '<svg viewBox="0 0 28 28" fill="none" stroke="#DC2626" stroke-width="3.4" stroke-linecap="round"><path d="M9 9l10 10M19 9L9 19"/></svg>';
+const BIG_YOU = '<svg viewBox="0 0 28 28" fill="none" stroke="#FACC15" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5l4.6 4.6L21.5 9"/></svg>';
+const card = { // front: the checks running; back: the verdict. Click a portal to reopen it, click the card to flip it.
+  el: null, gate: -1, items: [], prog: 0, visible: false, flipped: false, hideIn: 0, flipIn: 0, hist: {}, back: null,
+  get dom() { if (!this.el) { this.el = document.getElementById("tcard"); this.el.addEventListener("click", (e) => { e.stopPropagation(); this.flipped = !this.flipped; this.hideIn = 0; this.render(); }); } return this.el; },
   open(gate) {
-    this.el = this.el || document.getElementById("tcard");
     const list = (CHECKS[LANG] || CHECKS.en)[gate].slice(), gl = (GRAPH_CHECK[LANG] || GRAPH_CHECK.en)[gate];
     if (graphOn() && gl) list.push(gl);
-    this.gate = gate; this.items = list.map((t, i) => ({ t, st: "wait", sensor: i === 0 })); this.prog = -1; this.foot = ""; this.note = "";
-    this.visible = true; this.hideIn = 0; this.render();
+    this.gate = gate; this.items = list.map((t, i) => ({ t, st: "wait", sensor: i === 0 })); this.prog = -1;
+    this.back = null; this.visible = true; this.flipped = false; this.hideIn = 0; this.flipIn = 0; this.render();
   },
-  progress(f) { // checks resolve one after another while the sensor scan sweeps
+  progress(f) {
     const n = this.items.length, done = Math.min(n, Math.floor(f * (n + 0.4)));
     if (done === this.prog) return; this.prog = done;
     this.items.forEach((it, i) => { if (it.st === "bad") return; it.st = i < done ? "ok" : i === done ? "run" : "wait"; });
@@ -1324,29 +1336,39 @@ const card = {
       while (idx.length < nFail) { const k = 1 + Math.floor(rnd() * (n - 1)); if (!idx.includes(k)) idx.push(k); }
       this.items.forEach((it, i) => it.st = idx.includes(i) ? "bad" : "ok"); }
     else this.items.forEach(it => it.st = "ok");
-    const cmp = passed ? "≥" : "<";
-    this.foot = `<span class="sc">${score.toFixed(1)} ${cmp} ${th.toFixed(1)}</span><span class="verdict ${passed ? "ok" : "bad"}">${passed ? C.pass : C.fail}</span>`;
-    this.note = passed ? "" : (retries >= 3 ? C.stuck : C.back(nFail, retries));
-    this.hideIn = passed ? 2.6 : (retries >= 3 ? 0 : 2.8); this.render();
+    const sc = `${score.toFixed(1)} ${passed ? "≥" : "<"} ${th.toFixed(1)}`;
+    this.back = passed ? { kind: "ok", msg: C.pass, sc } : { kind: "bad", msg: retries >= 3 ? C.stuck : C.back(nFail, retries), sc };
+    this.save(); this.flipIn = 0.45; this.hideIn = passed ? 0 : (retries >= 3 ? 0 : 3.2); this.render();
   },
   decide(which) { const C = CARD_TXT[LANG] || CARD_TXT.en;
-    this.foot = this.foot.replace(/<span class="verdict[^"]*">[^<]*<\/span>/, `<span class="verdict you">${C.you}</span>`);
-    this.note = C.decide[which]; this.hideIn = 2.6; this.render(); },
-  tick(dt) { if (this.hideIn > 0) { this.hideIn -= dt; if (this.hideIn <= 0) { this.visible = false; this.hideIn = 0; this.render(); } } },
-  hide() { this.visible = false; this.hideIn = 0; this.render(); },
+    this.back = { kind: "you", msg: C.decide[which], sc: this.back ? this.back.sc : "" }; this.save(); this.render(); },
+  passed(msg) { // the gate is green: show what the pudim became
+    if (!this.back) return; this.back = { kind: "ok", msg, sc: this.back.sc }; this.save(); if (!this.flipIn) this.flipped = true; this.hideIn = 3.8; this.render(); },
+  save() { this.hist[this.gate] = { items: this.items.map(it => ({ ...it })), back: { ...this.back } }; },
+  showGate(g) { const h = this.hist[g]; if (!h) return false;
+    this.gate = g; this.items = h.items.map(it => ({ ...it })); this.back = { ...h.back }; this.visible = true; this.flipped = true; this.hideIn = 0; this.flipIn = 0; this.render(); return true; },
+  tick(dt) {
+    if (this.flipIn > 0) { this.flipIn -= dt; if (this.flipIn <= 0) { this.flipIn = 0; this.flipped = true; this.render(); } }
+    if (this.hideIn > 0) { this.hideIn -= dt; if (this.hideIn <= 0) { this.hideIn = 0; this.visible = false; this.render(); } }
+  },
+  hide() { this.visible = false; this.hideIn = 0; this.flipIn = 0; this.render(); },
+  reset() { this.hist = {}; this.hide(); },
   render() {
-    if (!this.el) this.el = document.getElementById("tcard");
-    this.el.classList.toggle("show", this.visible);
+    const el = this.dom, C = CARD_TXT[LANG] || CARD_TXT.en;
+    el.classList.toggle("show", this.visible); el.classList.toggle("flipped", this.flipped && !!this.back);
     if (this.gate < 0) return;
-    const C = CARD_TXT[LANG] || CARD_TXT.en;
+    const name = T().g[this.gate].toUpperCase();
     const rows = this.items.map(it => `<div class="chk ${it.st === "run" ? "run" : it.st === "ok" ? "ok done" : it.st === "bad" ? "bad done" : ""}${it.sensor ? " sensor" : ""}"><span class="ic">${it.st === "ok" ? ICON_OK : it.st === "bad" ? ICON_BAD : ""}</span><span>${it.t}</span></div>`).join("");
-    this.el.innerHTML = `<div class="h"><b>${T().g[this.gate].toUpperCase()}</b><span>${C.head(judgeName())}</span></div>${rows}<div class="f">${this.foot}</div>${this.note ? `<div class="note">${this.note}</div>` : ""}`;
+    el.querySelector(".front").innerHTML = `<div class="h"><b>${name}</b><span>${C.head(judgeName())}</span></div>${rows}${this.back ? `<div class="hint">${C.flipBack}</div>` : ""}`;
+    const b = this.back, back = el.querySelector(".back");
+    back.className = "face back " + (b ? b.kind : "");
+    back.innerHTML = b ? `<div class="g">${name}</div><div class="big">${b.kind === "ok" ? BIG_OK : b.kind === "bad" ? BIG_BAD : BIG_YOU}</div><div class="msg">${b.msg}</div><div class="sc">${b.sc}</div><div class="hint">${C.flip}</div>` : "";
   },
   place() {
-    if (!this.visible || this.gate < 0 || !this.el) return;
-    const k = R.W / innerWidth, p = cam.project([GATE_X[this.gate], 9.4, 0]);
-    const x = Math.min(innerWidth - 160, Math.max(160, p[0] / k)), y = Math.max(this.el.offsetHeight + 70, p[1] / k);
-    this.el.style.left = x + "px"; this.el.style.top = y + "px";
+    if (!this.visible || this.gate < 0) return;
+    const el = this.dom, k = R.W / innerWidth, p = cam.project([GATE_X[this.gate], 9.4, 0]);
+    const x = Math.min(innerWidth - 160, Math.max(160, p[0] / k)), y = Math.max(el.offsetHeight + 70, p[1] / k);
+    el.style.left = x + "px"; el.style.top = y + "px";
   },
 };
 const bursts = []; // gate verdicts: a check that pops on pass, a cross on fail
@@ -1378,7 +1400,7 @@ const director = {
   start() { if (this.state !== "idle" && this.state !== "done" && this.state !== "stuck") return;
     if (this.state === "done" || this.state === "stuck") { world.reset(); world.version++; }
     if (world.stage) { world.reset(); world.version++; }
-    ui.gates.fill(0); this.gate = 0; this.retries = 0; this.go("move"); $("rRetry").textContent = "0"; card.hide(); $("rRecipe").textContent = T().recipe[0]; },
+    ui.gates.fill(0); this.gate = 0; this.retries = 0; this.go("move"); $("rRetry").textContent = "0"; card.reset(); $("rRecipe").textContent = T().recipe[0]; },
   stop() { this.state = "idle"; world.drive = null; ui.scanOn = false; card.hide(); },
   go(s) { this.state = s; this.t = 0; },
   centroid() { const c = [0, 0, 0]; let m = 0; for (const b of world.bodies) { const k = b.centroid(); c[0] += k[0] * b.n; c[1] += k[1] * b.n; c[2] += k[2] * b.n; m += b.n; } return V3.scale(c, 1 / Math.max(1, m)); },
@@ -1429,10 +1451,10 @@ const director = {
   },
   pass() {
     const L = T(); ui.gates[this.gate] = 2; bursts.push({ gate: this.gate, ok: true, t: 0 });
-    world.transform(this.gate + 1); setCaption(L.cook[this.gate + 1], 2600); $("rRecipe").textContent = L.recipe[this.gate + 1];
+    world.transform(this.gate + 1); card.passed(L.cook[this.gate + 1]); $("rRecipe").textContent = L.recipe[this.gate + 1];
     if (graphOn() && this.gate >= 1) for (const b of world.bodies) b.reqState = this.gate >= 4 ? 2 : 1;
     if (this.gate < 5) { this.retries = 0; $("rRetry").textContent = "0"; this.gate++; this.go("hold"); }
-    else { this.go("done"); $("rStage").textContent = L.merged; setCaption(L.done, 6000); }
+    else { this.go("done"); $("rStage").textContent = L.merged; card.hideIn = 0; }
   },
 };
 
@@ -1440,6 +1462,12 @@ const director = {
 const ov = document.getElementById("overlay"), og = ov.getContext("2d");
 let drag = null;
 function floorHit(sx, sy) { const r = cam.ray(sx, sy); if (Math.abs(r.d[1]) < 1e-4) return null; const t = -r.o[1] / r.d[1]; return t > 0 ? [r.o[0] + r.d[0] * t, r.o[2] + r.d[2] * t] : null; }
+function pickGate(sx, sy) {
+  const r = cam.ray(sx, sy); let best = -1, bt = Infinity;
+  GATE_X.forEach((gx, i) => { if (Math.abs(r.d[0]) < 1e-5) return; const t = (gx - r.o[0]) / r.d[0]; if (t <= 0 || t >= bt) return;
+    const y = r.o[1] + r.d[1] * t, z = r.o[2] + r.d[2] * t; if (Math.abs(z) < 6.6 && y > 0 && y < 7.9) { bt = t; best = i; } });
+  return best;
+}
 function pick(sx, sy) {
   const r = cam.ray(sx, sy); let best = null, bd = 0.55;
   for (const b of world.bodies) for (let i = 0; i < b.n; i++) {
@@ -1458,15 +1486,20 @@ gpuCanvas.addEventListener("pointerdown", (e) => {
   const hit = pick(sx, sy);
   if (hit) { const p = [hit.body.pos[hit.i*3], hit.body.pos[hit.i*3+1], hit.body.pos[hit.i*3+2]];
     world.grab = { body: hit.body, i: hit.i, target: p, depth: hit.t }; drag = { mode: "grab" }; }
-  else drag = { mode: "orbit", x: e.clientX, y: e.clientY };
+  else drag = { mode: "orbit", x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, moved: false };
 });
 gpuCanvas.addEventListener("pointermove", (e) => {
   if (!drag) return; const dpr = R.W / innerWidth, sx = e.clientX * dpr, sy = e.clientY * dpr;
+  if (drag.mode === "orbit" && Math.hypot(e.clientX - (drag.x0 ?? e.clientX), e.clientY - (drag.y0 ?? e.clientY)) > 5) drag.moved = true;
   if (drag.mode === "orbit") { cam.yaw -= (e.clientX - drag.x) * 0.006; cam.pitch = Math.min(1.35, Math.max(0.08, cam.pitch + (e.clientY - drag.y) * 0.005)); drag.x = e.clientX; drag.y = e.clientY; }
   else if (drag.mode === "grab" && world.grab) { const r = cam.ray(sx, sy); const tp = V3.add(r.o, V3.scale(r.d, world.grab.depth)); tp[1] = Math.max(0.05, tp[1]); world.grab.target = tp; }
   else if (drag.mode === "knife") drag.b = [sx, sy];
 });
-const endDrag = () => {
+const endDrag = (e) => {
+  if (drag && drag.mode === "orbit" && !drag.moved && e && e.type === "pointerup") {
+    const k = R.W / innerWidth, g = pickGate(e.clientX * k, e.clientY * k);
+    if (g < 0 || !card.showGate(g)) { if (!["scan", "decide"].includes(director.state)) card.hide(); }
+  }
   if (drag && drag.mode === "knife") { const dpr = R.W / innerWidth; void dpr;
     const p0 = floorHit(drag.a[0], drag.a[1]), p1 = floorHit(drag.b[0], drag.b[1]);
     if (p0 && p1 && Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) > 1) ui.knife = { p0, p1, y: 9, vis: 1, t: 0, done: false }; }
