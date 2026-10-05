@@ -6,6 +6,7 @@
 
 | Página | Qué cubre |
 |---|---|
+| [Primeros pasos](Getting-Started) | instalación, elegir un setup y pasar de un brief a un merged PR, paso a paso |
 | [Harness Engineering](Harness-Engineering) | `Agent = Model + Harness`, feedforward y feedback, humanos on the loop |
 | [Referencias](References) | las fuentes detrás de cada decisión de diseño |
 | [Guides](Guides) | templates, ejemplos, estilo de escritura, convenciones |
@@ -13,6 +14,8 @@
 | [Evals](Evals) | rubrics de checks atómicos, judge `local` o `jev`, aprobación en 8.0 |
 | [Pipeline y stages](Pipeline-and-Stages) | los seis stages, markers, tokens, herramientas de contexto, loop SDD |
 | [Graph Engineering](Graph-Engineering) | ids de requisito, manifiesto de trazabilidad, gate de alcance, grafo FalkorDB |
+| [Teoría de grafos](Graph-Theory) | átomos de requisito, trazabilidad, code property graphs, grafos de conocimiento temporales |
+| [Jev y System One](Jev-and-System-One) | sesgo del judge LLM, probabilidades calibradas, checks atómicos, escalamiento |
 | [Golden Path](Golden-Path) | `/golden-path`, sus cinco propiedades, desvíos |
 | [Agents](Agents) | product-manager, staff-software-engineer, system-architect |
 | [Pipelines de los agents](Agent-Pipelines) | el flujo de stages de cada agent |

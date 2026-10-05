@@ -18,6 +18,29 @@ Use it when a feature is worth doing right: it touches real users, other people 
 
 Skip it for a one-line fix, a spike you will throw away, or a question you can answer by reading the code. For those, plain Claude Code is faster.
 
+# Why it is worth it
+
+| Without it | With it |
+|---|---|
+| The ticket lives in your head or a chat thread | A PRD with the problem, the customers, and a numeric success metric |
+| "Done" is whatever the agent decided | Acceptance criteria you can check one by one |
+| The agent edits whatever it finds | A plan that names the files, and optionally a gate that fails on any other file |
+| Review is reading a diff and hoping | Every document scored against a rubric and retried until it passes |
+| Nobody remembers why the code is like this | Each requirement linked to the code and the test that prove it, if you turn graph engineering on |
+
+You spend your attention on two decisions, the direction and the PR, instead of on typing specs and chasing conventions.
+
+# Pick a setup
+
+Start with the default; one command switches later.
+
+| Setup | Best for | Adds | Cost |
+|---|---|---|---|
+| Plain (default) | most features, trying it out | the gated pipeline | nothing extra |
+| Jev judge | a judge that is not Claude grading Claude | scoring by Jev, Claude when unsure | about $0.04 per million tokens |
+| Graph engineering | shared or audited codebases | requirement ids, trace file in the PR, scope gate | free |
+| Graph and Jev | both | both | about $0.04 per million tokens |
+
 # Install
 
 ```
@@ -25,7 +48,14 @@ Skip it for a one-line fix, a spike you will throw away, or a question you can a
 /plugin install harness-kit@harness-kit
 ```
 
-Restart Claude Code, open the repo you want to use it in, and run `/harness-kit:install`. It asks two questions (which eval judge, whether to turn on graph engineering) and both defaults are fine. You need `python3`, `git`, and the [gh CLI](https://cli.github.com/).
+Restart Claude Code, open the repo you want to use it in, and run `/harness-kit:install`. It asks two questions; answer for your setup and restart once more. You need `python3`, `git`, and the [gh CLI](https://cli.github.com/).
+
+| Question | Plain | Jev judge | Graph engineering | Graph and Jev |
+|---|---|---|---|---|
+| Eval judge | `local` | `jev` | `local` | `jev` |
+| Graph engineering | `off` | `off` | `manifest` or `full` | `manifest` or `full` |
+
+For Jev, create a key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys) and run `/hk:eval jev`. For the graph database (`full`), run `/hk:graph full` with a free key from [build.nvidia.com](https://build.nvidia.com), then `python3 .claude/scripts/graph.py setup` and `python3 .claude/scripts/graph.py index-code`. `manifest` needs nothing else.
 
 To update: `/plugin update harness-kit`, restart Claude Code, then `/harness-kit:update`.
 
@@ -55,6 +85,20 @@ Success metric: checkout completion, from 71% to 76% within 30 days
 ```
 
 Every step also runs alone (`/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`). [All commands](docs/COMMANDS.md).
+
+# From task to merged PR
+
+| Step | What happens | With Jev | With graph engineering |
+|---|---|---|---|
+| Brief | you type four lines after `/golden-path` | | |
+| PRD | problem, customers, metrics; you approve the direction | Jev scores it | |
+| PRP | files, patterns, acceptance criteria | Jev scores it | each criterion gets an id like `REQ-001`, `trace/{feature}.yml` is created |
+| Plan | files to change, order, risks, tests | Jev scores it | each likely symbol becomes a link with evidence; those files become the only allowed scope |
+| Dev | small commits, your linters, your conventions | Jev scores it | out-of-scope files fail the step; each commit is linked and checked in git |
+| Test | suite runs, failures by name | Jev scores it | each test that proves a requirement is linked |
+| PR | summary and test plan; you approve, a draft PR opens | Jev scores it | a traceability table goes in the PR; the next plan marks links VALIDATED or STALE |
+
+The full walkthrough, with what you see at each step, is in [Getting Started](https://github.com/Pierry/harness-kit/wiki/Getting-Started).
 
 # How it works
 
@@ -104,7 +148,7 @@ Registered in [AGENTS.md](./AGENTS.md).
 
 # Learn more
 
-The [wiki](https://github.com/Pierry/harness-kit/wiki) explains each part and the theory behind it, also in [Portuguese and Spanish](https://pierry.github.io/harness-kit/wiki/). Good starting pages: [Golden Path](https://github.com/Pierry/harness-kit/wiki/Golden-Path), [Evals](https://github.com/Pierry/harness-kit/wiki/Evals), [Graph Engineering](https://github.com/Pierry/harness-kit/wiki/Graph-Engineering), and [References](https://github.com/Pierry/harness-kit/wiki/References) for every source the design draws on.
+The [wiki](https://github.com/Pierry/harness-kit/wiki) explains each part and the theory behind it, also in [Portuguese and Spanish](https://pierry.github.io/harness-kit/wiki/). Good starting pages: [Getting Started](https://github.com/Pierry/harness-kit/wiki/Getting-Started), [Golden Path](https://github.com/Pierry/harness-kit/wiki/Golden-Path), [Evals](https://github.com/Pierry/harness-kit/wiki/Evals), [Graph Engineering](https://github.com/Pierry/harness-kit/wiki/Graph-Engineering), [Graph Theory](https://github.com/Pierry/harness-kit/wiki/Graph-Theory), [Jev and System One](https://github.com/Pierry/harness-kit/wiki/Jev-and-System-One), and [References](https://github.com/Pierry/harness-kit/wiki/References) for every source the design draws on.
 
 One honest limit: neither judge is checked against human ratings yet, so treat 8.0 as a useful signal, not a measurement.
 

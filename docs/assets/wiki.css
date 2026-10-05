@@ -11,7 +11,7 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-  font-size: 16px; line-height: 1.6; letter-spacing: -0.1px;
+  font-size: 15px; line-height: 1.65; letter-spacing: normal;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   transition: background .4s var(--ease), color .4s var(--ease);
 }
@@ -26,7 +26,7 @@ body::after {
 }
 a { color: var(--accent-2); text-decoration: none; transition: color .15s var(--ease); }
 a:hover { color: var(--link-hover); }
-::selection { background: #a78bfa44; }
+::selection { background: #2563eb44; }
 
 /* header, mirrors the landing page */
 header {
@@ -36,11 +36,12 @@ header {
   border-bottom: 1px solid var(--hairline);
 }
 .wordmark {
-  font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: -0.5px;
-  display: flex; align-items: baseline; gap: 12px; color: var(--text);
+  font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: normal;
+  display: flex; align-items: baseline; gap: 10px; color: var(--text-strong);
 }
 .wordmark:hover { color: var(--text); }
-.wordmark .dash { color: var(--gold); }
+.wordmark .logo { width: 22px; height: 22px; flex: none; align-self: center; color: var(--text-strong); }
+.wordmark .dot { color: var(--brand-dot); }
 .wordmark .sub {
   color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px;
   letter-spacing: 0;
@@ -127,15 +128,15 @@ header nav a.cta { color: var(--gold); }
 /* prose */
 .wikibody { padding: 44px 0 80px; max-width: 780px; min-width: 0; }
 .wikibody h1 {
-  font-family: var(--display); font-weight: 800; font-size: clamp(32px, 4.4vw, 44px);
-  line-height: 1.05; letter-spacing: -1.4px; margin: 0 0 20px;
+  font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 30px);
+  line-height: 1.25; letter-spacing: normal; margin: 0 0 20px; color: var(--text-strong);
 }
 .wikibody h2 {
-  font-family: var(--display); font-weight: 700; font-size: 25px; letter-spacing: -0.6px;
+  font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: normal; color: var(--text-strong);
   margin: 52px 0 14px; padding-top: 26px; border-top: 1px solid var(--hairline);
 }
 .wikibody h3 {
-  font-family: var(--display); font-weight: 700; font-size: 19px; letter-spacing: -0.3px;
+  font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: normal; color: var(--text-strong);
   margin: 32px 0 10px;
 }
 .wikibody h4 {
@@ -150,15 +151,15 @@ header nav a.cta { color: var(--gold); }
 .wikibody hr { border: none; border-top: 1px solid var(--hairline); margin: 40px 0; }
 
 .wikibody code {
-  font-family: var(--mono); font-size: 0.86em; color: var(--gold);
-  background: #fcc04a14; padding: 2px 7px; border-radius: 6px;
+  font-family: var(--mono); font-size: 0.9em; color: var(--text);
+  background: var(--code-bg); border: 1px solid var(--border); padding: 0 5px; border-radius: 6px;
 }
 .wikibody pre {
   background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--r-sm);
   padding: 16px 18px; overflow-x: auto; margin: 0 0 20px;
 }
 .wikibody pre code {
-  color: var(--dim); background: none; padding: 0; font-size: 13px; line-height: 1.7;
+  color: var(--dim); background: none; border: none; padding: 0; font-size: 13px; line-height: 1.7;
 }
 .wikibody pre.mermaid {
   background: var(--chip-bg); border-color: var(--hairline); text-align: center;
@@ -174,7 +175,7 @@ header nav a.cta { color: var(--gold); }
 
 .wikibody table {
   display: block; overflow-x: auto; width: 100%; border-collapse: collapse;
-  margin: 0 0 22px; font-size: 14.5px;
+  margin: 0 0 22px; font-size: 13.5px;
 }
 .wikibody th {
   text-align: left; font-family: var(--mono); font-size: 11px; font-weight: 600;

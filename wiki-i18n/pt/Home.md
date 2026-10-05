@@ -6,6 +6,7 @@ O [harness-kit](https://github.com/Pierry/harness-kit) é um conjunto de agents 
 
 | Página | O que cobre |
 |---|---|
+| [Primeiros passos](Getting-Started) | instalação, escolha de um setup e o caminho de um brief até um merged PR, passo a passo |
 | [Harness Engineering](Harness-Engineering) | `Agent = Model + Harness`, feedforward e feedback, humanos on the loop |
 | [Referências](References) | as fontes por trás de cada escolha de design |
 | [Guides](Guides) | templates, exemplos, estilo de escrita, convenções |
@@ -13,6 +14,8 @@ O [harness-kit](https://github.com/Pierry/harness-kit) é um conjunto de agents 
 | [Evals](Evals) | rubrics de checks atômicos, judge `local` ou `jev`, aprovação em 8.0 |
 | [Pipeline e stages](Pipeline-and-Stages) | os seis stages, markers, tokens, ferramentas de contexto, loop SDD |
 | [Graph Engineering](Graph-Engineering) | ids de requisito, manifesto de rastreabilidade, gate de escopo, grafo FalkorDB |
+| [Teoria dos grafos](Graph-Theory) | átomos de requisito, rastreabilidade, code property graphs, grafos de conhecimento temporais |
+| [Jev e System One](Jev-and-System-One) | viés de judge LLM, probabilidades calibradas, checks atômicos, escalada |
 | [Golden Path](Golden-Path) | `/golden-path`, suas cinco propriedades, desvios |
 | [Agents](Agents) | product-manager, staff-software-engineer, system-architect |
 | [Pipelines dos agents](Agent-Pipelines) | o fluxo de stages de cada agent |

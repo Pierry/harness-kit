@@ -1,4 +1,5 @@
-[Inicio](Home)
+[Inicio](Home)\
+[Primeros pasos](Getting-Started)
 
 [Harness Engineering](Harness-Engineering)\
 [Referencias](References)\
@@ -10,7 +11,9 @@
 [Agents](Agents)\
 [Pipelines de los agents](Agent-Pipelines)\
 [Designer Skill](Designer-Skill)\
-[Graph Engineering](Graph-Engineering)
+[Graph Engineering](Graph-Engineering)\
+[Teoría de grafos](Graph-Theory)\
+[Jev y System One](Jev-and-System-One)
 
 [Autonomía](Autonomy)\
 [Orquestación y subagents](Orchestration-and-Subagents)

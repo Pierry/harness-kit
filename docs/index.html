@@ -15,276 +15,216 @@
 <link rel="canonical" href="https://pierry.github.io/harness-kit/" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="favicon.svg" />
-<meta id="theme-color" name="theme-color" content="#08090c" />
+<meta id="theme-color" name="theme-color" content="#171717" />
 <!--
   harness-kit usage-guide landing page. Mirrors README.md content
   (what/why, install, golden path, commands, agents, docs) and reuses
   the visual system from docs/brief/index.html.
-  Type: Bricolage Grotesque (display) · Hanken Grotesk (body) · JetBrains Mono (code).
+  Type: JetBrains Mono everywhere. Visual identity shared with todone:
+  flat neutral surfaces, one blue accent, green brand dot.
   Dark/light theme (data-theme attr), i18n en/pt-BR/es (data-i18n keys + JS dict,
-  English lives in the DOM), refined scroll/parallax/glow effects.
+  English lives in the DOM).
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/tokens.css" />
 <style>
-  /* Design tokens live in assets/tokens.css, shared with the generated wiki pages. */
+  /* Design tokens live in assets/tokens.css, shared with the generated wiki pages.
+     Visual identity follows todone: JetBrains Mono, flat neutral surfaces, one blue accent. */
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-    font-size: 16px; line-height: 1.6; letter-spacing: -0.1px;
+    margin: 0; background: var(--bg); color: var(--text); font-family: var(--mono);
+    font-size: 15px; line-height: 1.65; letter-spacing: normal;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-    transition: background .4s var(--ease), color .4s var(--ease);
+    transition: background .2s ease, color .2s ease;
   }
-  body::before {
-    content: ""; position: fixed; inset: -10%; z-index: -2; pointer-events: none;
-    background: var(--mesh);
-    transform: translateY(var(--sy, 0));
-    animation: meshDrift 26s ease-in-out infinite alternate;
-    will-change: transform, background-position;
-  }
-  @keyframes meshDrift {
-    from { background-position: 0 0, 0 0, 0 0, 0 0; }
-    to   { background-position: 3% -2%, -2% 2%, 1% 3%, 0 0; }
-  }
-  body::after {
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--noise-op);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  a { color: var(--accent-2); text-decoration: none; transition: color .15s var(--ease); }
-  a:hover { color: var(--link-hover); }
-  ::selection { background: #a78bfa44; }
+  a { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; transition: color .15s ease, text-decoration-color .15s ease; }
+  a:hover { color: var(--link-hover); text-decoration-color: var(--link-hover); }
+  ::selection { background: #2563eb44; }
+  b, strong { font-weight: 700; color: var(--text-strong); }
 
   /* header */
   header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 22px 40px; position: sticky; top: 0; z-index: 20;
-    background: var(--header-bg); backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--hairline);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 24px; position: sticky; top: 0; z-index: 20;
+    background: var(--header-bg); border-bottom: 1px solid var(--border);
   }
-  .wordmark { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: -0.5px; display: flex; align-items: baseline; gap: 12px; }
-  .wordmark .dash { color: var(--gold); }
-  .wordmark .sub { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0; }
-  header nav { font-family: var(--mono); font-size: 13px; color: var(--dim); display: flex; gap: 24px; align-items: center; }
-  header nav a.cta { color: var(--gold); }
-  @media (max-width: 860px) { header nav .hide-sm { display: none; } header { padding: 18px 22px; } }
+  .wordmark { font-weight: 700; font-size: 16px; color: var(--text-strong); display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .wordmark .logo { width: 22px; height: 22px; flex: none; color: var(--text-strong); }
+  .wordmark .dot { color: var(--brand-dot); }
+  .wordmark .sub { color: var(--faint); font-weight: 400; font-size: 12px; }
+  header nav { font-size: 13px; color: var(--dim); display: flex; gap: 20px; align-items: center; }
+  header nav a { color: var(--dim); text-decoration: none; white-space: nowrap; }
+  header nav a:hover { color: var(--text-strong); }
+  @media (max-width: 860px) { header nav .hide-sm { display: none; } }
+  @media (max-width: 480px) { header { padding: 12px 16px; } .wordmark .sub { display: none; } header nav { gap: 12px; } }
 
   /* controls: language switch + theme toggle */
-  .controls { display: flex; align-items: center; gap: 12px; }
-  .langsw { display: flex; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; }
+  .controls { display: flex; align-items: center; gap: 10px; }
+  .langsw { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .langsw button {
-    background: transparent; border: none; color: var(--faint); padding: 6px 11px; cursor: pointer;
-    font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.4px;
-    transition: color .15s var(--ease), background .15s var(--ease);
+    background: transparent; border: none; color: var(--faint); padding: 5px 9px; cursor: pointer;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
   }
-  .langsw button:hover { color: var(--text); }
-  .langsw button[aria-pressed="true"] { background: #a78bfa22; color: var(--accent-2); }
+  .langsw button:hover { color: var(--text-strong); }
+  .langsw button[aria-pressed="true"] { background: var(--hover-bg); color: var(--text-strong); }
   .themebtn {
-    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 10px; border: 1px solid var(--border-strong); background: var(--chip-bg); color: var(--dim);
-    cursor: pointer; transition: color .15s var(--ease), border-color .15s var(--ease), transform .12s var(--ease);
+    width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer;
   }
-  .themebtn:hover { color: var(--text); border-color: var(--accent); }
-  .themebtn:active { transform: scale(.92); }
-  .themebtn svg { width: 18px; height: 18px; }
+  .themebtn:hover { color: var(--text-strong); }
+  .themebtn svg { width: 16px; height: 16px; }
   .themebtn .i-sun, .themebtn .i-moon { display: none; }
   :root:not([data-theme="light"]) .themebtn .i-moon { display: block; }
   :root[data-theme="light"] .themebtn .i-sun { display: block; }
 
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px; }
-  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 720px) { .wrap { padding: 0 16px; } }
 
   /* hero */
-  .hero { padding: 90px 0 56px; max-width: 800px; }
-  .eyebrow {
-    display: inline-flex; gap: 12px; align-items: center; padding: 8px 16px 8px 14px;
-    border-radius: 999px; border: 1px solid var(--border-strong);
-    background: var(--chip-bg); font-family: var(--mono); font-size: 12px; letter-spacing: 0.4px; color: var(--dim);
-    margin-bottom: 28px;
-  }
-  .eyebrow b { color: var(--gold); font-weight: 700; }
-  .eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: var(--success-dim); box-shadow: 0 0 0 0 #34d39966; animation: pulse 2.4s infinite; }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 #34d39955} 70%{box-shadow:0 0 0 7px #34d39900} 100%{box-shadow:0 0 0 0 #34d39900} }
-  h1 {
-    font-family: var(--display); font-weight: 800; font-size: clamp(42px, 6.5vw, 76px);
-    line-height: 0.96; letter-spacing: -2.2px; margin: 0 0 22px;
-  }
-  h1 .gold { background: linear-gradient(100deg, var(--gold), var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .lede { font-size: 20px; color: var(--dim); max-width: 660px; font-weight: 400; }
-  .lede code { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 8px; border-radius: 7px; font-size: 16px; }
-  .hero-cta { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .hero { padding: 72px 0 48px; }
+  .eyebrow { display: inline-flex; gap: 10px; align-items: center; font-size: 12px; color: var(--faint); margin-bottom: 20px; }
+  .eyebrow b { color: var(--text); font-weight: 500; }
+  .eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: var(--brand-dot); }
+  h1 { font-weight: 700; font-size: clamp(24px, 4.2vw, 32px); line-height: 1.25; color: var(--text-strong); margin: 0 0 18px; }
+  h1 .gold { color: var(--text-strong); }
+  .lede { font-size: 15px; color: var(--dim); max-width: 680px; }
+  .lede code { color: var(--text); background: var(--code-bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
+  .hero-cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
-  /* hero media (demo gif) */
-  .media { margin-top: 44px; }
-  .media .frame { border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow); background: var(--code-bg); }
-  .media .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bar-bg); }
-  .media .bar .dot { width: 11px; height: 11px; border-radius: 50%; }
-  .media .bar .title { margin-left: 12px; color: var(--dim); font-family: var(--mono); font-size: 12.5px; }
+  /* media (gifs) */
+  .media { margin-top: 36px; }
+  .media .frame { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--code-bg); }
+  .media .bar, .code .bar { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--border); background: transparent; }
+  .media .bar .dot, .code .dot { display: none; }
+  .media .bar .title, .code .bar .title { color: var(--faint); font-size: 12px; }
   .media img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
-  .media .cap { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 12px 0 0; text-align: center; }
+  .media .cap { font-size: 12px; color: var(--faint); margin: 10px 0 0; text-align: center; }
 
   /* the pipeline ribbon */
-  .pipe { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 13px; color: var(--faint); margin-top: 44px; }
-  .pipe .stage { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip-bg); }
-  .pipe .stage.pm { color: var(--accent-2); border-color: #a78bfa3a; }
-  .pipe .stage.sse { color: var(--gold); border-color: #fcc04a3a; }
-  .pipe .arrow { color: var(--faint); }
-  .pipe .end { color: var(--success-dim); font-weight: 700; padding: 7px 14px; border: 1px solid #34d39933; border-radius: 999px; }
+  .pipe { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--faint); margin-top: 32px; }
+  .pipe .stage { padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+  .pipe .end { color: var(--text-strong); padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px; }
+  .pipe .end::after { content: "."; color: var(--brand-dot); }
 
   /* buttons */
-  .btn {
-    font-family: var(--mono); font-size: 14px; font-weight: 700; border-radius: var(--r-sm);
-    padding: 14px 24px; cursor: pointer; transition: transform .1s var(--ease), filter .15s, box-shadow .2s; display: inline-flex; align-items: center; gap: 10px;
-  }
-  .btn.primary { color: #1a1205; background: linear-gradient(100deg, var(--gold), var(--gold-deep)); border: none; box-shadow: 0 8px 24px #fcc04a22; }
-  .btn.primary:hover { filter: brightness(1.06); box-shadow: 0 10px 30px #fcc04a38; color: #1a1205; }
-  .btn.primary:active { transform: translateY(1px); }
-  .btn.ghost { color: var(--text); background: var(--chip-bg); border: 1px solid var(--border-strong); }
-  .btn.ghost:hover { border-color: var(--accent); color: var(--link-hover); }
+  .btn { font-family: var(--mono); font-size: 13.5px; font-weight: 500; border-radius: 8px; padding: 10px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .btn.primary { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .btn.primary:hover { color: #ffffff; background: #1d4ed8; border-color: #1d4ed8; }
+  .btn.ghost { color: var(--text); background: transparent; border: 1px solid var(--border-strong); }
+  .btn.ghost:hover { color: var(--text-strong); border-color: var(--text); }
 
   /* sections */
-  section.block { padding: 56px 0; border-top: 1px solid var(--hairline); }
-  .sec-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 12px; }
-  .sec-head .n { font-family: var(--mono); font-size: 13px; color: var(--gold); font-weight: 700; }
-  .sec-head h2 { font-family: var(--display); font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; letter-spacing: -0.8px; margin: 0; }
-  .sec-sub { color: var(--dim); max-width: 680px; margin: 0 0 32px; font-size: 17px; }
-
+  section.block { padding: 48px 0; border-top: 1px solid var(--border); }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px; }
+  .sec-head .n { font-size: 12px; color: var(--faint); font-weight: 500; }
+  .sec-head h2 { font-size: 20px; font-weight: 700; color: var(--text-strong); margin: 0; line-height: 1.3; }
+  .sec-sub { color: var(--dim); max-width: 700px; margin: 0 0 24px; font-size: 14.5px; }
+  .sub-h { font-weight: 700; font-size: 16px; color: var(--text-strong); margin: 36px 0 6px; }
+  
   /* code blocks */
-  .code {
-    background: var(--code-bg); border: 1px solid var(--border-strong); border-radius: var(--r-md);
-    overflow: hidden; box-shadow: var(--shadow); margin: 0 0 18px;
-  }
-  .code .bar { display: flex; align-items: center; gap: 9px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--bar-bg); }
-  .code .dot { width: 11px; height: 11px; border-radius: 50%; }
-  .code .bar .title { margin-left: 12px; color: var(--dim); font-family: var(--mono); font-size: 12.5px; }
-  .code pre { margin: 0; padding: 22px 24px; font-family: var(--mono); font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
-  .code pre .cmd { color: var(--gold); font-weight: 700; }
-  .code pre .key { color: var(--accent-2); }
+  .code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 0 0 18px; }
+  .code pre { margin: 0; padding: 16px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
+  .code pre .cmd { color: var(--text-strong); font-weight: 700; }
+  .code pre .key { color: var(--text-strong); }
   .code pre .c { color: var(--faint); }
-  code.inline { font-family: var(--mono); color: var(--gold); background: #fcc04a14; padding: 2px 7px; border-radius: 6px; font-size: 0.88em; }
+  code.inline { font-family: var(--mono); color: var(--text); background: var(--code-bg); border: 1px solid var(--border); padding: 0 5px; border-radius: 6px; font-size: 0.9em; overflow-wrap: anywhere; }
 
   /* steps */
-  .steps { display: grid; gap: 18px; counter-reset: step; }
-  .step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; padding: 22px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
-  .step .num { counter-increment: step; font-family: var(--display); font-weight: 800; font-size: 22px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #fcc04a16; color: var(--gold); }
+  .steps { display: grid; gap: 0; counter-reset: step; border-top: 1px solid var(--border); }
+  .step { display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .step .num { counter-increment: step; font-weight: 700; font-size: 13px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--border-strong); color: var(--text-strong); margin-top: 2px; }
   .step .num::before { content: counter(step); }
-  .step h3 { font-family: var(--display); font-weight: 700; font-size: 19px; margin: 4px 0 8px; letter-spacing: -0.4px; }
-  .step p { margin: 0; color: var(--dim); font-size: 15.5px; }
-  .step p + p { margin-top: 10px; }
+  .step h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 2px 0 6px; }
+  .step p { margin: 0; color: var(--dim); font-size: 14.5px; }
+  .step p + p { margin-top: 8px; }
 
-  /* feature cards */
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
-
-  /* the four fronts overview grid */
-  .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  /* cards: plain bordered boxes */
+  .cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   @media (max-width: 720px) { .grid4 { grid-template-columns: 1fr; } }
+  .card { padding: 18px 20px; border: 1px solid var(--border); border-radius: 8px; background: transparent; }
   a.frontcard { display: block; text-decoration: none; color: inherit; }
-  a.frontcard:hover { border-color: var(--border-strong); }
-  .frontcard .num { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--gold); }
-  .frontcard .tag { color: var(--accent-2); }
-  .frontcard .ar { font-family: var(--mono); color: var(--accent-2); font-size: 14px; }
+  a.frontcard:hover { background: var(--hover-bg); }
+  .frontcard .num { font-size: 11.5px; font-weight: 500; color: var(--faint); }
+  .frontcard .tag { color: var(--faint); }
+  .frontcard .ar { color: var(--dim); font-size: 13px; }
+  .fronttag { font-size: 11.5px; font-weight: 500; color: var(--faint); text-transform: lowercase; display: inline-block; margin-bottom: 6px; }
+  .card .tag { font-size: 11.5px; font-weight: 500; color: var(--faint); }
+  .card h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 6px 0 6px; }
+  .card p { margin: 0 0 12px; color: var(--dim); font-size: 14px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .skills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .card .skills span { font-size: 11.5px; color: var(--dim); padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px; }
+  .card .more { font-size: 13px; }
 
-  /* front eyebrow inside a section head */
-  .fronttag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--gold); text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
-  .card { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
-  /* enumerated ghost index, why cards only */
-  #why .grid4 { counter-reset: whyidx; }
-  #why .grid4 .card { counter-increment: whyidx; }
-  #why .grid4 .card > * { position: relative; z-index: 1; }
-  #why .grid4 .card::before {
-    content: counter(whyidx, decimal-leading-zero);
-    position: absolute; top: 8px; right: 20px; z-index: 0; pointer-events: none;
-    font-family: var(--mono); font-weight: 800; font-size: 54px; line-height: 1;
-    letter-spacing: -2px; color: var(--faint); opacity: .12;
-    transition: opacity .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
-  }
-  #why .grid4 .card:hover::before { opacity: .4; color: var(--accent); transform: translateY(-2px); }
-  .card .tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--accent-2); text-transform: lowercase; }
-  .card h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 10px 0 8px; letter-spacing: -0.4px; }
-  .card p { margin: 0 0 14px; color: var(--dim); font-size: 15px; }
-  .card .skills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-  .card .skills span { font-family: var(--mono); font-size: 11.5px; color: var(--faint); padding: 4px 9px; border: 1px solid var(--border); border-radius: 999px; }
-  .card .more { font-family: var(--mono); font-size: 13px; }
-
-  /* glow follows the cursor on raised surfaces */
-  .glowable { position: relative; }
-  .glowable > .glow { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity .35s var(--ease); pointer-events: none; background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%); }
-  .glowable:hover > .glow { opacity: 1; }
+  /* glow and cursor effects removed: flat identity */
+  .glowable > .glow { display: none; }
 
   /* table */
-  .tablewrap { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  table th, table td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); }
-  table th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--faint); font-weight: 600; background: var(--chip-bg); }
+  .tablewrap { border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table th, table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table th { font-size: 11.5px; font-weight: 500; color: var(--faint); background: transparent; }
   table tr:last-child td { border-bottom: none; }
-  table td:nth-child(2) { font-family: var(--mono); font-size: 13.5px; color: var(--gold); }
-  table td:nth-child(3) { font-family: var(--mono); font-size: 13px; color: var(--dim); }
-  table tr:hover td { background: var(--hover-bg); }
-  @media (max-width: 720px) { table { font-size: 13.5px; } table th, table td { padding: 11px 12px; } }
+  table td:first-child { color: var(--text); }
+  table td:nth-child(n+2) { color: var(--dim); }
+  @media (max-width: 720px) { table { font-size: 12.5px; } table th, table td { padding: 9px 10px; } }
+  /* wide comparison tables: scroll inside the frame, never the page */
+  .tablewrap.scroll table.wide { min-width: 680px; }
+  table.compare td:first-child { color: var(--text-strong); font-weight: 500; }
 
   /* diagram */
-  .diagram {
-    border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--code-bg);
-    padding: 24px; margin: 22px 0 0; overflow-x: auto; box-shadow: var(--shadow);
-  }
-  .diagram .mermaid { width: 100%; min-width: 640px; }
+  .diagram { border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); padding: 18px; margin: 20px 0 0; overflow-x: auto; }
+  .diagram .mermaid { width: 100%; min-width: 600px; }
   .diagram svg { width: 100% !important; max-width: 100% !important; height: auto; display: block; }
-  .diagram-cap { font-family: var(--mono); font-size: 12.5px; color: var(--faint); margin: 12px 0 0; text-align: center; }
+  .diagram-cap { font-size: 12px; color: var(--faint); margin: 10px 0 0; text-align: center; }
 
   /* references */
-  .refs { display: grid; gap: 14px; }
-  .ref { padding: 26px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--card-bg); position: relative; overflow: hidden; }
-  .ref .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
-  .ref h3 { font-family: var(--display); font-weight: 700; font-size: 21px; margin: 8px 0 6px; letter-spacing: -0.5px; }
-  .ref p { margin: 0; color: var(--dim); font-size: 15px; }
-  .ref ul { margin: 20px 0 0; padding-left: 0; list-style: none; }
-  .ref li { font-size: 14.5px; line-height: 1.6; color: var(--dim); padding: 13px 0; border-top: 1px solid var(--hairline); }
+  .refs { display: grid; gap: 12px; }
+  .ref { padding: 18px 20px; border: 1px solid var(--border); border-radius: 8px; }
+  .ref .tag { font-size: 11.5px; font-weight: 500; color: var(--faint); }
+  .ref h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 6px 0 6px; }
+  .ref p { margin: 0; color: var(--dim); font-size: 14px; }
+  .ref ul { margin: 14px 0 0; padding-left: 0; list-style: none; }
+  .ref li { font-size: 13.5px; color: var(--dim); padding: 10px 0; border-top: 1px solid var(--border); }
   .ref li:last-child { padding-bottom: 0; }
-  .ref li b { color: var(--text); font-weight: 600; }
 
-  /* gates note */
-  .note { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border: 1px solid #a78bfa2a; border-radius: var(--r-md); background: #a78bfa12; margin-top: 22px; }
-  .note .ic { color: var(--accent-2); font-family: var(--mono); font-weight: 700; flex: none; }
-  .note p { margin: 0; color: var(--dim); font-size: 15px; }
-  .note b { color: var(--text); }
+  /* notes */
+  .note { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); margin-top: 20px; }
+  .note .ic { color: var(--faint); font-weight: 700; flex: none; }
+  .note p { margin: 0; color: var(--dim); font-size: 14px; min-width: 0; }
 
   /* docs grid */
-  .docgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .docgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   @media (max-width: 720px) { .docgrid { grid-template-columns: 1fr; } }
-  .doc { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--chip-bg); overflow: hidden; transition: border-color .15s var(--ease), background .15s, transform .15s var(--ease); }
-  .doc:hover { border-color: var(--border-strong); background: var(--hover-bg); transform: translateY(-2px); }
-  .doc .t { font-weight: 600; color: var(--text); }
-  .doc .d { font-size: 13.5px; color: var(--faint); }
-  .doc .ar { color: var(--accent-2); font-family: var(--mono); }
+  .doc { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; }
+  .doc:hover { background: var(--hover-bg); }
+  .doc .t { font-weight: 500; color: var(--text-strong); }
+  .doc .d { font-size: 12.5px; color: var(--faint); }
+  .doc .ar { color: var(--dim); }
 
-  footer { border-top: 1px solid var(--hairline); padding: 36px 0 72px; color: var(--faint); font-family: var(--mono); font-size: 13px; margin-top: 30px; }
+  footer { border-top: 1px solid var(--border); padding: 28px 0 56px; color: var(--faint); font-size: 12.5px; margin-top: 24px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 
-  /* effects: scroll reveal + reduced-motion guard */
-  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
-  .reveal.is-visible { opacity: 1; transform: none; }
-  .cards .card:nth-child(2), .refs .ref:nth-child(2), .docgrid .doc:nth-child(2) { transition-delay: .07s; }
-  .cards .card:nth-child(3), .refs .ref:nth-child(3), .docgrid .doc:nth-child(3) { transition-delay: .14s; }
-  .steps .step:nth-child(2) { transition-delay: .08s; }
-  .steps .step:nth-child(3) { transition-delay: .16s; }
-  .docgrid .doc:nth-child(4) { transition-delay: .21s; }
+  /* simple fade on scroll, nothing else moves */
+  .reveal { opacity: 0; transition: opacity .5s ease; }
+  .reveal.is-visible { opacity: 1; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-    body::before { animation: none !important; transform: none !important; }
-    .live { animation: none !important; }
+    .reveal { opacity: 1 !important; transition: none !important; }
     body { transition: none !important; }
   }
 </style>
 </head>
 <body>
 <header>
-  <div class="wordmark">harness<span class="dash">-</span>kit <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
+  <div class="wordmark"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="6" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>harness-kit<span class="dot">.</span></span> <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
   <nav>
     <a class="hide-sm" href="#why" data-i18n="nav.why">why</a>
+    <a class="hide-sm" href="#get-started" data-i18n="nav.start">get started</a>
     <a class="hide-sm" href="#fronts" data-i18n="nav.fronts">fronts</a>
     <a class="hide-sm" href="#brief">brief</a>
     <a class="hide-sm" href="#pipeline">pipeline</a>
@@ -312,7 +252,7 @@
     <h1 data-i18n="hero.h1">Idea to merged PR,<br />through one <span class="gold">gated pipeline</span>.</h1>
     <p class="lede" data-i18n="hero.lede">harness-kit is a set of Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw idea through <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, with a pass/fail check and a scored review at every stage. Nothing advances on vibes.</p>
     <div class="hero-cta">
-      <a class="btn primary" href="#install" data-i18n="hero.cta1">Install it</a>
+      <a class="btn primary" href="#get-started" data-i18n="hero.cta1">Get started</a>
       <a class="btn ghost" href="brief/" data-i18n="hero.cta2">Open the idea-brief builder</a>
     </div>
     <div class="media reveal">
@@ -341,6 +281,21 @@
       <div class="card"><span class="tag" data-i18n="why.c3t">gated twice</span><h3 data-i18n="why.c3h">Nothing advances weak</h3><p data-i18n="why.c3p">A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you.</p></div>
       <div class="card"><span class="tag" data-i18n="why.c4t">measurable</span><h3 data-i18n="why.c4h">You can watch it improve</h3><p data-i18n="why.c4p">Every approved stage records a score, so you know whether your specs, or your tests, are getting better across runs.</p></div>
     </div>
+    <h3 class="sub-h" data-i18n="why.vsh">Without it, and with it</h3>
+    <p class="sec-sub" style="margin-bottom:18px" data-i18n="why.vssub">An agent writes code fast, and fast is where the expensive mistakes hide. Each row below is a step that has to pass before the next one starts, and harness-kit writes it for you.</p>
+    <div class="tablewrap scroll">
+      <table class="compare">
+        <thead><tr><th data-i18n="why.vth1">Without harness-kit</th><th data-i18n="why.vth2">With harness-kit</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="why.v1a">The ticket lives in your head or a chat thread</td><td data-i18n="why.v1b">A PRD with the problem, the customers, and a numeric success metric</td></tr>
+          <tr><td data-i18n="why.v2a">"Done" is whatever the agent decided</td><td data-i18n="why.v2b">A PRP with acceptance criteria you can check one by one</td></tr>
+          <tr><td data-i18n="why.v3a">The agent edits whatever it finds</td><td data-i18n="why.v3b">A plan that names the files and, with graph engineering, a gate that fails on any other file</td></tr>
+          <tr><td data-i18n="why.v4a">Review is reading a diff and hoping</td><td data-i18n="why.v4b">Every document scored against a rubric, retried until it passes 8.0</td></tr>
+          <tr><td data-i18n="why.v5a">Nobody remembers why the code is like this</td><td data-i18n="why.v5b">Every requirement linked to the code that implements it and the test that proves it</td></tr>
+          <tr><td data-i18n="why.v6a">Quality depends on the day</td><td data-i18n="why.v6b">The same six steps every time, with a score history you can watch</td></tr>
+        </tbody>
+      </table>
+    </div>
     <p class="sec-sub" data-i18n="why.impact" style="margin:34px 0 0">What you get: one command takes a raw idea to a merged pull request. Six documents, a check and a scored review at each stage, and two moments where a human decides, is this the right direction, and is this PR good to open. You spend your attention there, not on formatting a spec.</p>
     <div class="diagram" style="margin-top:26px">
       <pre class="mermaid">
@@ -367,9 +322,100 @@ sequenceDiagram
     <p class="diagram-cap" data-i18n="why.cap">idea in, merged PR out &middot; two human decisions, everything else on rails</p>
   </section>
 
+  <!-- GET STARTED -->
+  <section class="block reveal" id="get-started">
+    <div class="sec-head"><span class="n">02</span><h2 data-i18n="gs.title">Get started</h2></div>
+    <p class="sec-sub" data-i18n="gs.sub">From nothing installed to a merged PR. There are four setups and they all use the same commands; the options only change what happens inside some steps. Start with the default, you can switch later with one command.</p>
+
+    <h3 class="sub-h" style="margin-top:8px" data-i18n="gs.h1">Pick a setup</h3>
+    <div class="tablewrap scroll" style="margin-top:16px">
+      <table class="compare wide">
+        <thead><tr><th data-i18n="gs.th1">Setup</th><th data-i18n="gs.th2">Best for</th><th data-i18n="gs.th3">What it adds</th><th data-i18n="gs.th4">Needs</th><th data-i18n="gs.th5">Cost</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="gs.n1">Plain (default)</td><td data-i18n="gs.b1">trying it out, small teams, most features</td><td data-i18n="gs.a1">the full gated pipeline</td><td data-i18n="gs.d1">Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, <code class="inline">gh</code></td><td data-i18n="gs.k1">nothing extra</td></tr>
+          <tr><td data-i18n="gs.n2">Jev judge</td><td data-i18n="gs.b2">a judge that is not Claude grading Claude</td><td data-i18n="gs.a2">quality scored by Jev, a different model, in under a second per document; Claude takes over when Jev is unsure</td><td data-i18n="gs.d2">a TypeSafe API key</td><td data-i18n="gs.k2">about $0.04 per million tokens</td></tr>
+          <tr><td data-i18n="gs.n3">Graph engineering</td><td data-i18n="gs.b3">shared codebases, regulated work, anything you must audit later</td><td data-i18n="gs.a3">requirement ids, a trace file in every PR, a scope gate, links that turn VALIDATED or STALE</td><td data-i18n="gs.d3">nothing extra for <code class="inline">manifest</code>; Python 3.12, a free NVIDIA key and <code class="inline">joern</code> for <code class="inline">full</code></td><td data-i18n="gs.k3">free</td></tr>
+          <tr><td data-i18n="gs.n4">Graph and Jev</td><td data-i18n="gs.b4">teams that want a neutral judge and full traceability</td><td data-i18n="gs.a4">both of the above</td><td data-i18n="gs.d4">both of the above</td><td data-i18n="gs.k2">about $0.04 per million tokens</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-h" id="install" data-i18n="gs.h2">Install</h3>
+    <div class="code" style="margin-top:16px">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
+<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
+<span class="cmd">/plugin</span> install harness-kit@harness-kit
+<span class="c"># restart Claude Code, open your repo, then:</span>
+<span class="cmd">/harness-kit:install</span></pre>
+    </div>
+    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.inst">It copies the agents, commands, and hooks into <code class="inline">.claude/</code>, adds <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code>, and asks two questions: the eval judge (<code class="inline">local</code> or <code class="inline">jev</code>) and graph engineering (<code class="inline">off</code>, <code class="inline">manifest</code>, or <code class="inline">full</code>). Plain is <code class="inline">local</code> and <code class="inline">off</code>. Restart once more so the commands appear. Your own status line stays as it was.</p>
+    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.jev"><b>Jev setups.</b> Create a key at <a href="https://console.typesafe.ai/keys">console.typesafe.ai/keys</a> and run <code class="inline">/hk:eval jev</code>. A pasted key goes to <code class="inline">.claude/settings.local.json</code>, which git ignores.</p>
+    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.graph"><b>Graph setups.</b> <code class="inline">/hk:graph manifest</code> needs nothing else. For <code class="inline">full</code>, have a free key from <a href="https://build.nvidia.com">build.nvidia.com</a> ready and run:</p>
+    <div class="code">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="gs.gbar">graph full only</span></div>
+<pre><span class="cmd">/hk:graph</span> full
+<span class="cmd">python3</span> .claude/scripts/graph.py setup        <span class="c"># embedded FalkorDB + Graphiti, no Docker</span>
+<span class="cmd">python3</span> .claude/scripts/graph.py index-code   <span class="c"># Joern call graph, once</span>
+<span class="cmd">python3</span> .claude/scripts/graph.py status</pre>
+    </div>
+
+    <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code>, restart Claude Code, then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
+      <h3 class="sub-h" data-i18n="gs.h3">Brief to merge, in seven steps</h3>
+    <p class="sec-sub" style="margin-bottom:22px" data-i18n="gs.h3sub">You decide twice: at step 2 and at step 6. Everything else runs on its own gates.</p>
+    <div class="steps">
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s1h">Write the brief</h3>
+        <p data-i18n="gs.s1p">Four lines after <code class="inline">/golden-path</code>: squad, problem, hypothesis, success metric. The <a href="brief/">brief builder</a> checks each field for you. <code class="inline">/pipeline:run "&lt;idea&gt;"</code> runs the same steps and stops only at the two decisions.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s2h">The PRD, your first decision</h3>
+        <p data-i18n="gs.s2p">The product manager agent writes the problem, customers, scope, and metrics with baselines. A script checks the sections, the eval scores it, and you approve the direction. A wrong problem caught here costs one rewrite, not a feature.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s3h">The PRP</h3>
+        <p data-i18n="gs.s3p">The PRD becomes an engineering spec: files to change, patterns to follow, library docs, validation commands, and acceptance criteria you can check one by one.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s4h">The plan</h3>
+        <p data-i18n="gs.s4p">The staff engineer agent writes what changes, in which files, in what order, with risks and test cases.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s5h">Dev</h3>
+        <p data-i18n="gs.s5p">The agent implements the plan in small commits, runs your linters and type checkers as sensors, and follows <code class="inline">.claude/conventions/</code> when you have it.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s6h">Test, the PR, your second decision</h3>
+        <p data-i18n="gs.s6p">Your test suite runs and failures are reported by name. The agent prepares the PR title, summary, and test plan. You approve and it opens as a draft.</p>
+      </div></div>
+      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
+        <h3 data-i18n="gs.s7h">Merge</h3>
+        <p data-i18n="gs.s7p">A monitor watches the PR and clears the pipeline when it merges. Start the next feature with a new brief.</p>
+      </div></div>
+    </div>
+
+    <h3 class="sub-h" data-i18n="gs.h4">What changes per setup</h3>
+    <div class="tablewrap scroll" style="margin-top:16px">
+      <table class="compare wide">
+        <thead><tr><th data-i18n="gs.c0">Step</th><th data-i18n="gs.c1">Plain</th><th data-i18n="gs.c2">Jev judge</th><th data-i18n="gs.c3">Graph engineering</th><th data-i18n="gs.c4">Graph and Jev</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="gs.r1">Scoring</td><td data-i18n="gs.v.claude">Claude sub-agent</td><td data-i18n="gs.v.jev">Jev, Claude when unsure</td><td data-i18n="gs.v.claude">Claude sub-agent</td><td data-i18n="gs.v.jev">Jev, Claude when unsure</td></tr>
+          <tr><td>PRP</td><td data-i18n="gs.v.crit">criteria</td><td data-i18n="gs.v.crit">criteria</td><td data-i18n="gs.v.req">criteria with <code class="inline">REQ</code> ids, trace file</td><td data-i18n="gs.v.req">criteria with <code class="inline">REQ</code> ids, trace file</td></tr>
+          <tr><td>Plan</td><td data-i18n="gs.v.files">files to change</td><td data-i18n="gs.v.files">files to change</td><td data-i18n="gs.v.scope">links with evidence, files become the scope</td><td data-i18n="gs.v.scope">links with evidence, files become the scope</td></tr>
+          <tr><td>Dev</td><td data-i18n="gs.v.conv">conventions and linters</td><td data-i18n="gs.v.conv">conventions and linters</td><td data-i18n="gs.v.gate">plus scope gate, IMPLEMENTS links</td><td data-i18n="gs.v.gate">plus scope gate, IMPLEMENTS links</td></tr>
+          <tr><td>Test</td><td data-i18n="gs.v.report">report</td><td data-i18n="gs.v.report">report</td><td data-i18n="gs.v.verif">plus VERIFIED_BY links</td><td data-i18n="gs.v.verif">plus VERIFIED_BY links</td></tr>
+          <tr><td>PR</td><td data-i18n="gs.v.sum">summary and test plan</td><td data-i18n="gs.v.sum">summary and test plan</td><td data-i18n="gs.v.trace">plus traceability table</td><td data-i18n="gs.v.trace">plus traceability table</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <span class="ic">&#9670;</span>
+      <p data-i18n="gs.note">Switch any time: <code class="inline">/hk:eval local</code> or <code class="inline">jev</code>, <code class="inline">/hk:graph off</code>, <code class="inline">manifest</code>, or <code class="inline">full</code>. <code class="inline">/pipeline:continue</code> resumes a feature and <code class="inline">hk status</code> shows where it is. Every detail, step by step, in <a href="wiki/Getting-Started.html">Getting Started</a>. More on each option <a href="#options">below</a>.</p>
+    </div>
+  </section>
+
   <!-- THE FOUR FRONTS -->
   <section class="block reveal" id="fronts">
-    <div class="sec-head"><span class="n">02</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
+    <div class="sec-head"><span class="n">03</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
     <p class="sec-sub" data-i18n="fronts.sub">harness-kit is one product with four surfaces. Each does one job, and they chain: shape the idea, run the pipeline, watch its quality, drive it from a terminal. Start anywhere.</p>
     <div class="grid4">
       <a class="card frontcard glowable" href="#brief"><span class="glow"></span>
@@ -403,7 +449,7 @@ sequenceDiagram
   <!-- FRONT 1 · BRIEF BUILDER -->
   <section class="block reveal" id="brief">
     <span class="fronttag" data-i18n="brief.eyebrow">Front 1 &middot; the on-ramp</span>
-    <div class="sec-head"><span class="n">03</span><h2 data-i18n="brief.title">Brief builder</h2></div>
+    <div class="sec-head"><span class="n">04</span><h2 data-i18n="brief.title">Brief builder</h2></div>
     <p class="sec-sub" data-i18n="brief.sub">A single web page that turns a rough idea into a well-formed <code class="inline">/golden-path</code> prompt. Fill squad, problem, hypothesis, and metric; it validates each field against the PRD conventions as you type, and builds the exact prompt to paste into Claude Code. No blank-page problem.</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -424,7 +470,7 @@ sequenceDiagram
   <!-- FRONT 2 · THE PIPELINE -->
   <section class="block reveal" id="pipeline">
     <span class="fronttag" data-i18n="s01.eyebrow">Front 2 &middot; the engine</span>
-    <div class="sec-head"><span class="n">04</span><h2 data-i18n="s01.title">The pipeline</h2></div>
+    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s01.title">The pipeline</h2></div>
     <p class="sec-sub" data-i18n="s01.sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -446,7 +492,7 @@ flowchart LR
       <p data-i18n="s01.note">Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
     </div>
 
-    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:40px 0 6px" data-i18n="s01.h3">How one stage is gated</h3>
+    <h3 class="sub-h" data-i18n="s01.h3">How one stage is gated</h3>
     <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub2">The same loop runs at every stage. The agent generates the artifact, a sensor checks its structure, an eval scores its quality, and only then does a human approve. Failures self-correct before they reach you.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -461,7 +507,7 @@ flowchart LR
     </div>
     <p class="diagram-cap" data-i18n="s01.cap2">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
 
-    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:44px 0 6px" data-i18n="s01.h5">A gate that cannot lie</h3>
+    <h3 class="sub-h" data-i18n="s01.h5">A gate that cannot lie</h3>
     <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub4">Böckeler splits controls into <b>computational</b>, deterministic and CPU-run, and <b>inferential</b>, needing judgment. Every sensor here declares which it is, and the difference is the whole point: a sensor nothing machine-checked can never report a pass.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -481,7 +527,7 @@ flowchart LR
       <p data-i18n="s01.note3">This one is scar tissue. Sensors here once declared themselves deterministic hard gates while writing their checks as prose the runner could not parse. It returned 0, and the quality log recorded them as <b>passed</b> on every run, against a check that never happened. That is the <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html">illusion of quality</a> the gates exist to prevent, so the harness now has its own tests, its own CI, and a ledger that fails the build when a sensor lies about how it is enforced.</p>
     </div>
 
-    <h3 style="font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.5px;margin:48px 0 6px" data-i18n="s01.h4">Each agent, end to end</h3>
+    <h3 class="sub-h" data-i18n="s01.h4">Each agent, end to end</h3>
     <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub3">The same gated loop, once per agent. These are the three pipelines you actually run: what the command does, which sensors fire, which eval scores it, and where the gate sits. Every scored eval uses the same 8.0 threshold and the same three-attempt retry.</p>
     <div class="diagram">
       <pre class="mermaid">
@@ -561,14 +607,14 @@ sequenceDiagram
     <p class="diagram-cap" data-i18n="s01.capSA"><b>system-architect</b> &middot; design &#8594; review &middot; optional front stage before the PRP &middot; block is terminal</p>
     <div class="note" style="margin-top:28px">
       <span class="ic">&#9670;</span>
-      <p data-i18n="s01.note2">The evaluator is always a <b>fresh sub-agent</b> that gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="wiki/Agent-Pipelines.html">Agent Pipelines</a> wiki page.</p>
+      <p data-i18n="s01.note2">The evaluator is a <b>fresh Claude sub-agent</b>, or <b>Jev</b> when you pick it, and it gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="wiki/Agent-Pipelines.html">Agent Pipelines</a> wiki page.</p>
     </div>
   </section>
 
   <!-- GOLDEN PATH -->
   <section class="block reveal" id="golden-path">
     <span class="fronttag" data-i18n="s03.eyebrow">Front 2 &middot; run it</span>
-    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s03.title">The golden path</h2></div>
+    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s03.title">The golden path</h2></div>
     <p class="sec-sub" data-i18n="s03.sub">One command, idea to merged PR.</p>
     <div class="steps">
       <div class="step glowable"><span class="glow"></span>
@@ -598,7 +644,7 @@ sequenceDiagram
         <span class="num"></span>
         <div>
           <h3 data-i18n="s03.s3h">Approve and ship</h3>
-          <p data-i18n="s03.s3p1">All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; the status bar tracks where you are.</p>
+          <p data-i18n="s03.s3p1">All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; <code class="inline">hk status</code> shows where you are.</p>
           <p data-i18n="s03.s3p2">SSE flags pass straight through: <code class="inline">--local</code>, <code class="inline">--sdd</code>, <code class="inline">--no-monitor</code>. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
         </div>
       </div>
@@ -607,7 +653,7 @@ sequenceDiagram
 
   <!-- OTHER WAYS -->
   <section class="block reveal" id="commands">
-    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
+    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
     <p class="sec-sub" data-i18n="s04.sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
     <div class="tablewrap">
       <table>
@@ -632,7 +678,7 @@ sequenceDiagram
   <!-- FRONT 3 · QUALITY -->
   <section class="block reveal" id="quality">
     <span class="fronttag" data-i18n="qual.eyebrow">Front 3 &middot; the feedback</span>
-    <div class="sec-head"><span class="n">07</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
+    <div class="sec-head"><span class="n">08</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
     <p class="sec-sub" data-i18n="qual.sub">Scores used to get lost in chat once a stage was approved. The quality dashboard persists per-phase signal across every run and answers one question: is each stage getting better or worse over time?</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -641,7 +687,7 @@ sequenceDiagram
       </div>
       <p class="cap" data-i18n="qual.gifcap">drop a phase-log.json and see where the pipeline drifts</p>
     </div>
-    <p data-i18n="qual.p1" style="color:var(--dim);max-width:680px;margin:26px 0 0;font-size:16px">Every time a phase is approved, a post-eval hook appends one deterministic entry, zero token cost, to <code class="inline">phase-log.json</code>: the eval <code class="inline">score</code>, the count of open <code class="inline">gaps</code>, the <code class="inline">sensors</code> re-run pass/fail, and a derived <code class="inline">status</code> (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Drop that JSON on the page (a standalone file, no build, no network) for KPI tiles, a score trend by stage, failure rate, average score vs the 7.0 threshold, the sensors that block most, and the full run table.</p>
+    <p data-i18n="qual.p1" style="color:var(--dim);max-width:700px;margin:24px 0 0;font-size:14.5px">Every time a phase is approved, a post-eval hook appends one deterministic entry, zero token cost, to <code class="inline">phase-log.json</code>: the eval <code class="inline">score</code>, the count of open <code class="inline">gaps</code>, the <code class="inline">sensors</code> re-run pass/fail, and a derived <code class="inline">status</code> (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Drop that JSON on the page (a standalone file, no build, no network) for KPI tiles, a score trend by stage, failure rate, average score vs the 7.0 threshold, the sensors that block most, and the full run table.</p>
     <div class="hero-cta" style="margin-top:26px">
       <a class="btn primary" href="quality/phase-report.html" data-i18n="qual.cta">Open the dashboard</a>
       <a class="btn ghost" href="https://github.com/Pierry/harness-kit/blob/main/docs/quality/README.md" data-i18n="qual.cta2">How it is fed</a>
@@ -651,7 +697,7 @@ sequenceDiagram
   <!-- FRONT 4 · COCKPIT -->
   <section class="block reveal" id="cockpit">
     <span class="fronttag" data-i18n="s0c.eyebrow">Front 4 &middot; the control surface</span>
-    <div class="sec-head"><span class="n">08</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
+    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
     <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, humans on the loop at two gates.</p>
     <div class="media reveal" style="margin-top:0">
       <div class="frame">
@@ -660,7 +706,7 @@ sequenceDiagram
       </div>
       <p class="cap" data-i18n="s0c.gifcap">open a feature, read each artifact, approve the gate, all from the terminal</p>
     </div>
-    <p data-i18n="s0c.p2" style="color:var(--dim);max-width:680px;margin:26px 0 0;font-size:16px">It renders each artifact, runs a stage on a keypress, and turns the two human gates into modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
+    <p data-i18n="s0c.p2" style="color:var(--dim);max-width:700px;margin:24px 0 0;font-size:14.5px">It renders each artifact, runs a stage on a keypress, and turns the two human gates into modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
     <div class="code" style="margin-top:22px">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.bar">terminal</span></div>
 <pre><span class="cmd">npm</span> i -g @pieerry/harness-kit   <span class="c"># once, puts hk-tui on your PATH</span>
@@ -675,30 +721,40 @@ sequenceDiagram
   </section>
 
   <!-- INSTALL -->
-  <section class="block reveal" id="install">
-    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s02.title">Install</h2></div>
-    <p class="sec-sub" data-i18n="s02.sub">Two layers: the <b>plugin</b> (fetched once from the marketplace) and the <b>harness</b> (laid into each repo you want it in).</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
-<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
-<span class="cmd">/plugin</span> install harness-kit@harness-kit</pre>
-    </div>
-    <p class="sec-sub" style="margin:0 0 18px" data-i18n="s02.sub2">Restart Claude Code, then inside the repo you want to use it in:</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s02.bar">per repo, once</span></div>
-<pre><span class="cmd">/harness-kit:install</span></pre>
-    </div>
-    <p class="sec-sub" style="margin:0" data-i18n="s02.sub3">Lays the full harness into that repo, agents, commands, skills, hooks, and the status bar, under <code class="inline">.claude/</code> plus <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code> at the root. Requires Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, and the <a href="https://cli.github.com/">gh CLI</a> for PRs.</p>
-    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
-      <span class="ic" style="color:var(--gold)">&#8635;</span>
-      <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code> then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
+  
+
+  <!-- OPTIONS -->
+  <section class="block reveal" id="options">
+    <div class="sec-head"><span class="n">10</span><h2 data-i18n="opt.title">Options</h2></div>
+    <p class="sec-sub" data-i18n="opt.sub">All off or on their simplest setting until you change them. Each one is a single command and can be turned back at any time.</p>
+    <div class="cards">
+      <div class="card glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="opt.c1t">eval judge</span>
+        <h3 data-i18n="opt.c1h">Local Claude or Jev</h3>
+        <p data-i18n="opt.c1p">By default (<code class="inline">local</code>) a fresh Claude sub-agent scores each document. With <code class="inline">jev</code>, Jev by TypeSafe AI scores it instead. Jev is a different model family, so Claude no longer grades its own work. It answers each rubric item as an atomic yes/no check and hands the call to Claude when its unsure answers could flip the result. Paid, about $0.04 per million tokens.</p>
+        <div class="skills"><span>/hk:eval local</span><span>/hk:eval jev</span></div>
+        <div class="more" data-i18n="opt.c1m"><a href="wiki/Evals.html">Evals</a> &middot; <a href="wiki/Jev-and-System-One.html">Jev and System One</a></div>
+      </div>
+      <div class="card glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="opt.c2t">graph engineering</span>
+        <h3 data-i18n="opt.c2h">Trace every requirement</h3>
+        <p data-i18n="opt.c2p"><code class="inline">manifest</code> gives each acceptance criterion a <code class="inline">REQ</code> id, writes <code class="inline">trace/{feature}.yml</code> into the PR, and adds a scope gate that fails dev on any file the plan did not name. Links start PROPOSED and later turn VALIDATED or STALE. <code class="inline">full</code> adds an embedded FalkorDB graph with Graphiti on free NVIDIA models, plus the Joern call graph. No Docker.</p>
+        <div class="skills"><span>/hk:graph off</span><span>/hk:graph manifest</span><span>/hk:graph full</span></div>
+        <div class="more" data-i18n="opt.c2m"><a href="wiki/Graph-Engineering.html">Graph Engineering</a> &middot; <a href="wiki/Graph-Theory.html">Graph Theory</a></div>
+      </div>
+      <div class="card glowable"><span class="glow"></span>
+        <span class="tag" data-i18n="opt.c3t">status bar</span>
+        <h3 data-i18n="opt.c3h">Pipeline status bar</h3>
+        <p data-i18n="opt.c3p">Off by default: install never touches your own status line. Install with <code class="inline">HK_STATUSLINE=1</code> to replace it with the pipeline's current step. Without it, <code class="inline">hk status</code> gives the same answer on demand.</p>
+        <div class="skills"><span>HK_STATUSLINE=1</span><span>hk status</span></div>
+      </div>
     </div>
   </section>
 
   <!-- CONTEXT OPTIMIZATION -->
   <section class="block reveal" id="context">
-    <div class="sec-head"><span class="n">10</span><h2 data-i18n="s05.title">Context optimization</h2></div>
-    <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. Four tools cut that, and they stack with the per-stage model tiers.</p>
+    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s05.title">Context optimization</h2></div>
+    <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. The tools below cut that, and they stack with the per-stage model tiers.</p>
     <div class="tablewrap">
       <table>
         <thead><tr><th data-i18n="s05.th1">Tool</th><th data-i18n="s05.th2">Cuts</th><th data-i18n="s05.th3">How</th></tr></thead>
@@ -707,29 +763,40 @@ sequenceDiagram
           <tr><td>/context:graph</td><td>input</td><td data-i18n="s05.h2">graphify knowledge graph, query "what calls X" (~71x fewer tokens)</td></tr>
           <tr><td>qmd</td><td>input</td><td data-i18n="s05.h3">semantic search over the guides, returns the relevant excerpt not the whole file</td></tr>
           <tr><td>rtk</td><td>output</td><td data-i18n="s05.h4">shell proxy, compresses git/test/lint/grep output 60-90%</td></tr>
+          <tr><td>semble</td><td>input</td><td data-i18n="s05.h5">finds code by intent, not by literal string</td></tr>
+          <tr><td>repowise</td><td>input</td><td data-i18n="s05.h6">risk of a change and the tests it affects</td></tr>
+          <tr><td>context7</td><td>input</td><td data-i18n="s05.h7">current library docs, not what the model remembers</td></tr>
+          <tr><td>joern</td><td>input</td><td data-i18n="s05.h8">call graphs: who calls what, blast radius of a change</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="sec-sub" style="margin:24px 0 14px" data-i18n="s05.sub2"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md">qmd</a> and <a href="https://github.com/tobi/qmd">rtk</a> are third-party, install them yourself:</p>
+    <p class="sec-sub" style="margin:24px 0 14px" data-i18n="s05.sub2"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/tobi/qmd">qmd</a> and rtk are third-party, install them yourself:</p>
     <div class="code">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">shell</span></div>
 <pre><span class="c"># rtk, output filter, auto-intercepts git/test/lint/grep</span>
 brew install rtk
 rtk init -g            <span class="c"># select Claude Code; rtk gain shows savings</span>
 
+<span class="c"># see which context tools this repo can use</span>
+.claude/scripts/context-tools.sh
+
 <span class="c"># qmd, semantic doc search over the harness guide tree</span>
 npm install -g @tobilu/qmd
 setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2GB models, once)</span></pre>
     </div>
-    <div class="note" style="border-color:#fcc04a2a;background:#fcc04a12">
-      <span class="ic" style="color:var(--gold)">&#9670;</span>
+    <div class="note">
+      <span class="ic">&#9670;</span>
+      <p data-i18n="s05.probe">Stages that read the target repo (PRP, plan, SDD eval, design) first run <code class="inline">.claude/scripts/context-tools.sh</code> and use what is installed: <a href="https://github.com/MinishLab/semble">semble</a> to find code by intent, <a href="https://github.com/repowise-dev/repowise">repowise</a> for risk and affected tests, <a href="https://github.com/upstash/context7">context7</a> for library docs, Joern for call graphs. Anything missing falls back to grep, never to a failure.</p>
+    </div>
+    <div class="note">
+      <span class="ic">&#9670;</span>
       <p data-i18n="s05.note">qmd and rtk are not bundled. Rationale and measured wins in <a href="https://github.com/Pierry/harness-kit/issues/2">issue #2</a>. Full tier order in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md">context-strategy.md</a>.</p>
     </div>
   </section>
 
   <!-- AGENTS -->
   <section class="block reveal" id="agents">
-    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s06.title">The agents</h2></div>
+    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s06.title">The agents</h2></div>
     <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
     <div class="cards">
       <div class="card glowable"><span class="glow"></span>
@@ -756,7 +823,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- FOUNDATIONS -->
   <section class="block reveal" id="foundations">
-    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s07.title">Foundations</h2></div>
+    <div class="sec-head"><span class="n">13</span><h2 data-i18n="s07.title">Foundations</h2></div>
     <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
     <div class="refs">
       <div class="ref glowable"><span class="glow"></span>
@@ -792,13 +859,17 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
 
   <!-- DOCS -->
   <section class="block reveal" id="docs">
-    <div class="sec-head"><span class="n">13</span><h2 data-i18n="s08.title">Docs</h2></div>
+    <div class="sec-head"><span class="n">14</span><h2 data-i18n="s08.title">Docs</h2></div>
     <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
     <div class="docgrid">
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md"><span class="glow"></span><span><span class="t" data-i18n="d2.t">Commands &amp; gates</span><br /><span class="d" data-i18n="d2.d">every command, every sensor and eval</span></span><span class="ar">&#8594;</span></a>
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/ARCHITECTURE.md"><span class="glow"></span><span><span class="t" data-i18n="d3.t">Architecture</span><br /><span class="d" data-i18n="d3.d">stage anatomy, status bar, repo layout</span></span><span class="ar">&#8594;</span></a>
       <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md"><span class="glow"></span><span><span class="t">AGENTS.md</span><br /><span class="d" data-i18n="d4.d">agent registry and path-by-path map</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="wiki/Getting-Started.html"><span class="glow"></span><span><span class="t" data-i18n="d6.t">Getting Started</span><br /><span class="d" data-i18n="d6.d">the four setups, install, brief to merge</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="wiki/Jev-and-System-One.html"><span class="glow"></span><span><span class="t" data-i18n="d7.t">Jev and System One</span><br /><span class="d" data-i18n="d7.d">the Jev judge, atomic checks, escalation to Claude</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="wiki/Graph-Engineering.html"><span class="glow"></span><span><span class="t" data-i18n="d8.t">Graph Engineering</span><br /><span class="d" data-i18n="d8.d">REQ ids, trace files, the scope gate</span></span><span class="ar">&#8594;</span></a>
+      <a class="doc glowable" href="wiki/Graph-Theory.html"><span class="glow"></span><span><span class="t" data-i18n="d9.t">Graph Theory</span><br /><span class="d" data-i18n="d9.d">the model behind the trace graph</span></span><span class="ar">&#8594;</span></a>
       <a class="doc glowable" href="quality/phase-report.html"><span class="glow"></span><span><span class="t" data-i18n="d5.t">Phase quality</span><br /><span class="d" data-i18n="d5.d">per-phase score trend, failure rate, sensor blocks</span></span><span class="ar">&#8594;</span></a>
     </div>
   </section>
@@ -817,16 +888,16 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
   /* ---------- mermaid, theme-aware ---------- */
   const MERMAID_VARS = {
     dark: {
-      background: "transparent", primaryColor: "#161a22", primaryTextColor: "#edeff3",
-      primaryBorderColor: "#2b323e", secondaryColor: "#101319", tertiaryColor: "#0b0d11",
-      lineColor: "#7c6ad9", textColor: "#9aa3b2", clusterBkg: "#0d0f14", clusterBorder: "#2b323e",
-      edgeLabelBackground: "#0a0c10", nodeBorder: "#2b323e", fontSize: "14px",
+      background: "transparent", primaryColor: "#1f1f1f", primaryTextColor: "#e5e5e5",
+      primaryBorderColor: "#404040", secondaryColor: "#1f1f1f", tertiaryColor: "#171717",
+      lineColor: "#737373", textColor: "#a3a3a3", clusterBkg: "#171717", clusterBorder: "#262626",
+      edgeLabelBackground: "#0f0f0f", nodeBorder: "#404040", fontSize: "13px",
     },
     light: {
-      background: "transparent", primaryColor: "#f4f1fb", primaryTextColor: "#1b1822",
-      primaryBorderColor: "#d6cfe4", secondaryColor: "#ece8f6", tertiaryColor: "#f6f4fb",
-      lineColor: "#7c5cf0", textColor: "#54506a", clusterBkg: "#efeaf8", clusterBorder: "#d6cfe4",
-      edgeLabelBackground: "#ffffff", nodeBorder: "#d6cfe4", fontSize: "14px",
+      background: "transparent", primaryColor: "#F0EDE8", primaryTextColor: "#191919",
+      primaryBorderColor: "#a3a3a3", secondaryColor: "#e8e4dd", tertiaryColor: "#F0EDE8",
+      lineColor: "#737373", textColor: "#525252", clusterBkg: "#F0EDE8", clusterBorder: "#d4d4d4",
+      edgeLabelBackground: "#e8e4dd", nodeBorder: "#a3a3a3", fontSize: "13px",
     },
   };
   const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
@@ -849,7 +920,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
   /* ---------- theme ---------- */
   const root = document.documentElement;
   const themeColorMeta = document.getElementById("theme-color");
-  const THEME_BG = { dark: "#08090c", light: "#faf9fc" };
+  const THEME_BG = { dark: "#171717", light: "#F0EDE8" };
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
@@ -878,7 +949,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.eyebrow": "plugin claude code &middot; <b>pipeline com gates</b>",
       "hero.h1": "Da ideia ao PR mergeado,<br />por um só <span class=\"gold\">pipeline com gates</span>.",
       "hero.lede": "harness-kit é um conjunto de agentes do Claude Code, um product manager, um staff engineer e um system architect, que levam uma ideia crua por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, com um check pass/fail e uma avaliação pontuada em cada etapa. Nada avança no feeling.",
-      "hero.cta1": "Instalar", "hero.cta2": "Abrir o construtor de brief",
+      "hero.cta1": "Comece aqui", "hero.cta2": "Abrir o construtor de brief",
       "hero.gifbar": "o pipeline completo &middot; demo", "hero.gifcap": "o pipeline completo, num passo a passo", "hero.merged": "PR mergeado",
       "nav.fronts": "frentes",
       "nav.why": "por quê",
@@ -935,13 +1006,13 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lê o artefato de intake, nunca para pra te perguntar",
       "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev é a única etapa com gate duplo, no código e no resumo",
       "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes do PRP &middot; block é terminal",
-      "s01.note2": "O avaliador é sempre um <b>sub-agente novo</b> que recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> da wiki.",
+      "s01.note2": "O avaliador é um <b>sub-agente Claude novo</b>, ou o <b>Jev</b> quando você escolhe, e recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> da wiki.",
       "s02.title": "Instalação",
       "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
       "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
       "s02.bar": "por repo, uma vez",
-      "s02.sub3": "Instala a harness completa nesse repo, agentes, comandos, skills, hooks e a status bar, em <code class=\"inline\">.claude/</code> mais <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code> na raiz. Requer Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Atualizando.</b> A versão do plugin é fixada, então um release só chega quando você puxa: <code class=\"inline\">/plugin update harness-kit</code> e depois <code class=\"inline\">/harness-kit:update</code> em cada repo. Novos usuários já pegam a última versão na instalação.",
+      "s02.sub3": "Instala a harness nesse repo, agentes, comandos, skills e hooks, em <code class=\"inline\">.claude/</code> mais <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code> na raiz. Não mexe na sua status line e faz duas perguntas: qual juiz de eval, e se liga graph engineering. Os dois padrões servem (<a href=\"#options\">opções</a>). Requer Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Atualizando.</b> A versão do plugin é fixada, então um release só chega quando você puxa: <code class=\"inline\">/plugin update harness-kit</code>, reinicie o Claude Code e depois <code class=\"inline\">/harness-kit:update</code> em cada repo. Novos usuários já pegam a última versão na instalação.",
       "s03.title": "O golden path", "s03.sub": "Um comando, da ideia ao PR mergeado.",
       "s03.s1h": "Escreva o brief",
       "s03.s1p": "Abra o <a href=\"brief/\">construtor de brief</a> e preencha os campos, squad, problema, hipótese, clientes, métrica. A validação inline mantém você nas convenções de PRD enquanto digita.",
@@ -949,7 +1020,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s03.s2p": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code:",
       "s03.bar": "cole no claude code",
       "s03.s3h": "Aprove e entregue",
-      "s03.s3p1": "As seis etapas com gate rodam, PM (<code class=\"inline\">prd &#8594; prp</code>) e depois Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprove cada artefato quando pedido; a status bar mostra onde você está.",
+      "s03.s3p1": "As seis etapas com gate rodam, PM (<code class=\"inline\">prd &#8594; prp</code>) e depois Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprove cada artefato quando pedido; <code class=\"inline\">hk status</code> mostra onde você está.",
       "s03.s3p2": "As flags do SSE passam direto: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
       "s04.title": "Outras formas de rodar",
       "s04.sub": "Todo fluxo compartilha o mesmo estado de pipeline, então dá pra trocar entre eles no meio da feature.",
@@ -957,13 +1028,13 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s04.r1": "Da ideia ao PR mergeado", "s04.r2": "Só o spec, alinhar antes de qualquer código", "s04.r3": "Mudança pequena, plano na cabeça", "s04.r4": "Só local, sem PR", "s04.r5": "Loop até o spec passar", "s04.r6": "Retomar após uma pausa",
       "s04.note": "<b>Sensors</b> são checagens determinísticas de estrutura, bloqueiam na falha e o Claude regenera até passar. <b>Evals</b> são rubricas julgadas por LLM, pontuadas 0-10, limiar 8.0, com até 3 retentativas. Cada etapa também é um comando próprio: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Todo comando e gate &#8594;</a>",
       "s05.title": "Otimização de contexto",
-      "s05.sub": "Opcional, tudo local-first. Conforme o repo e a harness crescem, os tokens gastos carregando contexto e lendo a saída dos comandos começam a dominar. Quatro ferramentas cortam isso, e somam com os tiers de modelo por etapa.",
+      "s05.sub": "Opcional, tudo local-first. Conforme o repo e a harness crescem, os tokens gastos carregando contexto e lendo a saída dos comandos começam a dominar. As ferramentas abaixo cortam isso, e somam com os tiers de modelo por etapa.",
       "s05.th1": "Ferramenta", "s05.th2": "Corta", "s05.th3": "Como",
       "s05.h1": "snapshot repomix do repo alvo, cacheado por feature",
       "s05.h2": "grafo de conhecimento graphify, consulta \"o que chama X\" (~71x menos tokens)",
       "s05.h3": "busca semântica nos guides, devolve o trecho relevante, não o arquivo inteiro",
       "s05.h4": "proxy de shell, comprime a saída de git/test/lint/grep em 60-90%",
-      "s05.sub2": "<code class=\"inline\">/context:pack</code> e <code class=\"inline\">/context:graph</code> vêm com a harness e alimentam as etapas de plan e SDD-eval. <a href=\"https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md\">qmd</a> e <a href=\"https://github.com/tobi/qmd\">rtk</a> são de terceiros, instale você mesmo:",
+      "s05.sub2": "<code class=\"inline\">/context:pack</code> e <code class=\"inline\">/context:graph</code> vêm com a harness e alimentam as etapas de plan e SDD-eval. <a href=\"https://github.com/tobi/qmd\">qmd</a> e rtk são de terceiros, instale você mesmo:",
       "s05.note": "qmd e rtk não vêm no pacote. Justificativa e ganhos medidos no <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Ordem completa de tiers em <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
       "s06.title": "Os agentes",
       "s06.sub": "Todos registrados em <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada um traz seus próprios sensors, evals, guides e skills.",
@@ -991,6 +1062,126 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "d3.t": "Arquitetura", "d3.d": "anatomia da etapa, status bar, layout do repo",
       "d4.d": "registro de agentes e mapa caminho a caminho",
       "d5.t": "Qualidade por fase", "d5.d": "tendencia de score, taxa de falha e sensores por fase",
+      "nav.start": "comece aqui",
+      "why.vsh": "Sem ele, e com ele",
+      "why.vssub": "Um agente escreve código rápido, e é no rápido que os erros caros se escondem. Cada linha abaixo é uma etapa que precisa passar antes da próxima começar, e o harness-kit escreve ela por você.",
+      "why.vth1": "Sem harness-kit",
+      "why.vth2": "Com harness-kit",
+      "why.v1a": "O ticket vive na sua cabeça ou numa thread de chat",
+      "why.v1b": "Um PRD com o problema, os clientes e uma métrica de sucesso numérica",
+      "why.v2a": "\"Pronto\" é o que o agente decidiu",
+      "why.v2b": "Um PRP com critérios de aceite que você confere um por um",
+      "why.v3a": "O agente edita o que encontrar pela frente",
+      "why.v3b": "Um plano que nomeia os arquivos e, com graph engineering, um gate que falha em qualquer outro arquivo",
+      "why.v4a": "Revisão é ler um diff e torcer",
+      "why.v4b": "Todo documento pontuado contra uma rubrica, refeito até passar de 8.0",
+      "why.v5a": "Ninguém lembra por que o código está assim",
+      "why.v5b": "Todo requisito ligado ao código que o implementa e ao teste que o prova",
+      "why.v6a": "A qualidade depende do dia",
+      "why.v6b": "As mesmas seis etapas sempre, com um histórico de notas que você acompanha",
+      "gs.title": "Comece aqui",
+      "gs.sub": "Do zero instalado até um PR mergeado. São quatro setups e todos usam os mesmos comandos; as opções só mudam o que acontece dentro de algumas etapas. Comece pelo padrão, dá pra trocar depois com um comando.",
+      "gs.h1": "Escolha um setup",
+      "gs.th1": "Setup",
+      "gs.th2": "Melhor para",
+      "gs.th3": "O que adiciona",
+      "gs.th4": "Precisa de",
+      "gs.th5": "Custo",
+      "gs.n1": "Simples (padrão)",
+      "gs.b1": "experimentar, times pequenos, a maioria das features",
+      "gs.a1": "o pipeline completo com gates",
+      "gs.d1": "Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code>, <code class=\"inline\">gh</code>",
+      "gs.k1": "nada a mais",
+      "gs.n2": "Juiz Jev",
+      "gs.b2": "um juiz que não é o Claude avaliando o Claude",
+      "gs.a2": "qualidade pontuada pelo Jev, outro modelo, em menos de um segundo por documento; o Claude assume quando o Jev está em dúvida",
+      "gs.d2": "uma API key da TypeSafe",
+      "gs.k2": "cerca de US$ 0,04 por milhão de tokens",
+      "gs.n3": "Graph engineering",
+      "gs.b3": "codebases compartilhadas, trabalho regulado, tudo que você precise auditar depois",
+      "gs.a3": "ids de requisito, um arquivo de trace em todo PR, um gate de escopo, links que viram VALIDATED ou STALE",
+      "gs.d3": "nada a mais para <code class=\"inline\">manifest</code>; Python 3.12, uma chave grátis da NVIDIA e <code class=\"inline\">joern</code> para <code class=\"inline\">full</code>",
+      "gs.k3": "grátis",
+      "gs.n4": "Grafo e Jev",
+      "gs.b4": "times que querem um juiz neutro e rastreabilidade completa",
+      "gs.a4": "os dois acima",
+      "gs.d4": "os dois acima",
+      "gs.h2": "Instalação",
+      "gs.inst": "Copia os agentes, comandos e hooks para <code class=\"inline\">.claude/</code>, adiciona <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code>, e faz duas perguntas: o juiz de eval (<code class=\"inline\">local</code> ou <code class=\"inline\">jev</code>) e graph engineering (<code class=\"inline\">off</code>, <code class=\"inline\">manifest</code> ou <code class=\"inline\">full</code>). O simples é <code class=\"inline\">local</code> e <code class=\"inline\">off</code>. Reinicie mais uma vez para os comandos aparecerem. Sua status line continua como estava.",
+      "gs.jev": "<b>Setups com Jev.</b> Crie uma chave em <a href=\"https://console.typesafe.ai/keys\">console.typesafe.ai/keys</a> e rode <code class=\"inline\">/hk:eval jev</code>. Uma chave colada vai para <code class=\"inline\">.claude/settings.local.json</code>, que o git ignora.",
+      "gs.graph": "<b>Setups com grafo.</b> <code class=\"inline\">/hk:graph manifest</code> não precisa de mais nada. Para <code class=\"inline\">full</code>, tenha uma chave grátis de <a href=\"https://build.nvidia.com\">build.nvidia.com</a> e rode:",
+      "gs.gbar": "só para graph full",
+      "gs.h3": "Do brief ao merge, em sete etapas",
+      "gs.h3sub": "Você decide duas vezes: na etapa 2 e na etapa 6. O resto roda nos próprios gates.",
+      "gs.s1h": "Escreva o brief",
+      "gs.s1p": "Quatro linhas depois de <code class=\"inline\">/golden-path</code>: squad, problema, hipótese, métrica de sucesso. O <a href=\"brief/\">construtor de brief</a> confere cada campo pra você. <code class=\"inline\">/pipeline:run \"&lt;ideia&gt;\"</code> roda as mesmas etapas e só para nas duas decisões.",
+      "gs.s2h": "O PRD, sua primeira decisão",
+      "gs.s2p": "O agente de product manager escreve o problema, os clientes, o escopo e as métricas com baseline. Um script confere as seções, o eval pontua, e você aprova a direção. Um problema errado pego aqui custa uma reescrita, não uma feature.",
+      "gs.s3h": "O PRP",
+      "gs.s3p": "O PRD vira um spec de engenharia: arquivos a mudar, padrões a seguir, docs de bibliotecas, comandos de validação e critérios de aceite que você confere um por um.",
+      "gs.s4h": "O plano",
+      "gs.s4p": "O agente de staff engineer escreve o que muda, em quais arquivos, em que ordem, com riscos e casos de teste.",
+      "gs.s5h": "Dev",
+      "gs.s5p": "O agente implementa o plano em commits pequenos, roda seus linters e type checkers como sensors, e segue <code class=\"inline\">.claude/conventions/</code> quando existe.",
+      "gs.s6h": "Teste, o PR, sua segunda decisão",
+      "gs.s6p": "Sua suíte de testes roda e as falhas aparecem pelo nome. O agente prepara título, resumo e plano de teste do PR. Você aprova e ele abre como draft.",
+      "gs.s7h": "Merge",
+      "gs.s7p": "Um monitor observa o PR e limpa o pipeline quando ele é mergeado. Comece a próxima feature com um novo brief.",
+      "gs.h4": "O que muda por setup",
+      "gs.c0": "Etapa",
+      "gs.c1": "Simples",
+      "gs.c2": "Juiz Jev",
+      "gs.c3": "Graph engineering",
+      "gs.c4": "Grafo e Jev",
+      "gs.r1": "Pontuação",
+      "gs.v.claude": "sub-agente Claude",
+      "gs.v.jev": "Jev, Claude na dúvida",
+      "gs.v.crit": "critérios",
+      "gs.v.req": "critérios com ids <code class=\"inline\">REQ</code>, arquivo de trace",
+      "gs.v.files": "arquivos a mudar",
+      "gs.v.scope": "links com evidência, os arquivos viram o escopo",
+      "gs.v.conv": "convenções e linters",
+      "gs.v.gate": "mais gate de escopo, links IMPLEMENTS",
+      "gs.v.report": "relatório",
+      "gs.v.verif": "mais links VERIFIED_BY",
+      "gs.v.sum": "resumo e plano de teste",
+      "gs.v.trace": "mais tabela de rastreabilidade",
+      "gs.note": "Troque quando quiser: <code class=\"inline\">/hk:eval local</code> ou <code class=\"inline\">jev</code>, <code class=\"inline\">/hk:graph off</code>, <code class=\"inline\">manifest</code> ou <code class=\"inline\">full</code>. <code class=\"inline\">/pipeline:continue</code> retoma uma feature e <code class=\"inline\">hk status</code> mostra onde ela está. Todos os detalhes, etapa por etapa, em <a href=\"wiki/Getting-Started.html\">Getting Started</a>. Mais sobre cada opção <a href=\"#options\">abaixo</a>.",
+      "opt.title": "Opções",
+      "opt.sub": "Tudo desligado ou na configuração mais simples até você mudar. Cada uma é um único comando e pode ser revertida a qualquer momento.",
+      "opt.c1t": "juiz de eval",
+      "opt.c1h": "Claude local ou Jev",
+      "opt.c1p": "Por padrão (<code class=\"inline\">local</code>) um sub-agente Claude novo pontua cada documento. Com <code class=\"inline\">jev</code>, quem pontua é o Jev, da TypeSafe AI. O Jev é de outra família de modelos, então o Claude deixa de corrigir a própria prova. Ele responde cada item da rubrica como um check atômico de sim/não e passa a decisão para o Claude quando as respostas em dúvida poderiam virar o resultado. Pago, cerca de US$ 0,04 por milhão de tokens.",
+      "opt.c1m": "<a href=\"wiki/Evals.html\">Evals</a> &middot; <a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>",
+      "opt.c2t": "graph engineering",
+      "opt.c2h": "Rastreie cada requisito",
+      "opt.c2p": "<code class=\"inline\">manifest</code> dá a cada critério de aceite um id <code class=\"inline\">REQ</code>, grava <code class=\"inline\">trace/{feature}.yml</code> no PR e adiciona um gate de escopo que falha o dev em qualquer arquivo que o plano não nomeou. Os links começam PROPOSED e depois viram VALIDATED ou STALE. <code class=\"inline\">full</code> adiciona um grafo FalkorDB embutido com Graphiti em modelos grátis da NVIDIA, mais o call graph do Joern. Sem Docker.",
+      "opt.c2m": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a> &middot; <a href=\"wiki/Graph-Theory.html\">Graph Theory</a>",
+      "opt.c3t": "status bar",
+      "opt.c3h": "Status bar do pipeline",
+      "opt.c3p": "Desligada por padrão: a instalação nunca mexe na sua status line. Instale com <code class=\"inline\">HK_STATUSLINE=1</code> para trocá-la pela etapa atual do pipeline. Sem isso, <code class=\"inline\">hk status</code> dá a mesma resposta sob demanda.",
+      "s05.h5": "acha código pela intenção, não pela string literal",
+      "s05.h6": "o risco de uma mudança e os testes que ela afeta",
+      "s05.h7": "docs atuais das bibliotecas, não o que o modelo lembra",
+      "s05.h8": "call graphs: quem chama o quê, o raio de impacto de uma mudança",
+      "s05.probe": "As etapas que leem o repo alvo (PRP, plan, SDD eval, design) rodam antes <code class=\"inline\">.claude/scripts/context-tools.sh</code> e usam o que estiver instalado: <a href=\"https://github.com/MinishLab/semble\">semble</a> para achar código pela intenção, <a href=\"https://github.com/repowise-dev/repowise\">repowise</a> para risco e testes afetados, <a href=\"https://github.com/upstash/context7\">context7</a> para docs de bibliotecas, Joern para call graphs. O que faltar cai para grep, nunca para uma falha.",
+      "d6.t": "Getting Started",
+      "d6.d": "os quatro setups, instalação, do brief ao merge",
+      "d7.t": "Jev and System One",
+      "d7.d": "o juiz Jev, checks atômicos, escalada para o Claude",
+      "d8.t": "Graph Engineering",
+      "d8.d": "ids REQ, arquivos de trace, o gate de escopo",
+      "d9.t": "Graph Theory",
+      "d9.d": "o modelo por trás do grafo de trace",
+      "s04.r0": "Sem supervisão, da ideia ao PR, dois gates",
+      "s0c.eyebrow": "Frente 4 &middot; o painel de controle",
+      "s0c.title": "O cockpit",
+      "s0c.sub": "Uma UI de terminal sobre o pipeline. Cada etapa ao vivo, uma etapa rodada numa tecla, humanos no loop em dois gates.",
+      "s0c.gifbar": "hk-tui &middot; uma feature no gate do PR",
+      "s0c.gifcap": "abra uma feature, leia cada artefato, aprove o gate, tudo pelo terminal",
+      "s0c.p2": "Ele renderiza cada artefato, roda uma etapa numa tecla e transforma os dois gates humanos em prompts modais; o gate de direção lista os itens <code class=\"inline\">NEEDS REVIEW</code> abertos do intake. Lê estado e artefatos direto do disco, então fica em sincronia com qualquer sessão do Claude Code que esteja dirigindo a mesma feature. Vem empacotado, nenhuma dependência extra cai no seu projeto.",
+      "s0c.bar": "terminal",
+      "s0c.note": "<b>Teclas:</b> <code class=\"inline\">&#8593;&#8595;/jk</code> move &middot; <code class=\"inline\">enter</code> roda a etapa &middot; <code class=\"inline\">tab</code> foca o leitor &middot; <code class=\"inline\">a</code> aprova um gate, <code class=\"inline\">x</code> segura &middot; <code class=\"inline\">q</code> sai. Precisa de um TTY e Node 18+. Modelo completo: <a href=\"wiki/Autonomy.html\">Autonomy</a> e <a href=\"wiki/Orchestration-and-Subagents.html\">Orchestration &amp; Subagents</a>.",
       "footer.left": "harness-kit &middot; da ideia ao PR mergeado, por um só pipeline com gates",
     },
     es: {
@@ -999,7 +1190,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "hero.eyebrow": "plugin claude code &middot; <b>pipeline con gates</b>",
       "hero.h1": "De la idea al PR fusionado,<br />por un solo <span class=\"gold\">pipeline con gates</span>.",
       "hero.lede": "harness-kit es un conjunto de agentes de Claude Code, un product manager, un staff engineer y un system architect, que llevan una idea cruda por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, con un check pass/fail y una evaluación puntuada en cada etapa. Nada avanza por intuición.",
-      "hero.cta1": "Instalar", "hero.cta2": "Abrir el constructor de brief",
+      "hero.cta1": "Empieza aquí", "hero.cta2": "Abrir el constructor de brief",
       "hero.gifbar": "el pipeline completo &middot; demo", "hero.gifcap": "el pipeline completo, en un recorrido", "hero.merged": "PR fusionado",
       "nav.fronts": "frentes",
       "nav.why": "por qué",
@@ -1056,13 +1247,13 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lee el artefacto de intake, nunca se detiene a preguntarte",
       "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev es la única etapa con gate doble, en el código y en el resumen",
       "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes del PRP &middot; block es terminal",
-      "s01.note2": "El evaluador siempre es un <b>sub-agente nuevo</b> que recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> de la wiki.",
+      "s01.note2": "El evaluador es un <b>sub-agente Claude nuevo</b>, o <b>Jev</b> cuando lo eliges, y recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> de la wiki.",
       "s02.title": "Instalación",
       "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
       "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
       "s02.bar": "por repo, una vez",
-      "s02.sub3": "Instala la harness completa en ese repo, agentes, comandos, skills, hooks y la status bar, en <code class=\"inline\">.claude/</code> más <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code> en la raíz. Requiere Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Actualizando.</b> La versión del plugin está fijada, así que un release no te llega hasta que lo traes: <code class=\"inline\">/plugin update harness-kit</code> y luego <code class=\"inline\">/harness-kit:update</code> en cada repo. Los usuarios nuevos obtienen la última versión al instalar.",
+      "s02.sub3": "Instala la harness en ese repo, agentes, comandos, skills y hooks, en <code class=\"inline\">.claude/</code> más <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code> en la raíz. No toca tu status line y hace dos preguntas: qué juez de eval, y si activar graph engineering. Ambos valores por defecto sirven (<a href=\"#options\">opciones</a>). Requiere Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
+      "s02.note": "<b>Actualizando.</b> La versión del plugin está fijada, así que un release no te llega hasta que lo traes: <code class=\"inline\">/plugin update harness-kit</code>, reinicia Claude Code y luego <code class=\"inline\">/harness-kit:update</code> en cada repo. Los usuarios nuevos obtienen la última versión al instalar.",
       "s03.title": "El golden path", "s03.sub": "Un comando, de la idea al PR fusionado.",
       "s03.s1h": "Escribe el brief",
       "s03.s1p": "Abre el <a href=\"brief/\">constructor de brief</a> y llena los campos, squad, problema, hipótesis, clientes, métrica. La validación inline te mantiene en las convenciones de PRD mientras escribes.",
@@ -1070,7 +1261,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s03.s2p": "Pulsa <b>Copy brief</b> y pega el disparo listo de <code class=\"inline\">/golden-path</code> en Claude Code:",
       "s03.bar": "pega en claude code",
       "s03.s3h": "Aprueba y entrega",
-      "s03.s3p1": "Las seis etapas con gate corren, PM (<code class=\"inline\">prd &#8594; prp</code>) y luego Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprueba cada artefacto cuando se te pida; la status bar muestra dónde estás.",
+      "s03.s3p1": "Las seis etapas con gate corren, PM (<code class=\"inline\">prd &#8594; prp</code>) y luego Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprueba cada artefacto cuando se te pida; <code class=\"inline\">hk status</code> muestra dónde estás.",
       "s03.s3p2": "Las flags de SSE pasan directo: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. ¿Ya tienes clara la idea? Salta el constructor y escribe <code class=\"inline\">/golden-path</code> con el brief tú mismo.",
       "s04.title": "Otras formas de ejecutar",
       "s04.sub": "Todo flujo comparte el mismo estado de pipeline, así que puedes cambiar entre ellos a mitad de la feature.",
@@ -1078,13 +1269,13 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "s04.r1": "De la idea al PR fusionado", "s04.r2": "Solo el spec, alinear antes de código", "s04.r3": "Cambio pequeño, plan en tu cabeza", "s04.r4": "Solo local, sin PR", "s04.r5": "Loop hasta que el spec pase", "s04.r6": "Retomar tras una pausa",
       "s04.note": "<b>Sensors</b> son chequeos deterministas de estructura, bloquean al fallar y Claude regenera hasta pasar. <b>Evals</b> son rúbricas juzgadas por LLM, puntuadas 0-10, umbral 8.0, con hasta 3 reintentos. Cada etapa es también su propio comando: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Cada comando y gate &#8594;</a>",
       "s05.title": "Optimización de contexto",
-      "s05.sub": "Opcional, todo local-first. A medida que el repo y la harness crecen, los tokens gastados cargando contexto y leyendo la salida de comandos empiezan a dominar. Cuatro herramientas recortan eso, y se suman con los tiers de modelo por etapa.",
+      "s05.sub": "Opcional, todo local-first. A medida que el repo y la harness crecen, los tokens gastados cargando contexto y leyendo la salida de comandos empiezan a dominar. Las herramientas de abajo recortan eso, y se suman con los tiers de modelo por etapa.",
       "s05.th1": "Herramienta", "s05.th2": "Recorta", "s05.th3": "Cómo",
       "s05.h1": "snapshot repomix del repo objetivo, cacheado por feature",
       "s05.h2": "grafo de conocimiento graphify, consulta \"qué llama a X\" (~71x menos tokens)",
       "s05.h3": "búsqueda semántica en los guides, devuelve el extracto relevante, no el archivo entero",
       "s05.h4": "proxy de shell, comprime la salida de git/test/lint/grep 60-90%",
-      "s05.sub2": "<code class=\"inline\">/context:pack</code> y <code class=\"inline\">/context:graph</code> vienen con la harness y alimentan las etapas de plan y SDD-eval. <a href=\"https://github.com/Pierry/harness-kit/tree/main/.claude/shared/context-strategy.md\">qmd</a> y <a href=\"https://github.com/tobi/qmd\">rtk</a> son de terceros, instalalos tú mismo:",
+      "s05.sub2": "<code class=\"inline\">/context:pack</code> y <code class=\"inline\">/context:graph</code> vienen con la harness y alimentan las etapas de plan y SDD-eval. <a href=\"https://github.com/tobi/qmd\">qmd</a> y rtk son de terceros, instálalos tú mismo:",
       "s05.note": "qmd y rtk no vienen incluidos. Justificación y ganancias medidas en el <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Orden completo de tiers en <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
       "s06.title": "Los agentes",
       "s06.sub": "Todos registrados en <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada uno trae sus propios sensors, evals, guides y skills.",
@@ -1112,6 +1303,126 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       "d3.t": "Arquitectura", "d3.d": "anatomía de la etapa, status bar, layout del repo",
       "d4.d": "registro de agentes y mapa ruta por ruta",
       "d5.t": "Calidad por fase", "d5.d": "tendencia de puntaje, tasa de fallo y sensores por etapa",
+      "nav.start": "empieza aquí",
+      "why.vsh": "Sin él, y con él",
+      "why.vssub": "Un agente escribe código rápido, y en lo rápido se esconden los errores caros. Cada fila de abajo es una etapa que tiene que pasar antes de que empiece la siguiente, y harness-kit la escribe por ti.",
+      "why.vth1": "Sin harness-kit",
+      "why.vth2": "Con harness-kit",
+      "why.v1a": "El ticket vive en tu cabeza o en un hilo de chat",
+      "why.v1b": "Un PRD con el problema, los clientes y una métrica de éxito numérica",
+      "why.v2a": "\"Listo\" es lo que el agente decidió",
+      "why.v2b": "Un PRP con criterios de aceptación que revisas uno por uno",
+      "why.v3a": "El agente edita lo que encuentre",
+      "why.v3b": "Un plan que nombra los archivos y, con graph engineering, un gate que falla en cualquier otro archivo",
+      "why.v4a": "Revisar es leer un diff y esperar lo mejor",
+      "why.v4b": "Cada documento puntuado contra una rúbrica, rehecho hasta pasar 8.0",
+      "why.v5a": "Nadie recuerda por qué el código es así",
+      "why.v5b": "Cada requisito ligado al código que lo implementa y al test que lo prueba",
+      "why.v6a": "La calidad depende del día",
+      "why.v6b": "Las mismas seis etapas siempre, con un historial de notas que puedes seguir",
+      "gs.title": "Empieza aquí",
+      "gs.sub": "De nada instalado a un PR fusionado. Hay cuatro setups y todos usan los mismos comandos; las opciones solo cambian lo que pasa dentro de algunas etapas. Empieza con el predeterminado, puedes cambiarlo después con un comando.",
+      "gs.h1": "Elige un setup",
+      "gs.th1": "Setup",
+      "gs.th2": "Mejor para",
+      "gs.th3": "Qué añade",
+      "gs.th4": "Necesita",
+      "gs.th5": "Costo",
+      "gs.n1": "Simple (predeterminado)",
+      "gs.b1": "probarlo, equipos pequeños, la mayoría de las features",
+      "gs.a1": "el pipeline completo con gates",
+      "gs.d1": "Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code>, <code class=\"inline\">gh</code>",
+      "gs.k1": "nada extra",
+      "gs.n2": "Juez Jev",
+      "gs.b2": "un juez que no sea Claude evaluando a Claude",
+      "gs.a2": "calidad puntuada por Jev, otro modelo, en menos de un segundo por documento; Claude toma el control cuando Jev duda",
+      "gs.d2": "una API key de TypeSafe",
+      "gs.k2": "unos US$ 0,04 por millón de tokens",
+      "gs.n3": "Graph engineering",
+      "gs.b3": "codebases compartidas, trabajo regulado, todo lo que debas auditar después",
+      "gs.a3": "ids de requisito, un archivo de trace en cada PR, un gate de alcance, links que pasan a VALIDATED o STALE",
+      "gs.d3": "nada extra para <code class=\"inline\">manifest</code>; Python 3.12, una clave gratis de NVIDIA y <code class=\"inline\">joern</code> para <code class=\"inline\">full</code>",
+      "gs.k3": "gratis",
+      "gs.n4": "Grafo y Jev",
+      "gs.b4": "equipos que quieren un juez neutral y trazabilidad completa",
+      "gs.a4": "ambos de arriba",
+      "gs.d4": "ambos de arriba",
+      "gs.h2": "Instalación",
+      "gs.inst": "Copia los agentes, comandos y hooks en <code class=\"inline\">.claude/</code>, añade <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code>, y hace dos preguntas: el juez de eval (<code class=\"inline\">local</code> o <code class=\"inline\">jev</code>) y graph engineering (<code class=\"inline\">off</code>, <code class=\"inline\">manifest</code> o <code class=\"inline\">full</code>). El simple es <code class=\"inline\">local</code> y <code class=\"inline\">off</code>. Reinicia una vez más para que aparezcan los comandos. Tu status line queda como estaba.",
+      "gs.jev": "<b>Setups con Jev.</b> Crea una clave en <a href=\"https://console.typesafe.ai/keys\">console.typesafe.ai/keys</a> y ejecuta <code class=\"inline\">/hk:eval jev</code>. Una clave pegada va a <code class=\"inline\">.claude/settings.local.json</code>, que git ignora.",
+      "gs.graph": "<b>Setups con grafo.</b> <code class=\"inline\">/hk:graph manifest</code> no necesita nada más. Para <code class=\"inline\">full</code>, ten lista una clave gratis de <a href=\"https://build.nvidia.com\">build.nvidia.com</a> y ejecuta:",
+      "gs.gbar": "solo para graph full",
+      "gs.h3": "Del brief al merge, en siete etapas",
+      "gs.h3sub": "Decides dos veces: en la etapa 2 y en la etapa 6. El resto corre en sus propios gates.",
+      "gs.s1h": "Escribe el brief",
+      "gs.s1p": "Cuatro líneas después de <code class=\"inline\">/golden-path</code>: squad, problema, hipótesis, métrica de éxito. El <a href=\"brief/\">constructor de brief</a> revisa cada campo por ti. <code class=\"inline\">/pipeline:run \"&lt;idea&gt;\"</code> corre las mismas etapas y solo se detiene en las dos decisiones.",
+      "gs.s2h": "El PRD, tu primera decisión",
+      "gs.s2p": "El agente de product manager escribe el problema, los clientes, el alcance y las métricas con baseline. Un script revisa las secciones, el eval lo puntúa, y tú apruebas la dirección. Un problema equivocado detectado aquí cuesta una reescritura, no una feature.",
+      "gs.s3h": "El PRP",
+      "gs.s3p": "El PRD se vuelve un spec de ingeniería: archivos a cambiar, patrones a seguir, docs de librerías, comandos de validación y criterios de aceptación que revisas uno por uno.",
+      "gs.s4h": "El plan",
+      "gs.s4p": "El agente de staff engineer escribe qué cambia, en qué archivos, en qué orden, con riesgos y casos de prueba.",
+      "gs.s5h": "Dev",
+      "gs.s5p": "El agente implementa el plan en commits pequeños, corre tus linters y type checkers como sensors, y sigue <code class=\"inline\">.claude/conventions/</code> cuando existe.",
+      "gs.s6h": "Test, el PR, tu segunda decisión",
+      "gs.s6p": "Tu suite de tests corre y los fallos aparecen por nombre. El agente prepara título, resumen y plan de pruebas del PR. Apruebas y se abre como draft.",
+      "gs.s7h": "Merge",
+      "gs.s7p": "Un monitor vigila el PR y limpia el pipeline cuando se fusiona. Empieza la siguiente feature con un nuevo brief.",
+      "gs.h4": "Qué cambia por setup",
+      "gs.c0": "Etapa",
+      "gs.c1": "Simple",
+      "gs.c2": "Juez Jev",
+      "gs.c3": "Graph engineering",
+      "gs.c4": "Grafo y Jev",
+      "gs.r1": "Puntuación",
+      "gs.v.claude": "sub-agente Claude",
+      "gs.v.jev": "Jev, Claude si duda",
+      "gs.v.crit": "criterios",
+      "gs.v.req": "criterios con ids <code class=\"inline\">REQ</code>, archivo de trace",
+      "gs.v.files": "archivos a cambiar",
+      "gs.v.scope": "links con evidencia, los archivos se vuelven el alcance",
+      "gs.v.conv": "convenciones y linters",
+      "gs.v.gate": "más gate de alcance, links IMPLEMENTS",
+      "gs.v.report": "reporte",
+      "gs.v.verif": "más links VERIFIED_BY",
+      "gs.v.sum": "resumen y plan de pruebas",
+      "gs.v.trace": "más tabla de trazabilidad",
+      "gs.note": "Cambia cuando quieras: <code class=\"inline\">/hk:eval local</code> o <code class=\"inline\">jev</code>, <code class=\"inline\">/hk:graph off</code>, <code class=\"inline\">manifest</code> o <code class=\"inline\">full</code>. <code class=\"inline\">/pipeline:continue</code> retoma una feature y <code class=\"inline\">hk status</code> muestra dónde está. Todos los detalles, etapa por etapa, en <a href=\"wiki/Getting-Started.html\">Getting Started</a>. Más sobre cada opción <a href=\"#options\">abajo</a>.",
+      "opt.title": "Opciones",
+      "opt.sub": "Todo apagado o en su ajuste más simple hasta que lo cambies. Cada una es un solo comando y se puede revertir en cualquier momento.",
+      "opt.c1t": "juez de eval",
+      "opt.c1h": "Claude local o Jev",
+      "opt.c1p": "Por defecto (<code class=\"inline\">local</code>) un sub-agente Claude nuevo puntúa cada documento. Con <code class=\"inline\">jev</code>, lo puntúa Jev, de TypeSafe AI. Jev es de otra familia de modelos, así que Claude deja de calificar su propio trabajo. Responde cada ítem de la rúbrica como un check atómico de sí/no y pasa la decisión a Claude cuando sus respuestas dudosas podrían cambiar el resultado. De pago, unos US$ 0,04 por millón de tokens.",
+      "opt.c1m": "<a href=\"wiki/Evals.html\">Evals</a> &middot; <a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>",
+      "opt.c2t": "graph engineering",
+      "opt.c2h": "Rastrea cada requisito",
+      "opt.c2p": "<code class=\"inline\">manifest</code> da a cada criterio de aceptación un id <code class=\"inline\">REQ</code>, escribe <code class=\"inline\">trace/{feature}.yml</code> en el PR y añade un gate de alcance que hace fallar dev en cualquier archivo que el plan no nombró. Los links empiezan PROPOSED y luego pasan a VALIDATED o STALE. <code class=\"inline\">full</code> añade un grafo FalkorDB embebido con Graphiti sobre modelos gratis de NVIDIA, más el call graph de Joern. Sin Docker.",
+      "opt.c2m": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a> &middot; <a href=\"wiki/Graph-Theory.html\">Graph Theory</a>",
+      "opt.c3t": "status bar",
+      "opt.c3h": "Status bar del pipeline",
+      "opt.c3p": "Apagada por defecto: la instalación nunca toca tu status line. Instala con <code class=\"inline\">HK_STATUSLINE=1</code> para reemplazarla por la etapa actual del pipeline. Sin eso, <code class=\"inline\">hk status</code> da la misma respuesta cuando la pides.",
+      "s05.h5": "encuentra código por intención, no por string literal",
+      "s05.h6": "el riesgo de un cambio y los tests que afecta",
+      "s05.h7": "docs actuales de librerías, no lo que el modelo recuerda",
+      "s05.h8": "call graphs: quién llama a qué, el radio de impacto de un cambio",
+      "s05.probe": "Las etapas que leen el repo objetivo (PRP, plan, SDD eval, design) primero ejecutan <code class=\"inline\">.claude/scripts/context-tools.sh</code> y usan lo que esté instalado: <a href=\"https://github.com/MinishLab/semble\">semble</a> para encontrar código por intención, <a href=\"https://github.com/repowise-dev/repowise\">repowise</a> para riesgo y tests afectados, <a href=\"https://github.com/upstash/context7\">context7</a> para docs de librerías, Joern para call graphs. Lo que falte cae a grep, nunca a un fallo.",
+      "d6.t": "Getting Started",
+      "d6.d": "los cuatro setups, instalación, del brief al merge",
+      "d7.t": "Jev and System One",
+      "d7.d": "el juez Jev, checks atómicos, escalada a Claude",
+      "d8.t": "Graph Engineering",
+      "d8.d": "ids REQ, archivos de trace, el gate de alcance",
+      "d9.t": "Graph Theory",
+      "d9.d": "el modelo detrás del grafo de trace",
+      "s04.r0": "Sin supervisión, de la idea al PR, dos gates",
+      "s0c.eyebrow": "Frente 4 &middot; el panel de control",
+      "s0c.title": "El cockpit",
+      "s0c.sub": "Una UI de terminal sobre el pipeline. Cada etapa en vivo, una etapa corrida con una tecla, humanos en el loop en dos gates.",
+      "s0c.gifbar": "hk-tui &middot; una feature en el gate del PR",
+      "s0c.gifcap": "abre una feature, lee cada artefacto, aprueba el gate, todo desde la terminal",
+      "s0c.p2": "Renderiza cada artefacto, corre una etapa con una tecla y convierte los dos gates humanos en prompts modales; el gate de dirección lista los ítems <code class=\"inline\">NEEDS REVIEW</code> abiertos del intake. Lee estado y artefactos directo del disco, así que se mantiene en sincronía con cualquier sesión de Claude Code que conduzca la misma feature. Viene empaquetado, ninguna dependencia extra cae en tu proyecto.",
+      "s0c.bar": "terminal",
+      "s0c.note": "<b>Teclas:</b> <code class=\"inline\">&#8593;&#8595;/jk</code> mover &middot; <code class=\"inline\">enter</code> correr la etapa &middot; <code class=\"inline\">tab</code> enfocar el lector &middot; <code class=\"inline\">a</code> aprobar un gate, <code class=\"inline\">x</code> retener &middot; <code class=\"inline\">q</code> salir. Necesita un TTY y Node 18+. Modelo completo: <a href=\"wiki/Autonomy.html\">Autonomy</a> y <a href=\"wiki/Orchestration-and-Subagents.html\">Orchestration &amp; Subagents</a>.",
       "footer.left": "harness-kit &middot; de la idea al PR fusionado, por un solo pipeline con gates",
     },
   };
@@ -1154,7 +1465,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
   langButtons.forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
   applyLang(detectLang());
 
-  /* ---------- effects: reveal, parallax, cursor glow ---------- */
+  /* ---------- effects: simple fade on reveal ---------- */
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const revealEls = [...document.querySelectorAll(".reveal")];
   if (reduce || !("IntersectionObserver" in window)) {
@@ -1165,23 +1476,7 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
     revealEls.forEach((el) => io.observe(el));
 
-    let ticking = false;
-    window.addEventListener("scroll", () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        root.style.setProperty("--sy", (window.scrollY * 0.04) + "px");
-        ticking = false;
-      });
-    }, { passive: true });
   }
-  document.querySelectorAll(".glowable").forEach((el) => {
-    el.addEventListener("pointermove", (ev) => {
-      const r = el.getBoundingClientRect();
-      el.style.setProperty("--mx", (ev.clientX - r.left) + "px");
-      el.style.setProperty("--my", (ev.clientY - r.top) + "px");
-    });
-  });
 </script>
 </body>
 </html>
