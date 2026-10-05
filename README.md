@@ -20,7 +20,7 @@ harness-kit is a set of Claude Code agents that carry one idea through three pha
 | "Done" is whatever the agent decided | Acceptance criteria you can check one by one |
 | Review is reading a diff and hoping | Every document scored and retried until it passes |
 
-Use it for features worth doing right. Skip it for one-line fixes and throwaway spikes.
+Use it for features worth doing right. Skip it for one-line fixes and throwaway spikes. To see it move first, [pull an idea through the pipeline](https://pierry.github.io/harness-kit/play/) in your browser.
 
 ```
 /plugin marketplace add Pierry/harness-kit

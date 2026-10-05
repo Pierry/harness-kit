@@ -8,7 +8,7 @@
   - Type: Source Serif 4 for headings, Inter for body and UI, JetBrains Mono for code only.
   - Light (default): cloud dancer #F0EDE8 background, ink #191919 text, white surfaces.
   - Dark: gray-900 #171717 background, gray-800 #262626 surfaces, gray-700 borders.
-  - Accent: lavender #B4A7F0 (dark #C9BEFF), ink-lavender #6E5CCF for links on light.
+  - Accent: yellow #FACC15 (dark #FDE047), deep yellow #A16207 for links on light. Primary button is yellow with ink text.
   - 12px radius, pill buttons, no gradients, no glows, no heavy shadows.
   Variable names are kept stable because wiki.css and the pages use them.
   Theme: data-theme on <html> wins; without it, prefers-color-scheme decides.
@@ -18,12 +18,12 @@
   --border: rgba(212, 212, 212, 0.8); --border-strong: #d4d4d4;
   --divider: #e5e5e5;
   --text: #191919; --text-strong: #191919; --dim: #525252; --faint: #737373; --mute: #a3a3a3;
-  --accent: #B4A7F0; --accent-2: #6E5CCF; --accent-dim: #6E5CCF;
-  --lavender: #B4A7F0; --lavender-ink: #6E5CCF;
+  --accent: #FACC15; --accent-2: #A16207; --accent-dim: #A16207;
+  --lavender: #FACC15; --lavender-ink: #A16207;
   --gold: #191919; --gold-deep: #191919;
   --success: #15803d; --success-dim: #15803d; --warning: #b45309; --danger: #dc2626;
   --code-bg: #ffffff;
-  --primary: #191919; --on-primary: #ffffff; --primary-hover: #000000;
+  --primary: #FACC15; --on-primary: #191919; --primary-hover: #EAB308;
   --ring: rgba(0, 0, 0, 0.05);
   --display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --brand: "Source Serif 4", Charter, Georgia, serif; /* wordmark only, as in todone */
@@ -49,12 +49,12 @@
   --bg: #171717; --bg-2: #171717; --surface: #262626; --elev: #262626;
   --border: #2e2e2e; --border-strong: #525252; --divider: #404040;
   --text: #ffffff; --text-strong: #ffffff; --dim: #a3a3a3; --faint: #a3a3a3; --mute: #737373;
-  --accent: #C9BEFF; --accent-2: #C9BEFF; --accent-dim: #C9BEFF;
-  --lavender: #C9BEFF; --lavender-ink: #C9BEFF;
+  --accent: #FDE047; --accent-2: #FDE047; --accent-dim: #FDE047;
+  --lavender: #FDE047; --lavender-ink: #FDE047;
   --gold: #ffffff; --gold-deep: #ffffff;
   --success: #4ade80; --success-dim: #4ade80; --warning: #fbbf24; --danger: #f87171;
   --code-bg: #262626;
-  --primary: #ffffff; --on-primary: #191919; --primary-hover: #f5f5f5;
+  --primary: #FACC15; --on-primary: #191919; --primary-hover: #FDE047;
   --ring: rgba(255, 255, 255, 0.1);
   --link-hover: #ffffff;
   --hairline: #404040;
@@ -69,12 +69,12 @@
     --bg: #171717; --bg-2: #171717; --surface: #262626; --elev: #262626;
     --border: #2e2e2e; --border-strong: #525252; --divider: #404040;
     --text: #ffffff; --text-strong: #ffffff; --dim: #a3a3a3; --faint: #a3a3a3; --mute: #737373;
-    --accent: #C9BEFF; --accent-2: #C9BEFF; --accent-dim: #C9BEFF;
-    --lavender: #C9BEFF; --lavender-ink: #C9BEFF;
+    --accent: #FDE047; --accent-2: #FDE047; --accent-dim: #FDE047;
+    --lavender: #FDE047; --lavender-ink: #FDE047;
     --gold: #ffffff; --gold-deep: #ffffff;
     --success: #4ade80; --success-dim: #4ade80; --warning: #fbbf24; --danger: #f87171;
     --code-bg: #262626;
-    --primary: #ffffff; --on-primary: #191919; --primary-hover: #f5f5f5;
+    --primary: #FACC15; --on-primary: #191919; --primary-hover: #FDE047;
     --ring: rgba(255, 255, 255, 0.1);
     --link-hover: #ffffff;
     --hairline: #404040;
@@ -86,17 +86,16 @@
   }
 }
 
-/* Shared logo, todone pattern: LogoMark + serif wordmark + lavender check as the dot. */
+/* Shared logo: [ • ], the harness (ink brackets) around the model (yellow core). */
 .hk-logo { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-strong); }
 .hk-logo:hover { color: var(--text-strong); }
 .hk-mark { width: 26px; height: 26px; flex: none; }
 .hk-mark .ink { stroke: var(--text-strong); }
-.hk-mark .lav { stroke: var(--lavender); }
+.hk-mark .core { fill: #FACC15; }
 .hk-word {
   font-family: var(--brand); font-weight: 700; font-size: 21px; letter-spacing: -0.035em;
   line-height: 1; color: var(--text-strong); display: inline-flex; align-items: baseline;
 }
-.hk-dot { width: 0.6em; height: 0.6em; margin-left: 0.02em; margin-bottom: -0.04em; stroke: var(--lavender); }
 
 /* todone fadeUp, the only motion on the site */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

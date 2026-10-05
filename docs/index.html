@@ -38,7 +38,11 @@
   a:hover { text-decoration: underline; text-underline-offset: 4px; }
   b, strong { font-weight: 600; color: var(--text-strong); }
   :focus-visible { outline: 2px solid var(--lavender); outline-offset: 2px; border-radius: 4px; }
-  ::selection { background: #B4A7F066; }
+  .media.live { position: relative; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #E9E6E1; }
+  .media.live iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .media.live .live-open { position: absolute; right: 12px; bottom: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #191919; background: rgba(255,255,255,0.85); border-radius: 999px; padding: 6px 12px; text-decoration: none; }
+  .media.live .live-open:hover { background: #FACC15; }
+  ::selection { background: #FACC1566; }
 
   /* header */
   header {
@@ -161,8 +165,8 @@
 <header>
   <div class="bar">
     <a class="hk-logo" href="#start" aria-label="harness-kit">
-      <svg class="hk-mark" viewBox="0 0 32 32" fill="none" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ink" d="M5 7.5h22M5 14.5h11"/><path class="lav" d="M5 21.5h5.5l4.5 4.5L27 13"/></svg>
-      <span class="hk-word" aria-hidden="true">harness-kit<svg class="hk-dot" viewBox="0 0 12 12" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 10.2L1.8 7.6"/><path d="M4.4 10.2L10.2 2.6"/></svg></span>
+      <svg class="hk-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path class="ink" d="M11 5H9a5 5 0 0 0-5 5v12a5 5 0 0 0 5 5h2M21 5h2a5 5 0 0 1 5 5v12a5 5 0 0 1-5 5h-2" stroke-width="2.6" stroke-linecap="round"/><circle class="core" cx="16" cy="16" r="5"/></svg>
+      <span class="hk-word" aria-hidden="true">harness-kit</span>
     </a>
     <nav aria-label="Sections">
       <a href="#start" data-i18n="nav.start">Start</a>
@@ -170,6 +174,7 @@
       <a href="#build" data-i18n="nav.build">Build</a>
       <a href="#ship" data-i18n="nav.ship">Ship</a>
       <a href="#options" data-i18n="nav.options">Options</a>
+      <a href="play/" data-i18n="nav.play">Play</a>
       <span class="divider"></span>
       <a href="wiki/">wiki</a>
       <a href="https://github.com/Pierry/harness-kit">github</a>
@@ -196,9 +201,13 @@
     <p class="lede" data-i18n="start.lede">harness-kit is a set of Claude Code agents that carry one idea through six gated steps, from spec to pull request. A script checks every step and a judge scores it, so you only decide twice: the direction, and the PR.</p>
     <div class="cta">
       <a class="btn primary" href="#install" data-i18n="start.cta1">Install</a>
+      <a class="btn secondary" href="play/" data-i18n="start.cta3">Pull an idea through it</a>
       <a class="btn secondary" href="brief/" data-i18n="start.cta2">Open the brief builder</a>
     </div>
-    <div class="media"><img src="preview.gif" width="720" height="405" loading="lazy" decoding="async" alt="harness-kit pipeline walkthrough: prd to prp to plan, dev, test and pr" /></div>
+    <div class="media live">
+      <iframe src="play/?embed=1" title="An idea passing the six gates of the harness-kit pipeline, live" loading="lazy" allow="fullscreen"></iframe>
+      <a class="live-open" href="play/" data-i18n="start.liveopen">Open full screen</a>
+    </div>
 
     <h3 data-i18n="start.why">Why it is worth it</h3>
     <div class="tablewrap">
@@ -353,7 +362,7 @@ Success metric: checkout completion, from 71% to 76% within 30 days</pre>
   };
   const I18N = {
     pt: {
-      "nav.start": "Início", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opções",
+      "nav.start": "Início", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opções", "nav.play": "Brincar", "start.cta3": "Puxe uma ideia por ele", "start.liveopen": "Abrir em tela cheia",
       "start.eyebrow": "Plugin do Claude Code",
       "start.h1": "Da ideia ao PR mergeado, por um só pipeline com gates.",
       "start.lede": "O harness-kit é um conjunto de agentes do Claude Code que levam uma ideia por seis etapas com gates, do spec ao pull request. Um script confere cada etapa e um juiz dá nota, então você só decide duas vezes: a direção e o PR.",
@@ -409,7 +418,7 @@ Success metric: checkout completion, from 71% to 76% within 30 days</pre>
       "footer.found": "Fundamentos: <a href=\"https://martinfowler.com/articles/harness-engineering.html\">Böckeler</a>, <a href=\"https://martinfowler.com/bliki/AgenticProgramming.html\">Fowler</a>, <a href=\"https://hamel.dev/blog/posts/llm-judge/\">Husain</a>",
     },
     es: {
-      "nav.start": "Inicio", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opciones",
+      "nav.start": "Inicio", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opciones", "nav.play": "Jugar", "start.cta3": "Jala una idea por él", "start.liveopen": "Abrir en pantalla completa",
       "start.eyebrow": "Plugin de Claude Code",
       "start.h1": "De la idea al PR fusionado, por un solo pipeline con gates.",
       "start.lede": "harness-kit es un conjunto de agentes de Claude Code que llevan una idea por seis etapas con gates, del spec al pull request. Un script revisa cada etapa y un juez la puntúa, así que solo decides dos veces: la dirección y el PR.",
