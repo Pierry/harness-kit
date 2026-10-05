@@ -619,7 +619,7 @@ class Body {
       if (this.pos[a0 * 3 + 1] + this.pos[b0 * 3 + 1] + this.pos[c0 * 3 + 1] < 0.2) continue;
       const ar = V3.len(V3.cross(this.d(b0, a0), this.d(c0, a0))) / 2, nf = Math.round(ar * 6 + rnd() * 0.7);
       for (let k = 0; k < nf; k++) { let u1 = rnd(), u2 = rnd(); if (u1 + u2 > 1) { u1 = 1 - u1; u2 = 1 - u2; }
-        this.inc.push({ v: [a0, b0, c0], w: [1 - u1 - u2, u1, u2], kind: 2, s: 0.035 + rnd() * 0.045 }); }
+        this.inc.push({ v: [a0, b0, c0], w: [1 - u1 - u2, u1, u2], kind: 2, s: 0.035 + rnd() * 0.045, r: rnd() }); }
     }
     this.req = null; this.reqState = 0;
   }
@@ -900,13 +900,16 @@ fn cheese(wp: vec3f, N: vec3f, rest: vec3f) -> vec3f {
   let stage = u.params.w;
   if (stage < 0.5) { // eggshell
     let speck = step(0.93, hash1(floor(rest.x * 9.0) * 7.3 + floor(rest.y * 9.0) * 3.1 + floor(rest.z * 9.0)));
-    let shell = mix(vec3f(0.96, 0.9, 0.81), vec3f(0.8, 0.68, 0.55), speck * 0.4);
+    var rank = 1.0; if (rest.z < 0.7) { rank = select(3.0, 2.0, rest.x < 0.0); } // back egg turns free-range first, then left, then right
+    let caipira = step(rank - 0.5, u.info.z);
+    let white = vec3f(0.96, 0.93, 0.86); let brown = vec3f(0.70, 0.40, 0.20);
+    let shell = mix(mix(white, brown, clamp(caipira, 0.0, 1.0)), vec3f(0.6, 0.42, 0.28), speck * 0.4);
     return shell * (wrap * 0.95 + studio(N) * 0.22) + ggx(N, V, L, 0.45, 0.04) * vec3f(3.5);
   }
   var albedo = select(vec3f(0.99, 0.91, 0.6), vec3f(0.98, 0.76, 0.30), stage > 3.5); // raw custard, then baked
   // caramel runs down the walls from the top: streak length varies around the rim
   let s = rest.x * 1.9 + rest.z * 1.37;
-  let dripLen = 0.12 + 1.35 * pow(vnoise1(s * 1.6), 2.2);
+  let dripLen = mix(0.12 + 1.35 * pow(vnoise1(s * 1.6), 2.2), 0.55 + 0.12 * vnoise1(s * 3.0), u.info.w);
   let drip = smoothstep(2.4 - dripLen - 0.07, 2.4 - dripLen + 0.03, rest.y) * (1.0 - smoothstep(0.75, 0.9, abs(N.y))) * step(4.5, stage);
   albedo = mix(albedo, vec3f(0.42, 0.15, 0.015), drip);
   let amb = studio(N) * 0.2;
@@ -1154,7 +1157,8 @@ const R = {
       for (let i = 0; i < b.n; i++) { V[k] = P[i*3]; V[k+1] = P[i*3+1]; V[k+2] = P[i*3+2]; V[k+3] = Nn[i*3]; V[k+4] = Nn[i*3+1]; V[k+5] = Nn[i*3+2];
         V[k+6] = Rs[i*3]; V[k+7] = Rs[i*3+1]; V[k+8] = Rs[i*3+2]; k += 9; }
       const I = this.cpuI;
-      for (const inc of b.inc) { if (ni >= this.MAXINST) break; if (inc.kind === 2 && (world.stage || 0) < 4) continue;
+      const holes = quality().holes;
+      for (const inc of b.inc) { if (ni >= this.MAXINST) break; if (inc.kind === 2 && ((world.stage || 0) < 4 || inc.r >= holes)) continue;
         let x = 0, y = 0, z = 0;
         if (inc.v) { for (let j = 0; j < 3; j++) { const v = inc.v[j], w = inc.w[j]; x += (P[v*3] + Nn[v*3] * 0.05) * w; y += (P[v*3+1] + Nn[v*3+1] * 0.05) * w; z += (P[v*3+2] + Nn[v*3+2] * 0.05) * w; } }
         else { const t = inc.t * 4; for (let j = 0; j < 4; j++) { const v = b.tet[t + j], w = inc.w[j]; x += P[v*3] * w; y += P[v*3+1] * w; z += P[v*3+2] * w; } }
@@ -1170,7 +1174,7 @@ const R = {
     ub.set([this.W, this.H, 1 / this.W, 1 / this.H], 56);
     ub.set([performance.now() / 1000, ui.scanX, ui.scanOn ? 1 : 0, world.stage || 0], 60);
     ub.set(ui.gates.concat([0, 0]), 64);
-    const nb = Math.min(24, world.bodies.length); ub.set([nb, cam.target[0], 0, 0], 72);
+    const nb = Math.min(24, world.bodies.length), qy = quality(); ub.set([nb, cam.target[0], qy.yolks, qy.neat], 72);
     for (let i = 0; i < nb; i++) { const b = world.bodies[i];
       let mnx = Infinity, mxx = -Infinity, mnz = Infinity, mxz = -Infinity, mxy = 0, mny = Infinity;
       for (let j = 0; j < b.n; j++) { mnx = Math.min(mnx, b.pos[j*3]); mxx = Math.max(mxx, b.pos[j*3]); mnz = Math.min(mnz, b.pos[j*3+2]); mxz = Math.max(mxz, b.pos[j*3+2]); mxy = Math.max(mxy, b.pos[j*3+1]); mny = Math.min(mny, b.pos[j*3+1]); }
@@ -1376,6 +1380,9 @@ function seg(id, key, cb) { $(id).querySelectorAll("button").forEach(b => b.oncl
   $(id).querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); ui[key] = b.dataset.v; cb && cb(); }); }
 seg("tool", "tool");
 seg("setup", "setup", () => { $("rJudge").textContent = judgeName(); });
+// the better the harness, the better the pudim: free-range eggs, fewer holes, even caramel
+const quality = () => ({ plain: { yolks: 0, holes: 1.0, neat: 0 }, jev: { yolks: 1, holes: 0.2, neat: 0.45 },
+  graph: { yolks: 1, holes: 0.1, neat: 0.6 }, both: { yolks: 3, holes: 0.0, neat: 1 } })[ui.setup];
 const judgeName = () => (ui.setup === "jev" || ui.setup === "both") ? "Jev" : "Claude";
 const graphOn = () => ui.setup === "graph" || ui.setup === "both";
 $("strict").oninput = (e) => { ui.threshold = +e.target.value; $("strictV").textContent = ui.threshold.toFixed(1); };
