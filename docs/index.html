@@ -32,7 +32,7 @@
   html { scroll-behavior: smooth; scroll-padding-top: 72px; }
   body {
     margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
   a { color: var(--lavender-ink); text-decoration: none; }
   a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -83,9 +83,9 @@
   .sec-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--mute); font-weight: 500; }
   .rt { font-size: 12px; color: var(--faint); white-space: nowrap; }
-  h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-strong); }
-  h1 { font-size: 2.75rem; margin: 0 0 16px; }
-  @media (max-width: 720px) { h1 { font-size: 2.25rem; } }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.015em; line-height: 1.1; color: var(--text-strong); }
+  h1 { font-size: 2.25rem; margin: 0 0 16px; }
+  @media (max-width: 720px) { h1 { font-size: 1.875rem; } }
   h2 { font-size: 2rem; margin: 0 0 8px; }
   h3 { font-size: 1.3rem; margin: 36px 0 12px; }
   .lede { font-size: 16px; color: var(--dim); margin: 0; max-width: 640px; }
@@ -107,13 +107,13 @@
   .btn.secondary:hover { border-color: var(--text-strong); color: var(--text-strong); }
 
   /* media */
-  .media { margin-top: 32px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .media { margin-top: 32px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
   .media img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
 
   /* code */
   pre.code {
     margin: 0 0 16px; padding: 16px 18px; background: var(--code-bg); border: 1px solid var(--border);
-    border-radius: 8px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text);
+    border-radius: 12px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text);
     white-space: pre-wrap; word-break: break-word;
   }
   pre.code .c { color: var(--faint); }
@@ -121,7 +121,7 @@
   code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; overflow-wrap: anywhere; }
 
   /* tables */
-  .tablewrap { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); overflow-x: auto; margin: 0 0 16px; }
+  .tablewrap { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow-x: auto; margin: 0 0 16px; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; vertical-align: top; padding: 11px 16px; border-bottom: 1px solid var(--border); }
   th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
@@ -132,7 +132,7 @@
   @media (max-width: 720px) { table { font-size: 13.5px; } th, td { padding: 10px 12px; } }
 
   /* phase rows: You do / It does / Changes with Jev / Changes with graph */
-  .rows { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  .rows { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
   .row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
   .row:last-child { border-bottom: none; }
   .rk { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); padding-top: 3px; }

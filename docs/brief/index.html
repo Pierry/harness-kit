@@ -24,7 +24,7 @@
   html { scroll-behavior: smooth; }
   body {
     margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
   a { color: var(--lavender-ink); text-decoration: none; }
   a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -55,10 +55,10 @@
   .eyebrow b { color: var(--text-strong); font-weight: 600; }
   .eyebrow .live { display: none; }
   h1 {
-    font-family: var(--display); font-weight: 700; font-size: 2.75rem; line-height: 1.1;
-    letter-spacing: -0.03em; color: var(--text-strong); margin: 0 0 14px;
+    font-family: var(--display); font-weight: 700; font-size: 2.25rem; line-height: 1.1;
+    letter-spacing: -0.015em; color: var(--text-strong); margin: 0 0 14px;
   }
-  @media (max-width: 720px) { h1 { font-size: 2.25rem; } }
+  @media (max-width: 720px) { h1 { font-size: 1.875rem; } }
   h1 .gold { color: var(--text-strong); }
   .lede { font-size: 15px; color: var(--faint); max-width: 600px; margin: 0; }
   .lede code { font-family: var(--mono); font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; color: var(--text); }
@@ -71,7 +71,7 @@
   /* section heads */
   .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 22px; padding-top: 22px; border-top: 1px solid var(--hairline); }
   .sec-head .n { font-size: 12px; color: var(--mute); font-weight: 500; letter-spacing: 0.14em; }
-  .sec-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-strong); margin: 0; }
+  .sec-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.1; color: var(--text-strong); margin: 0; }
 
   /* fields */
   .field { margin-bottom: 26px; }
@@ -83,7 +83,7 @@
 
   /* inputs: todone Login inputClass */
   input[type=text], input[type=url], textarea, select {
-    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     color: var(--text-strong); font-family: var(--sans); font-size: 15px; padding: 12px 16px; outline: none;
     transition: border-color .2s, box-shadow .2s;
   }
@@ -95,7 +95,7 @@
     background-position: right 18px center, right 13px center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
 
   /* hypothesis builder: one bordered surface, rows divided by hairlines */
-  .builder { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  .builder { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
   .brow { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; padding: 4px 12px; }
   .brow + .brow { border-top: 1px solid var(--border); }
   .btag { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
@@ -103,7 +103,7 @@
   .brow input:focus { box-shadow: 0 0 0 2px var(--ring); }
 
   /* metric sentence builder */
-  .metric { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--faint); }
+  .metric { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--faint); }
   .metric .word { font-size: 13px; color: var(--faint); }
   .metric input { flex: 1 1 120px; min-width: 80px; padding: 9px 12px; font-size: 14px; }
   .metric input.wide { flex: 2 1 200px; }
@@ -114,7 +114,7 @@
 
   /* preview pane */
   .preview { position: sticky; top: 84px; }
-  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .term-bar { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); }
   .dot { display: none; }
   .term-bar .title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }

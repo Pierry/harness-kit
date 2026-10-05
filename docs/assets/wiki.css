@@ -12,7 +12,7 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
 }
 a { color: var(--lavender-ink); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -93,10 +93,10 @@ header nav > a:hover { background: var(--hover-bg); color: var(--text-strong); t
 /* prose */
 .wikibody { padding: 44px 0 80px; max-width: 760px; min-width: 0; animation: fadeUp .55s var(--ease) both; }
 .wikibody h1, .wikibody h2, .wikibody h3 {
-  font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.015em; line-height: 1.1;
   color: var(--text-strong);
 }
-.wikibody h1 { font-size: 2.75rem; margin: 0 0 20px; }
+.wikibody h1 { font-size: 2.25rem; margin: 0 0 20px; }
 .wikibody h2 {
   font-size: 1.75rem; margin: 48px 0 14px; padding-top: 28px; border-top: 1px solid var(--hairline);
 }
@@ -118,7 +118,7 @@ header nav > a:hover { background: var(--hover-bg); color: var(--text-strong); t
   overflow-wrap: anywhere;
 }
 .wikibody pre {
-  background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px;
   padding: 16px 18px; overflow-x: auto; margin: 0 0 20px;
 }
 .wikibody pre code {
@@ -129,7 +129,7 @@ header nav > a:hover { background: var(--hover-bg); color: var(--text-strong); t
 
 /* blockquote: a quieter surface, deliberately not a left rail */
 .wikibody blockquote {
-  margin: 0 0 20px; padding: 16px 20px; border-radius: 8px;
+  margin: 0 0 20px; padding: 16px 20px; border-radius: 12px;
   background: var(--surface); border: 1px solid var(--border); color: var(--dim);
 }
 .wikibody blockquote p:last-child { margin-bottom: 0; }
@@ -137,7 +137,7 @@ header nav > a:hover { background: var(--hover-bg); color: var(--text-strong); t
 .wikibody table {
   display: block; overflow-x: auto; width: 100%; border-collapse: collapse;
   margin: 0 0 22px; font-size: 14px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px;
+  border: 1px solid var(--border); border-radius: 12px;
 }
 .wikibody th {
   text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
