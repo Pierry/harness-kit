@@ -1317,25 +1317,23 @@ const BIG_YOU = '<svg viewBox="0 0 28 28" fill="none" stroke="#FACC15" stroke-wi
 const card = { // front: the checks running; back: the verdict. Click a portal to reopen it, click the card to flip it.
   el: null, gate: -1, items: [], prog: 0, visible: false, flipped: false, hideIn: 0, flipIn: 0, hist: {}, back: null,
   get dom() { if (!this.el) { this.el = document.getElementById("tcard"); this.el.addEventListener("click", (e) => { e.stopPropagation(); this.flipped = !this.flipped; this.hideIn = 0; this.render(); }); } return this.el; },
-  open(gate) {
+  open(gate, nFail = 0) {
     const list = (CHECKS[LANG] || CHECKS.en)[gate].slice(), gl = (GRAPH_CHECK[LANG] || GRAPH_CHECK.en)[gate];
     if (graphOn() && gl) list.push(gl);
-    this.gate = gate; this.items = list.map((t, i) => ({ t, st: "wait", sensor: i === 0 })); this.prog = -1;
+    const fails = new Set(); while (fails.size < Math.min(nFail, list.length - 1)) fails.add(1 + Math.floor(rnd() * (list.length - 1)));
+    this.gate = gate; this.items = list.map((t, i) => ({ t, st: "wait", sensor: i === 0, fails: fails.has(i) })); this.prog = -1; this.nFail = fails.size;
     this.back = null; this.visible = true; this.flipped = false; this.hideIn = 0; this.flipIn = 0; this.render();
   },
   progress(f) {
     const n = this.items.length, done = Math.min(n, Math.floor(f * (n + 0.4)));
     if (done === this.prog) return; this.prog = done;
-    this.items.forEach((it, i) => { if (it.st === "bad") return; it.st = i < done ? "ok" : i === done ? "run" : "wait"; });
+    this.items.forEach((it, i) => { it.st = i < done ? (it.fails ? "bad" : "ok") : i === done ? "run" : "wait"; });
     this.render();
   },
   result(score, th, passed, retries) {
     const C = CARD_TXT[LANG] || CARD_TXT.en, n = this.items.length;
-    let nFail = 0;
-    if (!passed) { nFail = th - score > 0.8 ? 2 : 1; const idx = [];
-      while (idx.length < nFail) { const k = 1 + Math.floor(rnd() * (n - 1)); if (!idx.includes(k)) idx.push(k); }
-      this.items.forEach((it, i) => it.st = idx.includes(i) ? "bad" : "ok"); }
-    else this.items.forEach(it => it.st = "ok");
+    void n; const nFail = this.nFail;
+    this.items.forEach(it => it.st = it.fails ? "bad" : "ok"); // same marks the checks already showed while running
     const sc = `${score.toFixed(1)} ${passed ? "≥" : "<"} ${th.toFixed(1)}`;
     this.back = passed ? { kind: "ok", msg: C.pass, sc } : { kind: "bad", msg: retries >= 3 ? C.stuck : C.back(nFail, retries), sc };
     this.save(); this.flipIn = 0.45; this.hideIn = passed ? 0 : (retries >= 3 ? 0 : 3.2); this.render();
@@ -1413,7 +1411,10 @@ const director = {
       const tx = this.state === "bounce" ? GATE_X[this.gate] - 7 : GATE_X[this.gate];
       world.drive = { tx, k: 16, c: 6, centroid: c, vx, vz };
       if (this.state === "move" && Math.abs(c[0] - tx) < 0.9 && Math.abs(vx) < 6) { world.drive = { tx, k: 14, c: 8, centroid: c, vx, vz }; this.go("scan"); ui.gates[this.gate] = 1;
-        card.open(this.gate); setCaption("");
+        const passes = Math.random() < [0.10, 0.60, 0.95][Math.min(2, this.retries)], th0 = ui.threshold; // not easy: 10%, 60%, 95%
+        this.score = passes ? Math.min(9.9, th0 + 0.1 + Math.random() * 1.1) : Math.max(4.5, th0 - 0.3 - Math.random() * 1.5);
+        this.passes = passes;
+        card.open(this.gate, passes ? 0 : (th0 - this.score > 0.8 ? 2 : 1)); setCaption("");
         $("rStage").textContent = L.g[this.gate]; }
       if (this.state === "bounce" && this.t > 1.6 && ui.gates[this.gate] === 3) ui.gates[this.gate] = 0; // red only briefly, then grey again
       if (this.state === "bounce" && this.t > 2.4) this.go("move");
@@ -1422,15 +1423,12 @@ const director = {
       const dur = judgeName() === "Jev" ? 2.2 : 4.0, [lo, hi] = this.extentX();
       ui.scanOn = true; ui.scanX = lo + (hi - lo) * Math.min(1, this.t / dur); card.progress(this.t / dur);
       if (this.t > dur) { ui.scanOn = false;
-        // it is not easy: 10% pass on the first try, 60% after one rewrite, 95% after two
-        const passes = Math.random() < [0.10, 0.60, 0.95][Math.min(2, this.retries)];
-        const th0 = ui.threshold;
-        this.score = passes ? Math.min(9.9, th0 + 0.1 + Math.random() * 1.1) : Math.max(4.5, th0 - 0.3 - Math.random() * 1.5);
+        const passes = this.passes;
         const s = this.score.toFixed(1), th = ui.threshold.toFixed(1), g = L.g[this.gate].toUpperCase();
         $("rScore").innerHTML = `${s} <small>/ ${th}</small>`;
         $("rJudge").innerHTML = judgeName() === "Jev" ? `Jev <small>0.3 s</small>` : `Claude <small>~40 s</small>`;
         void g; void s; void th;
-        if (this.score >= ui.threshold) {
+        if (passes) {
           card.result(this.score, ui.threshold, true, this.retries);
           if (this.gate === 0 || this.gate === 5) { ui.gates[this.gate] = 4; this.go("decide"); card.decide(this.gate === 0 ? 0 : 1); }
           else this.pass();
