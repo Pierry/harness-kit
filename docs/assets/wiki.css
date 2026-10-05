@@ -1,7 +1,8 @@
 /*
   The generated wiki pages (docs/wiki/*.html, written by scripts/build-wiki.py).
-  Shares the palette with the landing page through assets/tokens.css, and repeats
-  its header, footer and base rules so the two read as one site.
+  Shares the palette, type and logo with the landing page through assets/tokens.css
+  (todone identity: Source Serif 4 headings, Inter body, JetBrains Mono for code,
+  cloud dancer background, lavender accent, 8px radius, pill buttons).
 
   Layout is a sidebar plus a prose column. No decorative rails anywhere: nesting
   and hierarchy come from spacing, type scale and weight.
@@ -11,215 +12,178 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
-  font-size: 15px; line-height: 1.65; letter-spacing: normal;
-  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-  transition: background .4s var(--ease), color .4s var(--ease);
+  font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased;
 }
-body::before {
-  content: ""; position: fixed; inset: -10%; z-index: -2; pointer-events: none;
-  background: var(--mesh);
-}
-body::after {
-  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  opacity: var(--noise-op);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-a { color: var(--accent-2); text-decoration: none; transition: color .15s var(--ease); }
-a:hover { color: var(--link-hover); }
-::selection { background: #2563eb44; }
+a { color: var(--lavender-ink); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 4px; }
+:focus-visible { outline: 2px solid var(--lavender); outline-offset: 2px; border-radius: 4px; }
+::selection { background: #B4A7F066; }
 
 /* header, mirrors the landing page */
 header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 22px 40px; position: sticky; top: 0; z-index: 20;
-  background: var(--header-bg); backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 32px; position: sticky; top: 0; z-index: 20;
+  background: var(--header-bg); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--hairline);
 }
-.wordmark {
-  font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: normal;
-  display: flex; align-items: baseline; gap: 10px; color: var(--text-strong);
-}
-.wordmark:hover { color: var(--text); }
-.wordmark .logo { width: 22px; height: 22px; flex: none; align-self: center; color: var(--text-strong); }
-.wordmark .dot { color: var(--brand-dot); }
+.wordmark:hover { text-decoration: none; }
 .wordmark .sub {
-  color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 12px;
-  letter-spacing: 0;
+  color: var(--faint); font-family: var(--sans); font-weight: 600; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-left: 4px;
 }
-header nav {
-  font-family: var(--mono); font-size: 13px; color: var(--dim);
-  display: flex; gap: 24px; align-items: center;
+header nav { display: flex; gap: 2px; align-items: center; }
+header nav > a {
+  white-space: nowrap; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint);
 }
-header nav a { color: var(--dim); }
-header nav a:hover { color: var(--text); }
-header nav a.cta { color: var(--gold); }
-.controls { display: flex; align-items: center; gap: 12px; }
+header nav > a:hover { background: var(--hover-bg); color: var(--text-strong); text-decoration: none; }
+.controls { display: flex; align-items: center; gap: 4px; margin-left: 6px; }
+.controls::before { content: ""; width: 1px; height: 16px; background: var(--divider); margin-right: 6px; }
 
-/* Language switch. Same pills as the landing page, but real links: each
-   language is its own URL, which is what makes the translations indexable. */
-.langsw {
-  display: flex; border: 1px solid var(--border-strong); border-radius: 999px;
-  overflow: hidden;
-}
+/* Language switch: real links, each language is its own URL. */
+.langsw { display: flex; }
 .langsw a {
-  color: var(--faint); padding: 6px 11px; font-family: var(--mono); font-size: 11.5px;
-  font-weight: 600; letter-spacing: 0.4px; line-height: 1.4;
-  transition: color .15s var(--ease), background .15s var(--ease);
+  color: var(--faint); padding: 6px 7px; border-radius: 6px; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.08em;
 }
-.langsw a:hover { color: var(--text); background: var(--hover-bg); }
-.langsw a[aria-pressed="true"] { background: #a78bfa22; color: var(--accent-2); }
-:root[data-theme="light"] .langsw a[aria-pressed="true"] { background: #7c5cf01f; }
+.langsw a:hover { color: var(--text-strong); background: var(--hover-bg); text-decoration: none; }
+.langsw a[aria-pressed="true"] { color: var(--text-strong); }
 .themebtn {
-  width: 36px; height: 36px; display: inline-flex; align-items: center;
-  justify-content: center; border-radius: 10px; border: 1px solid var(--border-strong);
-  background: var(--chip-bg); color: var(--dim); cursor: pointer;
-  transition: color .15s var(--ease), border-color .15s var(--ease), transform .12s var(--ease);
+  width: 32px; height: 32px; display: inline-flex; align-items: center;
+  justify-content: center; border-radius: 999px; border: 1px solid var(--border-strong);
+  background: transparent; color: var(--faint); cursor: pointer;
 }
-.themebtn:hover { color: var(--text); border-color: var(--accent); }
-.themebtn:active { transform: scale(.92); }
-.themebtn svg { width: 18px; height: 18px; }
+.themebtn:hover { color: var(--text-strong); border-color: var(--text-strong); }
+.themebtn svg { width: 16px; height: 16px; }
 .themebtn .i-sun, .themebtn .i-moon { display: none; }
-:root:not([data-theme="light"]) .themebtn .i-moon { display: block; }
-:root[data-theme="light"] .themebtn .i-sun { display: block; }
+:root:not([data-theme="dark"]) .themebtn .i-moon { display: block; }
+:root[data-theme="dark"] .themebtn .i-sun { display: block; }
 
 /* shell */
 .wikishell {
-  max-width: 1180px; margin: 0 auto; padding: 0 40px;
-  display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 56px;
+  max-width: 1120px; margin: 0 auto; padding: 0 32px;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px;
   align-items: start;
 }
 
 /* sidebar: navigation, not ornament */
 .wikinav {
-  position: sticky; top: 96px; padding: 44px 0 40px;
-  max-height: calc(100vh - 96px); overflow-y: auto;
-  /* The overflow scrollbar renders as a vertical rule down the page edge.
-     Hide the track, and only show the thumb while the sidebar is hovered. */
+  position: sticky; top: 72px; padding: 40px 0 40px;
+  max-height: calc(100vh - 72px); overflow-y: auto;
   scrollbar-width: thin; scrollbar-color: transparent transparent;
 }
 .wikinav:hover { scrollbar-color: var(--border-strong) transparent; }
-.wikinav::-webkit-scrollbar { width: 6px; }
-.wikinav::-webkit-scrollbar-track { background: transparent; }
-.wikinav::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; }
-.wikinav:hover::-webkit-scrollbar-thumb { background: var(--border-strong); }
-.wikinav h3 {
-  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 1.4px;
-  text-transform: uppercase; color: var(--faint); margin: 0 0 14px;
+.wikinav h3, .wikinav p {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mute); margin: 26px 0 10px;
 }
-.wikinav p {
-  margin: 26px 0 10px; font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint);
-}
-.wikinav p strong { font-weight: 600; }
-.wikinav p:has(a) {
-  margin-top: 28px; font-family: var(--sans); font-size: 13.5px; text-transform: none;
-  letter-spacing: -0.1px;
-}
+.wikinav h3 { margin-top: 0; }
+.wikinav p strong { font-weight: 500; }
+.wikinav p:has(a) { font-size: 13.5px; text-transform: none; letter-spacing: normal; }
 .wikinav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .wikinav li a {
-  display: block; padding: 6px 10px; margin-left: -10px; border-radius: 8px;
+  display: block; padding: 6px 10px; margin-left: -10px; border-radius: 6px;
   font-size: 14px; color: var(--dim); line-height: 1.35;
 }
-.wikinav li a:hover { background: var(--hover-bg); color: var(--text); }
-.wikinav li a.here { background: var(--chip-bg); color: var(--accent-2); font-weight: 600; }
+.wikinav li a:hover { background: var(--hover-bg); color: var(--text-strong); text-decoration: none; }
+.wikinav li a.here { background: var(--hover-bg); color: var(--text-strong); font-weight: 600; }
 
 .navtoggle { display: none; }
 
 /* prose */
-.wikibody { padding: 44px 0 80px; max-width: 780px; min-width: 0; }
-.wikibody h1 {
-  font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 30px);
-  line-height: 1.25; letter-spacing: normal; margin: 0 0 20px; color: var(--text-strong);
+.wikibody { padding: 44px 0 80px; max-width: 760px; min-width: 0; animation: fadeUp .55s var(--ease) both; }
+.wikibody h1, .wikibody h2, .wikibody h3 {
+  font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
+  color: var(--text-strong);
 }
+.wikibody h1 { font-size: 2.75rem; margin: 0 0 20px; }
 .wikibody h2 {
-  font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: normal; color: var(--text-strong);
-  margin: 52px 0 14px; padding-top: 26px; border-top: 1px solid var(--hairline);
+  font-size: 1.75rem; margin: 48px 0 14px; padding-top: 28px; border-top: 1px solid var(--hairline);
 }
-.wikibody h3 {
-  font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: normal; color: var(--text-strong);
-  margin: 32px 0 10px;
-}
+.wikibody h3 { font-size: 1.25rem; margin: 32px 0 10px; }
 .wikibody h4 {
-  font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: 0.6px;
-  text-transform: uppercase; color: var(--faint); margin: 26px 0 8px;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mute); margin: 26px 0 8px;
 }
 .wikibody p { color: var(--dim); margin: 0 0 16px; }
-.wikibody strong { color: var(--text); font-weight: 600; }
+.wikibody strong { color: var(--text-strong); font-weight: 600; }
 .wikibody ul, .wikibody ol { color: var(--dim); padding-left: 20px; margin: 0 0 16px; }
 .wikibody li { margin: 0 0 7px; }
-.wikibody li::marker { color: var(--faint); }
+.wikibody li::marker { color: var(--mute); }
 .wikibody hr { border: none; border-top: 1px solid var(--hairline); margin: 40px 0; }
 
 .wikibody code {
-  font-family: var(--mono); font-size: 0.9em; color: var(--text);
-  background: var(--code-bg); border: 1px solid var(--border); padding: 0 5px; border-radius: 6px;
+  font-family: var(--mono); font-size: 0.86em; color: var(--text);
+  background: var(--surface); border: 1px solid var(--border); padding: 1px 5px; border-radius: 6px;
+  overflow-wrap: anywhere;
 }
 .wikibody pre {
-  background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
   padding: 16px 18px; overflow-x: auto; margin: 0 0 20px;
 }
 .wikibody pre code {
-  color: var(--dim); background: none; border: none; padding: 0; font-size: 13px; line-height: 1.7;
+  color: var(--text); background: none; border: none; padding: 0; font-size: 13px; line-height: 1.75;
+  overflow-wrap: normal;
 }
-.wikibody pre.mermaid {
-  background: var(--chip-bg); border-color: var(--hairline); text-align: center;
-  font-family: var(--mono); color: transparent;
-}
+.wikibody pre.mermaid { text-align: center; color: transparent; }
 
 /* blockquote: a quieter surface, deliberately not a left rail */
 .wikibody blockquote {
-  margin: 0 0 20px; padding: 16px 20px; border-radius: var(--r-sm);
-  background: var(--chip-bg); border: 1px solid var(--hairline); color: var(--dim);
+  margin: 0 0 20px; padding: 16px 20px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--dim);
 }
 .wikibody blockquote p:last-child { margin-bottom: 0; }
 
 .wikibody table {
   display: block; overflow-x: auto; width: 100%; border-collapse: collapse;
-  margin: 0 0 22px; font-size: 13.5px;
+  margin: 0 0 22px; font-size: 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
 }
 .wikibody th {
-  text-align: left; font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint);
-  padding: 0 18px 10px 0; border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+  text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--faint);
+  padding: 11px 16px; border-bottom: 1px solid var(--border); white-space: nowrap;
 }
 .wikibody td {
-  padding: 13px 18px 13px 0; color: var(--dim); border-bottom: 1px solid var(--hairline);
+  padding: 11px 16px; color: var(--dim); border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
 .wikibody tr:last-child td { border-bottom: none; }
 
 .editnote {
   margin: 56px 0 0; padding-top: 22px; border-top: 1px solid var(--hairline);
-  font-family: var(--mono); font-size: 12.5px; color: var(--faint);
+  font-size: 13px; color: var(--faint);
 }
 
 footer {
-  border-top: 1px solid var(--hairline); padding: 36px 0 72px; color: var(--faint);
-  font-family: var(--mono); font-size: 13px;
+  border-top: 1px solid var(--hairline); padding: 28px 0 56px; color: var(--faint); font-size: 13px;
 }
 footer .wrap {
-  max-width: 1180px; margin: 0 auto; padding: 0 40px;
+  max-width: 1120px; margin: 0 auto; padding: 0 32px;
   display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap;
 }
 footer a { color: var(--faint); }
-footer a:hover { color: var(--text); }
+footer a:hover { color: var(--text-strong); }
 
 @media (max-width: 980px) {
-  .wikishell { grid-template-columns: 1fr; gap: 0; padding: 0 22px; }
-  header { padding: 18px 22px; }
+  .wikishell { grid-template-columns: 1fr; gap: 0; padding: 0 16px; }
+  header { padding: 10px 16px; }
   header nav .hide-sm { display: none; }
-  footer .wrap { padding: 0 22px; }
+  footer .wrap { padding: 0 16px; }
   .navtoggle {
-    display: block; margin: 22px auto 0; width: calc(100% - 44px);
-    font-family: var(--mono); font-size: 13px; font-weight: 600; text-align: left;
-    padding: 12px 16px; border-radius: var(--r-sm); cursor: pointer;
-    border: 1px solid var(--border-strong); background: var(--chip-bg); color: var(--dim);
+    display: block; margin: 20px auto 0; width: calc(100% - 32px);
+    font-family: var(--sans); font-size: 14px; font-weight: 500; text-align: left;
+    padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-strong);
   }
-  .navtoggle:hover { color: var(--text); border-color: var(--accent); }
-  .wikinav {
-    display: none; position: static; max-height: none; padding: 22px 0 0;
-  }
+  .navtoggle:hover { border-color: var(--text-strong); }
+  .wikinav { display: none; position: static; max-height: none; padding: 20px 0 0; }
   .wikinav.open { display: block; }
   .wikibody { padding: 28px 0 64px; }
+  .wikibody h1 { font-size: 2.25rem; }
 }
+@media (max-width: 480px) {
+  .wordmark .sub { display: none; }
+  .controls { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .wikibody { animation: none; } }

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>harness-kit · usage guide</title>
-<meta id="meta-desc" name="description" content="harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." />
-<meta property="og:title" content="harness-kit · usage guide" />
+<title>harness-kit · idea to merged PR</title>
+<meta id="meta-desc" name="description" content="harness-kit: Claude Code agents that carry one idea through six gated steps, from spec to merged PR. Install, the three phases, and the options." />
+<meta property="og:title" content="harness-kit · idea to merged PR" />
 <meta property="og:description" content="Idea to merged PR, through one gated pipeline of Claude Code agents." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/" />
@@ -15,223 +15,165 @@
 <link rel="canonical" href="https://pierry.github.io/harness-kit/" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="favicon.svg" />
-<meta id="theme-color" name="theme-color" content="#171717" />
+<meta id="theme-color" name="theme-color" content="#F0EDE8" />
 <!--
-  harness-kit usage-guide landing page. Mirrors README.md content
-  (what/why, install, golden path, commands, agents, docs) and reuses
-  the visual system from docs/brief/index.html.
-  Type: JetBrains Mono everywhere. Visual identity shared with todone:
-  flat neutral surfaces, one blue accent, green brand dot.
-  Dark/light theme (data-theme attr), i18n en/pt-BR/es (data-i18n keys + JS dict,
-  English lives in the DOM).
+  harness-kit landing page, organized by phase: Start, Spec, Build, Ship, Options.
+  Every section shows its reading time (200 words per minute, per language) and
+  must stay at or under 2 minutes. Visual identity shared with todone through
+  assets/tokens.css: Source Serif 4 headings, Inter body, JetBrains Mono for code.
+  i18n: English lives in the DOM (data-i18n keys), pt and es in the I18N dict below.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Source+Serif+4:opsz,wght@8..60,400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/tokens.css" />
 <style>
-  /* Design tokens live in assets/tokens.css, shared with the generated wiki pages.
-     Visual identity follows todone: JetBrains Mono, flat neutral surfaces, one blue accent. */
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
   body {
-    margin: 0; background: var(--bg); color: var(--text); font-family: var(--mono);
-    font-size: 15px; line-height: 1.65; letter-spacing: normal;
-    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-    transition: background .2s ease, color .2s ease;
+    margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
-  a { color: var(--accent-2); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; transition: color .15s ease, text-decoration-color .15s ease; }
-  a:hover { color: var(--link-hover); text-decoration-color: var(--link-hover); }
-  ::selection { background: #2563eb44; }
-  b, strong { font-weight: 700; color: var(--text-strong); }
+  a { color: var(--lavender-ink); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  b, strong { font-weight: 600; color: var(--text-strong); }
+  :focus-visible { outline: 2px solid var(--lavender); outline-offset: 2px; border-radius: 4px; }
+  ::selection { background: #B4A7F066; }
 
   /* header */
   header {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    padding: 14px 24px; position: sticky; top: 0; z-index: 20;
-    background: var(--header-bg); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 20; background: var(--header-bg);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--hairline);
   }
-  .wordmark { font-weight: 700; font-size: 16px; color: var(--text-strong); display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-  .wordmark .logo { width: 22px; height: 22px; flex: none; color: var(--text-strong); }
-  .wordmark .dot { color: var(--brand-dot); }
-  .wordmark .sub { color: var(--faint); font-weight: 400; font-size: 12px; }
-  header nav { font-size: 13px; color: var(--dim); display: flex; gap: 20px; align-items: center; }
-  header nav a { color: var(--dim); text-decoration: none; white-space: nowrap; }
-  header nav a:hover { color: var(--text-strong); }
-  @media (max-width: 860px) { header nav .hide-sm { display: none; } }
-  @media (max-width: 480px) { header { padding: 12px 16px; } .wordmark .sub { display: none; } header nav { gap: 12px; } }
-
-  /* controls: language switch + theme toggle */
-  .controls { display: flex; align-items: center; gap: 10px; }
-  .langsw { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .langsw button {
-    background: transparent; border: none; color: var(--faint); padding: 5px 9px; cursor: pointer;
-    font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  .bar { max-width: 880px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+  .bar .hk-logo { margin-right: auto; }
+  nav { display: flex; align-items: center; }
+  nav a, .langsw button {
+    white-space: nowrap; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); text-decoration: none;
+    background: transparent; border: none; font-family: var(--sans); cursor: pointer;
   }
-  .langsw button:hover { color: var(--text-strong); }
-  .langsw button[aria-pressed="true"] { background: var(--hover-bg); color: var(--text-strong); }
+  nav a:hover, .langsw button:hover { background: var(--hover-bg); color: var(--text-strong); text-decoration: none; }
+  .divider { width: 1px; height: 16px; background: var(--divider); margin: 0 8px; flex: none; }
+  .langsw { display: flex; }
+  .langsw button { padding: 6px 7px; }
+  .langsw button[aria-pressed="true"] { color: var(--text-strong); }
   .themebtn {
     width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer;
+    border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: var(--faint); cursor: pointer;
   }
-  .themebtn:hover { color: var(--text-strong); }
+  .themebtn:hover { color: var(--text-strong); border-color: var(--text-strong); }
   .themebtn svg { width: 16px; height: 16px; }
   .themebtn .i-sun, .themebtn .i-moon { display: none; }
-  :root:not([data-theme="light"]) .themebtn .i-moon { display: block; }
-  :root[data-theme="light"] .themebtn .i-sun { display: block; }
+  :root:not([data-theme="dark"]) .themebtn .i-moon { display: block; }
+  :root[data-theme="dark"] .themebtn .i-sun { display: block; }
+  .controls { display: flex; align-items: center; gap: 4px; }
+  @media (max-width: 760px) {
+    .bar { flex-wrap: wrap; padding: 10px 16px; row-gap: 6px; }
+    nav { order: 3; width: 100%; overflow-x: auto; margin: 0 -10px; }
+    nav .divider { display: none; }
+  }
 
-  .wrap { max-width: 840px; margin: 0 auto; padding: 0 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
   @media (max-width: 720px) { .wrap { padding: 0 16px; } }
 
-  /* hero */
-  .hero { padding: 72px 0 48px; }
-  .eyebrow { display: inline-flex; gap: 10px; align-items: center; font-size: 12px; color: var(--faint); margin-bottom: 20px; }
-  .eyebrow b { color: var(--text); font-weight: 500; }
-  .eyebrow .live { width: 7px; height: 7px; border-radius: 999px; background: var(--brand-dot); }
-  h1 { font-weight: 700; font-size: clamp(24px, 4.2vw, 32px); line-height: 1.25; color: var(--text-strong); margin: 0 0 18px; }
-  h1 .gold { color: var(--text-strong); }
-  .lede { font-size: 15px; color: var(--dim); max-width: 680px; }
-  .lede code { color: var(--text); background: var(--code-bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
-  .hero-cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-
-  /* media (gifs) */
-  .media { margin-top: 36px; }
-  .media .frame { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--code-bg); }
-  .media .bar, .code .bar { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--border); background: transparent; }
-  .media .bar .dot, .code .dot { display: none; }
-  .media .bar .title, .code .bar .title { color: var(--faint); font-size: 12px; }
-  .media img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
-  .media .cap { font-size: 12px; color: var(--faint); margin: 10px 0 0; text-align: center; }
-
-  /* the pipeline ribbon */
-  .pipe { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--faint); margin-top: 32px; }
-  .pipe .stage { padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
-  .pipe .end { color: var(--text-strong); padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px; }
-  .pipe .end::after { content: "."; color: var(--brand-dot); }
-
-  /* buttons */
-  .btn { font-family: var(--mono); font-size: 13.5px; font-weight: 500; border-radius: 8px; padding: 10px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
-  .btn.primary { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
-  .btn.primary:hover { color: #ffffff; background: #1d4ed8; border-color: #1d4ed8; }
-  .btn.ghost { color: var(--text); background: transparent; border: 1px solid var(--border-strong); }
-  .btn.ghost:hover { color: var(--text-strong); border-color: var(--text); }
-
   /* sections */
-  section.block { padding: 48px 0; border-top: 1px solid var(--border); }
-  .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px; }
-  .sec-head .n { font-size: 12px; color: var(--faint); font-weight: 500; }
-  .sec-head h2 { font-size: 20px; font-weight: 700; color: var(--text-strong); margin: 0; line-height: 1.3; }
-  .sec-sub { color: var(--dim); max-width: 700px; margin: 0 0 24px; font-size: 14.5px; }
-  .sub-h { font-weight: 700; font-size: 16px; color: var(--text-strong); margin: 36px 0 6px; }
-  
-  /* code blocks */
-  .code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 0 0 18px; }
-  .code pre { margin: 0; padding: 16px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
-  .code pre .cmd { color: var(--text-strong); font-weight: 700; }
-  .code pre .key { color: var(--text-strong); }
-  .code pre .c { color: var(--faint); }
-  code.inline { font-family: var(--mono); color: var(--text); background: var(--code-bg); border: 1px solid var(--border); padding: 0 5px; border-radius: 6px; font-size: 0.9em; overflow-wrap: anywhere; }
+  section { padding: 56px 0; border-top: 1px solid var(--hairline); animation: fadeUp .55s var(--ease) both; }
+  section#start { border-top: none; padding-top: 64px; }
+  .sec-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--mute); font-weight: 500; }
+  .rt { font-size: 12px; color: var(--faint); white-space: nowrap; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-strong); }
+  h1 { font-size: 2.75rem; margin: 0 0 16px; }
+  @media (max-width: 720px) { h1 { font-size: 2.25rem; } }
+  h2 { font-size: 2rem; margin: 0 0 8px; }
+  h3 { font-size: 1.3rem; margin: 36px 0 12px; }
+  .lede { font-size: 16px; color: var(--dim); margin: 0; max-width: 640px; }
+  .sec-sub { color: var(--faint); margin: 0 0 24px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--faint); }
 
-  /* steps */
-  .steps { display: grid; gap: 0; counter-reset: step; border-top: 1px solid var(--border); }
-  .step { display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); }
-  .step .num { counter-increment: step; font-weight: 700; font-size: 13px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--border-strong); color: var(--text-strong); margin-top: 2px; }
-  .step .num::before { content: counter(step); }
-  .step h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 2px 0 6px; }
-  .step p { margin: 0; color: var(--dim); font-size: 14.5px; }
-  .step p + p { margin-top: 8px; }
-
-  /* cards: plain bordered boxes */
-  .cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (max-width: 720px) { .grid4 { grid-template-columns: 1fr; } }
-  .card { padding: 18px 20px; border: 1px solid var(--border); border-radius: 8px; background: transparent; }
-  a.frontcard { display: block; text-decoration: none; color: inherit; }
-  a.frontcard:hover { background: var(--hover-bg); }
-  .frontcard .num { font-size: 11.5px; font-weight: 500; color: var(--faint); }
-  .frontcard .tag { color: var(--faint); }
-  .frontcard .ar { color: var(--dim); font-size: 13px; }
-  .fronttag { font-size: 11.5px; font-weight: 500; color: var(--faint); text-transform: lowercase; display: inline-block; margin-bottom: 6px; }
-  .card .tag { font-size: 11.5px; font-weight: 500; color: var(--faint); }
-  .card h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 6px 0 6px; }
-  .card p { margin: 0 0 12px; color: var(--dim); font-size: 14px; }
-  .card p:last-child { margin-bottom: 0; }
-  .card .skills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .card .skills span { font-size: 11.5px; color: var(--dim); padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px; }
-  .card .more { font-size: 13px; }
-
-  /* glow and cursor effects removed: flat identity */
-  .glowable > .glow { display: none; }
-
-  /* table */
-  .tablewrap { border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  table th, table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  table th { font-size: 11.5px; font-weight: 500; color: var(--faint); background: transparent; }
-  table tr:last-child td { border-bottom: none; }
-  table td:first-child { color: var(--text); }
-  table td:nth-child(n+2) { color: var(--dim); }
-  @media (max-width: 720px) { table { font-size: 12.5px; } table th, table td { padding: 9px 10px; } }
-  /* wide comparison tables: scroll inside the frame, never the page */
-  .tablewrap.scroll table.wide { min-width: 680px; }
-  table.compare td:first-child { color: var(--text-strong); font-weight: 500; }
-
-  /* diagram */
-  .diagram { border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); padding: 18px; margin: 20px 0 0; overflow-x: auto; }
-  .diagram .mermaid { width: 100%; min-width: 600px; }
-  .diagram svg { width: 100% !important; max-width: 100% !important; height: auto; display: block; }
-  .diagram-cap { font-size: 12px; color: var(--faint); margin: 10px 0 0; text-align: center; }
-
-  /* references */
-  .refs { display: grid; gap: 12px; }
-  .ref { padding: 18px 20px; border: 1px solid var(--border); border-radius: 8px; }
-  .ref .tag { font-size: 11.5px; font-weight: 500; color: var(--faint); }
-  .ref h3 { font-weight: 700; font-size: 15px; color: var(--text-strong); margin: 6px 0 6px; }
-  .ref p { margin: 0; color: var(--dim); font-size: 14px; }
-  .ref ul { margin: 14px 0 0; padding-left: 0; list-style: none; }
-  .ref li { font-size: 13.5px; color: var(--dim); padding: 10px 0; border-top: 1px solid var(--border); }
-  .ref li:last-child { padding-bottom: 0; }
-
-  /* notes */
-  .note { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); margin-top: 20px; }
-  .note .ic { color: var(--faint); font-weight: 700; flex: none; }
-  .note p { margin: 0; color: var(--dim); font-size: 14px; min-width: 0; }
-
-  /* docs grid */
-  .docgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (max-width: 720px) { .docgrid { grid-template-columns: 1fr; } }
-  .doc { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; }
-  .doc:hover { background: var(--hover-bg); }
-  .doc .t { font-weight: 500; color: var(--text-strong); }
-  .doc .d { font-size: 12.5px; color: var(--faint); }
-  .doc .ar { color: var(--dim); }
-
-  footer { border-top: 1px solid var(--border); padding: 28px 0 56px; color: var(--faint); font-size: 12.5px; margin-top: 24px; }
-  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-
-  /* simple fade on scroll, nothing else moves */
-  .reveal { opacity: 0; transition: opacity .5s ease; }
-  .reveal.is-visible { opacity: 1; }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    .reveal { opacity: 1 !important; transition: none !important; }
-    body { transition: none !important; }
+  /* buttons: todone pills */
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px;
+    font-family: var(--sans); font-size: 15px; font-weight: 500; padding: 12px 24px; text-decoration: none;
+    transition: background-color .2s, border-color .2s;
   }
+  .btn:hover { text-decoration: none; }
+  .btn.primary { background: var(--primary); color: var(--on-primary); border: 1px solid var(--primary); }
+  .btn.primary:hover { background: var(--primary-hover); color: var(--on-primary); }
+  .btn.secondary { background: var(--surface); color: var(--text-strong); border: 1px solid var(--border-strong); }
+  .btn.secondary:hover { border-color: var(--text-strong); color: var(--text-strong); }
+
+  /* media */
+  .media { margin-top: 32px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .media img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+
+  /* code */
+  pre.code {
+    margin: 0 0 16px; padding: 16px 18px; background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text);
+    white-space: pre-wrap; word-break: break-word;
+  }
+  pre.code .c { color: var(--faint); }
+  pre.code .k { color: var(--lavender-ink); }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; overflow-wrap: anywhere; }
+
+  /* tables */
+  .tablewrap { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); overflow-x: auto; margin: 0 0 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 16px; border-bottom: 1px solid var(--border); }
+  th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+  td { color: var(--dim); }
+  td:first-child { color: var(--text-strong); font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+  table.wide { min-width: 600px; }
+  @media (max-width: 720px) { table { font-size: 13.5px; } th, td { padding: 10px 12px; } }
+
+  /* phase rows: You do / It does / Changes with Jev / Changes with graph */
+  .rows { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  .row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .row:last-child { border-bottom: none; }
+  .rk { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); padding-top: 3px; }
+  .rv { color: var(--dim); min-width: 0; }
+  .rv p:last-child, .rv pre:last-child { margin-bottom: 0; }
+  .rv pre.code { margin-top: 10px; }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; gap: 4px; padding: 12px 14px; } }
+
+  /* the gate loop, one line */
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 13px; color: var(--faint); }
+  .flow span.s { padding: 4px 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-strong); }
+  .flow-note { font-size: 13.5px; color: var(--faint); margin: 0 0 24px; }
+
+  .extras { margin-top: 20px; }
+  .extras p { margin: 0 0 6px; color: var(--dim); }
+  .links { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--hairline); }
+  .links li { padding: 10px 0; border-bottom: 1px solid var(--hairline); color: var(--dim); }
+
+  footer { border-top: 1px solid var(--hairline); padding: 28px 0 56px; color: var(--faint); font-size: 13px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } section { animation: none; } }
 </style>
 </head>
 <body>
 <header>
-  <div class="wordmark"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="6" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="var(--bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>harness-kit<span class="dot">.</span></span> <span class="sub" data-i18n="wordmark.sub">usage guide</span></div>
-  <nav>
-    <a class="hide-sm" href="#why" data-i18n="nav.why">why</a>
-    <a class="hide-sm" href="#get-started" data-i18n="nav.start">get started</a>
-    <a class="hide-sm" href="#fronts" data-i18n="nav.fronts">fronts</a>
-    <a class="hide-sm" href="#brief">brief</a>
-    <a class="hide-sm" href="#pipeline">pipeline</a>
-    <a class="hide-sm" href="#quality">quality</a>
-    <a class="hide-sm" href="#cockpit">cockpit</a>
-    <a class="hide-sm" href="wiki/">wiki</a>
-    <a class="cta" href="https://github.com/Pierry/harness-kit">github &#8599;</a>
+  <div class="bar">
+    <a class="hk-logo" href="#start" aria-label="harness-kit">
+      <svg class="hk-mark" viewBox="0 0 32 32" fill="none" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ink" d="M5 7.5h22M5 14.5h11"/><path class="lav" d="M5 21.5h5.5l4.5 4.5L27 13"/></svg>
+      <span class="hk-word" aria-hidden="true">harness-kit<svg class="hk-dot" viewBox="0 0 12 12" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 10.2L1.8 7.6"/><path d="M4.4 10.2L10.2 2.6"/></svg></span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#start" data-i18n="nav.start">Start</a>
+      <a href="#spec" data-i18n="nav.spec">Spec</a>
+      <a href="#build" data-i18n="nav.build">Build</a>
+      <a href="#ship" data-i18n="nav.ship">Ship</a>
+      <a href="#options" data-i18n="nav.options">Options</a>
+      <span class="divider"></span>
+      <a href="wiki/">wiki</a>
+      <a href="https://github.com/Pierry/harness-kit">github</a>
+    </nav>
     <span class="controls">
       <span class="langsw" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
@@ -243,1187 +185,284 @@
         <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </span>
-  </nav>
+  </div>
 </header>
 
-<div class="wrap">
-  <section class="hero">
-    <span class="eyebrow"><span class="live"></span> <span data-i18n="hero.eyebrow">claude code plugin &middot; <b>gated pipeline</b></span></span>
-    <h1 data-i18n="hero.h1">Idea to merged PR,<br />through one <span class="gold">gated pipeline</span>.</h1>
-    <p class="lede" data-i18n="hero.lede">harness-kit is a set of Claude Code agents, a product manager, a staff engineer, and a system architect, that carry a raw idea through <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, with a pass/fail check and a scored review at every stage. Nothing advances on vibes.</p>
-    <div class="hero-cta">
-      <a class="btn primary" href="#get-started" data-i18n="hero.cta1">Get started</a>
-      <a class="btn ghost" href="brief/" data-i18n="hero.cta2">Open the idea-brief builder</a>
+<main class="wrap">
+  <!-- START -->
+  <section id="start">
+    <div class="sec-top"><span class="eyebrow" data-i18n="start.eyebrow">Claude Code plugin</span><span class="rt" data-rt></span></div>
+    <h1 data-i18n="start.h1">Idea to merged PR, through one gated pipeline.</h1>
+    <p class="lede" data-i18n="start.lede">harness-kit is a set of Claude Code agents that carry one idea through six gated steps, from spec to pull request. A script checks every step and a judge scores it, so you only decide twice: the direction, and the PR.</p>
+    <div class="cta">
+      <a class="btn primary" href="#install" data-i18n="start.cta1">Install</a>
+      <a class="btn secondary" href="brief/" data-i18n="start.cta2">Open the brief builder</a>
     </div>
-    <div class="media reveal">
-      <div class="frame">
-        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="hero.gifbar">the full pipeline &middot; demo</span></div>
-        <img src="preview.gif" width="720" height="405" loading="lazy" decoding="async" alt="harness-kit pipeline walkthrough: prd to prp to plan, dev, test and pr" />
-      </div>
-      <p class="cap" data-i18n="hero.gifcap">the full pipeline, one walkthrough</p>
-    </div>
-    <div class="pipe">
-      <span class="stage pm">prd</span><span class="stage pm">prp</span>
-      <span class="arrow">&#8594;</span>
-      <span class="stage sse">plan</span><span class="stage sse">dev</span><span class="stage sse">test</span><span class="stage sse">pr</span>
-      <span class="arrow">&#8594;</span>
-      <span class="end" data-i18n="hero.merged">merged PR</span>
-    </div>
-  </section>
+    <div class="media"><img src="preview.gif" width="720" height="405" loading="lazy" decoding="async" alt="harness-kit pipeline walkthrough: prd to prp to plan, dev, test and pr" /></div>
 
-  <!-- WHY THIS EXISTS -->
-  <section class="block reveal" id="why">
-    <div class="sec-head"><span class="n">01</span><h2 data-i18n="why.title">Why this exists</h2></div>
-    <p class="sec-sub" data-i18n="why.sub">Most features get built twice. Once in a hurry to see the thing work, and again when you realize nobody wrote down the problem it solved, the acceptance criteria drifted, and the review was a rubber stamp. The parts that make a feature correct are the first to get skipped when you move fast with an AI agent. harness-kit puts them back, and does the writing for you.</p>
-    <div class="grid4">
-      <div class="card"><span class="tag" data-i18n="why.c1t">the problem</span><h3 data-i18n="why.c1h">Shipping on vibes skips four things</h3><p data-i18n="why.c1p">A clear problem statement, real acceptance criteria, your conventions, and an honest review. Done by hand for every feature, they quietly rot.</p></div>
-      <div class="card"><span class="tag" data-i18n="why.c2t">same shape</span><h3 data-i18n="why.c2h">The same pipeline every time</h3><p data-i18n="why.c2p">Quality stops depending on who is at the keyboard or how tired they are. Every feature takes the same six stages, in the same order.</p></div>
-      <div class="card"><span class="tag" data-i18n="why.c3t">gated twice</span><h3 data-i18n="why.c3h">Nothing advances weak</h3><p data-i18n="why.c3p">A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you.</p></div>
-      <div class="card"><span class="tag" data-i18n="why.c4t">measurable</span><h3 data-i18n="why.c4h">You can watch it improve</h3><p data-i18n="why.c4p">Every approved stage records a score, so you know whether your specs, or your tests, are getting better across runs.</p></div>
-    </div>
-    <h3 class="sub-h" data-i18n="why.vsh">Without it, and with it</h3>
-    <p class="sec-sub" style="margin-bottom:18px" data-i18n="why.vssub">An agent writes code fast, and fast is where the expensive mistakes hide. Each row below is a step that has to pass before the next one starts, and harness-kit writes it for you.</p>
-    <div class="tablewrap scroll">
-      <table class="compare">
-        <thead><tr><th data-i18n="why.vth1">Without harness-kit</th><th data-i18n="why.vth2">With harness-kit</th></tr></thead>
-        <tbody>
-          <tr><td data-i18n="why.v1a">The ticket lives in your head or a chat thread</td><td data-i18n="why.v1b">A PRD with the problem, the customers, and a numeric success metric</td></tr>
-          <tr><td data-i18n="why.v2a">"Done" is whatever the agent decided</td><td data-i18n="why.v2b">A PRP with acceptance criteria you can check one by one</td></tr>
-          <tr><td data-i18n="why.v3a">The agent edits whatever it finds</td><td data-i18n="why.v3b">A plan that names the files and, with graph engineering, a gate that fails on any other file</td></tr>
-          <tr><td data-i18n="why.v4a">Review is reading a diff and hoping</td><td data-i18n="why.v4b">Every document scored against a rubric, retried until it passes 8.0</td></tr>
-          <tr><td data-i18n="why.v5a">Nobody remembers why the code is like this</td><td data-i18n="why.v5b">Every requirement linked to the code that implements it and the test that proves it</td></tr>
-          <tr><td data-i18n="why.v6a">Quality depends on the day</td><td data-i18n="why.v6b">The same six steps every time, with a score history you can watch</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="sec-sub" data-i18n="why.impact" style="margin:34px 0 0">What you get: one command takes a raw idea to a merged pull request. Six documents, a check and a scored review at each stage, and two moments where a human decides, is this the right direction, and is this PR good to open. You spend your attention there, not on formatting a spec.</p>
-    <div class="diagram" style="margin-top:26px">
-      <pre class="mermaid">
-sequenceDiagram
-    actor You
-    participant PM as product-manager
-    participant Gate as sensor + eval
-    participant SSE as staff-engineer
-    participant GH as GitHub
-    You->>PM: idea
-    PM->>Gate: PRD
-    Gate-->>You: pass + score
-    You->>PM: approve direction
-    PM->>Gate: PRP
-    Gate-->>PM: pass + score
-    PM->>SSE: approved spec
-    SSE->>Gate: plan, then dev, then test
-    Gate-->>SSE: pass + score at each
-    You->>SSE: approve the PR
-    SSE->>GH: open PR
-    GH-->>You: merged
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="why.cap">idea in, merged PR out &middot; two human decisions, everything else on rails</p>
-  </section>
-
-  <!-- GET STARTED -->
-  <section class="block reveal" id="get-started">
-    <div class="sec-head"><span class="n">02</span><h2 data-i18n="gs.title">Get started</h2></div>
-    <p class="sec-sub" data-i18n="gs.sub">From nothing installed to a merged PR. There are four setups and they all use the same commands; the options only change what happens inside some steps. Start with the default, you can switch later with one command.</p>
-
-    <h3 class="sub-h" style="margin-top:8px" data-i18n="gs.h1">Pick a setup</h3>
-    <div class="tablewrap scroll" style="margin-top:16px">
-      <table class="compare wide">
-        <thead><tr><th data-i18n="gs.th1">Setup</th><th data-i18n="gs.th2">Best for</th><th data-i18n="gs.th3">What it adds</th><th data-i18n="gs.th4">Needs</th><th data-i18n="gs.th5">Cost</th></tr></thead>
-        <tbody>
-          <tr><td data-i18n="gs.n1">Plain (default)</td><td data-i18n="gs.b1">trying it out, small teams, most features</td><td data-i18n="gs.a1">the full gated pipeline</td><td data-i18n="gs.d1">Claude Code, <code class="inline">python3</code>, <code class="inline">git</code>, <code class="inline">gh</code></td><td data-i18n="gs.k1">nothing extra</td></tr>
-          <tr><td data-i18n="gs.n2">Jev judge</td><td data-i18n="gs.b2">a judge that is not Claude grading Claude</td><td data-i18n="gs.a2">quality scored by Jev, a different model, in under a second per document; Claude takes over when Jev is unsure</td><td data-i18n="gs.d2">a TypeSafe API key</td><td data-i18n="gs.k2">about $0.04 per million tokens</td></tr>
-          <tr><td data-i18n="gs.n3">Graph engineering</td><td data-i18n="gs.b3">shared codebases, regulated work, anything you must audit later</td><td data-i18n="gs.a3">requirement ids, a trace file in every PR, a scope gate, links that turn VALIDATED or STALE</td><td data-i18n="gs.d3">nothing extra for <code class="inline">manifest</code>; Python 3.12, a free NVIDIA key and <code class="inline">joern</code> for <code class="inline">full</code></td><td data-i18n="gs.k3">free</td></tr>
-          <tr><td data-i18n="gs.n4">Graph and Jev</td><td data-i18n="gs.b4">teams that want a neutral judge and full traceability</td><td data-i18n="gs.a4">both of the above</td><td data-i18n="gs.d4">both of the above</td><td data-i18n="gs.k2">about $0.04 per million tokens</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 class="sub-h" id="install" data-i18n="gs.h2">Install</h3>
-    <div class="code" style="margin-top:16px">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">claude code</span></div>
-<pre><span class="cmd">/plugin</span> marketplace add Pierry/harness-kit
-<span class="cmd">/plugin</span> install harness-kit@harness-kit
-<span class="c"># restart Claude Code, open your repo, then:</span>
-<span class="cmd">/harness-kit:install</span></pre>
-    </div>
-    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.inst">It copies the agents, commands, and hooks into <code class="inline">.claude/</code>, adds <code class="inline">AGENTS.md</code> and <code class="inline">CLAUDE.md</code>, and asks two questions: the eval judge (<code class="inline">local</code> or <code class="inline">jev</code>) and graph engineering (<code class="inline">off</code>, <code class="inline">manifest</code>, or <code class="inline">full</code>). Plain is <code class="inline">local</code> and <code class="inline">off</code>. Restart once more so the commands appear. Your own status line stays as it was.</p>
-    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.jev"><b>Jev setups.</b> Create a key at <a href="https://console.typesafe.ai/keys">console.typesafe.ai/keys</a> and run <code class="inline">/hk:eval jev</code>. A pasted key goes to <code class="inline">.claude/settings.local.json</code>, which git ignores.</p>
-    <p class="sec-sub" style="margin:0 0 18px" data-i18n="gs.graph"><b>Graph setups.</b> <code class="inline">/hk:graph manifest</code> needs nothing else. For <code class="inline">full</code>, have a free key from <a href="https://build.nvidia.com">build.nvidia.com</a> ready and run:</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="gs.gbar">graph full only</span></div>
-<pre><span class="cmd">/hk:graph</span> full
-<span class="cmd">python3</span> .claude/scripts/graph.py setup        <span class="c"># embedded FalkorDB + Graphiti, no Docker</span>
-<span class="cmd">python3</span> .claude/scripts/graph.py index-code   <span class="c"># Joern call graph, once</span>
-<span class="cmd">python3</span> .claude/scripts/graph.py status</pre>
-    </div>
-
-    <p data-i18n="s02.note"><b>Updating.</b> The plugin version is pinned, so a release does not reach you until you pull it: <code class="inline">/plugin update harness-kit</code>, restart Claude Code, then <code class="inline">/harness-kit:update</code> in each repo. New users get the latest on install automatically.</p>
-      <h3 class="sub-h" data-i18n="gs.h3">Brief to merge, in seven steps</h3>
-    <p class="sec-sub" style="margin-bottom:22px" data-i18n="gs.h3sub">You decide twice: at step 2 and at step 6. Everything else runs on its own gates.</p>
-    <div class="steps">
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s1h">Write the brief</h3>
-        <p data-i18n="gs.s1p">Four lines after <code class="inline">/golden-path</code>: squad, problem, hypothesis, success metric. The <a href="brief/">brief builder</a> checks each field for you. <code class="inline">/pipeline:run "&lt;idea&gt;"</code> runs the same steps and stops only at the two decisions.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s2h">The PRD, your first decision</h3>
-        <p data-i18n="gs.s2p">The product manager agent writes the problem, customers, scope, and metrics with baselines. A script checks the sections, the eval scores it, and you approve the direction. A wrong problem caught here costs one rewrite, not a feature.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s3h">The PRP</h3>
-        <p data-i18n="gs.s3p">The PRD becomes an engineering spec: files to change, patterns to follow, library docs, validation commands, and acceptance criteria you can check one by one.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s4h">The plan</h3>
-        <p data-i18n="gs.s4p">The staff engineer agent writes what changes, in which files, in what order, with risks and test cases.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s5h">Dev</h3>
-        <p data-i18n="gs.s5p">The agent implements the plan in small commits, runs your linters and type checkers as sensors, and follows <code class="inline">.claude/conventions/</code> when you have it.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s6h">Test, the PR, your second decision</h3>
-        <p data-i18n="gs.s6p">Your test suite runs and failures are reported by name. The agent prepares the PR title, summary, and test plan. You approve and it opens as a draft.</p>
-      </div></div>
-      <div class="step glowable"><span class="glow"></span><span class="num"></span><div>
-        <h3 data-i18n="gs.s7h">Merge</h3>
-        <p data-i18n="gs.s7p">A monitor watches the PR and clears the pipeline when it merges. Start the next feature with a new brief.</p>
-      </div></div>
-    </div>
-
-    <h3 class="sub-h" data-i18n="gs.h4">What changes per setup</h3>
-    <div class="tablewrap scroll" style="margin-top:16px">
-      <table class="compare wide">
-        <thead><tr><th data-i18n="gs.c0">Step</th><th data-i18n="gs.c1">Plain</th><th data-i18n="gs.c2">Jev judge</th><th data-i18n="gs.c3">Graph engineering</th><th data-i18n="gs.c4">Graph and Jev</th></tr></thead>
-        <tbody>
-          <tr><td data-i18n="gs.r1">Scoring</td><td data-i18n="gs.v.claude">Claude sub-agent</td><td data-i18n="gs.v.jev">Jev, Claude when unsure</td><td data-i18n="gs.v.claude">Claude sub-agent</td><td data-i18n="gs.v.jev">Jev, Claude when unsure</td></tr>
-          <tr><td>PRP</td><td data-i18n="gs.v.crit">criteria</td><td data-i18n="gs.v.crit">criteria</td><td data-i18n="gs.v.req">criteria with <code class="inline">REQ</code> ids, trace file</td><td data-i18n="gs.v.req">criteria with <code class="inline">REQ</code> ids, trace file</td></tr>
-          <tr><td>Plan</td><td data-i18n="gs.v.files">files to change</td><td data-i18n="gs.v.files">files to change</td><td data-i18n="gs.v.scope">links with evidence, files become the scope</td><td data-i18n="gs.v.scope">links with evidence, files become the scope</td></tr>
-          <tr><td>Dev</td><td data-i18n="gs.v.conv">conventions and linters</td><td data-i18n="gs.v.conv">conventions and linters</td><td data-i18n="gs.v.gate">plus scope gate, IMPLEMENTS links</td><td data-i18n="gs.v.gate">plus scope gate, IMPLEMENTS links</td></tr>
-          <tr><td>Test</td><td data-i18n="gs.v.report">report</td><td data-i18n="gs.v.report">report</td><td data-i18n="gs.v.verif">plus VERIFIED_BY links</td><td data-i18n="gs.v.verif">plus VERIFIED_BY links</td></tr>
-          <tr><td>PR</td><td data-i18n="gs.v.sum">summary and test plan</td><td data-i18n="gs.v.sum">summary and test plan</td><td data-i18n="gs.v.trace">plus traceability table</td><td data-i18n="gs.v.trace">plus traceability table</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="note">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="gs.note">Switch any time: <code class="inline">/hk:eval local</code> or <code class="inline">jev</code>, <code class="inline">/hk:graph off</code>, <code class="inline">manifest</code>, or <code class="inline">full</code>. <code class="inline">/pipeline:continue</code> resumes a feature and <code class="inline">hk status</code> shows where it is. Every detail, step by step, in <a href="wiki/Getting-Started.html">Getting Started</a>. More on each option <a href="#options">below</a>.</p>
-    </div>
-  </section>
-
-  <!-- THE FOUR FRONTS -->
-  <section class="block reveal" id="fronts">
-    <div class="sec-head"><span class="n">03</span><h2 data-i18n="fronts.title">The four fronts</h2></div>
-    <p class="sec-sub" data-i18n="fronts.sub">harness-kit is one product with four surfaces. Each does one job, and they chain: shape the idea, run the pipeline, watch its quality, drive it from a terminal. Start anywhere.</p>
-    <div class="grid4">
-      <a class="card frontcard glowable" href="#brief"><span class="glow"></span>
-        <span class="num">FRONT 1</span> &nbsp; <span class="tag">brief builder</span>
-        <h3 data-i18n="fronts.f1h">Turn an idea into the prompt</h3>
-        <p data-i18n="fronts.f1p">A web app that turns your idea into a paste-ready <code class="inline">/golden-path</code> prompt, with inline validation as you type.</p>
-        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
-      </a>
-      <a class="card frontcard glowable" href="#pipeline"><span class="glow"></span>
-        <span class="num">FRONT 2</span> &nbsp; <span class="tag">the pipeline</span>
-        <h3 data-i18n="fronts.f2h">Idea to merged PR</h3>
-        <p data-i18n="fronts.f2p">The agents and the gated flow. Carries the idea <code class="inline">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, one gate at a time.</p>
-        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
-      </a>
-      <a class="card frontcard glowable" href="#quality"><span class="glow"></span>
-        <span class="num">FRONT 3</span> &nbsp; <span class="tag">quality dashboard</span>
-        <h3 data-i18n="fronts.f3h">Is each stage getting better?</h3>
-        <p data-i18n="fronts.f3p">Tracks each stage's eval score, open gaps, and sensor failures across every run, over time.</p>
-        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
-      </a>
-      <a class="card frontcard glowable" href="#cockpit"><span class="glow"></span>
-        <span class="num">FRONT 4</span> &nbsp; <span class="tag">the cockpit</span>
-        <h3 data-i18n="fronts.f4h">Drive it from the terminal</h3>
-        <p data-i18n="fronts.f4p">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, the two gates as prompts.</p>
-        <span class="ar" data-i18n="fronts.jump">jump to it &#8594;</span>
-      </a>
-    </div>
-    <p class="diagram-cap" data-i18n="fronts.cap" style="margin-top:22px">front 2 is the engine &middot; front 1 feeds it &middot; front 3 measures it &middot; front 4 drives it</p>
-  </section>
-
-  <!-- FRONT 1 · BRIEF BUILDER -->
-  <section class="block reveal" id="brief">
-    <span class="fronttag" data-i18n="brief.eyebrow">Front 1 &middot; the on-ramp</span>
-    <div class="sec-head"><span class="n">04</span><h2 data-i18n="brief.title">Brief builder</h2></div>
-    <p class="sec-sub" data-i18n="brief.sub">A single web page that turns a rough idea into a well-formed <code class="inline">/golden-path</code> prompt. Fill squad, problem, hypothesis, and metric; it validates each field against the PRD conventions as you type, and builds the exact prompt to paste into Claude Code. No blank-page problem.</p>
-    <div class="media reveal" style="margin-top:0">
-      <div class="frame">
-        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="brief.gifbar">idea-brief builder &middot; live preview</span></div>
-        <img src="media/brief.gif" width="1512" height="794" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the idea-brief builder assembling a /golden-path prompt as fields are filled" />
-      </div>
-      <p class="cap" data-i18n="brief.gifcap">fields on the left, the prompt assembles live on the right</p>
-    </div>
-    <div class="hero-cta" style="margin-top:26px">
-      <a class="btn primary" href="brief/" data-i18n="brief.cta">Open the idea-brief builder</a>
-    </div>
-    <div class="note" style="margin-top:26px">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="brief.note">Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
-    </div>
-  </section>
-
-  <!-- FRONT 2 · THE PIPELINE -->
-  <section class="block reveal" id="pipeline">
-    <span class="fronttag" data-i18n="s01.eyebrow">Front 2 &middot; the engine</span>
-    <div class="sec-head"><span class="n">05</span><h2 data-i18n="s01.title">The pipeline</h2></div>
-    <p class="sec-sub" data-i18n="s01.sub">Shipping a feature on vibes skips the parts that make it correct: framing the problem, writing acceptance criteria, holding the conventions, gating the review. harness-kit puts those back, without you hand-writing a single doc.</p>
-    <div class="diagram">
-      <pre class="mermaid">
-flowchart LR
-    idea([idea]) --> prd
-    subgraph PM[product-manager]
-        prd --> prp
-    end
-    subgraph SSE[staff-software-engineer]
-        plan --> dev --> test --> pr
-    end
-    prp --> plan
-    pr --> merged([merged PR])
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.cap1">two agents, one pipeline &middot; each arrow is a gated handoff</p>
-    <div class="note" style="margin-top:28px">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s01.note">Every stage produces a markdown artifact, gated by a deterministic <b>sensor</b> (pass/fail) and a scored <b>eval</b> (threshold 8.0). After the PR opens, an in-session monitor watches for merge and clears state on its own.</p>
-    </div>
-
-    <h3 class="sub-h" data-i18n="s01.h3">How one stage is gated</h3>
-    <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub2">The same loop runs at every stage. The agent generates the artifact, a sensor checks its structure, an eval scores its quality, and only then does a human approve. Failures self-correct before they reach you.</p>
-    <div class="diagram">
-      <pre class="mermaid">
-flowchart LR
-    gen[generate artifact] --> sensor{sensor: structure check}
-    sensor -->|fail| gen
-    sensor -->|pass| eval{eval: LLM judge}
-    eval -->|"score &lt; 8.0, retry x3"| gen
-    eval -->|"score &#8805; 8.0"| approve[human approves]
-    approve --> next([next stage])
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.cap2">guides steer before &middot; sensors give deterministic feedback &middot; evals give inferential feedback &middot; humans stay on the loop</p>
-
-    <h3 class="sub-h" data-i18n="s01.h5">A gate that cannot lie</h3>
-    <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub4">Böckeler splits controls into <b>computational</b>, deterministic and CPU-run, and <b>inferential</b>, needing judgment. Every sensor here declares which it is, and the difference is the whole point: a sensor nothing machine-checked can never report a pass.</p>
-    <div class="diagram">
-      <pre class="mermaid">
-flowchart LR
-    s[sensor declares how it is enforced] --> c{Execution?}
-    c -->|computational| r[runner enforces it]
-    c -->|inferential| m[a model applies it]
-    r --> ok[pass]
-    r --> no[fail]
-    r --> err[broken spec is an error, never a pass]
-    m --> inf[logged inferential, never a pass]
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.cap3">a sensor that claims to be deterministic but checks nothing is an error, not a pass</p>
-    <div class="note" style="margin-top:26px">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s01.note3">This one is scar tissue. Sensors here once declared themselves deterministic hard gates while writing their checks as prose the runner could not parse. It returned 0, and the quality log recorded them as <b>passed</b> on every run, against a check that never happened. That is the <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html">illusion of quality</a> the gates exist to prevent, so the harness now has its own tests, its own CI, and a ledger that fails the build when a sensor lies about how it is enforced.</p>
-    </div>
-
-    <h3 class="sub-h" data-i18n="s01.h4">Each agent, end to end</h3>
-    <p class="sec-sub" style="margin-bottom:0" data-i18n="s01.sub3">The same gated loop, once per agent. These are the three pipelines you actually run: what the command does, which sensors fire, which eval scores it, and where the gate sits. Every scored eval uses the same 8.0 threshold and the same three-attempt retry.</p>
-    <div class="diagram">
-      <pre class="mermaid">
-sequenceDiagram
-    actor You
-    participant PM as product-manager
-    participant S as sensors
-    participant E as eval (fresh judge)
-    You->>PM: /product-manager:run
-    PM->>PM: read intake artifact
-    PM->>S: PRD &#8594; structure, acceptance criteria
-    S-->>PM: pass or fail, retry up to 3
-    PM->>E: prd-quality
-    E-->>PM: score, needs &#8805; 8.0
-    PM->>PM: approval marker on the PRD
-    Note over PM,E: no approved PRD, no PRP. the hook refuses to start it
-    PM->>S: PRP &#8594; structure, context, links
-    S-->>PM: pass or fail, retry up to 3
-    PM->>E: prp-quality, prp-context-readiness
-    E-->>PM: score, needs &#8805; 8.0
-    PM-->>You: PRP ready for handoff
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.capPM"><b>product-manager</b> &middot; prd &#8594; prp &middot; reads the intake artifact, never stops to ask you</p>
-    <div class="diagram">
-      <pre class="mermaid">
-sequenceDiagram
-    actor You
-    participant SSE as staff-engineer
-    participant S as sensors
-    participant E as eval (fresh judge)
-    participant GH as GitHub
-    You->>SSE: /sse:run
-    SSE->>SSE: read approved PRP, detect area skill
-    SSE->>S: plan &#8594; plan-structure
-    S-->>SSE: pass
-    SSE->>E: plan-quality
-    E-->>SSE: score &#8805; 8.0, approved
-    SSE->>S: dev &#8594; conventions, coverage, structure
-    S-->>SSE: fail means fix and retry, stop after 3
-    SSE->>E: dev-quality
-    E-->>SSE: score &#8805; 8.0, approved
-    SSE->>SSE: detect and run the test suite
-    SSE->>E: test-quality, only if exit code is 0
-    E-->>SSE: score &#8805; 8.0, approved
-    Note over You,GH: the PR gate. --local stops here for good
-    SSE->>GH: gh pr create --draft
-    GH-->>SSE: PR url
-    SSE->>E: pr-quality
-    E-->>SSE: score &#8805; 8.0, approved
-    SSE->>GH: pr-monitor polls for the merge
-    GH-->>You: merged, state cleared
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.capSSE"><b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev is the one stage gated twice, on the code and on the summary</p>
-    <div class="diagram">
-      <pre class="mermaid">
-sequenceDiagram
-    actor You
-    participant SA as system-architect
-    participant S as sensors
-    participant E as eval (fresh judge)
-    You->>SA: /system-design:run
-    SA->>SA: route to a topic skill, or generic design
-    SA->>S: design &#8594; structure, rigor
-    S-->>SA: a missing number or diagram blocks
-    SA->>E: design-quality
-    E-->>SA: score &#8805; 8.0, approved
-    SA->>SA: adversarial review, 10 staff questions
-    SA->>S: review &#8594; structure, review variant
-    S-->>SA: questions answered, verdict present
-    SA->>E: design-review-depth
-    E-->>SA: score &#8805; 8.0
-    SA-->>You: verdict ship, revise, or block
-      </pre>
-    </div>
-    <p class="diagram-cap" data-i18n="s01.capSA"><b>system-architect</b> &middot; design &#8594; review &middot; optional front stage before the PRP &middot; block is terminal</p>
-    <div class="note" style="margin-top:28px">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s01.note2">The evaluator is a <b>fresh Claude sub-agent</b>, or <b>Jev</b> when you pick it, and it gets only the artifact and the rubric, never the context that wrote it. The author never grades its own work. Full wiring, verbatim paths and rubrics, in the <a href="wiki/Agent-Pipelines.html">Agent Pipelines</a> wiki page.</p>
-    </div>
-  </section>
-
-  <!-- GOLDEN PATH -->
-  <section class="block reveal" id="golden-path">
-    <span class="fronttag" data-i18n="s03.eyebrow">Front 2 &middot; run it</span>
-    <div class="sec-head"><span class="n">06</span><h2 data-i18n="s03.title">The golden path</h2></div>
-    <p class="sec-sub" data-i18n="s03.sub">One command, idea to merged PR.</p>
-    <div class="steps">
-      <div class="step glowable"><span class="glow"></span>
-        <span class="num"></span>
-        <div>
-          <h3 data-i18n="s03.s1h">Write the brief</h3>
-          <p data-i18n="s03.s1p">Open the <a href="brief/">idea-brief builder</a> and fill the fields, squad, problem, hypothesis, customers, metric. Inline validation holds you to the PRD conventions as you type.</p>
-        </div>
-      </div>
-      <div class="step glowable"><span class="glow"></span>
-        <span class="num"></span>
-        <div>
-          <h3 data-i18n="s03.s2h">Paste it</h3>
-          <p data-i18n="s03.s2p">Hit <b>Copy brief</b> and paste the ready-made <code class="inline">/golden-path</code> kick into Claude Code:</p>
-          <div class="code" style="margin-top:14px">
-            <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s03.bar">paste into claude code</span></div>
-<pre><span class="cmd">/golden-path</span>
-
-<span class="key">Squad:</span> checkout
-<span class="key">Problem:</span> Returning guests abandon checkout when a card is declined once <span class="c">&#8230;</span>
-<span class="key">Hypothesis:</span> If we add one-tap retry, then completion rises 5 points, because <span class="c">&#8230;</span>
-<span class="key">Success metric:</span> checkout completion, from 71% to 76% within 30 days</pre>
-          </div>
-        </div>
-      </div>
-      <div class="step glowable"><span class="glow"></span>
-        <span class="num"></span>
-        <div>
-          <h3 data-i18n="s03.s3h">Approve and ship</h3>
-          <p data-i18n="s03.s3p1">All six gated stages run, PM (<code class="inline">prd &#8594; prp</code>) then Eng (<code class="inline">plan &#8594; dev &#8594; test &#8594; pr</code>). Approve each artifact when prompted; <code class="inline">hk status</code> shows where you are.</p>
-          <p data-i18n="s03.s3p2">SSE flags pass straight through: <code class="inline">--local</code>, <code class="inline">--sdd</code>, <code class="inline">--no-monitor</code>. Already know the idea cold? Skip the builder and type <code class="inline">/golden-path</code> with the brief yourself.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- OTHER WAYS -->
-  <section class="block reveal" id="commands">
-    <div class="sec-head"><span class="n">07</span><h2 data-i18n="s04.title">Other ways to run</h2></div>
-    <p class="sec-sub" data-i18n="s04.sub">Every flow shares the same pipeline state, so you can switch between them mid-feature.</p>
+    <h3 data-i18n="start.why">Why it is worth it</h3>
     <div class="tablewrap">
       <table>
-        <thead><tr><th data-i18n="s04.th1">You want</th><th data-i18n="s04.th2">Run</th><th data-i18n="s04.th3">Stages</th></tr></thead>
+        <thead><tr><th data-i18n="why.th1">Without it</th><th data-i18n="why.th2">With harness-kit</th></tr></thead>
         <tbody>
-          <tr><td data-i18n="s04.r0">Hands-off, idea to PR, two gates</td><td>/pipeline:run "&lt;idea&gt;"</td><td>intake &#8594; prd &#8594; &#8230; &#8594; pr</td></tr>
-          <tr><td data-i18n="s04.r1">Idea to merged PR</td><td>/golden-path</td><td>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</td></tr>
-          <tr><td data-i18n="s04.r2">Spec only, align before any code</td><td>/product-manager:run</td><td>prd &#8594; prp</td></tr>
-          <tr><td data-i18n="s04.r3">Small change, plan in your head</td><td>/sse:run</td><td>plan &#8594; dev &#8594; test &#8594; pr</td></tr>
-          <tr><td data-i18n="s04.r4">Local only, no PR</td><td>/sse:run --local</td><td>plan &#8594; dev &#8594; test</td></tr>
-          <tr><td data-i18n="s04.r5">Loop until the spec passes</td><td>/sse:sdd</td><td>plan &#8594; [dev&#8596;test&#8596;eval] &times;3</td></tr>
-          <tr><td data-i18n="s04.r6">Resume after a break</td><td>/pipeline:continue</td><td>next pending stage</td></tr>
+          <tr><td data-i18n="why.v1a">The ticket lives in a chat thread</td><td data-i18n="why.v1b">A PRD with the problem, the customers, and a numeric success metric</td></tr>
+          <tr><td data-i18n="why.v2a">"Done" is whatever the agent decided</td><td data-i18n="why.v2b">Acceptance criteria you can check one by one</td></tr>
+          <tr><td data-i18n="why.v3a">The agent edits whatever it finds</td><td data-i18n="why.v3b">A plan that names the files, and with graph engineering a gate that fails on any other file</td></tr>
+          <tr><td data-i18n="why.v4a">Review is reading a diff and hoping</td><td data-i18n="why.v4b">Every document scored against a rubric, retried until it passes 8.0</td></tr>
+          <tr><td data-i18n="why.v5a">Quality depends on the day</td><td data-i18n="why.v5b">The same six steps every time, with a score history you can watch</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="note">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s04.note"><b>Sensors</b> are deterministic structure checks, they block on failure and Claude regenerates until they pass. <b>Evals</b> are LLM-judge rubrics scored 0-10, threshold 8.0, retried up to 3 times. Each stage is also its own command: <code class="inline">/sse:plan</code>, <code class="inline">/sse:dev</code>, <code class="inline">/sse:test</code>, <code class="inline">/sse:pr</code>. <a href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md">Every command and gate &#8594;</a></p>
+
+    <h3 id="install" data-i18n="start.install">Install</h3>
+<pre class="code"><span class="k">/plugin</span> marketplace add Pierry/harness-kit
+<span class="k">/plugin</span> install harness-kit@harness-kit
+<span class="c"># restart Claude Code, open your repo, then:</span>
+<span class="k">/harness-kit:install</span></pre>
+    <p data-i18n="start.asks">It asks two questions. Both defaults are fine, and you can change either later.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th data-i18n="q.th1">Question</th><th data-i18n="q.th2">Default</th><th data-i18n="q.th3">Other choices</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="q.r1">Eval judge</td><td><code>local</code></td><td><code>jev</code></td></tr>
+          <tr><td>Graph engineering</td><td><code>off</code></td><td><code>manifest</code>, <code>full</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" data-i18n="start.update">Needs <code>python3</code>, <code>git</code>, and the <a href="https://cli.github.com/">gh CLI</a>. To update: <code>/plugin update harness-kit</code>, restart, then <code>/harness-kit:update</code>.</p>
+  </section>
+
+  <!-- PHASE 1 · SPEC -->
+  <section id="spec">
+    <div class="sec-top"><span class="eyebrow" data-i18n="spec.eyebrow">Phase 1 of 3</span><span class="rt" data-rt></span></div>
+    <h2 data-i18n="spec.title">Spec</h2>
+    <p class="sec-sub" data-i18n="spec.sub">Brief, PRD, PRP. Turn an idea into something you can check.</p>
+    <div class="rows">
+      <div class="row"><div class="rk" data-i18n="row.you">You do</div><div class="rv">
+        <p data-i18n="spec.you">Type a four-line brief after <code>/golden-path</code>, or fill the <a href="brief/">brief builder</a>. Then read the PRD and approve the direction. This is your first decision, and the cheapest place to be wrong.</p>
+<pre class="code"><span class="k">/golden-path</span>
+
+Squad: checkout
+Problem: Returning guests abandon checkout when a card is declined once.
+Hypothesis: If we add one-tap retry, completion rises 5 points.
+Success metric: checkout completion, from 71% to 76% within 30 days</pre>
+      </div></div>
+      <div class="row"><div class="rk" data-i18n="row.it">It does</div><div class="rv" data-i18n="spec.it">The product manager agent writes the PRD: problem, customers, scope, and metrics with baselines. Then the PRP, an engineering spec with the files to change, patterns to follow, and acceptance criteria. Each must pass its structure check and score 8.0.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.jev">With Jev</div><div class="rv" data-i18n="spec.jev">Jev, a different model, scores each document. Claude decides only when Jev is unsure.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.graph">With graph</div><div class="rv" data-i18n="spec.graph">Each acceptance criterion gets a stable id like <code>REQ-001</code>, and <code>trace/{feature}.yml</code> is created.</div></div>
+    </div>
+    <p class="flow-note" style="margin-top:16px" data-i18n="spec.fewer">Want fewer stops? <code>/pipeline:run "&lt;idea&gt;"</code> runs all phases and pauses only at your two decisions.</p>
+  </section>
+
+  <!-- PHASE 2 · BUILD -->
+  <section id="build">
+    <div class="sec-top"><span class="eyebrow" data-i18n="build.eyebrow">Phase 2 of 3</span><span class="rt" data-rt></span></div>
+    <h2 data-i18n="build.title">Build</h2>
+    <p class="sec-sub" data-i18n="build.sub">Plan, dev, test. Every step runs the same gate.</p>
+    <div class="flow"><span class="s" data-i18n="flow.1">write</span>&#8594;<span class="s" data-i18n="flow.2">structure check</span>&#8594;<span class="s" data-i18n="flow.3">score 8.0+</span>&#8594;<span class="s" data-i18n="flow.4">next step</span></div>
+    <p class="flow-note" data-i18n="build.loop">Below 8.0 the agent rewrites only the failed checks, up to three times.</p>
+    <div class="rows">
+      <div class="row"><div class="rk" data-i18n="row.you">You do</div><div class="rv" data-i18n="build.you">Nothing. Watch it run, or run a step alone with <code>/sse:plan</code>, <code>/sse:dev</code>, <code>/sse:test</code>. <code>hk status</code> shows where it is.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.it">It does</div><div class="rv" data-i18n="build.it">The staff engineer agent plans which files change and in what order, implements in small commits with your linters and <code>.claude/conventions/</code>, then runs your tests and reports failures by name.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.jev">With Jev</div><div class="rv" data-i18n="build.jev">Jev scores the plan, the dev summary, and the test report instead of a Claude sub-agent.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.graph">With graph</div><div class="rv" data-i18n="build.graph">The plan records each file it expects to touch, with evidence. A scope gate fails dev on any other file. Commits and tests are linked to the requirement they serve.</div></div>
     </div>
   </section>
 
-  <!-- FRONT 3 · QUALITY -->
-  <section class="block reveal" id="quality">
-    <span class="fronttag" data-i18n="qual.eyebrow">Front 3 &middot; the feedback</span>
-    <div class="sec-head"><span class="n">08</span><h2 data-i18n="qual.title">Quality dashboard</h2></div>
-    <p class="sec-sub" data-i18n="qual.sub">Scores used to get lost in chat once a stage was approved. The quality dashboard persists per-phase signal across every run and answers one question: is each stage getting better or worse over time?</p>
-    <div class="media reveal" style="margin-top:0">
-      <div class="frame">
-        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="qual.gifbar">phase-quality dashboard &middot; sample data</span></div>
-        <img src="media/quality.gif" width="1512" height="794" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the phase-quality dashboard: KPI tiles, score trend by stage, failure rate, and the run table" />
-      </div>
-      <p class="cap" data-i18n="qual.gifcap">drop a phase-log.json and see where the pipeline drifts</p>
+  <!-- PHASE 3 · SHIP -->
+  <section id="ship">
+    <div class="sec-top"><span class="eyebrow" data-i18n="ship.eyebrow">Phase 3 of 3</span><span class="rt" data-rt></span></div>
+    <h2 data-i18n="ship.title">Ship</h2>
+    <p class="sec-sub" data-i18n="ship.sub">PR and merge. Your second decision.</p>
+    <div class="rows">
+      <div class="row"><div class="rk" data-i18n="row.you">You do</div><div class="rv" data-i18n="ship.you">Read the PR description and approve. It opens as a draft on GitHub.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.it">It does</div><div class="rv" data-i18n="ship.it">Writes the title, summary, and test plan. A monitor watches the PR and clears the pipeline when it merges.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.jev">With Jev</div><div class="rv" data-i18n="ship.jev">Jev scores the PR description.</div></div>
+      <div class="row"><div class="rk" data-i18n="row.graph">With graph</div><div class="rv" data-i18n="ship.graph">The PR carries a traceability table: each requirement, the code it touches, and the test that proves it. The next feature's plan marks these links VALIDATED or STALE.</div></div>
     </div>
-    <p data-i18n="qual.p1" style="color:var(--dim);max-width:700px;margin:24px 0 0;font-size:14.5px">Every time a phase is approved, a post-eval hook appends one deterministic entry, zero token cost, to <code class="inline">phase-log.json</code>: the eval <code class="inline">score</code>, the count of open <code class="inline">gaps</code>, the <code class="inline">sensors</code> re-run pass/fail, and a derived <code class="inline">status</code> (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Drop that JSON on the page (a standalone file, no build, no network) for KPI tiles, a score trend by stage, failure rate, average score vs the 7.0 threshold, the sensors that block most, and the full run table.</p>
-    <div class="hero-cta" style="margin-top:26px">
-      <a class="btn primary" href="quality/phase-report.html" data-i18n="qual.cta">Open the dashboard</a>
-      <a class="btn ghost" href="https://github.com/Pierry/harness-kit/blob/main/docs/quality/README.md" data-i18n="qual.cta2">How it is fed</a>
+    <div class="extras">
+      <p data-i18n="ship.quality"><b>Quality dashboard:</b> each step's score across runs. <a href="quality/phase-report.html">Open it</a>.</p>
+      <p data-i18n="ship.cockpit"><b>Cockpit:</b> watch steps and approve gates from a terminal, <code>npm i -g @pieerry/harness-kit</code> then <code>hk-tui</code>.</p>
     </div>
   </section>
-
-  <!-- FRONT 4 · COCKPIT -->
-  <section class="block reveal" id="cockpit">
-    <span class="fronttag" data-i18n="s0c.eyebrow">Front 4 &middot; the control surface</span>
-    <div class="sec-head"><span class="n">09</span><h2 data-i18n="s0c.title">The cockpit</h2></div>
-    <p class="sec-sub" data-i18n="s0c.sub">A terminal UI over the pipeline. Every stage live, a stage run on a keypress, humans on the loop at two gates.</p>
-    <div class="media reveal" style="margin-top:0">
-      <div class="frame">
-        <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.gifbar">hk-tui &middot; a feature at the PR gate</span></div>
-        <img src="media/cockpit.gif" width="1240" height="820" loading="lazy" decoding="async" style="aspect-ratio:auto" alt="the harness-kit cockpit: stage rail, rendered artifact, and the PR approval gate" />
-      </div>
-      <p class="cap" data-i18n="s0c.gifcap">open a feature, read each artifact, approve the gate, all from the terminal</p>
-    </div>
-    <p data-i18n="s0c.p2" style="color:var(--dim);max-width:700px;margin:24px 0 0;font-size:14.5px">It renders each artifact, runs a stage on a keypress, and turns the two human gates into modal prompts, the direction gate lists intake's open <code class="inline">NEEDS REVIEW</code> items. It reads state and artifacts straight off disk, so it stays in sync with any Claude Code session driving the same feature. It ships bundled, no extra dependencies land in your project.</p>
-    <div class="code" style="margin-top:22px">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title" data-i18n="s0c.bar">terminal</span></div>
-<pre><span class="cmd">npm</span> i -g @pieerry/harness-kit   <span class="c"># once, puts hk-tui on your PATH</span>
-<span class="cmd">hk-tui</span>                     <span class="c"># open the cockpit in the current repo</span>
-<span class="cmd">hk-tui</span> path/to/repo        <span class="c"># or point it at one</span>
-<span class="cmd">hk-tui</span> -- <span class="key">"add one-tap retry to checkout"</span>   <span class="c"># seed intake</span></pre>
-    </div>
-    <div class="note">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s0c.note"><b>Keys:</b> <code class="inline">&#8593;&#8595;/jk</code> move &middot; <code class="inline">enter</code> run the stage &middot; <code class="inline">tab</code> focus the reader &middot; <code class="inline">a</code> approve a gate, <code class="inline">x</code> hold &middot; <code class="inline">q</code> quit. Needs a TTY and Node 18+. Full model: <a href="wiki/Autonomy.html">Autonomy</a> and <a href="wiki/Orchestration-and-Subagents.html">Orchestration &amp; Subagents</a>.</p>
-    </div>
-  </section>
-
-  <!-- INSTALL -->
-  
 
   <!-- OPTIONS -->
-  <section class="block reveal" id="options">
-    <div class="sec-head"><span class="n">10</span><h2 data-i18n="opt.title">Options</h2></div>
-    <p class="sec-sub" data-i18n="opt.sub">All off or on their simplest setting until you change them. Each one is a single command and can be turned back at any time.</p>
-    <div class="cards">
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="opt.c1t">eval judge</span>
-        <h3 data-i18n="opt.c1h">Local Claude or Jev</h3>
-        <p data-i18n="opt.c1p">By default (<code class="inline">local</code>) a fresh Claude sub-agent scores each document. With <code class="inline">jev</code>, Jev by TypeSafe AI scores it instead. Jev is a different model family, so Claude no longer grades its own work. It answers each rubric item as an atomic yes/no check and hands the call to Claude when its unsure answers could flip the result. Paid, about $0.04 per million tokens.</p>
-        <div class="skills"><span>/hk:eval local</span><span>/hk:eval jev</span></div>
-        <div class="more" data-i18n="opt.c1m"><a href="wiki/Evals.html">Evals</a> &middot; <a href="wiki/Jev-and-System-One.html">Jev and System One</a></div>
-      </div>
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="opt.c2t">graph engineering</span>
-        <h3 data-i18n="opt.c2h">Trace every requirement</h3>
-        <p data-i18n="opt.c2p"><code class="inline">manifest</code> gives each acceptance criterion a <code class="inline">REQ</code> id, writes <code class="inline">trace/{feature}.yml</code> into the PR, and adds a scope gate that fails dev on any file the plan did not name. Links start PROPOSED and later turn VALIDATED or STALE. <code class="inline">full</code> adds an embedded FalkorDB graph with Graphiti on free NVIDIA models, plus the Joern call graph. No Docker.</p>
-        <div class="skills"><span>/hk:graph off</span><span>/hk:graph manifest</span><span>/hk:graph full</span></div>
-        <div class="more" data-i18n="opt.c2m"><a href="wiki/Graph-Engineering.html">Graph Engineering</a> &middot; <a href="wiki/Graph-Theory.html">Graph Theory</a></div>
-      </div>
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="opt.c3t">status bar</span>
-        <h3 data-i18n="opt.c3h">Pipeline status bar</h3>
-        <p data-i18n="opt.c3p">Off by default: install never touches your own status line. Install with <code class="inline">HK_STATUSLINE=1</code> to replace it with the pipeline's current step. Without it, <code class="inline">hk status</code> gives the same answer on demand.</p>
-        <div class="skills"><span>HK_STATUSLINE=1</span><span>hk status</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTEXT OPTIMIZATION -->
-  <section class="block reveal" id="context">
-    <div class="sec-head"><span class="n">11</span><h2 data-i18n="s05.title">Context optimization</h2></div>
-    <p class="sec-sub" data-i18n="s05.sub">Optional, all local-first. As the repo and the harness grow, the tokens spent loading context and reading command output start to dominate. The tools below cut that, and they stack with the per-stage model tiers.</p>
+  <section id="options">
+    <div class="sec-top"><span class="eyebrow" data-i18n="opt.eyebrow">Options</span><span class="rt" data-rt></span></div>
+    <h2 data-i18n="opt.title">Four setups, same commands</h2>
+    <p class="sec-sub" data-i18n="opt.sub">Start with Plain. Each option is one command and can be switched back.</p>
     <div class="tablewrap">
-      <table>
-        <thead><tr><th data-i18n="s05.th1">Tool</th><th data-i18n="s05.th2">Cuts</th><th data-i18n="s05.th3">How</th></tr></thead>
+      <table class="wide">
+        <thead><tr><th data-i18n="opt.th1">Setup</th><th data-i18n="opt.th2">Best for</th><th data-i18n="opt.th3">Adds</th><th data-i18n="opt.th4">Cost</th></tr></thead>
         <tbody>
-          <tr><td>/context:pack</td><td>input</td><td data-i18n="s05.h1">repomix snapshot of the target repo, cached per feature</td></tr>
-          <tr><td>/context:graph</td><td>input</td><td data-i18n="s05.h2">graphify knowledge graph, query "what calls X" (~71x fewer tokens)</td></tr>
-          <tr><td>qmd</td><td>input</td><td data-i18n="s05.h3">semantic search over the guides, returns the relevant excerpt not the whole file</td></tr>
-          <tr><td>rtk</td><td>output</td><td data-i18n="s05.h4">shell proxy, compresses git/test/lint/grep output 60-90%</td></tr>
-          <tr><td>semble</td><td>input</td><td data-i18n="s05.h5">finds code by intent, not by literal string</td></tr>
-          <tr><td>repowise</td><td>input</td><td data-i18n="s05.h6">risk of a change and the tests it affects</td></tr>
-          <tr><td>context7</td><td>input</td><td data-i18n="s05.h7">current library docs, not what the model remembers</td></tr>
-          <tr><td>joern</td><td>input</td><td data-i18n="s05.h8">call graphs: who calls what, blast radius of a change</td></tr>
+          <tr><td data-i18n="opt.n1">Plain (default)</td><td data-i18n="opt.b1">trying it out, most features</td><td data-i18n="opt.a1">the full gated pipeline</td><td data-i18n="opt.k1">nothing extra</td></tr>
+          <tr><td data-i18n="opt.n2">Jev judge</td><td data-i18n="opt.b2">a judge that is not Claude grading Claude</td><td data-i18n="opt.a2">Jev by TypeSafe AI scores with yes/no checks, Claude when unsure</td><td data-i18n="opt.k2">about $0.04 per million tokens</td></tr>
+          <tr><td>Graph engineering</td><td data-i18n="opt.b3">shared or regulated code you must audit</td><td data-i18n="opt.a3">REQ ids, trace file, scope gate; <code>full</code> adds a local graph database, no Docker</td><td data-i18n="opt.k3">free</td></tr>
+          <tr><td data-i18n="opt.n4">Graph and Jev</td><td data-i18n="opt.b4">a neutral judge and full traceability</td><td data-i18n="opt.a4">both</td><td data-i18n="opt.k2">about $0.04 per million tokens</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="sec-sub" style="margin:24px 0 14px" data-i18n="s05.sub2"><code class="inline">/context:pack</code> and <code class="inline">/context:graph</code> ship with the harness and feed the plan and SDD-eval stages. <a href="https://github.com/tobi/qmd">qmd</a> and rtk are third-party, install them yourself:</p>
-    <div class="code">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="title">shell</span></div>
-<pre><span class="c"># rtk, output filter, auto-intercepts git/test/lint/grep</span>
-brew install rtk
-rtk init -g            <span class="c"># select Claude Code; rtk gain shows savings</span>
-
-<span class="c"># see which context tools this repo can use</span>
-.claude/scripts/context-tools.sh
-
-<span class="c"># qmd, semantic doc search over the harness guide tree</span>
-npm install -g @tobilu/qmd
-setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2GB models, once)</span></pre>
-    </div>
-    <div class="note">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s05.probe">Stages that read the target repo (PRP, plan, SDD eval, design) first run <code class="inline">.claude/scripts/context-tools.sh</code> and use what is installed: <a href="https://github.com/MinishLab/semble">semble</a> to find code by intent, <a href="https://github.com/repowise-dev/repowise">repowise</a> for risk and affected tests, <a href="https://github.com/upstash/context7">context7</a> for library docs, Joern for call graphs. Anything missing falls back to grep, never to a failure.</p>
-    </div>
-    <div class="note">
-      <span class="ic">&#9670;</span>
-      <p data-i18n="s05.note">qmd and rtk are not bundled. Rationale and measured wins in <a href="https://github.com/Pierry/harness-kit/issues/2">issue #2</a>. Full tier order in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md">context-strategy.md</a>.</p>
-    </div>
+<pre class="code"><span class="k">/hk:eval</span> local | jev
+<span class="k">/hk:graph</span> off | manifest | full
+<span class="k">HK_STATUSLINE=1</span>   <span class="c"># at install: show the pipeline step in your status line</span></pre>
+    <ul class="links">
+      <li data-i18n="opt.l1"><a href="wiki/Getting-Started.html">Getting Started</a>: every step, in all four setups.</li>
+      <li data-i18n="opt.l2"><a href="wiki/Evals.html">Evals</a>: how each document is scored.</li>
+      <li data-i18n="opt.l3"><a href="wiki/Jev-and-System-One.html">Jev and System One</a>: the Jev judge and when it hands off to Claude.</li>
+      <li data-i18n="opt.l4"><a href="wiki/Graph-Engineering.html">Graph Engineering</a>: requirement ids, trace files, the scope gate.</li>
+      <li data-i18n="opt.l5"><a href="wiki/Graph-Theory.html">Graph Theory</a>: the model behind the graph.</li>
+      <li data-i18n="opt.l6"><b>Agents:</b> <code>product-manager</code> (PRD, PRP), <code>staff-software-engineer</code> (plan to PR), <code>system-architect</code> (system design and review).</li>
+    </ul>
   </section>
-
-  <!-- AGENTS -->
-  <section class="block reveal" id="agents">
-    <div class="sec-head"><span class="n">12</span><h2 data-i18n="s06.title">The agents</h2></div>
-    <p class="sec-sub" data-i18n="s06.sub">All registered in <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md">AGENTS.md</a>. Each ships its own sensors, evals, guides, and skills.</p>
-    <div class="cards">
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag">product-manager</span>
-        <h3 data-i18n="c1.h">Frame the problem</h3>
-        <p data-i18n="c1.p">Turns a problem into an engineering-ready spec, a PRD then a PRP.</p>
-        <div class="skills"><span>prd</span><span>prp</span></div>
-      </div>
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag">staff-software-engineer</span>
-        <h3 data-i18n="c2.h">Ship the code</h3>
-        <p data-i18n="c2.p">Turns an approved PRP into a merged PR, or a satisfied spec. Area skills auto-detected from the repo, plus a designer skill for new UIs.</p>
-        <div class="skills"><span>backend</span><span>web</span><span>mobile</span><span>devops</span><span>designer</span></div>
-      </div>
-      <div class="card glowable"><span class="glow"></span>
-        <span class="tag">system-architect</span>
-        <h3 data-i18n="c3.h">Design the system</h3>
-        <p data-i18n="c3.p">Turns a problem into a rigorous System Design Doc, then an adversarial review. Topic playbooks per classic design.</p>
-        <div class="skills"><span>url-shortener</span><span>rate-limiter</span><span>search-engine</span></div>
-        <div class="more"><a href="wiki/" data-i18n="c3.more">Theory &amp; references in the wiki &#8594;</a></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOUNDATIONS -->
-  <section class="block reveal" id="foundations">
-    <div class="sec-head"><span class="n">13</span><h2 data-i18n="s07.title">Foundations</h2></div>
-    <p class="sec-sub" data-i18n="s07.sub">This is not invented method. harness-kit is a concrete implementation of harness engineering, and the system-architect agent reasons from the established engineering canon.</p>
-    <div class="refs">
-      <div class="ref glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="r1.tag">the harness model</span>
-        <h3>Harness engineering</h3>
-        <p data-i18n="r1.p">From Birgitta B&ouml;ckeler (Thoughtworks / martinfowler.com). Every stage gate here is exactly this split.</p>
-        <ul>
-          <li data-i18n="r1.li1"><a href="https://martinfowler.com/articles/harness-engineering.html"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (deterministic feedback), evals (inferential feedback), humans on the loop.</li>
-          <li data-i18n="r1.li2"><a href="https://martinfowler.com/articles/sensors-for-coding-agents.html"><b>Maintainability sensors for coding agents</b></a>: the sensor idea our structure checks implement.</li>
-        </ul>
-      </div>
-      <div class="ref glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="r2.tag">the system-design canon</span>
-        <h3 data-i18n="r2.h">The engineering canon</h3>
-        <p data-i18n="r2.p">Behind the <code class="inline">system-architect</code> agent. Full mapping in <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md">design-method.md</a>.</p>
-        <ul>
-          <li data-i18n="r2.li1"><a href="https://dataintensive.net/"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: reliability / scalability / maintainability as the spine.</li>
-          <li data-i18n="r2.li2"><b>A Philosophy of Software Design</b>, John Ousterhout: deep modules, simple interfaces, complexity is the enemy.</li>
-          <li data-i18n="r2.li3"><b>Release It!</b>, Michael Nygard: stability patterns: circuit breaker, bulkhead, timeout, backoff.</li>
-          <li data-i18n="r2.li4"><b>Jeff Dean</b> (numbers every engineer should know), <b>Werner Vogels</b> (design for failure), <b>Pat Helland</b> (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.</li>
-        </ul>
-      </div>
-      <div class="ref glowable"><span class="glow"></span>
-        <span class="tag" data-i18n="r3.tag">the topic playbooks</span>
-        <h3 data-i18n="r3.h">The System Design series</h3>
-        <p data-i18n="r3.p">The system-architect topic skills adapt one classic problem each, with the theory, diagrams, and references per design.</p>
-        <ul>
-          <li data-i18n="r3.li1"><a href="wiki/"><b>The wiki</b></a>: one page per classic problem: url-shortener, rate-limiter, search-engine.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- DOCS -->
-  <section class="block reveal" id="docs">
-    <div class="sec-head"><span class="n">14</span><h2 data-i18n="s08.title">Docs</h2></div>
-    <p class="sec-sub" data-i18n="s08.sub">Go deeper than this page.</p>
-    <div class="docgrid">
-      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/GOLDEN-PATH.md"><span class="glow"></span><span><span class="t" data-i18n="d1.t">Golden path</span><br /><span class="d" data-i18n="d1.d">the full front-door walkthrough</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md"><span class="glow"></span><span><span class="t" data-i18n="d2.t">Commands &amp; gates</span><br /><span class="d" data-i18n="d2.d">every command, every sensor and eval</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/docs/ARCHITECTURE.md"><span class="glow"></span><span><span class="t" data-i18n="d3.t">Architecture</span><br /><span class="d" data-i18n="d3.d">stage anatomy, status bar, repo layout</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md"><span class="glow"></span><span><span class="t">AGENTS.md</span><br /><span class="d" data-i18n="d4.d">agent registry and path-by-path map</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="wiki/Getting-Started.html"><span class="glow"></span><span><span class="t" data-i18n="d6.t">Getting Started</span><br /><span class="d" data-i18n="d6.d">the four setups, install, brief to merge</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="wiki/Jev-and-System-One.html"><span class="glow"></span><span><span class="t" data-i18n="d7.t">Jev and System One</span><br /><span class="d" data-i18n="d7.d">the Jev judge, atomic checks, escalation to Claude</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="wiki/Graph-Engineering.html"><span class="glow"></span><span><span class="t" data-i18n="d8.t">Graph Engineering</span><br /><span class="d" data-i18n="d8.d">REQ ids, trace files, the scope gate</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="wiki/Graph-Theory.html"><span class="glow"></span><span><span class="t" data-i18n="d9.t">Graph Theory</span><br /><span class="d" data-i18n="d9.d">the model behind the trace graph</span></span><span class="ar">&#8594;</span></a>
-      <a class="doc glowable" href="quality/phase-report.html"><span class="glow"></span><span><span class="t" data-i18n="d5.t">Phase quality</span><br /><span class="d" data-i18n="d5.d">per-phase score trend, failure rate, sensor blocks</span></span><span class="ar">&#8594;</span></a>
-    </div>
-  </section>
-</div>
+</main>
 
 <footer>
   <div class="wrap">
-    <span data-i18n="footer.left">harness-kit &middot; idea to merged PR, through one gated pipeline</span>
-    <span><a href="https://github.com/Pierry/harness-kit">github.com/Pierry/harness-kit</a> &middot; MIT</span>
+    <a href="wiki/">wiki</a>
+    <a href="https://github.com/Pierry/harness-kit">GitHub</a>
+    <span data-i18n="footer.found">Foundations: <a href="https://martinfowler.com/articles/harness-engineering.html">Böckeler</a>, <a href="https://martinfowler.com/bliki/AgenticProgramming.html">Fowler</a>, <a href="https://hamel.dev/blog/posts/llm-judge/">Husain</a></span>
+    <span>MIT</span>
   </div>
 </footer>
 
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-
-  /* ---------- mermaid, theme-aware ---------- */
-  const MERMAID_VARS = {
-    dark: {
-      background: "transparent", primaryColor: "#1f1f1f", primaryTextColor: "#e5e5e5",
-      primaryBorderColor: "#404040", secondaryColor: "#1f1f1f", tertiaryColor: "#171717",
-      lineColor: "#737373", textColor: "#a3a3a3", clusterBkg: "#171717", clusterBorder: "#262626",
-      edgeLabelBackground: "#0f0f0f", nodeBorder: "#404040", fontSize: "13px",
-    },
-    light: {
-      background: "transparent", primaryColor: "#F0EDE8", primaryTextColor: "#191919",
-      primaryBorderColor: "#a3a3a3", secondaryColor: "#e8e4dd", tertiaryColor: "#F0EDE8",
-      lineColor: "#737373", textColor: "#525252", clusterBkg: "#F0EDE8", clusterBorder: "#d4d4d4",
-      edgeLabelBackground: "#e8e4dd", nodeBorder: "#a3a3a3", fontSize: "13px",
-    },
-  };
-  const mermaidNodes = [...document.querySelectorAll("pre.mermaid")];
-  mermaidNodes.forEach((n) => { n.dataset.src = n.textContent; });
-  let mermaidBusy = false;
-  async function renderMermaid(theme) {
-    if (mermaidBusy) return;
-    mermaidBusy = true;
-    mermaid.initialize({
-      startOnLoad: false, theme: "base", securityLevel: "strict",
-      fontFamily: "JetBrains Mono, ui-monospace, monospace",
-      flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
-      themeVariables: MERMAID_VARS[theme] || MERMAID_VARS.dark,
-    });
-    mermaidNodes.forEach((n) => { n.removeAttribute("data-processed"); n.innerHTML = n.dataset.src; });
-    try { await mermaid.run({ nodes: mermaidNodes }); } catch (e) { /* noop */ }
-    mermaidBusy = false;
-  }
-
-  /* ---------- theme ---------- */
+<script>
+  /* ---------- theme: stored choice, else system preference, else light ---------- */
   const root = document.documentElement;
   const themeColorMeta = document.getElementById("theme-color");
   const THEME_BG = { dark: "#171717", light: "#F0EDE8" };
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_BG[theme]);
-    renderMermaid(theme);
   }
-  const storedTheme = localStorage.getItem("hk-theme");
-  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-  let theme = storedTheme || (prefersLight ? "light" : "dark");
+  let storedTheme = null;
+  try { storedTheme = localStorage.getItem("hk-theme"); } catch (e) { /* storage blocked */ }
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  let theme = storedTheme || (prefersDark ? "dark" : "light");
   applyTheme(theme);
   document.getElementById("themebtn").addEventListener("click", () => {
-    theme = theme === "light" ? "dark" : "light";
-    localStorage.setItem("hk-theme", theme);
+    theme = theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("hk-theme", theme); } catch (e) { /* storage blocked */ }
     applyTheme(theme);
   });
 
   /* ---------- i18n (English lives in the DOM; pt + es here) ---------- */
   const META = {
-    en: { title: "harness-kit · usage guide", desc: "harness-kit: carry a raw idea to a merged PR through one gated pipeline of Claude Code agents. Install, the golden path, every command, and the agents." },
-    pt: { title: "harness-kit · guia de uso", desc: "harness-kit: leve uma ideia crua até um PR mergeado por um único pipeline com gates de agentes do Claude Code. Instalação, o golden path, cada comando e os agentes." },
-    es: { title: "harness-kit · guía de uso", desc: "harness-kit: lleva una idea cruda hasta un PR fusionado por un único pipeline con gates de agentes de Claude Code. Instalación, el golden path, cada comando y los agentes." },
+    en: { title: "harness-kit · idea to merged PR", desc: "harness-kit: Claude Code agents that carry one idea through six gated steps, from spec to merged PR. Install, the three phases, and the options.", rt: "min read" },
+    pt: { title: "harness-kit · da ideia ao PR mergeado", desc: "harness-kit: agentes do Claude Code que levam uma ideia por seis etapas com gates, do spec ao PR mergeado. Instalação, as três fases e as opções.", rt: "min de leitura" },
+    es: { title: "harness-kit · de la idea al PR fusionado", desc: "harness-kit: agentes de Claude Code que llevan una idea por seis etapas con gates, del spec al PR fusionado. Instalación, las tres fases y las opciones.", rt: "min de lectura" },
   };
   const I18N = {
     pt: {
-      "wordmark.sub": "guia de uso",
-      "nav.install": "instalar", "nav.commands": "comandos",
-      "hero.eyebrow": "plugin claude code &middot; <b>pipeline com gates</b>",
-      "hero.h1": "Da ideia ao PR mergeado,<br />por um só <span class=\"gold\">pipeline com gates</span>.",
-      "hero.lede": "harness-kit é um conjunto de agentes do Claude Code, um product manager, um staff engineer e um system architect, que levam uma ideia crua por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, com um check pass/fail e uma avaliação pontuada em cada etapa. Nada avança no feeling.",
-      "hero.cta1": "Comece aqui", "hero.cta2": "Abrir o construtor de brief",
-      "hero.gifbar": "o pipeline completo &middot; demo", "hero.gifcap": "o pipeline completo, num passo a passo", "hero.merged": "PR mergeado",
-      "nav.fronts": "frentes",
-      "nav.why": "por quê",
-      "why.title": "Por que isso existe",
-      "why.sub": "A maioria das features é construída duas vezes. Uma na correria pra ver funcionar, e outra quando você percebe que ninguém anotou o problema que ela resolvia, os critérios de aceite mudaram, e a revisão foi carimbo. As partes que deixam a feature correta são as primeiras a serem puladas quando você anda rápido com um agente de IA. O harness-kit devolve essas partes, e escreve elas por você.",
-      "why.c1t": "o problema", "why.c1h": "Ir no feeling pula quatro coisas", "why.c1p": "Um enunciado claro do problema, critérios de aceite de verdade, suas convenções, e uma revisão honesta. Feitas na mão a cada feature, elas apodrecem.",
-      "why.c2t": "mesma forma", "why.c2h": "O mesmo pipeline sempre", "why.c2p": "A qualidade para de depender de quem está no teclado ou de quão cansado você está. Toda feature passa pelas mesmas seis etapas, na mesma ordem.",
-      "why.c3t": "dois gates", "why.c3h": "Nada avança fraco", "why.c3p": "Um sensor determinístico checa a estrutura, uma avaliação com LLM pontua a qualidade. Saída fraca se corrige antes de chegar em você.",
-      "why.c4t": "mensurável", "why.c4h": "Dá pra ver melhorar", "why.c4p": "Toda etapa aprovada registra uma nota, então você sabe se suas specs, ou seus testes, estão melhorando a cada rodada.",
-      "why.impact": "O que você ganha: um comando leva uma ideia crua até um PR mergeado. Seis documentos, um check e uma avaliação pontuada em cada etapa, e dois momentos em que um humano decide: essa é a direção certa, e esse PR está bom pra abrir. Sua atenção fica aí, não em formatar spec.",
-      "why.cap": "ideia entra, PR mergeado sai &middot; duas decisões humanas, o resto nos trilhos",
-      "fronts.title": "As quatro frentes",
-      "fronts.sub": "O harness-kit é um produto com quatro superfícies. Cada uma faz um trabalho, e elas se encadeiam: modele a ideia, rode o pipeline, acompanhe a qualidade, dirija pelo terminal. Comece por qualquer uma.",
-      "fronts.f1h": "Vire a ideia num prompt",
-      "fronts.f1p": "Um app web que transforma sua ideia num prompt <code class=\"inline\">/golden-path</code> pronto pra colar, com validação inline enquanto você digita.",
-      "fronts.f2h": "Da ideia ao PR mergeado",
-      "fronts.f2p": "Os agentes e o fluxo com gates. Levam a ideia por <code class=\"inline\">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, um gate por vez.",
-      "fronts.f3h": "Cada etapa está melhorando?",
-      "fronts.f3p": "Acompanha o score de eval, os gaps abertos e as falhas de sensor de cada etapa, a cada run, ao longo do tempo.",
-      "fronts.f4h": "Dirija pelo terminal",
-      "fronts.f4p": "Uma UI de terminal sobre o pipeline. Cada etapa ao vivo, uma etapa rodada numa tecla, os dois gates como prompts.",
-      "fronts.jump": "ir até ela &#8594;",
-      "fronts.cap": "a frente 2 é o motor &middot; a frente 1 alimenta &middot; a frente 3 mede &middot; a frente 4 dirige",
-      "brief.eyebrow": "Frente 1 &middot; a porta de entrada",
-      "brief.title": "Construtor de brief",
-      "brief.sub": "Uma única página web que transforma uma ideia crua num prompt <code class=\"inline\">/golden-path</code> bem formado. Preencha squad, problema, hipótese e métrica; ela valida cada campo contra as convenções de PRD enquanto você digita e monta o prompt exato pra colar no Claude Code. Sem página em branco.",
-      "brief.gifbar": "construtor de brief &middot; preview ao vivo",
-      "brief.gifcap": "campos à esquerda, o prompt se monta ao vivo à direita",
-      "brief.cta": "Abrir o construtor de brief",
-      "brief.note": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
-      "s01.eyebrow": "Frente 2 &middot; o motor",
-      "s03.eyebrow": "Frente 2 &middot; rode",
-      "qual.eyebrow": "Frente 3 &middot; o feedback",
-      "qual.title": "Painel de qualidade",
-      "qual.sub": "Os scores se perdiam no chat depois que uma etapa era aprovada. O painel de qualidade persiste o sinal por fase a cada run e responde uma pergunta: cada etapa está melhorando ou piorando ao longo do tempo?",
-      "qual.gifbar": "painel de qualidade por fase &middot; dados de exemplo",
-      "qual.gifcap": "solte um phase-log.json e veja onde o pipeline desvia",
-      "qual.p1": "Toda vez que uma fase é aprovada, um hook de pós-eval adiciona uma entrada determinística, custo zero de token, no <code class=\"inline\">phase-log.json</code>: o <code class=\"inline\">score</code> do eval, a contagem de <code class=\"inline\">gaps</code> abertos, os <code class=\"inline\">sensors</code> re-executados (pass/fail) e um <code class=\"inline\">status</code> derivado (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Solte esse JSON na página (arquivo standalone, sem build, sem rede) pra ver KPIs, tendência de score por etapa, taxa de falha, score médio vs o limiar 7.0, os sensores que mais bloqueiam e a tabela completa de runs.",
-      "qual.cta": "Abrir o painel",
-      "qual.cta2": "Como é alimentado",
-      "s01.title": "O pipeline",
-      "s01.sub": "Entregar uma feature no feeling pula as partes que a deixam correta: enquadrar o problema, escrever critérios de aceite, manter as convenções, colocar gates na revisão. O harness-kit traz isso de volta, sem você escrever um doc à mão.",
-      "s01.cap1": "dois agentes, um pipeline &middot; cada seta é um handoff com gate",
-      "s01.note": "Cada etapa produz um artefato markdown, com gate de um <b>sensor</b> determinístico (pass/fail) e um <b>eval</b> pontuado (limiar 8.0). Depois que o PR abre, um monitor na sessão observa o merge e limpa o estado sozinho.",
-      "s01.h3": "Como uma etapa tem gate",
-      "s01.sub2": "O mesmo loop roda em toda etapa. O agente gera o artefato, um sensor checa a estrutura, um eval pontua a qualidade, e só então um humano aprova. Falhas se autocorrigem antes de chegar em você.",
-      "s01.cap2": "guides orientam antes &middot; sensors dão feedback determinístico &middot; evals dão feedback inferencial &middot; humanos seguem no loop",
-      "s01.h5": "Um gate que não consegue mentir",
-      "s01.sub4": "Böckeler separa controles em <b>computacional</b>, determinístico e rodado por CPU, e <b>inferencial</b>, que precisa de julgamento. Todo sensor aqui declara qual dos dois é, e a diferença é o ponto central: um sensor que nenhuma máquina checou nunca pode reportar pass.",
-      "s01.cap3": "um sensor que se diz determinístico mas não checa nada é erro, não pass",
-      "s01.note3": "Essa é cicatriz. Sensores aqui já se declararam hard gates determinísticos enquanto escreviam suas checagens como prosa que o runner não parseava. Ele retornava 0, e o log de qualidade gravava <b>passed</b> em toda run, contra uma checagem que nunca aconteceu. É a <a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\">ilusão de qualidade</a> que os gates existem pra evitar, então o harness agora tem testes próprios, CI próprio, e um ledger que quebra o build quando um sensor mente sobre como é aplicado.",
-      "s01.h4": "Cada agente, ponta a ponta",
-      "s01.sub3": "O mesmo loop com gate, uma vez por agente. Estes são os três pipelines que você roda de verdade: o que o comando faz, quais sensors disparam, qual eval pontua e onde fica o gate. Todo eval pontuado usa o mesmo limiar 8.0 e as mesmas três tentativas.",
-      "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lê o artefato de intake, nunca para pra te perguntar",
-      "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev é a única etapa com gate duplo, no código e no resumo",
-      "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes do PRP &middot; block é terminal",
-      "s01.note2": "O avaliador é um <b>sub-agente Claude novo</b>, ou o <b>Jev</b> quando você escolhe, e recebe só o artefato e a rubrica, nunca o contexto que escreveu aquilo. O autor nunca corrige a própria prova. A fiação completa, com caminhos e rubricas verbatim, está na página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> da wiki.",
-      "s02.title": "Instalação",
-      "s02.sub": "Duas camadas: o <b>plugin</b> (baixado uma vez do marketplace) e a <b>harness</b> (instalada em cada repo onde você quiser).",
-      "s02.sub2": "Reinicie o Claude Code, depois dentro do repo onde quer usar:",
-      "s02.bar": "por repo, uma vez",
-      "s02.sub3": "Instala a harness nesse repo, agentes, comandos, skills e hooks, em <code class=\"inline\">.claude/</code> mais <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code> na raiz. Não mexe na sua status line e faz duas perguntas: qual juiz de eval, e se liga graph engineering. Os dois padrões servem (<a href=\"#options\">opções</a>). Requer Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Atualizando.</b> A versão do plugin é fixada, então um release só chega quando você puxa: <code class=\"inline\">/plugin update harness-kit</code>, reinicie o Claude Code e depois <code class=\"inline\">/harness-kit:update</code> em cada repo. Novos usuários já pegam a última versão na instalação.",
-      "s03.title": "O golden path", "s03.sub": "Um comando, da ideia ao PR mergeado.",
-      "s03.s1h": "Escreva o brief",
-      "s03.s1p": "Abra o <a href=\"brief/\">construtor de brief</a> e preencha os campos, squad, problema, hipótese, clientes, métrica. A validação inline mantém você nas convenções de PRD enquanto digita.",
-      "s03.s2h": "Cole",
-      "s03.s2p": "Clique em <b>Copy brief</b> e cole o disparo pronto do <code class=\"inline\">/golden-path</code> no Claude Code:",
-      "s03.bar": "cole no claude code",
-      "s03.s3h": "Aprove e entregue",
-      "s03.s3p1": "As seis etapas com gate rodam, PM (<code class=\"inline\">prd &#8594; prp</code>) e depois Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprove cada artefato quando pedido; <code class=\"inline\">hk status</code> mostra onde você está.",
-      "s03.s3p2": "As flags do SSE passam direto: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. Já conhece a ideia de cor? Pule o construtor e digite <code class=\"inline\">/golden-path</code> com o brief você mesmo.",
-      "s04.title": "Outras formas de rodar",
-      "s04.sub": "Todo fluxo compartilha o mesmo estado de pipeline, então dá pra trocar entre eles no meio da feature.",
-      "s04.th1": "Você quer", "s04.th2": "Rode", "s04.th3": "Etapas",
-      "s04.r1": "Da ideia ao PR mergeado", "s04.r2": "Só o spec, alinhar antes de qualquer código", "s04.r3": "Mudança pequena, plano na cabeça", "s04.r4": "Só local, sem PR", "s04.r5": "Loop até o spec passar", "s04.r6": "Retomar após uma pausa",
-      "s04.note": "<b>Sensors</b> são checagens determinísticas de estrutura, bloqueiam na falha e o Claude regenera até passar. <b>Evals</b> são rubricas julgadas por LLM, pontuadas 0-10, limiar 8.0, com até 3 retentativas. Cada etapa também é um comando próprio: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Todo comando e gate &#8594;</a>",
-      "s05.title": "Otimização de contexto",
-      "s05.sub": "Opcional, tudo local-first. Conforme o repo e a harness crescem, os tokens gastos carregando contexto e lendo a saída dos comandos começam a dominar. As ferramentas abaixo cortam isso, e somam com os tiers de modelo por etapa.",
-      "s05.th1": "Ferramenta", "s05.th2": "Corta", "s05.th3": "Como",
-      "s05.h1": "snapshot repomix do repo alvo, cacheado por feature",
-      "s05.h2": "grafo de conhecimento graphify, consulta \"o que chama X\" (~71x menos tokens)",
-      "s05.h3": "busca semântica nos guides, devolve o trecho relevante, não o arquivo inteiro",
-      "s05.h4": "proxy de shell, comprime a saída de git/test/lint/grep em 60-90%",
-      "s05.sub2": "<code class=\"inline\">/context:pack</code> e <code class=\"inline\">/context:graph</code> vêm com a harness e alimentam as etapas de plan e SDD-eval. <a href=\"https://github.com/tobi/qmd\">qmd</a> e rtk são de terceiros, instale você mesmo:",
-      "s05.note": "qmd e rtk não vêm no pacote. Justificativa e ganhos medidos no <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Ordem completa de tiers em <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
-      "s06.title": "Os agentes",
-      "s06.sub": "Todos registrados em <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada um traz seus próprios sensors, evals, guides e skills.",
-      "c1.h": "Enquadre o problema", "c1.p": "Transforma um problema num spec pronto pra engenharia, um PRD e depois um PRP.",
-      "c2.h": "Entregue o código", "c2.p": "Transforma um PRP aprovado num PR mergeado, ou num spec satisfeito. Skills de área detectadas do repo, mais uma skill de designer pra novas UIs.",
-      "c3.h": "Projete o sistema", "c3.p": "Transforma um problema num System Design Doc rigoroso, depois numa revisão adversarial. Playbooks por design clássico.", "c3.more": "Teoria e referências na wiki &#8594;",
-      "s07.title": "Fundamentos",
-      "s07.sub": "Isto não é método inventado. O harness-kit é uma implementação concreta de harness engineering, e o agente system-architect raciocina a partir do cânone de engenharia estabelecido.",
-      "r1.tag": "o modelo de harness",
-      "r1.p": "De Birgitta Böckeler (Thoughtworks / martinfowler.com). Cada gate de etapa aqui é exatamente essa divisão.",
-      "r1.li1": "<a href=\"https://martinfowler.com/articles/harness-engineering.html\"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (feedback determinístico), evals (feedback inferencial), humanos no loop.",
-      "r1.li2": "<a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\"><b>Maintainability sensors for coding agents</b></a>: a ideia de sensor que nossas checagens de estrutura implementam.",
-      "r2.tag": "o cânone de system design", "r2.h": "O cânone de engenharia",
-      "r2.p": "Por trás do agente <code class=\"inline\">system-architect</code>. Mapeamento completo em <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md\">design-method.md</a>.",
-      "r2.li1": "<a href=\"https://dataintensive.net/\"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: confiabilidade / escalabilidade / manutenibilidade como espinha.",
-      "r2.li2": "<b>A Philosophy of Software Design</b>, John Ousterhout: módulos profundos, interfaces simples, a complexidade é a inimiga.",
-      "r2.li3": "<b>Release It!</b>, Michael Nygard: padrões de estabilidade: circuit breaker, bulkhead, timeout, backoff.",
-      "r2.li4": "<b>Jeff Dean</b> (números que todo engenheiro deveria saber), <b>Werner Vogels</b> (projete para a falha), <b>Pat Helland</b> (imutabilidade, eventos no lugar de estado mutável), Leslie Lamport, Sam Newman, Gregor Hohpe.",
-      "r3.tag": "os playbooks de tópico", "r3.h": "A série System Design",
-      "r3.p": "As skills de tópico do system-architect adaptam um problema clássico cada, com a teoria, diagramas e referências por design.",
-      "r3.li1": "<a href=\"wiki/\"><b>A wiki</b></a>: uma página por problema clássico: url-shortener, rate-limiter, search-engine.",
-      "s08.title": "Docs", "s08.sub": "Vá além desta página.",
-      "d1.t": "Golden path", "d1.d": "o passo a passo completo da porta de entrada",
-      "d2.t": "Comandos e gates", "d2.d": "cada comando, cada sensor e eval",
-      "d3.t": "Arquitetura", "d3.d": "anatomia da etapa, status bar, layout do repo",
-      "d4.d": "registro de agentes e mapa caminho a caminho",
-      "d5.t": "Qualidade por fase", "d5.d": "tendencia de score, taxa de falha e sensores por fase",
-      "nav.start": "comece aqui",
-      "why.vsh": "Sem ele, e com ele",
-      "why.vssub": "Um agente escreve código rápido, e é no rápido que os erros caros se escondem. Cada linha abaixo é uma etapa que precisa passar antes da próxima começar, e o harness-kit escreve ela por você.",
-      "why.vth1": "Sem harness-kit",
-      "why.vth2": "Com harness-kit",
-      "why.v1a": "O ticket vive na sua cabeça ou numa thread de chat",
-      "why.v1b": "Um PRD com o problema, os clientes e uma métrica de sucesso numérica",
-      "why.v2a": "\"Pronto\" é o que o agente decidiu",
-      "why.v2b": "Um PRP com critérios de aceite que você confere um por um",
-      "why.v3a": "O agente edita o que encontrar pela frente",
-      "why.v3b": "Um plano que nomeia os arquivos e, com graph engineering, um gate que falha em qualquer outro arquivo",
-      "why.v4a": "Revisão é ler um diff e torcer",
-      "why.v4b": "Todo documento pontuado contra uma rubrica, refeito até passar de 8.0",
-      "why.v5a": "Ninguém lembra por que o código está assim",
-      "why.v5b": "Todo requisito ligado ao código que o implementa e ao teste que o prova",
-      "why.v6a": "A qualidade depende do dia",
-      "why.v6b": "As mesmas seis etapas sempre, com um histórico de notas que você acompanha",
-      "gs.title": "Comece aqui",
-      "gs.sub": "Do zero instalado até um PR mergeado. São quatro setups e todos usam os mesmos comandos; as opções só mudam o que acontece dentro de algumas etapas. Comece pelo padrão, dá pra trocar depois com um comando.",
-      "gs.h1": "Escolha um setup",
-      "gs.th1": "Setup",
-      "gs.th2": "Melhor para",
-      "gs.th3": "O que adiciona",
-      "gs.th4": "Precisa de",
-      "gs.th5": "Custo",
-      "gs.n1": "Simples (padrão)",
-      "gs.b1": "experimentar, times pequenos, a maioria das features",
-      "gs.a1": "o pipeline completo com gates",
-      "gs.d1": "Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code>, <code class=\"inline\">gh</code>",
-      "gs.k1": "nada a mais",
-      "gs.n2": "Juiz Jev",
-      "gs.b2": "um juiz que não é o Claude avaliando o Claude",
-      "gs.a2": "qualidade pontuada pelo Jev, outro modelo, em menos de um segundo por documento; o Claude assume quando o Jev está em dúvida",
-      "gs.d2": "uma API key da TypeSafe",
-      "gs.k2": "cerca de US$ 0,04 por milhão de tokens",
-      "gs.n3": "Graph engineering",
-      "gs.b3": "codebases compartilhadas, trabalho regulado, tudo que você precise auditar depois",
-      "gs.a3": "ids de requisito, um arquivo de trace em todo PR, um gate de escopo, links que viram VALIDATED ou STALE",
-      "gs.d3": "nada a mais para <code class=\"inline\">manifest</code>; Python 3.12, uma chave grátis da NVIDIA e <code class=\"inline\">joern</code> para <code class=\"inline\">full</code>",
-      "gs.k3": "grátis",
-      "gs.n4": "Grafo e Jev",
-      "gs.b4": "times que querem um juiz neutro e rastreabilidade completa",
-      "gs.a4": "os dois acima",
-      "gs.d4": "os dois acima",
-      "gs.h2": "Instalação",
-      "gs.inst": "Copia os agentes, comandos e hooks para <code class=\"inline\">.claude/</code>, adiciona <code class=\"inline\">AGENTS.md</code> e <code class=\"inline\">CLAUDE.md</code>, e faz duas perguntas: o juiz de eval (<code class=\"inline\">local</code> ou <code class=\"inline\">jev</code>) e graph engineering (<code class=\"inline\">off</code>, <code class=\"inline\">manifest</code> ou <code class=\"inline\">full</code>). O simples é <code class=\"inline\">local</code> e <code class=\"inline\">off</code>. Reinicie mais uma vez para os comandos aparecerem. Sua status line continua como estava.",
-      "gs.jev": "<b>Setups com Jev.</b> Crie uma chave em <a href=\"https://console.typesafe.ai/keys\">console.typesafe.ai/keys</a> e rode <code class=\"inline\">/hk:eval jev</code>. Uma chave colada vai para <code class=\"inline\">.claude/settings.local.json</code>, que o git ignora.",
-      "gs.graph": "<b>Setups com grafo.</b> <code class=\"inline\">/hk:graph manifest</code> não precisa de mais nada. Para <code class=\"inline\">full</code>, tenha uma chave grátis de <a href=\"https://build.nvidia.com\">build.nvidia.com</a> e rode:",
-      "gs.gbar": "só para graph full",
-      "gs.h3": "Do brief ao merge, em sete etapas",
-      "gs.h3sub": "Você decide duas vezes: na etapa 2 e na etapa 6. O resto roda nos próprios gates.",
-      "gs.s1h": "Escreva o brief",
-      "gs.s1p": "Quatro linhas depois de <code class=\"inline\">/golden-path</code>: squad, problema, hipótese, métrica de sucesso. O <a href=\"brief/\">construtor de brief</a> confere cada campo pra você. <code class=\"inline\">/pipeline:run \"&lt;ideia&gt;\"</code> roda as mesmas etapas e só para nas duas decisões.",
-      "gs.s2h": "O PRD, sua primeira decisão",
-      "gs.s2p": "O agente de product manager escreve o problema, os clientes, o escopo e as métricas com baseline. Um script confere as seções, o eval pontua, e você aprova a direção. Um problema errado pego aqui custa uma reescrita, não uma feature.",
-      "gs.s3h": "O PRP",
-      "gs.s3p": "O PRD vira um spec de engenharia: arquivos a mudar, padrões a seguir, docs de bibliotecas, comandos de validação e critérios de aceite que você confere um por um.",
-      "gs.s4h": "O plano",
-      "gs.s4p": "O agente de staff engineer escreve o que muda, em quais arquivos, em que ordem, com riscos e casos de teste.",
-      "gs.s5h": "Dev",
-      "gs.s5p": "O agente implementa o plano em commits pequenos, roda seus linters e type checkers como sensors, e segue <code class=\"inline\">.claude/conventions/</code> quando existe.",
-      "gs.s6h": "Teste, o PR, sua segunda decisão",
-      "gs.s6p": "Sua suíte de testes roda e as falhas aparecem pelo nome. O agente prepara título, resumo e plano de teste do PR. Você aprova e ele abre como draft.",
-      "gs.s7h": "Merge",
-      "gs.s7p": "Um monitor observa o PR e limpa o pipeline quando ele é mergeado. Comece a próxima feature com um novo brief.",
-      "gs.h4": "O que muda por setup",
-      "gs.c0": "Etapa",
-      "gs.c1": "Simples",
-      "gs.c2": "Juiz Jev",
-      "gs.c3": "Graph engineering",
-      "gs.c4": "Grafo e Jev",
-      "gs.r1": "Pontuação",
-      "gs.v.claude": "sub-agente Claude",
-      "gs.v.jev": "Jev, Claude na dúvida",
-      "gs.v.crit": "critérios",
-      "gs.v.req": "critérios com ids <code class=\"inline\">REQ</code>, arquivo de trace",
-      "gs.v.files": "arquivos a mudar",
-      "gs.v.scope": "links com evidência, os arquivos viram o escopo",
-      "gs.v.conv": "convenções e linters",
-      "gs.v.gate": "mais gate de escopo, links IMPLEMENTS",
-      "gs.v.report": "relatório",
-      "gs.v.verif": "mais links VERIFIED_BY",
-      "gs.v.sum": "resumo e plano de teste",
-      "gs.v.trace": "mais tabela de rastreabilidade",
-      "gs.note": "Troque quando quiser: <code class=\"inline\">/hk:eval local</code> ou <code class=\"inline\">jev</code>, <code class=\"inline\">/hk:graph off</code>, <code class=\"inline\">manifest</code> ou <code class=\"inline\">full</code>. <code class=\"inline\">/pipeline:continue</code> retoma uma feature e <code class=\"inline\">hk status</code> mostra onde ela está. Todos os detalhes, etapa por etapa, em <a href=\"wiki/Getting-Started.html\">Getting Started</a>. Mais sobre cada opção <a href=\"#options\">abaixo</a>.",
-      "opt.title": "Opções",
-      "opt.sub": "Tudo desligado ou na configuração mais simples até você mudar. Cada uma é um único comando e pode ser revertida a qualquer momento.",
-      "opt.c1t": "juiz de eval",
-      "opt.c1h": "Claude local ou Jev",
-      "opt.c1p": "Por padrão (<code class=\"inline\">local</code>) um sub-agente Claude novo pontua cada documento. Com <code class=\"inline\">jev</code>, quem pontua é o Jev, da TypeSafe AI. O Jev é de outra família de modelos, então o Claude deixa de corrigir a própria prova. Ele responde cada item da rubrica como um check atômico de sim/não e passa a decisão para o Claude quando as respostas em dúvida poderiam virar o resultado. Pago, cerca de US$ 0,04 por milhão de tokens.",
-      "opt.c1m": "<a href=\"wiki/Evals.html\">Evals</a> &middot; <a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>",
-      "opt.c2t": "graph engineering",
-      "opt.c2h": "Rastreie cada requisito",
-      "opt.c2p": "<code class=\"inline\">manifest</code> dá a cada critério de aceite um id <code class=\"inline\">REQ</code>, grava <code class=\"inline\">trace/{feature}.yml</code> no PR e adiciona um gate de escopo que falha o dev em qualquer arquivo que o plano não nomeou. Os links começam PROPOSED e depois viram VALIDATED ou STALE. <code class=\"inline\">full</code> adiciona um grafo FalkorDB embutido com Graphiti em modelos grátis da NVIDIA, mais o call graph do Joern. Sem Docker.",
-      "opt.c2m": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a> &middot; <a href=\"wiki/Graph-Theory.html\">Graph Theory</a>",
-      "opt.c3t": "status bar",
-      "opt.c3h": "Status bar do pipeline",
-      "opt.c3p": "Desligada por padrão: a instalação nunca mexe na sua status line. Instale com <code class=\"inline\">HK_STATUSLINE=1</code> para trocá-la pela etapa atual do pipeline. Sem isso, <code class=\"inline\">hk status</code> dá a mesma resposta sob demanda.",
-      "s05.h5": "acha código pela intenção, não pela string literal",
-      "s05.h6": "o risco de uma mudança e os testes que ela afeta",
-      "s05.h7": "docs atuais das bibliotecas, não o que o modelo lembra",
-      "s05.h8": "call graphs: quem chama o quê, o raio de impacto de uma mudança",
-      "s05.probe": "As etapas que leem o repo alvo (PRP, plan, SDD eval, design) rodam antes <code class=\"inline\">.claude/scripts/context-tools.sh</code> e usam o que estiver instalado: <a href=\"https://github.com/MinishLab/semble\">semble</a> para achar código pela intenção, <a href=\"https://github.com/repowise-dev/repowise\">repowise</a> para risco e testes afetados, <a href=\"https://github.com/upstash/context7\">context7</a> para docs de bibliotecas, Joern para call graphs. O que faltar cai para grep, nunca para uma falha.",
-      "d6.t": "Getting Started",
-      "d6.d": "os quatro setups, instalação, do brief ao merge",
-      "d7.t": "Jev and System One",
-      "d7.d": "o juiz Jev, checks atômicos, escalada para o Claude",
-      "d8.t": "Graph Engineering",
-      "d8.d": "ids REQ, arquivos de trace, o gate de escopo",
-      "d9.t": "Graph Theory",
-      "d9.d": "o modelo por trás do grafo de trace",
-      "s04.r0": "Sem supervisão, da ideia ao PR, dois gates",
-      "s0c.eyebrow": "Frente 4 &middot; o painel de controle",
-      "s0c.title": "O cockpit",
-      "s0c.sub": "Uma UI de terminal sobre o pipeline. Cada etapa ao vivo, uma etapa rodada numa tecla, humanos no loop em dois gates.",
-      "s0c.gifbar": "hk-tui &middot; uma feature no gate do PR",
-      "s0c.gifcap": "abra uma feature, leia cada artefato, aprove o gate, tudo pelo terminal",
-      "s0c.p2": "Ele renderiza cada artefato, roda uma etapa numa tecla e transforma os dois gates humanos em prompts modais; o gate de direção lista os itens <code class=\"inline\">NEEDS REVIEW</code> abertos do intake. Lê estado e artefatos direto do disco, então fica em sincronia com qualquer sessão do Claude Code que esteja dirigindo a mesma feature. Vem empacotado, nenhuma dependência extra cai no seu projeto.",
-      "s0c.bar": "terminal",
-      "s0c.note": "<b>Teclas:</b> <code class=\"inline\">&#8593;&#8595;/jk</code> move &middot; <code class=\"inline\">enter</code> roda a etapa &middot; <code class=\"inline\">tab</code> foca o leitor &middot; <code class=\"inline\">a</code> aprova um gate, <code class=\"inline\">x</code> segura &middot; <code class=\"inline\">q</code> sai. Precisa de um TTY e Node 18+. Modelo completo: <a href=\"wiki/Autonomy.html\">Autonomy</a> e <a href=\"wiki/Orchestration-and-Subagents.html\">Orchestration &amp; Subagents</a>.",
-      "footer.left": "harness-kit &middot; da ideia ao PR mergeado, por um só pipeline com gates",
+      "nav.start": "Início", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opções",
+      "start.eyebrow": "Plugin do Claude Code",
+      "start.h1": "Da ideia ao PR mergeado, por um só pipeline com gates.",
+      "start.lede": "O harness-kit é um conjunto de agentes do Claude Code que levam uma ideia por seis etapas com gates, do spec ao pull request. Um script confere cada etapa e um juiz dá nota, então você só decide duas vezes: a direção e o PR.",
+      "start.cta1": "Instalar", "start.cta2": "Abrir o construtor de brief",
+      "start.why": "Por que vale a pena",
+      "why.th1": "Sem ele", "why.th2": "Com harness-kit",
+      "why.v1a": "O ticket vive numa thread de chat", "why.v1b": "Um PRD com o problema, os clientes e uma métrica de sucesso numérica",
+      "why.v2a": "\"Pronto\" é o que o agente decidiu", "why.v2b": "Critérios de aceite que você confere um por um",
+      "why.v3a": "O agente edita o que encontrar", "why.v3b": "Um plano que nomeia os arquivos e, com graph engineering, um gate que falha em qualquer outro arquivo",
+      "why.v4a": "Revisão é ler um diff e torcer", "why.v4b": "Todo documento pontuado contra uma rubrica, refeito até passar de 8.0",
+      "why.v5a": "A qualidade depende do dia", "why.v5b": "As mesmas seis etapas sempre, com um histórico de notas que você acompanha",
+      "start.install": "Instalação",
+      "start.asks": "Ele faz duas perguntas. Os dois padrões servem, e você pode trocar qualquer um depois.",
+      "q.th1": "Pergunta", "q.th2": "Padrão", "q.th3": "Outras opções", "q.r1": "Juiz de eval",
+      "start.update": "Requer <code>python3</code>, <code>git</code> e a <a href=\"https://cli.github.com/\">gh CLI</a>. Para atualizar: <code>/plugin update harness-kit</code>, reinicie e rode <code>/harness-kit:update</code>.",
+      "spec.eyebrow": "Fase 1 de 3", "spec.title": "Spec",
+      "spec.sub": "Brief, PRD, PRP. Transforme uma ideia em algo que dá para conferir.",
+      "row.you": "Você faz", "row.it": "Ele faz", "row.jev": "Com Jev", "row.graph": "Com grafo",
+      "spec.you": "Digite um brief de quatro linhas depois de <code>/golden-path</code>, ou preencha o <a href=\"brief/\">construtor de brief</a>. Depois leia o PRD e aprove a direção. Esta é sua primeira decisão, e o lugar mais barato para errar.",
+      "spec.it": "O agente de product manager escreve o PRD: problema, clientes, escopo e métricas com baseline. Depois o PRP, um spec de engenharia com os arquivos a mudar, os padrões a seguir e os critérios de aceite. Cada um precisa passar na checagem de estrutura e tirar 8.0.",
+      "spec.jev": "O Jev, outro modelo, dá nota a cada documento. O Claude só decide quando o Jev está em dúvida.",
+      "spec.graph": "Cada critério de aceite ganha um id estável como <code>REQ-001</code>, e o <code>trace/{feature}.yml</code> é criado.",
+      "spec.fewer": "Quer menos paradas? <code>/pipeline:run \"&lt;ideia&gt;\"</code> roda todas as fases e só pausa nas suas duas decisões.",
+      "build.eyebrow": "Fase 2 de 3", "build.title": "Build",
+      "build.sub": "Plan, dev, test. Toda etapa passa pelo mesmo gate.",
+      "flow.1": "escreve", "flow.2": "checa estrutura", "flow.3": "nota 8.0+", "flow.4": "próxima etapa",
+      "build.loop": "Abaixo de 8.0 o agente reescreve só as checagens que falharam, até três vezes.",
+      "build.you": "Nada. Acompanhe, ou rode uma etapa sozinha com <code>/sse:plan</code>, <code>/sse:dev</code>, <code>/sse:test</code>. O <code>hk status</code> mostra onde está.",
+      "build.it": "O agente de staff engineer planeja quais arquivos mudam e em que ordem, implementa em commits pequenos com seus linters e o <code>.claude/conventions/</code>, depois roda seus testes e mostra as falhas pelo nome.",
+      "build.jev": "O Jev dá nota ao plano, ao resumo do dev e ao relatório de testes, no lugar de um sub-agente Claude.",
+      "build.graph": "O plano registra cada arquivo que espera tocar, com evidência. Um gate de escopo falha o dev em qualquer outro arquivo. Commits e testes ficam ligados ao requisito que atendem.",
+      "ship.eyebrow": "Fase 3 de 3", "ship.title": "Ship",
+      "ship.sub": "PR e merge. Sua segunda decisão.",
+      "ship.you": "Leia a descrição do PR e aprove. Ele abre como draft no GitHub.",
+      "ship.it": "Escreve o título, o resumo e o plano de teste. Um monitor observa o PR e limpa o pipeline quando ele é mergeado.",
+      "ship.jev": "O Jev dá nota à descrição do PR.",
+      "ship.graph": "O PR leva uma tabela de rastreabilidade: cada requisito, o código que ele toca e o teste que o prova. O plano da próxima feature marca esses links como VALIDATED ou STALE.",
+      "ship.quality": "<b>Painel de qualidade:</b> a nota de cada etapa ao longo das execuções. <a href=\"quality/phase-report.html\">Abrir</a>.",
+      "ship.cockpit": "<b>Cockpit:</b> acompanhe as etapas e aprove os gates pelo terminal, <code>npm i -g @pieerry/harness-kit</code> e depois <code>hk-tui</code>.",
+      "opt.eyebrow": "Opções", "opt.title": "Quatro setups, os mesmos comandos",
+      "opt.sub": "Comece pelo Simples. Cada opção é um comando e pode ser desfeita.",
+      "opt.th1": "Setup", "opt.th2": "Melhor para", "opt.th3": "Adiciona", "opt.th4": "Custo",
+      "opt.n1": "Simples (padrão)", "opt.b1": "experimentar, a maioria das features", "opt.a1": "o pipeline completo com gates", "opt.k1": "nada a mais",
+      "opt.n2": "Juiz Jev", "opt.b2": "um juiz que não é o Claude avaliando o Claude", "opt.a2": "o Jev da TypeSafe AI dá nota com checagens de sim/não, o Claude na dúvida", "opt.k2": "cerca de US$ 0,04 por milhão de tokens",
+      "opt.b3": "código compartilhado ou regulado que precisa de auditoria", "opt.a3": "ids REQ, arquivo de trace, gate de escopo; <code>full</code> adiciona um banco de grafo local, sem Docker", "opt.k3": "grátis",
+      "opt.n4": "Grafo e Jev", "opt.b4": "um juiz neutro e rastreabilidade completa", "opt.a4": "os dois",
+      "opt.l1": "<a href=\"wiki/Getting-Started.html\">Getting Started</a>: cada etapa, nos quatro setups.",
+      "opt.l2": "<a href=\"wiki/Evals.html\">Evals</a>: como cada documento recebe nota.",
+      "opt.l3": "<a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>: o juiz Jev e quando ele passa a decisão ao Claude.",
+      "opt.l4": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a>: ids de requisito, arquivos de trace, o gate de escopo.",
+      "opt.l5": "<a href=\"wiki/Graph-Theory.html\">Graph Theory</a>: o modelo por trás do grafo.",
+      "opt.l6": "<b>Agentes:</b> <code>product-manager</code> (PRD, PRP), <code>staff-software-engineer</code> (do plano ao PR), <code>system-architect</code> (design de sistema e revisão).",
+      "footer.found": "Fundamentos: <a href=\"https://martinfowler.com/articles/harness-engineering.html\">Böckeler</a>, <a href=\"https://martinfowler.com/bliki/AgenticProgramming.html\">Fowler</a>, <a href=\"https://hamel.dev/blog/posts/llm-judge/\">Husain</a>",
     },
     es: {
-      "wordmark.sub": "guía de uso",
-      "nav.install": "instalar", "nav.commands": "comandos",
-      "hero.eyebrow": "plugin claude code &middot; <b>pipeline con gates</b>",
-      "hero.h1": "De la idea al PR fusionado,<br />por un solo <span class=\"gold\">pipeline con gates</span>.",
-      "hero.lede": "harness-kit es un conjunto de agentes de Claude Code, un product manager, un staff engineer y un system architect, que llevan una idea cruda por <code>prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, con un check pass/fail y una evaluación puntuada en cada etapa. Nada avanza por intuición.",
-      "hero.cta1": "Empieza aquí", "hero.cta2": "Abrir el constructor de brief",
-      "hero.gifbar": "el pipeline completo &middot; demo", "hero.gifcap": "el pipeline completo, en un recorrido", "hero.merged": "PR fusionado",
-      "nav.fronts": "frentes",
-      "nav.why": "por qué",
-      "why.title": "Por qué existe",
-      "why.sub": "La mayoría de las features se construyen dos veces. Una a las apuradas para verla funcionar, y otra cuando te das cuenta de que nadie anotó el problema que resolvía, los criterios de aceptación se desviaron, y la revisión fue un sello. Las partes que hacen correcta a una feature son las primeras en saltarse cuando vas rápido con un agente de IA. harness-kit las devuelve, y las escribe por ti.",
-      "why.c1t": "el problema", "why.c1h": "Ir por intuición se salta cuatro cosas", "why.c1p": "Un enunciado claro del problema, criterios de aceptación reales, tus convenciones, y una revisión honesta. Hechas a mano en cada feature, se pudren.",
-      "why.c2t": "misma forma", "why.c2h": "El mismo pipeline siempre", "why.c2p": "La calidad deja de depender de quién está en el teclado o de qué tan cansado estás. Cada feature pasa por las mismas seis etapas, en el mismo orden.",
-      "why.c3t": "dos gates", "why.c3h": "Nada avanza flojo", "why.c3p": "Un sensor determinista revisa la estructura, una evaluación con LLM puntúa la calidad. La salida floja se corrige antes de llegar a ti.",
-      "why.c4t": "medible", "why.c4h": "Puedes verlo mejorar", "why.c4p": "Cada etapa aprobada registra una nota, así sabes si tus specs, o tus tests, están mejorando entre corridas.",
-      "why.impact": "Lo que obtienes: un comando lleva una idea cruda hasta un PR fusionado. Seis documentos, un check y una evaluación puntuada en cada etapa, y dos momentos donde un humano decide: es la dirección correcta, y este PR está listo para abrir. Tu atención va ahí, no a formatear un spec.",
-      "why.cap": "idea entra, PR fusionado sale &middot; dos decisiones humanas, el resto sobre rieles",
-      "fronts.title": "Los cuatro frentes",
-      "fronts.sub": "harness-kit es un producto con cuatro superficies. Cada una hace un trabajo, y se encadenan: moldea la idea, corre el pipeline, vigila su calidad, condúcelo desde una terminal. Empieza por cualquiera.",
-      "fronts.f1h": "Convierte la idea en el prompt",
-      "fronts.f1p": "Una app web que convierte tu idea en un prompt <code class=\"inline\">/golden-path</code> listo para pegar, con validación inline mientras escribes.",
-      "fronts.f2h": "De la idea al PR fusionado",
-      "fronts.f2p": "Los agentes y el flujo con gates. Llevan la idea por <code class=\"inline\">prd &#8594; prp &#8594; plan &#8594; dev &#8594; test &#8594; pr</code>, un gate a la vez.",
-      "fronts.f3h": "¿Cada etapa mejora?",
-      "fronts.f3p": "Sigue el score de eval, los gaps abiertos y los fallos de sensor de cada etapa, en cada run, a lo largo del tiempo.",
-      "fronts.f4h": "Condúcelo desde la terminal",
-      "fronts.f4p": "Una UI de terminal sobre el pipeline. Cada etapa en vivo, una etapa corrida con una tecla, los dos gates como prompts.",
-      "fronts.jump": "ir a ella &#8594;",
-      "fronts.cap": "el frente 2 es el motor &middot; el frente 1 lo alimenta &middot; el frente 3 lo mide &middot; el frente 4 lo conduce",
-      "brief.eyebrow": "Frente 1 &middot; la puerta de entrada",
-      "brief.title": "Constructor de brief",
-      "brief.sub": "Una sola página web que convierte una idea cruda en un prompt <code class=\"inline\">/golden-path</code> bien formado. Llena squad, problema, hipótesis y métrica; valida cada campo contra las convenciones de PRD mientras escribes y arma el prompt exacto para pegar en Claude Code. Sin página en blanco.",
-      "brief.gifbar": "constructor de brief &middot; preview en vivo",
-      "brief.gifcap": "campos a la izquierda, el prompt se arma en vivo a la derecha",
-      "brief.cta": "Abrir el constructor de brief",
-      "brief.note": "Pulsa <b>Copy brief</b> y pega el disparo listo de <code class=\"inline\">/golden-path</code> en Claude Code. ¿Ya tienes clara la idea? Salta el constructor y escribe <code class=\"inline\">/golden-path</code> con el brief tú mismo.",
-      "s01.eyebrow": "Frente 2 &middot; el motor",
-      "s03.eyebrow": "Frente 2 &middot; ejecútalo",
-      "qual.eyebrow": "Frente 3 &middot; el feedback",
-      "qual.title": "Panel de calidad",
-      "qual.sub": "Los scores se perdían en el chat una vez aprobada una etapa. El panel de calidad persiste la señal por fase en cada run y responde una pregunta: ¿cada etapa mejora o empeora a lo largo del tiempo?",
-      "qual.gifbar": "panel de calidad por fase &middot; datos de ejemplo",
-      "qual.gifcap": "suelta un phase-log.json y ve dónde se desvía el pipeline",
-      "qual.p1": "Cada vez que se aprueba una fase, un hook de post-eval añade una entrada determinista, coste cero de tokens, al <code class=\"inline\">phase-log.json</code>: el <code class=\"inline\">score</code> del eval, el conteo de <code class=\"inline\">gaps</code> abiertos, los <code class=\"inline\">sensors</code> re-ejecutados (pass/fail) y un <code class=\"inline\">status</code> derivado (<b>ok</b> / <b>degraded</b> / <b>failed</b>). Suelta ese JSON en la página (un archivo standalone, sin build, sin red) para ver KPIs, tendencia de score por etapa, tasa de fallo, score medio vs el umbral 7.0, los sensores que más bloquean y la tabla completa de runs.",
-      "qual.cta": "Abrir el panel",
-      "qual.cta2": "Cómo se alimenta",
-      "s01.title": "El pipeline",
-      "s01.sub": "Entregar una feature por intuición salta las partes que la hacen correcta: enmarcar el problema, escribir criterios de aceptación, mantener las convenciones, poner gates en la revisión. harness-kit las devuelve, sin que escribas un solo doc a mano.",
-      "s01.cap1": "dos agentes, un pipeline &middot; cada flecha es un handoff con gate",
-      "s01.note": "Cada etapa produce un artefacto markdown, con gate de un <b>sensor</b> determinista (pass/fail) y un <b>eval</b> puntuado (umbral 8.0). Tras abrir el PR, un monitor en la sesión observa el merge y limpia el estado por sí solo.",
-      "s01.h3": "Cómo una etapa tiene gate",
-      "s01.sub2": "El mismo loop corre en cada etapa. El agente genera el artefacto, un sensor revisa su estructura, un eval puntúa su calidad, y solo entonces un humano aprueba. Los fallos se autocorrigen antes de llegar a ti.",
-      "s01.cap2": "guides orientan antes &middot; sensors dan feedback determinista &middot; evals dan feedback inferencial &middot; humanos siguen en el loop",
-      "s01.h5": "Un gate que no puede mentir",
-      "s01.sub4": "Böckeler separa los controles en <b>computacional</b>, determinista y ejecutado por CPU, e <b>inferencial</b>, que necesita criterio. Cada sensor aquí declara cuál es, y la diferencia es el punto central: un sensor que ninguna máquina verificó nunca puede reportar pass.",
-      "s01.cap3": "un sensor que se dice determinista pero no verifica nada es un error, no un pass",
-      "s01.note3": "Esto es cicatriz. Aquí hubo sensores que se declaraban hard gates deterministas mientras escribían sus checks como prosa que el runner no parseaba. Devolvía 0, y el log de calidad registraba <b>passed</b> en cada run, contra un check que nunca ocurrió. Es la <a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\">ilusión de calidad</a> que los gates existen para evitar, así que el harness ahora tiene sus propios tests, su propio CI, y un ledger que rompe el build cuando un sensor miente sobre cómo se aplica.",
-      "s01.h4": "Cada agente, de punta a punta",
-      "s01.sub3": "El mismo loop con gate, una vez por agente. Estos son los tres pipelines que realmente corres: qué hace el comando, qué sensors se disparan, qué eval lo puntúa y dónde está el gate. Todo eval puntuado usa el mismo umbral 8.0 y los mismos tres intentos.",
-      "s01.capPM": "<b>product-manager</b> &middot; prd &#8594; prp &middot; lee el artefacto de intake, nunca se detiene a preguntarte",
-      "s01.capSSE": "<b>staff-software-engineer</b> &middot; plan &#8594; dev &#8594; test &#8594; pr &middot; dev es la única etapa con gate doble, en el código y en el resumen",
-      "s01.capSA": "<b>system-architect</b> &middot; design &#8594; review &middot; etapa opcional antes del PRP &middot; block es terminal",
-      "s01.note2": "El evaluador es un <b>sub-agente Claude nuevo</b>, o <b>Jev</b> cuando lo eliges, y recibe solo el artefacto y la rúbrica, nunca el contexto que lo escribió. El autor nunca califica su propio trabajo. El cableado completo, con rutas y rúbricas verbatim, está en la página <a href=\"wiki/Agent-Pipelines.html\">Agent Pipelines</a> de la wiki.",
-      "s02.title": "Instalación",
-      "s02.sub": "Dos capas: el <b>plugin</b> (descargado una vez del marketplace) y la <b>harness</b> (instalada en cada repo donde la quieras).",
-      "s02.sub2": "Reinicia Claude Code, luego dentro del repo donde quieras usarla:",
-      "s02.bar": "por repo, una vez",
-      "s02.sub3": "Instala la harness en ese repo, agentes, comandos, skills y hooks, en <code class=\"inline\">.claude/</code> más <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code> en la raíz. No toca tu status line y hace dos preguntas: qué juez de eval, y si activar graph engineering. Ambos valores por defecto sirven (<a href=\"#options\">opciones</a>). Requiere Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a> para PRs.",
-      "s02.note": "<b>Actualizando.</b> La versión del plugin está fijada, así que un release no te llega hasta que lo traes: <code class=\"inline\">/plugin update harness-kit</code>, reinicia Claude Code y luego <code class=\"inline\">/harness-kit:update</code> en cada repo. Los usuarios nuevos obtienen la última versión al instalar.",
-      "s03.title": "El golden path", "s03.sub": "Un comando, de la idea al PR fusionado.",
-      "s03.s1h": "Escribe el brief",
-      "s03.s1p": "Abre el <a href=\"brief/\">constructor de brief</a> y llena los campos, squad, problema, hipótesis, clientes, métrica. La validación inline te mantiene en las convenciones de PRD mientras escribes.",
-      "s03.s2h": "Pégalo",
-      "s03.s2p": "Pulsa <b>Copy brief</b> y pega el disparo listo de <code class=\"inline\">/golden-path</code> en Claude Code:",
-      "s03.bar": "pega en claude code",
-      "s03.s3h": "Aprueba y entrega",
-      "s03.s3p1": "Las seis etapas con gate corren, PM (<code class=\"inline\">prd &#8594; prp</code>) y luego Eng (<code class=\"inline\">plan &#8594; dev &#8594; test &#8594; pr</code>). Aprueba cada artefacto cuando se te pida; <code class=\"inline\">hk status</code> muestra dónde estás.",
-      "s03.s3p2": "Las flags de SSE pasan directo: <code class=\"inline\">--local</code>, <code class=\"inline\">--sdd</code>, <code class=\"inline\">--no-monitor</code>. ¿Ya tienes clara la idea? Salta el constructor y escribe <code class=\"inline\">/golden-path</code> con el brief tú mismo.",
-      "s04.title": "Otras formas de ejecutar",
-      "s04.sub": "Todo flujo comparte el mismo estado de pipeline, así que puedes cambiar entre ellos a mitad de la feature.",
-      "s04.th1": "Quieres", "s04.th2": "Ejecuta", "s04.th3": "Etapas",
-      "s04.r1": "De la idea al PR fusionado", "s04.r2": "Solo el spec, alinear antes de código", "s04.r3": "Cambio pequeño, plan en tu cabeza", "s04.r4": "Solo local, sin PR", "s04.r5": "Loop hasta que el spec pase", "s04.r6": "Retomar tras una pausa",
-      "s04.note": "<b>Sensors</b> son chequeos deterministas de estructura, bloquean al fallar y Claude regenera hasta pasar. <b>Evals</b> son rúbricas juzgadas por LLM, puntuadas 0-10, umbral 8.0, con hasta 3 reintentos. Cada etapa es también su propio comando: <code class=\"inline\">/sse:plan</code>, <code class=\"inline\">/sse:dev</code>, <code class=\"inline\">/sse:test</code>, <code class=\"inline\">/sse:pr</code>. <a href=\"https://github.com/Pierry/harness-kit/blob/main/docs/COMMANDS.md\">Cada comando y gate &#8594;</a>",
-      "s05.title": "Optimización de contexto",
-      "s05.sub": "Opcional, todo local-first. A medida que el repo y la harness crecen, los tokens gastados cargando contexto y leyendo la salida de comandos empiezan a dominar. Las herramientas de abajo recortan eso, y se suman con los tiers de modelo por etapa.",
-      "s05.th1": "Herramienta", "s05.th2": "Recorta", "s05.th3": "Cómo",
-      "s05.h1": "snapshot repomix del repo objetivo, cacheado por feature",
-      "s05.h2": "grafo de conocimiento graphify, consulta \"qué llama a X\" (~71x menos tokens)",
-      "s05.h3": "búsqueda semántica en los guides, devuelve el extracto relevante, no el archivo entero",
-      "s05.h4": "proxy de shell, comprime la salida de git/test/lint/grep 60-90%",
-      "s05.sub2": "<code class=\"inline\">/context:pack</code> y <code class=\"inline\">/context:graph</code> vienen con la harness y alimentan las etapas de plan y SDD-eval. <a href=\"https://github.com/tobi/qmd\">qmd</a> y rtk son de terceros, instálalos tú mismo:",
-      "s05.note": "qmd y rtk no vienen incluidos. Justificación y ganancias medidas en el <a href=\"https://github.com/Pierry/harness-kit/issues/2\">issue #2</a>. Orden completo de tiers en <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md\">context-strategy.md</a>.",
-      "s06.title": "Los agentes",
-      "s06.sub": "Todos registrados en <a href=\"https://github.com/Pierry/harness-kit/blob/main/AGENTS.md\">AGENTS.md</a>. Cada uno trae sus propios sensors, evals, guides y skills.",
-      "c1.h": "Enmarca el problema", "c1.p": "Convierte un problema en un spec listo para ingeniería, un PRD y luego un PRP.",
-      "c2.h": "Entrega el código", "c2.p": "Convierte un PRP aprobado en un PR fusionado, o en un spec satisfecho. Skills de área detectadas del repo, más una skill de designer para nuevas UIs.",
-      "c3.h": "Diseña el sistema", "c3.p": "Convierte un problema en un System Design Doc riguroso, luego en una revisión adversarial. Playbooks por diseño clásico.", "c3.more": "Teoría y referencias en la wiki &#8594;",
-      "s07.title": "Fundamentos",
-      "s07.sub": "Esto no es método inventado. harness-kit es una implementación concreta de harness engineering, y el agente system-architect razona desde el canon de ingeniería establecido.",
-      "r1.tag": "el modelo de harness",
-      "r1.p": "De Birgitta Böckeler (Thoughtworks / martinfowler.com). Cada gate de etapa aquí es exactamente esa división.",
-      "r1.li1": "<a href=\"https://martinfowler.com/articles/harness-engineering.html\"><b>Harness engineering for coding agent users</b></a>: guides (feedforward), sensors (feedback determinista), evals (feedback inferencial), humanos en el loop.",
-      "r1.li2": "<a href=\"https://martinfowler.com/articles/sensors-for-coding-agents.html\"><b>Maintainability sensors for coding agents</b></a>: la idea de sensor que implementan nuestros chequeos de estructura.",
-      "r2.tag": "el canon de system design", "r2.h": "El canon de ingeniería",
-      "r2.p": "Detrás del agente <code class=\"inline\">system-architect</code>. Mapeo completo en <a href=\"https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/design-method.md\">design-method.md</a>.",
-      "r2.li1": "<a href=\"https://dataintensive.net/\"><b>Designing Data-Intensive Applications</b></a>, Martin Kleppmann: fiabilidad / escalabilidad / mantenibilidad como columna.",
-      "r2.li2": "<b>A Philosophy of Software Design</b>, John Ousterhout: módulos profundos, interfaces simples, la complejidad es el enemigo.",
-      "r2.li3": "<b>Release It!</b>, Michael Nygard: patrones de estabilidad: circuit breaker, bulkhead, timeout, backoff.",
-      "r2.li4": "<b>Jeff Dean</b> (números que todo ingeniero debería saber), <b>Werner Vogels</b> (diseña para el fallo), <b>Pat Helland</b> (inmutabilidad, eventos en vez de estado mutable), Leslie Lamport, Sam Newman, Gregor Hohpe.",
-      "r3.tag": "los playbooks de tema", "r3.h": "La serie System Design",
-      "r3.p": "Las skills de tema del system-architect adaptan un problema clásico cada una, con la teoría, diagramas y referencias por diseño.",
-      "r3.li1": "<a href=\"wiki/\"><b>La wiki</b></a>: una página por problema clásico: url-shortener, rate-limiter, search-engine.",
-      "s08.title": "Docs", "s08.sub": "Ve más allá de esta página.",
-      "d1.t": "Golden path", "d1.d": "el recorrido completo de la puerta de entrada",
-      "d2.t": "Comandos y gates", "d2.d": "cada comando, cada sensor y eval",
-      "d3.t": "Arquitectura", "d3.d": "anatomía de la etapa, status bar, layout del repo",
-      "d4.d": "registro de agentes y mapa ruta por ruta",
-      "d5.t": "Calidad por fase", "d5.d": "tendencia de puntaje, tasa de fallo y sensores por etapa",
-      "nav.start": "empieza aquí",
-      "why.vsh": "Sin él, y con él",
-      "why.vssub": "Un agente escribe código rápido, y en lo rápido se esconden los errores caros. Cada fila de abajo es una etapa que tiene que pasar antes de que empiece la siguiente, y harness-kit la escribe por ti.",
-      "why.vth1": "Sin harness-kit",
-      "why.vth2": "Con harness-kit",
-      "why.v1a": "El ticket vive en tu cabeza o en un hilo de chat",
-      "why.v1b": "Un PRD con el problema, los clientes y una métrica de éxito numérica",
-      "why.v2a": "\"Listo\" es lo que el agente decidió",
-      "why.v2b": "Un PRP con criterios de aceptación que revisas uno por uno",
-      "why.v3a": "El agente edita lo que encuentre",
-      "why.v3b": "Un plan que nombra los archivos y, con graph engineering, un gate que falla en cualquier otro archivo",
-      "why.v4a": "Revisar es leer un diff y esperar lo mejor",
-      "why.v4b": "Cada documento puntuado contra una rúbrica, rehecho hasta pasar 8.0",
-      "why.v5a": "Nadie recuerda por qué el código es así",
-      "why.v5b": "Cada requisito ligado al código que lo implementa y al test que lo prueba",
-      "why.v6a": "La calidad depende del día",
-      "why.v6b": "Las mismas seis etapas siempre, con un historial de notas que puedes seguir",
-      "gs.title": "Empieza aquí",
-      "gs.sub": "De nada instalado a un PR fusionado. Hay cuatro setups y todos usan los mismos comandos; las opciones solo cambian lo que pasa dentro de algunas etapas. Empieza con el predeterminado, puedes cambiarlo después con un comando.",
-      "gs.h1": "Elige un setup",
-      "gs.th1": "Setup",
-      "gs.th2": "Mejor para",
-      "gs.th3": "Qué añade",
-      "gs.th4": "Necesita",
-      "gs.th5": "Costo",
-      "gs.n1": "Simple (predeterminado)",
-      "gs.b1": "probarlo, equipos pequeños, la mayoría de las features",
-      "gs.a1": "el pipeline completo con gates",
-      "gs.d1": "Claude Code, <code class=\"inline\">python3</code>, <code class=\"inline\">git</code>, <code class=\"inline\">gh</code>",
-      "gs.k1": "nada extra",
-      "gs.n2": "Juez Jev",
-      "gs.b2": "un juez que no sea Claude evaluando a Claude",
-      "gs.a2": "calidad puntuada por Jev, otro modelo, en menos de un segundo por documento; Claude toma el control cuando Jev duda",
-      "gs.d2": "una API key de TypeSafe",
-      "gs.k2": "unos US$ 0,04 por millón de tokens",
-      "gs.n3": "Graph engineering",
-      "gs.b3": "codebases compartidas, trabajo regulado, todo lo que debas auditar después",
-      "gs.a3": "ids de requisito, un archivo de trace en cada PR, un gate de alcance, links que pasan a VALIDATED o STALE",
-      "gs.d3": "nada extra para <code class=\"inline\">manifest</code>; Python 3.12, una clave gratis de NVIDIA y <code class=\"inline\">joern</code> para <code class=\"inline\">full</code>",
-      "gs.k3": "gratis",
-      "gs.n4": "Grafo y Jev",
-      "gs.b4": "equipos que quieren un juez neutral y trazabilidad completa",
-      "gs.a4": "ambos de arriba",
-      "gs.d4": "ambos de arriba",
-      "gs.h2": "Instalación",
-      "gs.inst": "Copia los agentes, comandos y hooks en <code class=\"inline\">.claude/</code>, añade <code class=\"inline\">AGENTS.md</code> y <code class=\"inline\">CLAUDE.md</code>, y hace dos preguntas: el juez de eval (<code class=\"inline\">local</code> o <code class=\"inline\">jev</code>) y graph engineering (<code class=\"inline\">off</code>, <code class=\"inline\">manifest</code> o <code class=\"inline\">full</code>). El simple es <code class=\"inline\">local</code> y <code class=\"inline\">off</code>. Reinicia una vez más para que aparezcan los comandos. Tu status line queda como estaba.",
-      "gs.jev": "<b>Setups con Jev.</b> Crea una clave en <a href=\"https://console.typesafe.ai/keys\">console.typesafe.ai/keys</a> y ejecuta <code class=\"inline\">/hk:eval jev</code>. Una clave pegada va a <code class=\"inline\">.claude/settings.local.json</code>, que git ignora.",
-      "gs.graph": "<b>Setups con grafo.</b> <code class=\"inline\">/hk:graph manifest</code> no necesita nada más. Para <code class=\"inline\">full</code>, ten lista una clave gratis de <a href=\"https://build.nvidia.com\">build.nvidia.com</a> y ejecuta:",
-      "gs.gbar": "solo para graph full",
-      "gs.h3": "Del brief al merge, en siete etapas",
-      "gs.h3sub": "Decides dos veces: en la etapa 2 y en la etapa 6. El resto corre en sus propios gates.",
-      "gs.s1h": "Escribe el brief",
-      "gs.s1p": "Cuatro líneas después de <code class=\"inline\">/golden-path</code>: squad, problema, hipótesis, métrica de éxito. El <a href=\"brief/\">constructor de brief</a> revisa cada campo por ti. <code class=\"inline\">/pipeline:run \"&lt;idea&gt;\"</code> corre las mismas etapas y solo se detiene en las dos decisiones.",
-      "gs.s2h": "El PRD, tu primera decisión",
-      "gs.s2p": "El agente de product manager escribe el problema, los clientes, el alcance y las métricas con baseline. Un script revisa las secciones, el eval lo puntúa, y tú apruebas la dirección. Un problema equivocado detectado aquí cuesta una reescritura, no una feature.",
-      "gs.s3h": "El PRP",
-      "gs.s3p": "El PRD se vuelve un spec de ingeniería: archivos a cambiar, patrones a seguir, docs de librerías, comandos de validación y criterios de aceptación que revisas uno por uno.",
-      "gs.s4h": "El plan",
-      "gs.s4p": "El agente de staff engineer escribe qué cambia, en qué archivos, en qué orden, con riesgos y casos de prueba.",
-      "gs.s5h": "Dev",
-      "gs.s5p": "El agente implementa el plan en commits pequeños, corre tus linters y type checkers como sensors, y sigue <code class=\"inline\">.claude/conventions/</code> cuando existe.",
-      "gs.s6h": "Test, el PR, tu segunda decisión",
-      "gs.s6p": "Tu suite de tests corre y los fallos aparecen por nombre. El agente prepara título, resumen y plan de pruebas del PR. Apruebas y se abre como draft.",
-      "gs.s7h": "Merge",
-      "gs.s7p": "Un monitor vigila el PR y limpia el pipeline cuando se fusiona. Empieza la siguiente feature con un nuevo brief.",
-      "gs.h4": "Qué cambia por setup",
-      "gs.c0": "Etapa",
-      "gs.c1": "Simple",
-      "gs.c2": "Juez Jev",
-      "gs.c3": "Graph engineering",
-      "gs.c4": "Grafo y Jev",
-      "gs.r1": "Puntuación",
-      "gs.v.claude": "sub-agente Claude",
-      "gs.v.jev": "Jev, Claude si duda",
-      "gs.v.crit": "criterios",
-      "gs.v.req": "criterios con ids <code class=\"inline\">REQ</code>, archivo de trace",
-      "gs.v.files": "archivos a cambiar",
-      "gs.v.scope": "links con evidencia, los archivos se vuelven el alcance",
-      "gs.v.conv": "convenciones y linters",
-      "gs.v.gate": "más gate de alcance, links IMPLEMENTS",
-      "gs.v.report": "reporte",
-      "gs.v.verif": "más links VERIFIED_BY",
-      "gs.v.sum": "resumen y plan de pruebas",
-      "gs.v.trace": "más tabla de trazabilidad",
-      "gs.note": "Cambia cuando quieras: <code class=\"inline\">/hk:eval local</code> o <code class=\"inline\">jev</code>, <code class=\"inline\">/hk:graph off</code>, <code class=\"inline\">manifest</code> o <code class=\"inline\">full</code>. <code class=\"inline\">/pipeline:continue</code> retoma una feature y <code class=\"inline\">hk status</code> muestra dónde está. Todos los detalles, etapa por etapa, en <a href=\"wiki/Getting-Started.html\">Getting Started</a>. Más sobre cada opción <a href=\"#options\">abajo</a>.",
-      "opt.title": "Opciones",
-      "opt.sub": "Todo apagado o en su ajuste más simple hasta que lo cambies. Cada una es un solo comando y se puede revertir en cualquier momento.",
-      "opt.c1t": "juez de eval",
-      "opt.c1h": "Claude local o Jev",
-      "opt.c1p": "Por defecto (<code class=\"inline\">local</code>) un sub-agente Claude nuevo puntúa cada documento. Con <code class=\"inline\">jev</code>, lo puntúa Jev, de TypeSafe AI. Jev es de otra familia de modelos, así que Claude deja de calificar su propio trabajo. Responde cada ítem de la rúbrica como un check atómico de sí/no y pasa la decisión a Claude cuando sus respuestas dudosas podrían cambiar el resultado. De pago, unos US$ 0,04 por millón de tokens.",
-      "opt.c1m": "<a href=\"wiki/Evals.html\">Evals</a> &middot; <a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>",
-      "opt.c2t": "graph engineering",
-      "opt.c2h": "Rastrea cada requisito",
-      "opt.c2p": "<code class=\"inline\">manifest</code> da a cada criterio de aceptación un id <code class=\"inline\">REQ</code>, escribe <code class=\"inline\">trace/{feature}.yml</code> en el PR y añade un gate de alcance que hace fallar dev en cualquier archivo que el plan no nombró. Los links empiezan PROPOSED y luego pasan a VALIDATED o STALE. <code class=\"inline\">full</code> añade un grafo FalkorDB embebido con Graphiti sobre modelos gratis de NVIDIA, más el call graph de Joern. Sin Docker.",
-      "opt.c2m": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a> &middot; <a href=\"wiki/Graph-Theory.html\">Graph Theory</a>",
-      "opt.c3t": "status bar",
-      "opt.c3h": "Status bar del pipeline",
-      "opt.c3p": "Apagada por defecto: la instalación nunca toca tu status line. Instala con <code class=\"inline\">HK_STATUSLINE=1</code> para reemplazarla por la etapa actual del pipeline. Sin eso, <code class=\"inline\">hk status</code> da la misma respuesta cuando la pides.",
-      "s05.h5": "encuentra código por intención, no por string literal",
-      "s05.h6": "el riesgo de un cambio y los tests que afecta",
-      "s05.h7": "docs actuales de librerías, no lo que el modelo recuerda",
-      "s05.h8": "call graphs: quién llama a qué, el radio de impacto de un cambio",
-      "s05.probe": "Las etapas que leen el repo objetivo (PRP, plan, SDD eval, design) primero ejecutan <code class=\"inline\">.claude/scripts/context-tools.sh</code> y usan lo que esté instalado: <a href=\"https://github.com/MinishLab/semble\">semble</a> para encontrar código por intención, <a href=\"https://github.com/repowise-dev/repowise\">repowise</a> para riesgo y tests afectados, <a href=\"https://github.com/upstash/context7\">context7</a> para docs de librerías, Joern para call graphs. Lo que falte cae a grep, nunca a un fallo.",
-      "d6.t": "Getting Started",
-      "d6.d": "los cuatro setups, instalación, del brief al merge",
-      "d7.t": "Jev and System One",
-      "d7.d": "el juez Jev, checks atómicos, escalada a Claude",
-      "d8.t": "Graph Engineering",
-      "d8.d": "ids REQ, archivos de trace, el gate de alcance",
-      "d9.t": "Graph Theory",
-      "d9.d": "el modelo detrás del grafo de trace",
-      "s04.r0": "Sin supervisión, de la idea al PR, dos gates",
-      "s0c.eyebrow": "Frente 4 &middot; el panel de control",
-      "s0c.title": "El cockpit",
-      "s0c.sub": "Una UI de terminal sobre el pipeline. Cada etapa en vivo, una etapa corrida con una tecla, humanos en el loop en dos gates.",
-      "s0c.gifbar": "hk-tui &middot; una feature en el gate del PR",
-      "s0c.gifcap": "abre una feature, lee cada artefacto, aprueba el gate, todo desde la terminal",
-      "s0c.p2": "Renderiza cada artefacto, corre una etapa con una tecla y convierte los dos gates humanos en prompts modales; el gate de dirección lista los ítems <code class=\"inline\">NEEDS REVIEW</code> abiertos del intake. Lee estado y artefactos directo del disco, así que se mantiene en sincronía con cualquier sesión de Claude Code que conduzca la misma feature. Viene empaquetado, ninguna dependencia extra cae en tu proyecto.",
-      "s0c.bar": "terminal",
-      "s0c.note": "<b>Teclas:</b> <code class=\"inline\">&#8593;&#8595;/jk</code> mover &middot; <code class=\"inline\">enter</code> correr la etapa &middot; <code class=\"inline\">tab</code> enfocar el lector &middot; <code class=\"inline\">a</code> aprobar un gate, <code class=\"inline\">x</code> retener &middot; <code class=\"inline\">q</code> salir. Necesita un TTY y Node 18+. Modelo completo: <a href=\"wiki/Autonomy.html\">Autonomy</a> y <a href=\"wiki/Orchestration-and-Subagents.html\">Orchestration &amp; Subagents</a>.",
-      "footer.left": "harness-kit &middot; de la idea al PR fusionado, por un solo pipeline con gates",
+      "nav.start": "Inicio", "nav.spec": "Spec", "nav.build": "Build", "nav.ship": "Ship", "nav.options": "Opciones",
+      "start.eyebrow": "Plugin de Claude Code",
+      "start.h1": "De la idea al PR fusionado, por un solo pipeline con gates.",
+      "start.lede": "harness-kit es un conjunto de agentes de Claude Code que llevan una idea por seis etapas con gates, del spec al pull request. Un script revisa cada etapa y un juez la puntúa, así que solo decides dos veces: la dirección y el PR.",
+      "start.cta1": "Instalar", "start.cta2": "Abrir el constructor de brief",
+      "start.why": "Por qué vale la pena",
+      "why.th1": "Sin él", "why.th2": "Con harness-kit",
+      "why.v1a": "El ticket vive en un hilo de chat", "why.v1b": "Un PRD con el problema, los clientes y una métrica de éxito numérica",
+      "why.v2a": "\"Listo\" es lo que el agente decidió", "why.v2b": "Criterios de aceptación que revisas uno por uno",
+      "why.v3a": "El agente edita lo que encuentre", "why.v3b": "Un plan que nombra los archivos y, con graph engineering, un gate que falla en cualquier otro archivo",
+      "why.v4a": "Revisar es leer un diff y esperar lo mejor", "why.v4b": "Cada documento puntuado contra una rúbrica, rehecho hasta pasar 8.0",
+      "why.v5a": "La calidad depende del día", "why.v5b": "Las mismas seis etapas siempre, con un historial de notas que puedes seguir",
+      "start.install": "Instalación",
+      "start.asks": "Hace dos preguntas. Ambos valores por defecto sirven, y puedes cambiar cualquiera después.",
+      "q.th1": "Pregunta", "q.th2": "Por defecto", "q.th3": "Otras opciones", "q.r1": "Juez de eval",
+      "start.update": "Requiere <code>python3</code>, <code>git</code> y la <a href=\"https://cli.github.com/\">gh CLI</a>. Para actualizar: <code>/plugin update harness-kit</code>, reinicia y ejecuta <code>/harness-kit:update</code>.",
+      "spec.eyebrow": "Fase 1 de 3", "spec.title": "Spec",
+      "spec.sub": "Brief, PRD, PRP. Convierte una idea en algo que se puede revisar.",
+      "row.you": "Tú haces", "row.it": "Él hace", "row.jev": "Con Jev", "row.graph": "Con grafo",
+      "spec.you": "Escribe un brief de cuatro líneas después de <code>/golden-path</code>, o llena el <a href=\"brief/\">constructor de brief</a>. Luego lee el PRD y aprueba la dirección. Es tu primera decisión, y el lugar más barato para equivocarse.",
+      "spec.it": "El agente de product manager escribe el PRD: problema, clientes, alcance y métricas con baseline. Luego el PRP, un spec de ingeniería con los archivos a cambiar, los patrones a seguir y los criterios de aceptación. Cada uno debe pasar su chequeo de estructura y sacar 8.0.",
+      "spec.jev": "Jev, otro modelo, puntúa cada documento. Claude solo decide cuando Jev duda.",
+      "spec.graph": "Cada criterio de aceptación recibe un id estable como <code>REQ-001</code>, y se crea <code>trace/{feature}.yml</code>.",
+      "spec.fewer": "¿Quieres menos paradas? <code>/pipeline:run \"&lt;idea&gt;\"</code> corre todas las fases y solo se detiene en tus dos decisiones.",
+      "build.eyebrow": "Fase 2 de 3", "build.title": "Build",
+      "build.sub": "Plan, dev, test. Cada etapa pasa por el mismo gate.",
+      "flow.1": "escribe", "flow.2": "chequeo de estructura", "flow.3": "nota 8.0+", "flow.4": "siguiente etapa",
+      "build.loop": "Por debajo de 8.0 el agente reescribe solo los chequeos que fallaron, hasta tres veces.",
+      "build.you": "Nada. Míralo correr, o ejecuta una etapa sola con <code>/sse:plan</code>, <code>/sse:dev</code>, <code>/sse:test</code>. <code>hk status</code> muestra dónde está.",
+      "build.it": "El agente de staff engineer planea qué archivos cambian y en qué orden, implementa en commits pequeños con tus linters y <code>.claude/conventions/</code>, luego corre tus tests y reporta los fallos por nombre.",
+      "build.jev": "Jev puntúa el plan, el resumen de dev y el reporte de tests en lugar de un sub-agente Claude.",
+      "build.graph": "El plan registra cada archivo que espera tocar, con evidencia. Un gate de alcance hace fallar dev en cualquier otro archivo. Commits y tests quedan ligados al requisito que cumplen.",
+      "ship.eyebrow": "Fase 3 de 3", "ship.title": "Ship",
+      "ship.sub": "PR y merge. Tu segunda decisión.",
+      "ship.you": "Lee la descripción del PR y apruébalo. Se abre como draft en GitHub.",
+      "ship.it": "Escribe el título, el resumen y el plan de pruebas. Un monitor vigila el PR y limpia el pipeline cuando se fusiona.",
+      "ship.jev": "Jev puntúa la descripción del PR.",
+      "ship.graph": "El PR lleva una tabla de trazabilidad: cada requisito, el código que toca y el test que lo prueba. El plan de la siguiente feature marca esos links como VALIDATED o STALE.",
+      "ship.quality": "<b>Panel de calidad:</b> la nota de cada etapa a lo largo de las ejecuciones. <a href=\"quality/phase-report.html\">Abrir</a>.",
+      "ship.cockpit": "<b>Cockpit:</b> sigue las etapas y aprueba los gates desde una terminal, <code>npm i -g @pieerry/harness-kit</code> y luego <code>hk-tui</code>.",
+      "opt.eyebrow": "Opciones", "opt.title": "Cuatro setups, los mismos comandos",
+      "opt.sub": "Empieza con el Simple. Cada opción es un comando y se puede revertir.",
+      "opt.th1": "Setup", "opt.th2": "Mejor para", "opt.th3": "Añade", "opt.th4": "Costo",
+      "opt.n1": "Simple (por defecto)", "opt.b1": "probarlo, la mayoría de las features", "opt.a1": "el pipeline completo con gates", "opt.k1": "nada extra",
+      "opt.n2": "Juez Jev", "opt.b2": "un juez que no sea Claude evaluando a Claude", "opt.a2": "Jev de TypeSafe AI puntúa con chequeos de sí/no, Claude cuando duda", "opt.k2": "unos US$ 0,04 por millón de tokens",
+      "opt.b3": "código compartido o regulado que debes auditar", "opt.a3": "ids REQ, archivo de trace, gate de alcance; <code>full</code> añade una base de grafo local, sin Docker", "opt.k3": "gratis",
+      "opt.n4": "Grafo y Jev", "opt.b4": "un juez neutral y trazabilidad completa", "opt.a4": "ambos",
+      "opt.l1": "<a href=\"wiki/Getting-Started.html\">Getting Started</a>: cada etapa, en los cuatro setups.",
+      "opt.l2": "<a href=\"wiki/Evals.html\">Evals</a>: cómo se puntúa cada documento.",
+      "opt.l3": "<a href=\"wiki/Jev-and-System-One.html\">Jev and System One</a>: el juez Jev y cuándo pasa la decisión a Claude.",
+      "opt.l4": "<a href=\"wiki/Graph-Engineering.html\">Graph Engineering</a>: ids de requisito, archivos de trace, el gate de alcance.",
+      "opt.l5": "<a href=\"wiki/Graph-Theory.html\">Graph Theory</a>: el modelo detrás del grafo.",
+      "opt.l6": "<b>Agentes:</b> <code>product-manager</code> (PRD, PRP), <code>staff-software-engineer</code> (del plan al PR), <code>system-architect</code> (diseño de sistemas y revisión).",
+      "footer.found": "Fundamentos: <a href=\"https://martinfowler.com/articles/harness-engineering.html\">Böckeler</a>, <a href=\"https://martinfowler.com/bliki/AgenticProgramming.html\">Fowler</a>, <a href=\"https://hamel.dev/blog/posts/llm-judge/\">Husain</a>",
     },
   };
 
@@ -1431,8 +470,22 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
   keyedEls.forEach((el) => { el.dataset.i18nDefault = el.innerHTML; });
   const langButtons = [...document.querySelectorAll(".langsw button")];
   const LANG_HTML = { en: "en", pt: "pt-BR", es: "es" };
+
+  /* Reading time per section: visible words at 200 per minute, rounded up. */
+  function setReadingTimes(lang) {
+    document.querySelectorAll("main section").forEach((sec) => {
+      const rt = sec.querySelector("[data-rt]");
+      if (!rt) return;
+      rt.textContent = "";
+      const words = (sec.innerText || sec.textContent).split(/\s+/).filter(Boolean).length;
+      const min = Math.max(1, Math.ceil(words / 200));
+      rt.textContent = min + " " + (META[lang] || META.en).rt;
+      rt.dataset.words = String(words);
+    });
+  }
+
   function applyLang(lang) {
-    document.documentElement.lang = LANG_HTML[lang] || "en";
+    root.lang = LANG_HTML[lang] || "en";
     const meta = META[lang] || META.en;
     document.title = meta.title;
     const md = document.getElementById("meta-desc");
@@ -1444,18 +497,18 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
       el.innerHTML = k in dict ? dict[k] : el.dataset.i18nDefault;
     });
     langButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
-    /* The wiki is generated per language into its own directory, so send the
-       reader to the one they are already reading in. Without this, switching to
-       PT here and clicking through to the wiki drops you back into English. */
+    /* The wiki is generated per language into its own directory; keep the reader there. */
     const sub = lang === "en" ? "" : lang + "/";
     document.querySelectorAll('a[href^="wiki/"]').forEach((a) => {
       const page = (a.dataset.wikiHref ||= a.getAttribute("href").replace(/^wiki\/(en|pt|es)\//, "wiki/"));
       a.setAttribute("href", page.replace(/^wiki\//, "wiki/" + sub));
     });
-    localStorage.setItem("hk-lang", lang);
+    setReadingTimes(lang);
+    try { localStorage.setItem("hk-lang", lang); } catch (e) { /* storage blocked */ }
   }
   function detectLang() {
-    const stored = localStorage.getItem("hk-lang");
+    let stored = null;
+    try { stored = localStorage.getItem("hk-lang"); } catch (e) { /* storage blocked */ }
     if (stored && META[stored]) return stored;
     const n = (navigator.language || "en").toLowerCase();
     if (n.startsWith("pt")) return "pt";
@@ -1464,19 +517,6 @@ setup/setup-qmd.sh     <span class="c"># indexes the guide tree, then embeds (~2
   }
   langButtons.forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
   applyLang(detectLang());
-
-  /* ---------- effects: simple fade on reveal ---------- */
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const revealEls = [...document.querySelectorAll(".reveal")];
-  if (reduce || !("IntersectionObserver" in window)) {
-    revealEls.forEach((el) => el.classList.add("is-visible"));
-  } else {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); } });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
-    revealEls.forEach((el) => io.observe(el));
-
-  }
 </script>
 </body>
 </html>

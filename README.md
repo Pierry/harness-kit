@@ -2,78 +2,38 @@
 
 # harness-kit
 
-You describe a feature. Claude Code writes the spec, the plan, the code, the tests, and opens the PR, and nothing moves forward until it passes a check.
+You describe a feature. Claude Code writes the spec, the plan, the code, and the tests, and opens the PR. Nothing moves forward until it passes a check.
 
 ![harness-kit demo](demo/preview.gif)
 
 </div>
 
-# What it is
+# Start
 
-A set of Claude Code agents that take one idea through six steps: `prd → prp → plan → dev → test → pr`. Each step writes a normal markdown file, a script checks its structure, a judge scores its quality, and only a passing step unlocks the next one. You approve twice: the direction after the PRD, and the PR before it opens.
+*1 min read*
 
-# When to use it
-
-Use it when a feature is worth doing right: it touches real users, other people will review it, or you will have to explain later why it was built that way. You get a written problem, acceptance criteria, a plan tied to real files, code that follows your repo conventions, and a scored review, without writing any of it by hand.
-
-Skip it for a one-line fix, a spike you will throw away, or a question you can answer by reading the code. For those, plain Claude Code is faster.
-
-# Why it is worth it
+harness-kit is a set of Claude Code agents that carry one idea through three phases: Spec, Build, and Ship. Every step writes a markdown file, a script checks its structure, a judge scores it, and only a passing step unlocks the next. You decide twice: the direction, and the PR.
 
 | Without it | With it |
 |---|---|
-| The ticket lives in your head or a chat thread | A PRD with the problem, the customers, and a numeric success metric |
+| The problem lives in a chat thread | A written problem with a numeric success metric |
 | "Done" is whatever the agent decided | Acceptance criteria you can check one by one |
-| The agent edits whatever it finds | A plan that names the files, and optionally a gate that fails on any other file |
-| Review is reading a diff and hoping | Every document scored against a rubric and retried until it passes |
-| Nobody remembers why the code is like this | Each requirement linked to the code and the test that prove it, if you turn graph engineering on |
+| Review is reading a diff and hoping | Every document scored and retried until it passes |
 
-You spend your attention on two decisions, the direction and the PR, instead of on typing specs and chasing conventions.
-
-# Pick a setup
-
-Start with the default; one command switches later.
-
-| Setup | Best for | Adds | Cost |
-|---|---|---|---|
-| Plain (default) | most features, trying it out | the gated pipeline | nothing extra |
-| Jev judge | a judge that is not Claude grading Claude | scoring by Jev, Claude when unsure | about $0.04 per million tokens |
-| Graph engineering | shared or audited codebases | requirement ids, trace file in the PR, scope gate | free |
-| Graph and Jev | both | both | about $0.04 per million tokens |
-
-# Install
+Use it for features worth doing right. Skip it for one-line fixes and throwaway spikes.
 
 ```
 /plugin marketplace add Pierry/harness-kit
 /plugin install harness-kit@harness-kit
 ```
 
-Restart Claude Code, open the repo you want to use it in, and run `/harness-kit:install`. It asks two questions; answer for your setup and restart once more. You need `python3`, `git`, and the [gh CLI](https://cli.github.com/).
+Restart Claude Code, open your repo, run `/harness-kit:install`, and restart again. It asks which eval judge to use and whether to turn on graph engineering; the defaults are fine. You need `python3`, `git`, and the [gh CLI](https://cli.github.com/). To update: `/plugin update harness-kit`, restart, `/harness-kit:update`.
 
-| Question | Plain | Jev judge | Graph engineering | Graph and Jev |
-|---|---|---|---|---|
-| Eval judge | `local` | `jev` | `local` | `jev` |
-| Graph engineering | `off` | `off` | `manifest` or `full` | `manifest` or `full` |
+# Phase 1: Spec
 
-For Jev, create a key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys) and run `/hk:eval jev`. For the graph database (`full`), run `/hk:graph full` with a free key from [build.nvidia.com](https://build.nvidia.com), then `python3 .claude/scripts/graph.py setup` and `python3 .claude/scripts/graph.py index-code`. `manifest` needs nothing else.
+*1 min read*
 
-To update: `/plugin update harness-kit`, restart Claude Code, then `/harness-kit:update`.
-
-# What you can do
-
-| You want | Run |
-|---|---|
-| Idea to merged PR, approving each step | `/golden-path` |
-| Idea to PR, stopping only at the two approvals | `/pipeline:run "<idea>"` |
-| Only the spec, no code yet | `/product-manager:run` |
-| Code from a spec you already have | `/sse:run` |
-| Same, without opening a PR | `/sse:run --local` |
-| Keep fixing until every acceptance criterion passes | `/sse:sdd` |
-| Design a hard system before building it | `/system-design:run` |
-| Continue where you stopped | `/pipeline:continue` |
-| See where the current feature is | `hk status` |
-
-A brief is four lines:
+You type a four-line brief, or build one in the [brief builder](https://pierry.github.io/harness-kit/brief/).
 
 ```
 /golden-path
@@ -84,78 +44,59 @@ Hypothesis: If we add one-tap retry, completion rises 5 points.
 Success metric: checkout completion, from 71% to 76% within 30 days
 ```
 
-Every step also runs alone (`/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`). [All commands](docs/COMMANDS.md).
+It writes the PRD (problem, customers, metrics, rollout, risks) and you approve the direction: a wrong problem caught here costs one rewrite, not a feature. Then it writes the PRP, the engineering spec, with the files to change and acceptance criteria.
 
-# From task to merged PR
+With Jev, Jev scores both documents instead of Claude. With graph engineering, each criterion gets a stable id like `REQ-001` and `trace/{feature}.yml` is created.
 
-| Step | What happens | With Jev | With graph engineering |
-|---|---|---|---|
-| Brief | you type four lines after `/golden-path` | | |
-| PRD | problem, customers, metrics; you approve the direction | Jev scores it | |
-| PRP | files, patterns, acceptance criteria | Jev scores it | each criterion gets an id like `REQ-001`, `trace/{feature}.yml` is created |
-| Plan | files to change, order, risks, tests | Jev scores it | each likely symbol becomes a link with evidence; those files become the only allowed scope |
-| Dev | small commits, your linters, your conventions | Jev scores it | out-of-scope files fail the step; each commit is linked and checked in git |
-| Test | suite runs, failures by name | Jev scores it | each test that proves a requirement is linked |
-| PR | summary and test plan; you approve, a draft PR opens | Jev scores it | a traceability table goes in the PR; the next plan marks links VALIDATED or STALE |
+# Phase 2: Build
 
-The full walkthrough, with what you see at each step, is in [Getting Started](https://github.com/Pierry/harness-kit/wiki/Getting-Started).
+*1 min read*
 
-# How it works
-
-Each step runs the same loop. The agent writes the document. A sensor, which is a script, checks its structure. An eval scores it against a rubric of small yes/no checks such as "every success metric has a baseline". Below 8.0 the agent rewrites only the checks that failed, up to three times. You see the step only once it passes.
+It writes the plan (files, order, risks, tests), implements it in small commits that follow your conventions and linters, and runs your tests. Each step loops until it passes:
 
 ```mermaid
 flowchart LR
-    write[agent writes] --> sensor{structure ok?}
-    sensor -->|no| write
-    sensor -->|yes| eval{score 8.0+?}
-    eval -->|no, up to 3x| write
-    eval -->|yes| you[you approve]
+    write[agent writes] --> check{structure ok and score 8.0+?}
+    check -->|no, up to 3x| write
+    check -->|yes| next[next step]
 ```
 
-When something keeps failing, you fix the guide or the rubric once, not every output. That idea, called harness engineering, comes from [Birgitta Böckeler](https://martinfowler.com/articles/harness-engineering.html).
+The score comes from small yes/no checks, such as "every metric has a baseline", so a failure names exactly what to fix. With graph engineering, the plan records each file it expects to touch, and dev fails if it touches any other file without a written reason.
+
+# Phase 3: Ship
+
+*1 min read*
+
+It writes the PR (summary, test plan, links) and you approve it; it opens as a draft. A monitor clears the pipeline when it merges.
+
+With graph engineering, the PR carries a table linking each requirement to its code and the test that proves it, and the next feature marks those links VALIDATED or STALE. Every approved step logs its score to the [quality dashboard](https://pierry.github.io/harness-kit/quality/phase-report.html), so you can see quality move over time. The cockpit shows it all live in a terminal: `npm i -g @pieerry/harness-kit`, then `hk-tui`.
 
 # Options
 
-All are off or on their simplest setting until you change them.
+*1 min read*
 
-| Option | Default | What changes when you turn it on | Command |
+| Setup | Best for | Adds | Cost |
 |---|---|---|---|
-| Eval judge | `local`: a fresh Claude scores | [Jev](https://typesafe.ai) by TypeSafe AI scores instead, a different model so Claude does not grade its own work; falls back to Claude when unsure. Paid, about $0.04 per million tokens | `/hk:eval jev` |
-| Graph engineering | `off` | Every requirement gets an id, every file the plan expects to touch is recorded with its evidence, and dev fails if it touches anything else | `/hk:graph manifest` |
-| Graph database | `off` | Adds a local graph of your decisions and your code's call graph, no Docker, on free NVIDIA models | `/hk:graph full` |
-| Pipeline status bar | off, your own status line stays | Replaces it with the pipeline's current step | install with `HK_STATUSLINE=1` |
+| Plain (default) | most features | the gated pipeline | nothing extra |
+| Jev judge | a judge that is not Claude grading Claude | [Jev](https://typesafe.ai) scores, Claude takes over when unsure | about $0.04 per million tokens |
+| Graph engineering | shared or audited code | requirement ids, trace file, scope gate | free |
+| Graph and Jev | both | both | about $0.04 per million tokens |
 
-The harness also uses code tools when you have them installed: [semble](https://github.com/MinishLab/semble) to find code by meaning, [repowise](https://github.com/repowise-dev/repowise) for risk and affected tests, [context7](https://github.com/upstash/context7) for current library docs, Joern for call graphs. Without them it uses grep. Nothing here needs a paid key by default.
+Switch any time: `/hk:eval jev` or `local`, and `/hk:graph manifest`, `full`, or `off`. `full` adds a local graph of your decisions and call graph (FalkorDB with Graphiti on free NVIDIA models, and Joern), with no Docker. Install with `HK_STATUSLINE=1` if you want the pipeline in your status line. When installed, [semble](https://github.com/MinishLab/semble), [repowise](https://github.com/repowise-dev/repowise), and [context7](https://github.com/upstash/context7) sharpen code search; otherwise it uses grep.
 
-# Extras
-
-| | What it does | Where |
-|---|---|---|
-| Brief builder | Turns an idea into a ready `/golden-path` prompt, checking each field as you type | [Open](https://pierry.github.io/harness-kit/brief/) |
-| Quality dashboard | Shows each step's score and failures across every run, so you see if quality goes up or down | [Open](https://pierry.github.io/harness-kit/quality/phase-report.html) |
-| Cockpit | A terminal view of the pipeline: watch steps live, run one with a key, approve at the gates | `npm i -g @pieerry/harness-kit`, then `hk-tui` |
-
-# Agents
-
-| Agent | Turns | Into |
-|---|---|---|
-| `product-manager` | a problem | a PRD and an engineering-ready PRP |
-| `staff-software-engineer` | an approved PRP | a plan, code, tests, and a PR, using backend, web, mobile, or devops skills picked from your repo |
-| `system-architect` | a hard problem | a system design document plus an adversarial review |
-
-Registered in [AGENTS.md](./AGENTS.md).
+| You want | Run |
+|---|---|
+| Idea to merged PR, approving each step | `/golden-path` |
+| Stop only at the two decisions | `/pipeline:run "<idea>"` |
+| Spec only | `/product-manager:run` |
+| Build from a spec you have | `/sse:run` (`--local` to skip the PR) |
+| Design a hard system first | `/system-design:run` |
+| Resume | `/pipeline:continue` |
 
 # Learn more
 
-The [wiki](https://github.com/Pierry/harness-kit/wiki) explains each part and the theory behind it, also in [Portuguese and Spanish](https://pierry.github.io/harness-kit/wiki/). Good starting pages: [Getting Started](https://github.com/Pierry/harness-kit/wiki/Getting-Started), [Golden Path](https://github.com/Pierry/harness-kit/wiki/Golden-Path), [Evals](https://github.com/Pierry/harness-kit/wiki/Evals), [Graph Engineering](https://github.com/Pierry/harness-kit/wiki/Graph-Engineering), [Graph Theory](https://github.com/Pierry/harness-kit/wiki/Graph-Theory), [Jev and System One](https://github.com/Pierry/harness-kit/wiki/Jev-and-System-One), and [References](https://github.com/Pierry/harness-kit/wiki/References) for every source the design draws on.
+*1 min read*
 
-One honest limit: neither judge is checked against human ratings yet, so treat 8.0 as a useful signal, not a measurement.
+The [wiki](https://github.com/Pierry/harness-kit/wiki), also in [Portuguese and Spanish](https://pierry.github.io/harness-kit/wiki/), has [Getting Started](https://github.com/Pierry/harness-kit/wiki/Getting-Started) with every step in detail, how scoring works in [Evals](https://github.com/Pierry/harness-kit/wiki/Evals) and [Jev and System One](https://github.com/Pierry/harness-kit/wiki/Jev-and-System-One), traceability in [Graph Engineering](https://github.com/Pierry/harness-kit/wiki/Graph-Engineering) and [Graph Theory](https://github.com/Pierry/harness-kit/wiki/Graph-Theory), and the sources in [References](https://github.com/Pierry/harness-kit/wiki/References). The method is harness engineering from [Birgitta Böckeler](https://martinfowler.com/articles/harness-engineering.html). The three agents (`product-manager`, `staff-software-engineer`, `system-architect`) are mapped in [AGENTS.md](./AGENTS.md).
 
-# Contributing
-
-Issues and PRs are welcome. Everything is markdown, Python, and shell: agents in `.claude/agents/`, commands in `.claude/commands/`. [AGENTS.md](./AGENTS.md) maps where each piece lives.
-
-# License
-
-MIT. Built on [Claude Code](https://claude.ai/code).
+One honest limit: neither judge is checked against human ratings yet, so treat 8.0 as a signal, not a measurement. Issues and PRs welcome. MIT license.
