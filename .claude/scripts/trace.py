@@ -156,7 +156,12 @@ def _emit_scalar(v) -> str:
     if isinstance(v, list):
         return "[" + ", ".join(_emit_scalar(x) for x in v) + "]"
     s = str(v)
-    if s == "" or re.search(r"[:#\[\]{},\"']|^\s|\s$|^-", s) or _NUM.match(s) or s in ("true", "false", "null"):
+    if (
+        s == ""
+        or re.search(r"[:#\[\]{},\"']|^\s|\s$|^-", s)
+        or _NUM.match(s)
+        or s in ("true", "false", "null")
+    ):
         return json.dumps(s, ensure_ascii=False)
     return s
 
@@ -184,6 +189,7 @@ def yaml_dump(data, indent=0) -> str:
 
 # ---------------------------------------------------------------- repo + files
 
+
 def git(*args, cwd=None) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
 
@@ -196,8 +202,10 @@ def repo_root() -> Path:
 
 
 def ontology(root: Path) -> dict:
-    for p in (root / ".claude/graph/ontology.yml",
-              Path(__file__).resolve().parent.parent / "graph/ontology.yml"):
+    for p in (
+        root / ".claude/graph/ontology.yml",
+        Path(__file__).resolve().parent.parent / "graph/ontology.yml",
+    ):
         if p.exists():
             return yaml_load(p.read_text(encoding="utf-8"))
     sys.exit("[trace] ontology.yml not found")
@@ -217,8 +225,10 @@ def load(root: Path, feature: str) -> dict:
 def save(root: Path, feature: str, m: dict) -> None:
     p = manifest_path(root, feature)
     p.parent.mkdir(parents=True, exist_ok=True)
-    header = ("# Traceability manifest. Written by .claude/scripts/trace.py only;\n"
-              "# edit through it so the ontology and commit checks run.\n")
+    header = (
+        "# Traceability manifest. Written by .claude/scripts/trace.py only;\n"
+        "# edit through it so the ontology and commit checks run.\n"
+    )
     p.write_text(header + yaml_dump(m) + "\n", encoding="utf-8")
 
 
@@ -251,7 +261,10 @@ def symbol_present(root: Path, symbol: str) -> bool:
     if not name:
         return True
     leaf = re.split(r"[.#]", name)[-1]
-    return re.search(rf"\b{re.escape(leaf)}\b", f.read_text(encoding="utf-8", errors="replace")) is not None
+    return (
+        re.search(rf"\b{re.escape(leaf)}\b", f.read_text(encoding="utf-8", errors="replace"))
+        is not None
+    )
 
 
 # ---------------------------------------------------------------- requirements
@@ -284,6 +297,7 @@ def reqs_from_atoms(data: dict) -> list[dict]:
 
 # ---------------------------------------------------------------- commands
 
+
 def cmd_init(a, root):
     if a.atoms:
         reqs = reqs_from_atoms(json.loads(Path(a.atoms).read_text(encoding="utf-8")))
@@ -295,8 +309,10 @@ def cmd_init(a, root):
         print("[trace] init needs --prp or --atoms", file=sys.stderr)
         return 2
     if not reqs:
-        print("[trace] no requirement ids found (PRP criteria must read `- [ ] REQ-001: ...`)",
-              file=sys.stderr)
+        print(
+            "[trace] no requirement ids found (PRP criteria must read `- [ ] REQ-001: ...`)",
+            file=sys.stderr,
+        )
         return 2
     m = {
         "feature": a.feature,
@@ -336,12 +352,21 @@ def cmd_propose(a, root):
         print("[trace] a proposed link needs --method and --evidence", file=sys.stderr)
         return 2
     link = {
-        "from": a.req, "to": a.symbol, "type": "AFFECTS", "status": "PROPOSED",
-        "confidence": round(float(a.confidence), 2), "methods": a.method,
-        "evidence": evidence, "commit": head(root), "recorded": today(),
+        "from": a.req,
+        "to": a.symbol,
+        "type": "AFFECTS",
+        "status": "PROPOSED",
+        "confidence": round(float(a.confidence), 2),
+        "methods": a.method,
+        "evidence": evidence,
+        "commit": head(root),
+        "recorded": today(),
     }
-    links = [l for l in m.get("links") or []
-             if not (l["type"] == "AFFECTS" and l["from"] == a.req and l["to"] == a.symbol)]
+    links = [
+        lk
+        for lk in m.get("links") or []
+        if not (lk["type"] == "AFFECTS" and lk["from"] == a.req and lk["to"] == a.symbol)
+    ]
     links.append(link)
     m["links"] = links
     f = symbol_file(a.symbol)
@@ -379,17 +404,21 @@ def cmd_gate(a, root):
         return 2
     changed = {f for f in r.stdout.split() if f}
     wt = git("status", "--porcelain", "--untracked-files=no", cwd=root).stdout.splitlines()
-    changed |= {l[3:].split(" -> ")[-1] for l in wt if l[3:]}
+    changed |= {lk[3:].split(" -> ")[-1] for lk in wt if lk[3:]}
     allowed = {s["file"] for s in m.get("scope") or []}
     outside = sorted(f for f in changed if f not in allowed and not f.startswith(HARNESS_PATHS))
     if outside:
         print("[trace] SCOPE GATE FAILED. Files changed outside the plan's scope:")
         for f in outside:
             print(f"  {f}")
-        print("Either revert them, or widen scope on purpose: "
-              f"trace.py scope {a.feature} --add <file> --reason \"...\"")
+        print(
+            "Either revert them, or widen scope on purpose: "
+            f'trace.py scope {a.feature} --add <file> --reason "..."'
+        )
         return 1
-    print(f"[trace] scope gate passed: {len(changed)} changed, all inside {len(allowed)} scoped files")
+    print(
+        f"[trace] scope gate passed: {len(changed)} changed, all inside {len(allowed)} scoped files"
+    )
     return 0
 
 
@@ -398,11 +427,16 @@ def cmd_implement(a, root):
     if a.req not in _req_ids(m):
         print(f"[trace] unknown requirement {a.req}", file=sys.stderr)
         return 2
-    m.setdefault("links", []).append({
-        "from": a.symbol, "to": a.req, "type": "IMPLEMENTS",
-        "commit": resolve_commit(a.commit, root), "evidence": _kv(a.evidence) or {"diff": "commit touches symbol"},
-        "recorded": today(),
-    })
+    m.setdefault("links", []).append(
+        {
+            "from": a.symbol,
+            "to": a.req,
+            "type": "IMPLEMENTS",
+            "commit": resolve_commit(a.commit, root),
+            "evidence": _kv(a.evidence) or {"diff": "commit touches symbol"},
+            "recorded": today(),
+        }
+    )
     save(root, a.feature, m)
     print(f"[trace] {a.symbol} IMPLEMENTS {a.req}")
     return 0
@@ -413,10 +447,15 @@ def cmd_verify(a, root):
     if a.req not in _req_ids(m):
         print(f"[trace] unknown requirement {a.req}", file=sys.stderr)
         return 2
-    m.setdefault("links", []).append({
-        "from": a.req, "to": a.test, "type": "VERIFIED_BY",
-        "commit": resolve_commit(a.commit, root), "recorded": today(),
-    })
+    m.setdefault("links", []).append(
+        {
+            "from": a.req,
+            "to": a.test,
+            "type": "VERIFIED_BY",
+            "commit": resolve_commit(a.commit, root),
+            "recorded": today(),
+        }
+    )
     save(root, a.feature, m)
     print(f"[trace] {a.req} VERIFIED_BY {a.test}")
     return 0
@@ -441,17 +480,17 @@ def cmd_settle(a, root):
 
 def settle_one(a, root):
     m = load(root, a.feature)
-    verified = {l["from"] for l in m.get("links") or [] if l["type"] == "VERIFIED_BY"}
+    verified = {lk["from"] for lk in m.get("links") or [] if lk["type"] == "VERIFIED_BY"}
     counts = {"VALIDATED": 0, "STALE": 0, "PROPOSED": 0}
-    for l in m.get("links") or []:
-        if l["type"] != "AFFECTS":
+    for lk in m.get("links") or []:
+        if lk["type"] != "AFFECTS":
             continue
-        if not symbol_present(root, l["to"]):
-            l["status"] = "STALE"
-            l.setdefault("evidence", {})["settle"] = f"symbol not found at {head(root)}"
-        elif l["from"] in verified:
-            l["status"] = "VALIDATED"
-        counts[l["status"]] += 1
+        if not symbol_present(root, lk["to"]):
+            lk["status"] = "STALE"
+            lk.setdefault("evidence", {})["settle"] = f"symbol not found at {head(root)}"
+        elif lk["from"] in verified:
+            lk["status"] = "VALIDATED"
+        counts[lk["status"]] += 1
     m["settled"] = head(root)
     save(root, a.feature, m)
     print(f"[trace] settled {a.feature}: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
@@ -462,23 +501,26 @@ def validate_manifest(m: dict, onto: dict, root: Path, name: str) -> list[str]:
     errs = []
     edges = onto.get("edges") or {}
     reqs = _req_ids(m)
-    for i, l in enumerate(m.get("links") or []):
+    for i, lk in enumerate(m.get("links") or []):
         where = f"{name} link {i + 1}"
-        t = l.get("type")
+        t = lk.get("type")
         spec = edges.get(t)
         if not spec:
             errs.append(f"{where}: edge type {t!r} not in ontology")
             continue
         for field in spec.get("requires") or []:
-            if l.get(field) in (None, "", [], {}):
+            if lk.get(field) in (None, "", [], {}):
                 errs.append(f"{where}: {t} requires {field!r}")
-        if spec.get("statuses") and l.get("status") not in spec["statuses"]:
-            errs.append(f"{where}: status {l.get('status')!r} not in {spec['statuses']}")
-        req_end = l.get("from") if spec.get("from") == "Requirement" else l.get("to")
+        if spec.get("statuses") and lk.get("status") not in spec["statuses"]:
+            errs.append(f"{where}: status {lk.get('status')!r} not in {spec['statuses']}")
+        req_end = lk.get("from") if spec.get("from") == "Requirement" else lk.get("to")
         if req_end not in reqs:
             errs.append(f"{where}: requirement {req_end!r} not declared in requirements")
-        if l.get("commit") and git("cat-file", "-e", f"{l['commit']}^{{commit}}", cwd=root).returncode != 0:
-            errs.append(f"{where}: commit {l['commit']!r} does not exist")
+        if (
+            lk.get("commit")
+            and git("cat-file", "-e", f"{lk['commit']}^{{commit}}", cwd=root).returncode != 0
+        ):
+            errs.append(f"{where}: commit {lk['commit']!r} does not exist")
     return errs
 
 
@@ -487,7 +529,9 @@ def cmd_validate(a, root):
     files = [Path(p) for p in a.manifests] or sorted((root / "trace").glob("*.yml"))
     errs = []
     for f in files:
-        errs += validate_manifest(yaml_load(f.read_text(encoding="utf-8")) or {}, onto, root, f.name)
+        errs += validate_manifest(
+            yaml_load(f.read_text(encoding="utf-8")) or {}, onto, root, f.name
+        )
     for e in errs:
         print(f"[trace] {e}")
     print(f"[trace] validated {len(files)} manifest(s), {len(errs)} error(s)")
@@ -502,37 +546,70 @@ def cmd_summary(a, root):
     print("|---|---|---|---|---|")
     for r in m.get("requirements") or []:
         rid = r["id"]
-        aff = [l for l in links if l["type"] == "AFFECTS" and l["from"] == rid]
-        imp = [l["from"] for l in links if l["type"] == "IMPLEMENTS" and l["to"] == rid]
-        ver = [l["to"] for l in links if l["type"] == "VERIFIED_BY" and l["from"] == rid]
-        targets = ", ".join(f"`{l['to']}`" for l in aff) or "none"
-        status = ", ".join(sorted({l["status"] for l in aff})) or "none"
-        print(f"| {rid} | {targets} | {status} | {len(imp)} | {', '.join(f'`{t}`' for t in ver) or 'none'} |")
+        aff = [lk for lk in links if lk["type"] == "AFFECTS" and lk["from"] == rid]
+        imp = [lk["from"] for lk in links if lk["type"] == "IMPLEMENTS" and lk["to"] == rid]
+        ver = [lk["to"] for lk in links if lk["type"] == "VERIFIED_BY" and lk["from"] == rid]
+        targets = ", ".join(f"`{lk['to']}`" for lk in aff) or "none"
+        status = ", ".join(sorted({lk["status"] for lk in aff})) or "none"
+        print(
+            f"| {rid} | {targets} | {status} | {len(imp)} | "
+            f"{', '.join(f'`{t}`' for t in ver) or 'none'} |"
+        )
     return 0
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("init"); p.add_argument("feature"); p.add_argument("--prp"); p.add_argument("--atoms")
-    p = sub.add_parser("propose"); p.add_argument("feature"); p.add_argument("--req", required=True)
-    p.add_argument("--symbol", required=True); p.add_argument("--method", action="append")
-    p.add_argument("--evidence", action="append"); p.add_argument("--confidence", default="0.5")
-    p = sub.add_parser("scope"); p.add_argument("feature"); p.add_argument("--add"); p.add_argument("--reason")
-    p = sub.add_parser("gate"); p.add_argument("feature"); p.add_argument("--base")
-    p = sub.add_parser("implement"); p.add_argument("feature"); p.add_argument("--req", required=True)
-    p.add_argument("--symbol", required=True); p.add_argument("--commit", required=True)
+    p = sub.add_parser("init")
+    p.add_argument("feature")
+    p.add_argument("--prp")
+    p.add_argument("--atoms")
+    p = sub.add_parser("propose")
+    p.add_argument("feature")
+    p.add_argument("--req", required=True)
+    p.add_argument("--symbol", required=True)
+    p.add_argument("--method", action="append")
     p.add_argument("--evidence", action="append")
-    p = sub.add_parser("verify"); p.add_argument("feature"); p.add_argument("--req", required=True)
-    p.add_argument("--test", required=True); p.add_argument("--commit", required=True)
-    p = sub.add_parser("settle"); p.add_argument("feature", nargs="?"); p.add_argument("--all", action="store_true")
-    p = sub.add_parser("validate"); p.add_argument("manifests", nargs="*")
-    p = sub.add_parser("summary"); p.add_argument("feature")
+    p.add_argument("--confidence", default="0.5")
+    p = sub.add_parser("scope")
+    p.add_argument("feature")
+    p.add_argument("--add")
+    p.add_argument("--reason")
+    p = sub.add_parser("gate")
+    p.add_argument("feature")
+    p.add_argument("--base")
+    p = sub.add_parser("implement")
+    p.add_argument("feature")
+    p.add_argument("--req", required=True)
+    p.add_argument("--symbol", required=True)
+    p.add_argument("--commit", required=True)
+    p.add_argument("--evidence", action="append")
+    p = sub.add_parser("verify")
+    p.add_argument("feature")
+    p.add_argument("--req", required=True)
+    p.add_argument("--test", required=True)
+    p.add_argument("--commit", required=True)
+    p = sub.add_parser("settle")
+    p.add_argument("feature", nargs="?")
+    p.add_argument("--all", action="store_true")
+    p = sub.add_parser("validate")
+    p.add_argument("manifests", nargs="*")
+    p = sub.add_parser("summary")
+    p.add_argument("feature")
     a = ap.parse_args()
     root = repo_root()
-    return {"init": cmd_init, "propose": cmd_propose, "scope": cmd_scope, "gate": cmd_gate,
-            "implement": cmd_implement, "verify": cmd_verify, "settle": cmd_settle,
-            "validate": cmd_validate, "summary": cmd_summary}[a.cmd](a, root)
+    return {
+        "init": cmd_init,
+        "propose": cmd_propose,
+        "scope": cmd_scope,
+        "gate": cmd_gate,
+        "implement": cmd_implement,
+        "verify": cmd_verify,
+        "settle": cmd_settle,
+        "validate": cmd_validate,
+        "summary": cmd_summary,
+    }[a.cmd](a, root)
 
 
 if __name__ == "__main__":

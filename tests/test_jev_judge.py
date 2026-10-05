@@ -36,8 +36,11 @@ es = load("eval_score", REPO / ".claude/scripts/eval-score.py")
 
 PRD_QUALITY = REPO / ".claude/agents/product-manager/evals/prd-quality.md"
 PLAN_QUALITY = REPO / ".claude/agents/staff-software-engineer/evals/plan-quality.md"
-WEIGHTED = [p for p in sorted((REPO / ".claude/agents").glob("*/evals/*.md"))
-            if "(weight" in p.read_text(encoding="utf-8")]
+WEIGHTED = [
+    p
+    for p in sorted((REPO / ".claude/agents").glob("*/evals/*.md"))
+    if "(weight" in p.read_text(encoding="utf-8")
+]
 
 
 def answer(probs, confidence=0.9):
@@ -49,18 +52,29 @@ def noul(p):
 
 
 GOOD = {
-    "prd": (PRD_QUALITY, REPO / ".claude/agents/product-manager/guides/examples/good-prd-example.md"),
-    "prp": (REPO / ".claude/agents/product-manager/evals/prp-quality.md",
-            REPO / ".claude/agents/product-manager/guides/examples/good-prp-example.md"),
-    "design": (REPO / ".claude/agents/system-architect/evals/design-quality.md",
-               REPO / ".claude/agents/system-architect/guides/examples/good-system-design-example.md"),
+    "prd": (
+        PRD_QUALITY,
+        REPO / ".claude/agents/product-manager/guides/examples/good-prd-example.md",
+    ),
+    "prp": (
+        REPO / ".claude/agents/product-manager/evals/prp-quality.md",
+        REPO / ".claude/agents/product-manager/guides/examples/good-prp-example.md",
+    ),
+    "design": (
+        REPO / ".claude/agents/system-architect/evals/design-quality.md",
+        REPO / ".claude/agents/system-architect/guides/examples/good-system-design-example.md",
+    ),
 }
 
 
 def all_yes(dims, state, p=1.0):
     payload, decided = jj.build_request(dims, state)
-    return {"answers": {q: noul(p) if v["type"] == "noul" else answer({"2": 1.0})
-                        for q, v in payload["questions"].items()}}, decided
+    return {
+        "answers": {
+            q: noul(p) if v["type"] == "noul" else answer({"2": 1.0})
+            for q, v in payload["questions"].items()
+        }
+    }, decided
 
 
 class ParseDimensions(unittest.TestCase):
@@ -91,14 +105,20 @@ class ParseDimensions(unittest.TestCase):
 
 class ArtifactState(unittest.TestCase):
     def test_sections_keyed_by_heading_without_numbering(self):
-        st = jj.artifact_state("# T\n\nintro\n\n## 3) Scope and Non-Goals\nx\n\n## 12. Trade-offs\ny\n")
+        st = jj.artifact_state(
+            "# T\n\nintro\n\n## 3) Scope and Non-Goals\nx\n\n## 12. Trade-offs\ny\n"
+        )
         self.assertEqual(st["title"], "T")
-        self.assertEqual(st["sections"], {"preamble": "intro", "scope_and_non_goals": "x", "trade_offs": "y"})
+        self.assertEqual(
+            st["sections"], {"preamble": "intro", "scope_and_non_goals": "x", "trade_offs": "y"}
+        )
 
     def test_every_section_a_check_names_exists_in_the_good_examples(self):
         for name, (rubric, example) in GOOD.items():
             dims = jj.parse_dimensions(rubric.read_text(encoding="utf-8"))
-            _, decided = jj.build_request(dims, jj.artifact_state(example.read_text(encoding="utf-8")))
+            _, decided = jj.build_request(
+                dims, jj.artifact_state(example.read_text(encoding="utf-8"))
+            )
             self.assertEqual(decided, {}, name)
 
     def test_absent_regexes_do_not_fire_on_the_good_examples(self):
@@ -111,37 +131,88 @@ class ArtifactState(unittest.TestCase):
 
 class ToJudge(unittest.TestCase):
     dims = [
-        {"key": "a", "name": "A", "weight": 50, "question": "qa", "checks": ["c1", "c2"],
-         "absent": [], "levels": jj.DEFAULT_LEVELS},
-        {"key": "b", "name": "B", "weight": 50, "question": "qb", "checks": [],
-         "absent": [], "levels": jj.DEFAULT_LEVELS},
+        {
+            "key": "a",
+            "name": "A",
+            "weight": 50,
+            "question": "qa",
+            "checks": ["c1", "c2"],
+            "absent": [],
+            "levels": jj.DEFAULT_LEVELS,
+        },
+        {
+            "key": "b",
+            "name": "B",
+            "weight": 50,
+            "question": "qb",
+            "checks": [],
+            "absent": [],
+            "levels": jj.DEFAULT_LEVELS,
+        },
     ]
 
     def test_dimension_score_is_share_of_checks_met(self):
-        out = jj.to_judge(self.dims, {"answers": {
-            "a__0": noul(1.0), "a__1": noul(0.5),
-            "b": answer({"0": 0.0, "1": 0.3, "2": 0.7}),
-        }}, {}, "")
+        out = jj.to_judge(
+            self.dims,
+            {
+                "answers": {
+                    "a__0": noul(1.0),
+                    "a__1": noul(0.5),
+                    "b": answer({"0": 0.0, "1": 0.3, "2": 0.7}),
+                }
+            },
+            {},
+            "",
+        )
         self.assertEqual(out["scores"], {"a": 7.5, "b": 8.5})
 
     def test_feedback_names_failed_and_unclear_checks(self):
-        out = jj.to_judge(self.dims, {"answers": {
-            "a__0": noul(0.1), "a__1": noul(0.6), "b": answer({"2": 1.0}),
-        }}, {}, "")
+        out = jj.to_judge(
+            self.dims,
+            {
+                "answers": {
+                    "a__0": noul(0.1),
+                    "a__1": noul(0.6),
+                    "b": answer({"2": 1.0}),
+                }
+            },
+            {},
+            "",
+        )
         self.assertIn("a: fails: c1 (p=0.10)", out["feedback"])
         self.assertIn("a: unclear: c2 (p=0.60)", out["feedback"])
 
     def test_absent_check_runs_in_code(self):
-        dims = [{"key": "v", "name": "V", "weight": 100, "question": "", "checks": [],
-                 "absent": ["\u2014"], "levels": jj.DEFAULT_LEVELS}]
+        dims = [
+            {
+                "key": "v",
+                "name": "V",
+                "weight": 100,
+                "question": "",
+                "checks": [],
+                "absent": ["\u2014"],
+                "levels": jj.DEFAULT_LEVELS,
+            }
+        ]
         payload, decided = jj.build_request(dims, jj.artifact_state("x"))
         self.assertEqual(payload["questions"], {})
-        self.assertEqual(jj.to_judge(dims, {"answers": {}}, decided, "a \u2014 b")["scores"], {"v": 0.0})
+        self.assertEqual(
+            jj.to_judge(dims, {"answers": {}}, decided, "a \u2014 b")["scores"], {"v": 0.0}
+        )
         self.assertEqual(jj.to_judge(dims, {"answers": {}}, decided, "a, b")["scores"], {"v": 10.0})
 
     def test_check_on_missing_section_fails_without_asking_jev(self):
-        dims = [{"key": "m", "name": "M", "weight": 100, "question": "", "absent": [],
-                 "checks": ["`sections.rollout` has phases."], "levels": jj.DEFAULT_LEVELS}]
+        dims = [
+            {
+                "key": "m",
+                "name": "M",
+                "weight": 100,
+                "question": "",
+                "absent": [],
+                "checks": ["`sections.rollout` has phases."],
+                "levels": jj.DEFAULT_LEVELS,
+            }
+        ]
         payload, decided = jj.build_request(dims, jj.artifact_state("## Goal\nx"))
         self.assertEqual(payload["questions"], {})
         self.assertEqual(jj.to_judge(dims, {"answers": {}}, decided, "")["scores"], {"m": 0.0})
@@ -152,11 +223,22 @@ class ToJudge(unittest.TestCase):
 
 
 class Escalation(unittest.TestCase):
-    dims = [{"key": "a", "name": "A", "weight": 100, "question": "", "absent": [],
-             "checks": ["c1", "c2", "c3", "c4", "c5"], "levels": jj.DEFAULT_LEVELS}]
+    dims = [
+        {
+            "key": "a",
+            "name": "A",
+            "weight": 100,
+            "question": "",
+            "absent": [],
+            "checks": ["c1", "c2", "c3", "c4", "c5"],
+            "levels": jj.DEFAULT_LEVELS,
+        }
+    ]
 
     def judge(self, ps):
-        return jj.to_judge(self.dims, {"answers": {f"a__{i}": noul(p) for i, p in enumerate(ps)}}, {}, "")
+        return jj.to_judge(
+            self.dims, {"answers": {f"a__{i}": noul(p) for i, p in enumerate(ps)}}, {}, ""
+        )
 
     def test_confident_answers_decide(self):
         self.assertFalse(jj.undecided(self.dims, self.judge([1, 1, 1, 1, 0.02]), 8.0))
@@ -183,9 +265,12 @@ class EndToEnd(unittest.TestCase):
 
     def run_main(self, project, env):
         argv = ["jev-judge.py", "--rubric", str(PRD_QUALITY), "--artifact", str(PRD_QUALITY)]
-        with mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": project, **env}, clear=True), \
-             mock.patch("sys.argv", argv), \
-             contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        with (
+            mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": project, **env}, clear=True),
+            mock.patch("sys.argv", argv),
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
             return jj.main()
 
     def test_local_judge_exits_3_without_calling_the_api(self):
@@ -200,16 +285,20 @@ class EndToEnd(unittest.TestCase):
             call.assert_not_called()
 
     def test_api_failure_exits_3(self):
-        with tempfile.TemporaryDirectory() as d, \
-             mock.patch.object(jj, "call_jev", side_effect=TimeoutError("slow")):
+        with (
+            tempfile.TemporaryDirectory() as d,
+            mock.patch.object(jj, "call_jev", side_effect=TimeoutError("slow")),
+        ):
             set_judge(d, "jev")
             self.assertEqual(self.run_main(d, {"TYPESAFE_API_KEY": "k"}), 3)
 
     def test_jev_with_key_returns_judge_json(self):
         dims = jj.parse_dimensions(PRD_QUALITY.read_text(encoding="utf-8"))
         fake, _ = all_yes(dims, jj.artifact_state(PRD_QUALITY.read_text(encoding="utf-8")))
-        with tempfile.TemporaryDirectory() as d, \
-             mock.patch.object(jj, "call_jev", return_value=fake) as call:
+        with (
+            tempfile.TemporaryDirectory() as d,
+            mock.patch.object(jj, "call_jev", return_value=fake) as call,
+        ):
             set_judge(d, "jev", key_env="MY_KEY")
             self.assertEqual(self.run_main(d, {"MY_KEY": "k"}), 0)
             self.assertEqual(call.call_args.args[1], "k")
@@ -224,8 +313,9 @@ def set_judge(project, judge, key_env="TYPESAFE_API_KEY"):
 class HkConfig(unittest.TestCase):
     def run_cfg(self, project, *args, stdin=None, env=None):
         e = {"PATH": os.environ["PATH"], "CLAUDE_PROJECT_DIR": project, **(env or {})}
-        return subprocess.run(["python3", str(HK_CONFIG), *args], input=stdin,
-                              capture_output=True, text=True, env=e)
+        return subprocess.run(
+            ["python3", str(HK_CONFIG), *args], input=stdin, capture_output=True, text=True, env=e
+        )
 
     def test_defaults_to_local(self):
         with tempfile.TemporaryDirectory() as d:
@@ -255,6 +345,7 @@ class HkConfig(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
             cfg = json.loads((Path(d) / ".claude/hk-config.json").read_text())
             self.assertEqual(cfg["eval"], {"judge": "jev", "key_env": "TS_KEY"})
+
 
 if __name__ == "__main__":
     unittest.main()

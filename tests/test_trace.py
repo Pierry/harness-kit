@@ -46,12 +46,19 @@ class Repo:
         (self.path / "prp.md").write_text(
             "**Success criteria (verifiable):**\n"
             "- [ ] REQ-001: Reject shipments over 30 kg at weight validation.\n"
-            "- [ ] REQ-002: Router picks the cheapest carrier.\n")
+            "- [ ] REQ-002: Router picks the cheapest carrier.\n"
+        )
 
     def trace(self, *args, check=False):
         env = {**os.environ, "CLAUDE_PROJECT_DIR": str(self.path)}
-        return subprocess.run([sys.executable, str(TRACE), *args], cwd=self.path,
-                              capture_output=True, text=True, env=env, check=check)
+        return subprocess.run(
+            [sys.executable, str(TRACE), *args],
+            cwd=self.path,
+            capture_output=True,
+            text=True,
+            env=env,
+            check=check,
+        )
 
     def manifest(self):
         return tr.yaml_load((self.path / "trace/f.yml").read_text())
@@ -62,9 +69,20 @@ class Repo:
 
 class YamlSubset(unittest.TestCase):
     def test_round_trip_of_what_trace_writes(self):
-        data = {"feature": "f", "requirements": [{"id": "REQ-001", "text": "Given x: then y"}],
-                "links": [{"from": "REQ-001", "to": "a.py::f", "type": "AFFECTS", "confidence": 0.8,
-                           "methods": ["semble", "cpg_callers"], "evidence": {"semble": "match #1"}}]}
+        data = {
+            "feature": "f",
+            "requirements": [{"id": "REQ-001", "text": "Given x: then y"}],
+            "links": [
+                {
+                    "from": "REQ-001",
+                    "to": "a.py::f",
+                    "type": "AFFECTS",
+                    "confidence": 0.8,
+                    "methods": ["semble", "cpg_callers"],
+                    "evidence": {"semble": "match #1"},
+                }
+            ],
+        }
         self.assertEqual(tr.yaml_load(tr.yaml_dump(data)), data)
 
     def test_reads_the_shipped_ontology(self):
@@ -76,7 +94,9 @@ class YamlSubset(unittest.TestCase):
 
 class Requirements(unittest.TestCase):
     def test_prp_lines_become_stable_ids(self):
-        reqs = tr.reqs_from_prp("- [ ] REQ-001: a\n- [x] REQ-002: b\n- plain bullet\n- [ ] REQ-001: dup\n")
+        reqs = tr.reqs_from_prp(
+            "- [ ] REQ-001: a\n- [x] REQ-002: b\n- plain bullet\n- [ ] REQ-001: dup\n"
+        )
         self.assertEqual([r["id"] for r in reqs], ["REQ-001", "REQ-002"])
 
     def test_atomize_ids_are_kept(self):
@@ -93,8 +113,20 @@ class Lifecycle(unittest.TestCase):
         self.r.close()
 
     def propose(self, req, symbol):
-        return self.r.trace("propose", "f", "--req", req, "--symbol", symbol, "--method", "semble",
-                            "--evidence", "semble=match", "--confidence", "0.8")
+        return self.r.trace(
+            "propose",
+            "f",
+            "--req",
+            req,
+            "--symbol",
+            symbol,
+            "--method",
+            "semble",
+            "--evidence",
+            "semble=match",
+            "--confidence",
+            "0.8",
+        )
 
     def test_propose_records_link_and_scope(self):
         self.assertEqual(self.propose("REQ-001", "src/ship.py::validate_weight").returncode, 0)
@@ -106,8 +138,16 @@ class Lifecycle(unittest.TestCase):
         self.assertEqual(self.propose("REQ-999", "src/ship.py::x").returncode, 2)
 
     def test_fabricated_commit_is_refused(self):
-        p = self.r.trace("implement", "f", "--req", "REQ-001", "--symbol", "src/ship.py::validate_weight",
-                         "--commit", "deadbeefdeadbeef")
+        p = self.r.trace(
+            "implement",
+            "f",
+            "--req",
+            "REQ-001",
+            "--symbol",
+            "src/ship.py::validate_weight",
+            "--commit",
+            "deadbeefdeadbeef",
+        )
         self.assertNotEqual(p.returncode, 0)
         self.assertNotIn("IMPLEMENTS", (self.r.path / "trace/f.yml").read_text())
 
@@ -120,24 +160,41 @@ class Lifecycle(unittest.TestCase):
         gate = self.r.trace("gate", "f")
         self.assertEqual(gate.returncode, 1)
         self.assertIn("src/router.py", gate.stdout)
-        self.assertEqual(self.r.trace("scope", "f", "--add", "src/router.py").returncode, 2)  # needs a reason
+        self.assertEqual(
+            self.r.trace("scope", "f", "--add", "src/router.py").returncode, 2
+        )  # needs a reason
         self.r.trace("scope", "f", "--add", "src/router.py", "--reason", "shared helper")
         self.assertEqual(self.r.trace("gate", "f").returncode, 0)
 
     def test_settle_validates_tested_links_and_stales_moved_symbols(self):
         self.propose("REQ-001", "src/ship.py::validate_weight")
         self.propose("REQ-002", "src/router.py::select")
-        self.r.trace("verify", "f", "--req", "REQ-001", "--test", "tests/t.py::test_reject", "--commit", "HEAD",
-                     check=True)
+        self.r.trace(
+            "verify",
+            "f",
+            "--req",
+            "REQ-001",
+            "--test",
+            "tests/t.py::test_reject",
+            "--commit",
+            "HEAD",
+            check=True,
+        )
         (self.r.path / "src/router.py").write_text("def choose():\n    pass\n")
         self.r.trace("settle", "--all", check=True)
-        status = {l["from"]: l["status"] for l in self.r.manifest()["links"] if l["type"] == "AFFECTS"}
+        status = {
+            lk["from"]: lk["status"] for lk in self.r.manifest()["links"] if lk["type"] == "AFFECTS"
+        }
         self.assertEqual(status, {"REQ-001": "VALIDATED", "REQ-002": "STALE"})
 
     def test_validate_catches_illegal_edge_and_missing_requirement(self):
         self.propose("REQ-001", "src/ship.py::validate_weight")
         p = self.r.path / "trace/f.yml"
-        p.write_text(p.read_text().replace("type: AFFECTS", "type: OWNS").replace("from: REQ-001", "from: REQ-404"))
+        p.write_text(
+            p.read_text()
+            .replace("type: AFFECTS", "type: OWNS")
+            .replace("from: REQ-001", "from: REQ-404")
+        )
         out = self.r.trace("validate")
         self.assertEqual(out.returncode, 1)
         self.assertIn("not in ontology", out.stdout)
@@ -154,13 +211,34 @@ class GraphManifestMode(unittest.TestCase):
         r = Repo()
         try:
             r.trace("init", "f", "--prp", "prp.md", check=True)
-            r.trace("propose", "f", "--req", "REQ-001", "--symbol", "src/ship.py::validate_weight",
-                    "--method", "semble", "--evidence", "semble=x", check=True)
+            r.trace(
+                "propose",
+                "f",
+                "--req",
+                "REQ-001",
+                "--symbol",
+                "src/ship.py::validate_weight",
+                "--method",
+                "semble",
+                "--evidence",
+                "semble=x",
+                check=True,
+            )
             env = {**os.environ, "CLAUDE_PROJECT_DIR": str(r.path), "PATH": "/usr/bin:/bin"}
-            run = lambda *a: subprocess.run([sys.executable, str(GRAPH), *a], cwd=r.path, env=env,
-                                            capture_output=True, text=True)
+
+            def run(*a):
+                return subprocess.run(
+                    [sys.executable, str(GRAPH), *a],
+                    cwd=r.path,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                )
+
             self.assertIn("REQ-001", run("knowledge", "reject heavy shipments weight").stdout)
-            self.assertIn("src/ship.py::validate_weight", run("symbols", "weight validation shipments").stdout)
+            self.assertIn(
+                "src/ship.py::validate_weight", run("symbols", "weight validation shipments").stdout
+            )
             self.assertIn("AFFECTS", run("history", "src/ship.py").stdout)
             self.assertEqual(run("sync").returncode, 3)  # full-only command refuses in off mode
         finally:

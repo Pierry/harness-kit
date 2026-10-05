@@ -102,7 +102,7 @@ def parse_dimensions(md: str) -> list[dict]:
     matches = list(SECTION_RE.finditer(md))
     for i, m in enumerate(matches):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(md)
-        body = re.split(r"^##\s", md[m.end():end], maxsplit=1, flags=re.MULTILINE)[0]
+        body = re.split(r"^##\s", md[m.end() : end], maxsplit=1, flags=re.MULTILINE)[0]
         question, anchors, checks, absent = [], [], [], []
         for line in body.splitlines():
             line = line.strip()
@@ -115,15 +115,17 @@ def parse_dimensions(md: str) -> list[dict]:
             elif line:
                 question.append(line)
         anchors.sort()
-        dims.append({
-            "key": dimension_key(m.group(1)),
-            "name": m.group(1).strip(),
-            "weight": int(m.group(2)),
-            "question": " ".join(question) or m.group(1).strip(),
-            "checks": checks,
-            "absent": absent,
-            "levels": anchors if len(anchors) >= 2 else DEFAULT_LEVELS,
-        })
+        dims.append(
+            {
+                "key": dimension_key(m.group(1)),
+                "name": m.group(1).strip(),
+                "weight": int(m.group(2)),
+                "question": " ".join(question) or m.group(1).strip(),
+                "checks": checks,
+                "absent": absent,
+                "levels": anchors if len(anchors) >= 2 else DEFAULT_LEVELS,
+            }
+        )
     return dims
 
 
@@ -203,7 +205,9 @@ def to_judge(dims: list[dict], response: dict, decided: dict, artifact: str) -> 
                 p = float(a["noul"])
             results.append((text, p))
         for pattern in d["absent"]:
-            results.append((f"no match for /{pattern}/", 0.0 if re.search(pattern, artifact) else 1.0))
+            results.append(
+                (f"no match for /{pattern}/", 0.0 if re.search(pattern, artifact) else 1.0)
+            )
 
         if results:
             n = len(results)
@@ -261,7 +265,7 @@ def call_jev(payload: dict, key: str, timeout: float = 30.0, attempts: int = 3) 
         except urllib.error.HTTPError as e:
             if e.code not in (429, 529) or attempt == attempts - 1:
                 raise
-            time.sleep(float(e.headers.get("retry-after") or 2 ** attempt))
+            time.sleep(float(e.headers.get("retry-after") or 2**attempt))
     raise RuntimeError("unreachable")
 
 
@@ -270,11 +274,18 @@ def log_run(root: Path, rubric: Path, artifact: Path, judge: dict, verdict: str)
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "a", encoding="utf-8") as f:
-            f.write(json.dumps({
-                "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                "rubric": str(rubric), "artifact": str(artifact),
-                "verdict": verdict, **judge,
-            }) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "rubric": str(rubric),
+                        "artifact": str(artifact),
+                        "verdict": verdict,
+                        **judge,
+                    }
+                )
+                + "\n"
+            )
     except OSError:
         pass  # the log is for later analysis, never a reason to fail the eval
 
@@ -288,26 +299,36 @@ def main() -> int:
     root = hk_config.project_root()
     settings = hk_config.eval_settings(root)
     if settings["judge"] != "jev":
-        print("[jev-judge] eval judge is local (/hk:eval jev to switch), use the Claude judge",
-              file=sys.stderr)
+        print(
+            "[jev-judge] eval judge is local (/hk:eval jev to switch), use the Claude judge",
+            file=sys.stderr,
+        )
         return 3
     key = hk_config.key_value(root, settings["key_env"])
     if not key:
-        print(f"[jev-judge] judge is jev but {settings['key_env']} is not set, "
-              "use the Claude judge and tell the user to run /hk:eval jev", file=sys.stderr)
+        print(
+            f"[jev-judge] judge is jev but {settings['key_env']} is not set, "
+            "use the Claude judge and tell the user to run /hk:eval jev",
+            file=sys.stderr,
+        )
         return 3
 
     rubric_md = args.rubric.read_text(encoding="utf-8")
     dims = parse_dimensions(rubric_md)
     if not dims:
-        print(f"[jev-judge] no weighted dimensions in {args.rubric.name}, use the Claude judge",
-              file=sys.stderr)
+        print(
+            f"[jev-judge] no weighted dimensions in {args.rubric.name}, use the Claude judge",
+            file=sys.stderr,
+        )
         return 2
 
     artifact = args.artifact.read_text(encoding="utf-8")
     if len(artifact) > MAX_STATE_CHARS:
-        print(f"[jev-judge] artifact is {len(artifact)} chars, over Jev's context, "
-              "use the Claude judge", file=sys.stderr)
+        print(
+            f"[jev-judge] artifact is {len(artifact)} chars, over Jev's context, "
+            "use the Claude judge",
+            file=sys.stderr,
+        )
         return 3
 
     try:
@@ -315,15 +336,22 @@ def main() -> int:
         response = call_jev(payload, key) if payload["questions"] else {"answers": {}}
         judge = to_judge(dims, response, decided, artifact)
     except (urllib.error.URLError, TimeoutError, ValueError, KeyError) as e:
-        detail = e.read().decode("utf-8", "replace")[:300] if isinstance(e, urllib.error.HTTPError) else e
+        detail = (
+            e.read().decode("utf-8", "replace")[:300]
+            if isinstance(e, urllib.error.HTTPError)
+            else e
+        )
         print(f"[jev-judge] Jev call failed ({detail}), use the Claude judge", file=sys.stderr)
         return 3
 
     _, threshold = eval_score.parse_rubric(rubric_md)
     if undecided(dims, judge, threshold):
         log_run(root, args.rubric, args.artifact, judge, "escalated")
-        print("[jev-judge] uncertain answers decide pass/fail here "
-              f"(bounds straddle {threshold}), use the Claude judge", file=sys.stderr)
+        print(
+            "[jev-judge] uncertain answers decide pass/fail here "
+            f"(bounds straddle {threshold}), use the Claude judge",
+            file=sys.stderr,
+        )
         return 3
 
     log_run(root, args.rubric, args.artifact, judge, "judged")

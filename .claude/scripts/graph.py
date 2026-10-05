@@ -14,9 +14,10 @@ database only stores. The graph is a projection: delete it and `sync` plus
 Models only where there is judgment. Manifests and the CPG load through
 parsers, never an LLM. Graphiti (LLM extraction) runs only on unstructured
 documents passed to `ingest`. Its models default to NVIDIA build (free tier,
-OpenAI-compatible): nemotron-3-super-120b-a12b for extraction (valid JSON 4 of 4, 2.5 to
-4.6 s, measured 2026-10-05; deepseek-v4.1-flash and glm-5.3-flash timed out at 90 s), nemotron-3-embed-1b for
-embeddings. The embedqa models are not used: they require `input_type`, which
+OpenAI-compatible): nemotron-3-super-120b-a12b for extraction (valid JSON 4
+of 4, 2.5 to 4.6 s, measured 2026-10-05; deepseek-v4.1-flash and glm-5.3-flash
+timed out at 90 s), nemotron-3-embed-1b for embeddings. The embedqa models are
+not used: they require `input_type`, which
 OpenAI-compatible clients do not send. NVIDIA retires models without notice
 (deepseek-v4-flash-0731 went on 2026-09-21), so `status` checks both ids
 against the live catalog; override with HK_GRAPH_LLM_MODEL / HK_GRAPH_EMBED_MODEL.
@@ -70,14 +71,26 @@ EMBED_MODEL = os.environ.get("HK_GRAPH_EMBED_MODEL", "nvidia/nemotron-3-embed-1b
 EMBED_DIM = int(os.environ.get("HK_GRAPH_EMBED_DIM", "2048"))
 BASE_URL = os.environ.get("HK_GRAPH_BASE_URL", NVIDIA)
 GRAPH = "kg"
-FRONTENDS = {".java": "javasrc2cpg", ".kt": "kotlin2cpg", ".py": "pysrc2cpg", ".js": "jssrc2cpg",
-             ".ts": "jssrc2cpg", ".go": "gosrc2cpg", ".cs": "csharpsrc2cpg", ".php": "php2cpg",
-             ".c": "c2cpg", ".cpp": "c2cpg"}
+FRONTENDS = {
+    ".java": "javasrc2cpg",
+    ".kt": "kotlin2cpg",
+    ".py": "pysrc2cpg",
+    ".js": "jssrc2cpg",
+    ".ts": "jssrc2cpg",
+    ".go": "gosrc2cpg",
+    ".cs": "csharpsrc2cpg",
+    ".php": "php2cpg",
+    ".c": "c2cpg",
+    ".cpp": "c2cpg",
+}
 SKIP_DIRS = {".git", "node_modules", "target", "build", "dist", ".venv", "vendor", ".claude"}
-TEST_PATH = re.compile(r"(^|/)(tests?|spec|__tests__)(/|$)|(_test|Test|Tests|\.test|\.spec)\.[a-z]+$")
+TEST_PATH = re.compile(
+    r"(^|/)(tests?|spec|__tests__)(/|$)|(_test|Test|Tests|\.test|\.spec)\.[a-z]+$"
+)
 
 
 # ---------------------------------------------------------------- shared
+
 
 def root() -> Path:
     return trace.repo_root()
@@ -91,7 +104,9 @@ def db_file(r: Path) -> Path:
     p = r / ".claude/runtime/graph/kg.db"
     if not p.parent.exists():
         p.parent.mkdir(parents=True)
-        hk_config.ensure_ignored(r, ".claude/runtime/graph/")  # projection, rebuildable, never committed
+        hk_config.ensure_ignored(
+            r, ".claude/runtime/graph/"
+        )  # projection, rebuildable, never committed
     return p
 
 
@@ -115,6 +130,7 @@ def overlap(a: str, b: str) -> int:
 def in_venv() -> bool:
     try:
         import redislite  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -138,6 +154,7 @@ def falkor(r: Path):
     if _DB is None:
         import atexit
         from redislite.falkordb_client import FalkorDB
+
         _DB = FalkorDB(str(db_file(r)))
         atexit.register(_DB.close)
     return _DB.select_graph(GRAPH)
@@ -153,6 +170,7 @@ def nvidia_key(r: Path) -> str | None:
 
 
 # ---------------------------------------------------------------- the 4 calls
+
 
 def cmd_knowledge(a, r):
     hits = []
@@ -182,14 +200,21 @@ def semble_candidates(r: Path, text: str) -> list[str]:
     exe = shutil.which("semble")
     if not exe:
         return []
-    p = subprocess.run([exe, "search", text, str(r), "--top-k", "8", "--max-snippet-lines", "1"],
-                       capture_output=True, text=True, timeout=120)
+    p = subprocess.run(
+        [exe, "search", text, str(r), "--top-k", "8", "--max-snippet-lines", "1"],
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
     try:
         results = json.loads(p.stdout).get("results") or []
     except json.JSONDecodeError:
         return []
-    return [f"{x['file_path']}:{x['start_line']}  {x.get('content', '').splitlines()[0][:80]}"
-            for x in results if x.get("file_path")]
+    return [
+        f"{x['file_path']}:{x['start_line']}  {x.get('content', '').splitlines()[0][:80]}"
+        for x in results
+        if x.get("file_path")
+    ]
 
 
 def cmd_symbols(a, r):
@@ -197,9 +222,9 @@ def cmd_symbols(a, r):
     seen = []
     for m in manifests(r):
         reqs = {x["id"]: x.get("text", "") for x in m.get("requirements") or []}
-        for l in m.get("links") or []:
-            if l["type"] == "AFFECTS" and overlap(a.text, reqs.get(l["from"], "")):
-                seen.append(f"{l['to']}  [{l['status']} via {l['from']} in {m['_file']}]")
+        for lk in m.get("links") or []:
+            if lk["type"] == "AFFECTS" and overlap(a.text, reqs.get(lk["from"], "")):
+                seen.append(f"{lk['to']}  [{lk['status']} via {lk['from']} in {m['_file']}]")
     for line in dict.fromkeys(seen):
         print(line)
     sem = semble_candidates(r, a.text)
@@ -213,8 +238,13 @@ def cmd_symbols(a, r):
             sym = line.split()[0]
             path, _, name = sym.partition("::")
             leaf = re.split(r"[.#]", name)[-1] if name else ""
-            for caller, f in q(g, "MATCH (c:Fn)-[:CALLS]->(t:Fn) WHERE t.file ENDS WITH $f AND t.name = $n "
-                                  "RETURN c.fullName, c.file LIMIT 10", f=path, n=leaf):
+            for caller, f in q(
+                g,
+                "MATCH (c:Fn)-[:CALLS]->(t:Fn) WHERE t.file ENDS WITH $f AND t.name = $n "
+                "RETURN c.fullName, c.file LIMIT 10",
+                f=path,
+                n=leaf,
+            ):
                 print(f"  caller of {sym}: {caller} ({f})  [cpg]")
     return 0
 
@@ -226,17 +256,26 @@ def cmd_tests(a, r):
     found = []
     for m in manifests(r):
         links = m.get("links") or []
-        reqs = {l["from"] for l in links if l["type"] == "AFFECTS" and l["to"].startswith(path)}
-        found += [f"{l['to']}  [VERIFIED_BY {l['from']}]" for l in links
-                  if l["type"] == "VERIFIED_BY" and l["from"] in reqs]
+        reqs = {lk["from"] for lk in links if lk["type"] == "AFFECTS" and lk["to"].startswith(path)}
+        found += [
+            f"{lk['to']}  [VERIFIED_BY {lk['from']}]"
+            for lk in links
+            if lk["type"] == "VERIFIED_BY" and lk["from"] in reqs
+        ]
     if shutil.which("repowise"):
-        p = subprocess.run(["repowise", "impacted-tests", path], cwd=r, capture_output=True, text=True,
-                           timeout=120)
-        found += [f"{l.strip()}  [repowise]" for l in p.stdout.splitlines() if l.strip()][:10]
+        p = subprocess.run(
+            ["repowise", "impacted-tests", path], cwd=r, capture_output=True, text=True, timeout=120
+        )
+        found += [f"{lk.strip()}  [repowise]" for lk in p.stdout.splitlines() if lk.strip()][:10]
     if mode(r) == "full" and in_venv():
         leaf = re.split(r"[.#]", name)[-1] if name else ""
-        rows = q(falkor(r), "MATCH (c:Fn)-[:CALLS]->(t:Fn) WHERE t.file ENDS WITH $f AND ($n = '' OR t.name = $n) "
-                            "RETURN DISTINCT c.fullName, c.file", f=path, n=leaf)
+        rows = q(
+            falkor(r),
+            "MATCH (c:Fn)-[:CALLS]->(t:Fn) WHERE t.file ENDS WITH $f AND ($n = '' OR t.name = $n) "
+            "RETURN DISTINCT c.fullName, c.file",
+            f=path,
+            n=leaf,
+        )
         found += [f"{fn} ({f})  [cpg]" for fn, f in rows if TEST_PATH.search(f or "")]
     for line in dict.fromkeys(found):
         print(line)
@@ -247,17 +286,23 @@ def cmd_tests(a, r):
 
 def cmd_history(a, r):
     print("# history")
-    log = trace.git("log", "--follow", "-n", "10", "--format=%h %ad %s", "--date=short", "--", a.file, cwd=r)
+    log = trace.git(
+        "log", "--follow", "-n", "10", "--format=%h %ad %s", "--date=short", "--", a.file, cwd=r
+    )
     print(log.stdout.strip() or "no commits")
     for m in manifests(r):
-        for l in m.get("links") or []:
-            ends = (l.get("to", ""), l.get("from", ""))
+        for lk in m.get("links") or []:
+            ends = (lk.get("to", ""), lk.get("from", ""))
             if any(e == a.file or e.startswith(a.file + "::") for e in ends):
-                print(f"{m['_file']}: {l['from']} {l['type']} {l['to']} [{l.get('status', l.get('commit'))}]")
+                print(
+                    f"{m['_file']}: {lk['from']} {lk['type']} {lk['to']} "
+                    f"[{lk.get('status', lk.get('commit'))}]"
+                )
     return 0
 
 
 # ---------------------------------------------------------------- full mode
+
 
 def cmd_setup(a, r):
     if not VENV_PY.exists():
@@ -266,8 +311,10 @@ def cmd_setup(a, r):
     subprocess.run([str(VENV_PY), "-m", "pip", "install", "-q", "--upgrade", *DEPS], check=True)
     print(f"[graph] venv ready at {VENV}")
     if not nvidia_key(r):
-        print("[graph] no NVIDIA key: Graphiti ingest and knowledge search stay off. "
-              "Free key at https://build.nvidia.com, then /hk:graph full")
+        print(
+            "[graph] no NVIDIA key: Graphiti ingest and knowledge search stay off. "
+            "Free key at https://build.nvidia.com, then /hk:graph full"
+        )
     return 0
 
 
@@ -279,31 +326,56 @@ def cmd_sync(a, r):
         feature = m.get("feature", m["_file"])
         q(g, "MATCH ()-[e]->() WHERE e.feature = $f DELETE e", f=feature)
         for req in m.get("requirements") or []:
-            q(g, "MERGE (x:Requirement {id: $id}) SET x.text = $t, x.feature = $f",
-              id=req["id"], t=req.get("text", ""), f=feature)
-        for l in m.get("links") or []:
-            t = l["type"]
-            props = {"feature": feature, "status": l.get("status", ""), "commit": l.get("commit", ""),
-                     "recorded": str(l.get("recorded", "")), "confidence": l.get("confidence", 0),
-                     "methods": ",".join(l.get("methods") or []),
-                     "evidence": json.dumps(l.get("evidence") or {}, ensure_ascii=False)}
+            q(
+                g,
+                "MERGE (x:Requirement {id: $id}) SET x.text = $t, x.feature = $f",
+                id=req["id"],
+                t=req.get("text", ""),
+                f=feature,
+            )
+        for lk in m.get("links") or []:
+            t = lk["type"]
+            props = {
+                "feature": feature,
+                "status": lk.get("status", ""),
+                "commit": lk.get("commit", ""),
+                "recorded": str(lk.get("recorded", "")),
+                "confidence": lk.get("confidence", 0),
+                "methods": ",".join(lk.get("methods") or []),
+                "evidence": json.dumps(lk.get("evidence") or {}, ensure_ascii=False),
+            }
             if t == "AFFECTS":
-                cy = ("MATCH (a:Requirement {id: $from}) MERGE (b:Method {symbol: $to}) "
-                      "SET b.file = $file, b.leaf = $leaf CREATE (a)-[e:AFFECTS]->(b) SET e += $p")
-                sym = l["to"]
+                cy = (
+                    "MATCH (a:Requirement {id: $from}) MERGE (b:Method {symbol: $to}) "
+                    "SET b.file = $file, b.leaf = $leaf CREATE (a)-[e:AFFECTS]->(b) SET e += $p"
+                )
+                sym = lk["to"]
             elif t == "IMPLEMENTS":
-                cy = ("MATCH (b:Requirement {id: $to}) MERGE (a:Method {symbol: $from}) "
-                      "SET a.file = $file, a.leaf = $leaf CREATE (a)-[e:IMPLEMENTS]->(b) SET e += $p")
-                sym = l["from"]
+                cy = (
+                    "MATCH (b:Requirement {id: $to}) MERGE (a:Method {symbol: $from}) "
+                    "SET a.file = $file, a.leaf = $leaf CREATE (a)-[e:IMPLEMENTS]->(b) SET e += $p"
+                )
+                sym = lk["from"]
             elif t == "VERIFIED_BY":
-                cy = ("MATCH (a:Requirement {id: $from}) MERGE (b:Test {symbol: $to}) "
-                      "SET b.file = $file, b.leaf = $leaf CREATE (a)-[e:VERIFIED_BY]->(b) SET e += $p")
-                sym = l["to"]
+                cy = (
+                    "MATCH (a:Requirement {id: $from}) MERGE (b:Test {symbol: $to}) "
+                    "SET b.file = $file, b.leaf = $leaf CREATE (a)-[e:VERIFIED_BY]->(b) SET e += $p"
+                )
+                sym = lk["to"]
             else:
                 continue
             path, _, name = sym.partition("::")
-            q(g, cy, **{"from": l["from"], "to": l["to"], "file": path,
-                        "leaf": re.split(r"[.#]", name)[-1] if name else "", "p": props})
+            q(
+                g,
+                cy,
+                **{
+                    "from": lk["from"],
+                    "to": lk["to"],
+                    "file": path,
+                    "leaf": re.split(r"[.#]", name)[-1] if name else "",
+                    "p": props,
+                },
+            )
             n_links += 1
     print(f"[graph] synced {n_links} links from {len(manifests(r))} manifest(s)")
     return 0
@@ -335,30 +407,42 @@ def cmd_index_code(a, r):
             return 2
         exe = home / "frontends" / frontend / "bin" / frontend
         cmd = [str(exe), str(r), "-o", str(cpg)]
-        if frontend == "javasrc2cpg" and any("lombok" in p.read_text(errors="ignore")
-                                             for p in r.glob("**/pom.xml")):
+        if frontend == "javasrc2cpg" and any(
+            "lombok" in p.read_text(errors="ignore") for p in r.glob("**/pom.xml")
+        ):
             # Without these, javasrc2cpg silently skipped 4,351 of 4,890 Lombok files
             # and still produced a plausible 188 KB graph. Count, do not trust size.
             cmd += ["--fetch-dependencies", "--delombok-mode", "no-delombok"]
         print(f"[graph] {frontend} over {n} files")
         subprocess.run(cmd, check=True, capture_output=True)
     script = HERE.parent / "graph/export_callgraph.sc"
-    p = subprocess.run([joern, "--script", str(script), "--param", f"cpgPath={cpg}", "--param", f"out={cg}"],
-                       capture_output=True, text=True)
+    p = subprocess.run(
+        [joern, "--script", str(script), "--param", f"cpgPath={cpg}", "--param", f"out={cg}"],
+        capture_output=True,
+        text=True,
+    )
     if "### EXPORTED" not in p.stdout:
         print("[graph] export failed:\n" + (p.stdout + p.stderr)[-800:], file=sys.stderr)
         return 3
-    rows = [json.loads(l) for l in cg.read_text(encoding="utf-8").splitlines() if l.strip()]
+    rows = [json.loads(lk) for lk in cg.read_text(encoding="utf-8").splitlines() if lk.strip()]
     g = falkor(r)
     q(g, "MATCH (f:Fn) DETACH DELETE f")
     for i in range(0, len(rows), 500):
-        batch = [{"m": x["m"], "n": x["n"], "f": x["f"], "l": x["l"]} for x in rows[i:i + 500]]
-        q(g, "UNWIND $rows AS x CREATE (:Fn {fullName: x.m, name: x.n, file: x.f, line: x.l})", rows=batch)
+        batch = [{"m": x["m"], "n": x["n"], "f": x["f"], "lk": x["lk"]} for x in rows[i : i + 500]]
+        q(
+            g,
+            "UNWIND $rows AS x CREATE (:Fn {fullName: x.m, name: x.n, file: x.f, line: x.lk})",
+            rows=batch,
+        )
     q(g, "CREATE INDEX FOR (f:Fn) ON (f.fullName)")
     calls = [{"a": x["m"], "b": c} for x in rows for c in x["c"]]
     for i in range(0, len(calls), 1000):
-        q(g, "UNWIND $rows AS x MATCH (a:Fn {fullName: x.a}), (b:Fn {fullName: x.b}) CREATE (a)-[:CALLS]->(b)",
-          rows=calls[i:i + 1000])
+        q(
+            g,
+            "UNWIND $rows AS x MATCH (a:Fn {fullName: x.a}), (b:Fn {fullName: x.b}) "
+            "CREATE (a)-[:CALLS]->(b)",
+            rows=calls[i : i + 1000],
+        )
     print(f"[graph] code layer: {len(rows)} methods, {len(calls)} call sites")
     return 0
 
@@ -378,8 +462,11 @@ def graphiti_client(r: Path):
     return db, Graphiti(
         graph_driver=FalkorDriver(falkor_db=db, database=GRAPH),
         llm_client=OpenAIGenericClient(config=llm_cfg, structured_output_mode="json_schema"),
-        embedder=OpenAIEmbedder(config=OpenAIEmbedderConfig(
-            api_key=key, base_url=BASE_URL, embedding_model=EMBED_MODEL, embedding_dim=EMBED_DIM)),
+        embedder=OpenAIEmbedder(
+            config=OpenAIEmbedderConfig(
+                api_key=key, base_url=BASE_URL, embedding_model=EMBED_MODEL, embedding_dim=EMBED_DIM
+            )
+        ),
         cross_encoder=OpenAIRerankerClient(config=llm_cfg),
     )
 
@@ -401,6 +488,7 @@ async def close_async(db) -> None:
 
 async def graphiti_search(r: Path, text: str) -> list[str]:
     from graphiti_core.search.search_config_recipes import NODE_HYBRID_SEARCH_RRF
+
     db, g = graphiti_client(r)
     try:
         facts = [e.fact for e in await g.search(text, group_ids=[group_id(r)], num_results=5)]
@@ -416,9 +504,13 @@ async def graphiti_ingest(r: Path, files: list[Path]) -> int:
     try:
         await g.build_indices_and_constraints()
         for f in files:
-            await g.add_episode(name=f.name, episode_body=f.read_text(encoding="utf-8"),
-                                source_description=f"document {f.relative_to(r) if f.is_relative_to(r) else f}",
-                                reference_time=dt.datetime.now(dt.timezone.utc), group_id=group_id(r))
+            await g.add_episode(
+                name=f.name,
+                episode_body=f.read_text(encoding="utf-8"),
+                source_description=f"document {f.relative_to(r) if f.is_relative_to(r) else f}",
+                reference_time=dt.datetime.now(dt.timezone.utc),
+                group_id=group_id(r),
+            )
             print(f"[graph] ingested {f.name}")
         return 0
     finally:
@@ -428,19 +520,26 @@ async def graphiti_ingest(r: Path, files: list[Path]) -> int:
 
 def cmd_ingest(a, r):
     if not nvidia_key(r):
-        print("[graph] no NVIDIA key; Graphiti ingest needs one (https://build.nvidia.com)", file=sys.stderr)
+        print(
+            "[graph] no NVIDIA key; Graphiti ingest needs one (https://build.nvidia.com)",
+            file=sys.stderr,
+        )
         return 3
     files = [Path(f).resolve() for f in a.files]
     structured = [f for f in files if f.suffix in (".json", ".yml", ".yaml")]
     if structured:
         # Already typed: a parser knows the answer, a model would only invent.
-        print(f"[graph] skipping structured files, use trace.py/sync instead: {[f.name for f in structured]}",
-              file=sys.stderr)
+        print(
+            "[graph] skipping structured files, use trace.py/sync instead: "
+            f"{[f.name for f in structured]}",
+            file=sys.stderr,
+        )
     return asyncio.run(graphiti_ingest(r, [f for f in files if f not in structured]))
 
 
 def live_models(key: str) -> set:
     import urllib.request
+
     req = urllib.request.Request(f"{BASE_URL}/models", headers={"Authorization": f"Bearer {key}"})
     with urllib.request.urlopen(req, timeout=20) as resp:
         return {m["id"] for m in json.loads(resp.read()).get("data", [])}
@@ -453,12 +552,22 @@ def cmd_status(a, r):
         try:
             ids = live_models(key)
             for role, model in (("llm", LLM_MODEL), ("embed", EMBED_MODEL)):
-                print(f"{role} {model}: {'live' if model in ids else 'NOT IN CATALOG, set HK_GRAPH_' + role.upper() + '_MODEL'}")
+                print(
+                    f"{role} {model}: "
+                    + (
+                        "live"
+                        if model in ids
+                        else f"NOT IN CATALOG, set HK_GRAPH_{role.upper()}_MODEL"
+                    )
+                )
         except OSError as e:
             print(f"model catalog unreachable: {e}")
-    print(f"mode={s['mode']} venv={'yes' if VENV_PY.exists() else 'no'} "
-          f"nvidia_key={'set' if nvidia_key(r) else 'missing'} joern={'yes' if shutil.which('joern') else 'no'} "
-          f"semble={'yes' if shutil.which('semble') else 'no'} manifests={len(manifests(r))}")
+    print(
+        f"mode={s['mode']} venv={'yes' if VENV_PY.exists() else 'no'} "
+        f"nvidia_key={'set' if nvidia_key(r) else 'missing'} "
+        f"joern={'yes' if shutil.which('joern') else 'no'} "
+        f"semble={'yes' if shutil.which('semble') else 'no'} manifests={len(manifests(r))}"
+    )
     if s["mode"] == "full" and in_venv() and db_file(r).exists():
         g = falkor(r)
         for label in ("Requirement", "Method", "Test", "Fn", "Entity"):
@@ -488,11 +597,23 @@ def main() -> int:
             print(f"[graph] `{a.cmd}` needs graph mode full (/hk:graph full)", file=sys.stderr)
             return 3
         reexec_in_venv()
-    elif a.cmd in ("knowledge", "symbols", "tests", "status") and mode(r) == "full" and VENV_PY.exists():
+    elif (
+        a.cmd in ("knowledge", "symbols", "tests", "status")
+        and mode(r) == "full"
+        and VENV_PY.exists()
+    ):
         reexec_in_venv()
-    return {"knowledge": cmd_knowledge, "symbols": cmd_symbols, "tests": cmd_tests, "history": cmd_history,
-            "setup": cmd_setup, "sync": cmd_sync, "index-code": cmd_index_code, "ingest": cmd_ingest,
-            "status": cmd_status}[a.cmd.replace("_", "-")](a, r)
+    return {
+        "knowledge": cmd_knowledge,
+        "symbols": cmd_symbols,
+        "tests": cmd_tests,
+        "history": cmd_history,
+        "setup": cmd_setup,
+        "sync": cmd_sync,
+        "index-code": cmd_index_code,
+        "ingest": cmd_ingest,
+        "status": cmd_status,
+    }[a.cmd.replace("_", "-")](a, r)
 
 
 if __name__ == "__main__":

@@ -20,9 +20,9 @@ recorded), or it is written to the `env` block of .claude/settings.local.json,
 which Claude Code keeps out of git and exports to every command it runs.
 
 Usage:
-  hk-config.py get eval                       print the judge, the key var, and whether the key is set
+  hk-config.py get eval                       judge, key var, whether the key is set
   hk-config.py eval local
-  hk-config.py eval jev [--key-env NAME]      key already exported under NAME (default TYPESAFE_API_KEY)
+  hk-config.py eval jev [--key-env NAME]      key exported under NAME (default TYPESAFE_API_KEY)
   hk-config.py eval jev --key -               read the key from stdin into settings.local.json
   hk-config.py get graph
   hk-config.py graph off | manifest
@@ -94,8 +94,9 @@ def graph_settings(root: Path) -> dict:
 
 def key_value(root: Path, key_env: str) -> str | None:
     """Environment first, then the env block Claude Code reads from settings.local.json."""
-    return os.environ.get(key_env) or read_json(
-        root / ".claude" / "settings.local.json").get("env", {}).get(key_env)
+    return os.environ.get(key_env) or read_json(root / ".claude" / "settings.local.json").get(
+        "env", {}
+    ).get(key_env)
 
 
 def store_key(root: Path, key_env: str, key: str) -> None:
@@ -137,8 +138,11 @@ def cmd_graph(root: Path, mode: str, key_env: str, key: str | None) -> int:
         print(f"[hk-config] key stored as {key_env} in .claude/settings.local.json (git-ignored)")
     print(f"[hk-config] graph = {mode}")
     if mode == "full" and not key_value(root, key_env):
-        print(f"[hk-config] {key_env} is not set (free key at https://build.nvidia.com). "
-              "Until then graph.py runs without Graphiti: manifests and CPG only.", file=sys.stderr)
+        print(
+            f"[hk-config] {key_env} is not set (free key at https://build.nvidia.com). "
+            "Until then graph.py runs without Graphiti: manifests and CPG only.",
+            file=sys.stderr,
+        )
         return 4
     return 0
 
@@ -165,9 +169,11 @@ def cmd_eval(root: Path, judge: str, key_env: str, key: str | None) -> int:
 
     print(f"[hk-config] eval judge = {judge}")
     if judge == "jev" and not key_value(root, key_env):
-        print(f"[hk-config] {key_env} is not set. Export it, or run: "
-              f"hk-config.py eval jev --key - (key on stdin). Until then evals use the Claude judge.",
-              file=sys.stderr)
+        print(
+            f"[hk-config] {key_env} is not set. Export it, or run: "
+            f"hk-config.py eval jev --key - (key on stdin). Until then evals use the Claude judge.",
+            file=sys.stderr,
+        )
         return 4
     if judge == "jev":
         print("[hk-config] restart Claude Code if the key was just added, so commands see it")
