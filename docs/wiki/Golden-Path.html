@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Golden Path &middot; harness-kit wiki</title>
-<meta name="description" content="The golden path is the opinionated, supported, paved way from idea to production. The term comes from Spotify; Netflix calls it the &quot;paved road&quot;. It is..." />
+<meta name="description" content="The golden path is the recommended road from idea to production, a term from Spotify that Netflix calls the paved road. You can also run any stage alone." />
 <meta property="og:title" content="Golden Path &middot; harness-kit wiki" />
-<meta property="og:description" content="The golden path is the opinionated, supported, paved way from idea to production. The term comes from Spotify; Netflix calls it the &quot;paved road&quot;. It is..." />
+<meta property="og:description" content="The golden path is the recommended road from idea to production, a term from Spotify that Netflix calls the paved road. You can also run any stage alone." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Golden-Path.html" />
@@ -59,58 +59,32 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="golden-path">Golden Path</h1>
-<p>The golden path is the <strong>opinionated, supported, paved way from idea to production</strong>. The term comes
-from Spotify; Netflix calls it the &quot;paved road&quot;. It is not the <em>only</em> way through the harness, it is
-the <em>recommended</em> one.</p>
+<p>The golden path is the recommended road from idea to production, a term from Spotify that Netflix calls the paved road. You can also run any stage alone.</p>
 <pre><code>/golden-path
 </code></pre>
-<p>One command runs all six gated stages: <code>/product-manager:run</code> (prd → prp) then <code>/sse:run</code>
-(plan → dev → test → pr → monitor). Idea in, merged PR out.</p>
-<h2 id="the-five-properties">The five properties</h2>
-<p>A real golden path is defined by five properties, all of which harness-kit aims to satisfy:</p>
-<ul>
-<li><strong>Opinionated</strong>: one pipeline, repo conventions, no bikeshedding the flow.</li>
-<li><strong>Supported</strong>: sensors + evals gate every stage. The harness catches drift, not you.</li>
-<li><strong>Optional</strong>: step off any time, run stages solo. No enforcement, no punishment.</li>
-<li><strong>Self-serviceable</strong>: one command. No tickets, no waiting on a platform team.</li>
-<li><strong>Transparent / extensible</strong>: every stage names what ran (sensors, guides, evals); override per
-repo via <code>conventions/</code>. An abstraction you can see through and bend.</li>
-</ul>
-<p>The combination is the point: opinionated <em>and</em> optional, supported <em>and</em> transparent. It paves a lane
-without building a fence.</p>
+<p>One command runs <code>/product-manager:run</code> (prd, prp) and then <code>/sse:run</code> (plan, dev, test, pr, monitor). Idea in, merged PR out. For the hands-off version with two approval gates and an <code>intake</code> stage, use <code>/pipeline:run</code>; see <a href="Autonomy.html">Autonomy</a>.</p>
 <pre class="mermaid">flowchart LR
     idea([idea]) --&gt; prd --&gt; prp --&gt; plan --&gt; dev --&gt; test --&gt; pr --&gt; merged([merged PR])
     subgraph PM[&quot;/product-manager:run&quot;]
@@ -124,19 +98,35 @@ without building a fence.</p>
         pr
     end
 </pre>
-<h2 id="start-from-a-brief">Start from a brief</h2>
-<p>The idea-brief builder collects the inputs the PRD needs (squad, problem, hypothesis, customers,
-metric) and emits a paste-ready <code>/golden-path</code> kick, with inline validation that holds you to the PRD
-conventions as you type. Hosted at <code>pierry.github.io/harness-kit/brief/</code>. Already know the idea cold?
-Skip the builder and type <code>/golden-path</code> with the brief yourself.</p>
-<h2 id="flags-passed-to-the-sse-half">Flags (passed to the SSE half)</h2>
-<ul>
-<li><code>--local</code>, stop after test, no PR. Dev + test locally.</li>
-<li><code>--sdd</code>, spec-driven loop variant (plan once, dev↔test↔eval until the PRP spec is met). Local only.</li>
-<li><code>--no-monitor</code>, PR opens, skip the automatic merge-watch.</li>
-</ul>
-<h2 id="stepping-off-the-path">Stepping off the path</h2>
-<p>The &quot;optional&quot; property in practice. Run any stage solo:</p>
+<h1 id="the-five-properties">The five properties</h1>
+<p>It is opinionated: one pipeline and the repo's conventions. It is supported: sensors and evals gate every stage, so the harness catches drift. It is optional: you step off any time and run stages alone. It is self-serviceable: one command, no ticket to a platform team. It is transparent and extensible: every stage names what ran, and you override per repo through <code>.claude/conventions/</code>.</p>
+<h1 id="start-from-a-brief">Start from a brief</h1>
+<p>The idea-brief builder at <code>pierry.github.io/harness-kit/brief/</code> collects squad, problem, hypothesis, customers, and metric, checks them against the PRD conventions as you type, and emits a paste-ready <code>/golden-path</code> call. If you already know the idea, type <code>/golden-path</code> with the brief yourself.</p>
+<h1 id="flags">Flags</h1>
+<p>Flags pass through to the SSE half.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--local</code></td>
+<td>stop after test, no PR</td>
+</tr>
+<tr>
+<td><code>--sdd</code></td>
+<td>spec-driven loop: plan once, then dev, test, and eval until the PRP is met; local only</td>
+</tr>
+<tr>
+<td><code>--no-monitor</code></td>
+<td>open the PR, skip the merge watch</td>
+</tr>
+</tbody>
+</table>
+<h1 id="stepping-off-the-path">Stepping off the path</h1>
 <table>
 <thead>
 <tr>
@@ -146,55 +136,46 @@ Skip the builder and type <code>/golden-path</code> with the brief yourself.</p>
 </thead>
 <tbody>
 <tr>
-<td>Just the PRD / PRP</td>
-<td><code>/product-manager:prd</code> · <code>:prp</code></td>
+<td>PRD or PRP alone</td>
+<td><code>/product-manager:prd</code>, <code>/product-manager:prp</code></td>
 </tr>
 <tr>
-<td>Just plan / dev / test / pr</td>
-<td><code>/sse:plan</code> · <code>:dev</code> · <code>:test</code> · <code>:pr</code></td>
+<td>one SSE stage</td>
+<td><code>/sse:plan</code>, <code>/sse:dev</code>, <code>/sse:test</code>, <code>/sse:pr</code></td>
 </tr>
 <tr>
-<td>Dev + test, no PR</td>
+<td>dev and test, no PR</td>
 <td><code>/sse:run --local</code></td>
 </tr>
 <tr>
-<td>Spec-driven loop</td>
+<td>spec-driven loop</td>
 <td><code>/sse:sdd</code></td>
 </tr>
 <tr>
-<td>Resume where you left off</td>
+<td>resume</td>
 <td><code>/pipeline:continue</code></td>
 </tr>
 <tr>
-<td>Abandon the active run</td>
+<td>abandon the run</td>
 <td><code>/pipeline:reset</code></td>
 </tr>
 </tbody>
 </table>
-<p>Same sensors, same evals, same artifacts. You lose the one-command convenience, not the support.</p>
-<h2 id="per-discipline-paving">Per-discipline paving</h2>
-<p>A golden-path principle: one paved lane per engineering discipline. harness-kit does this in the dev
-stage, auto-selecting the repo's discipline conventions:</p>
+<p>Detours run the same sensors, evals, and artifacts. Only the one-command convenience goes away.</p>
+<h1 id="per-discipline-paving">Per-discipline paving</h1>
+<p>The dev stage reads the repo's discipline conventions on top of the SSE defaults, and the project wins:</p>
 <pre><code>.claude/conventions/{backend,web,mobile,devops}.md
 </code></pre>
-<p>When a file exists, project wins over the SSE defaults. These overrides <em>are</em> the per-discipline
-paving, feedforward the team controls. See <a href="Guides.html">Guides</a>.</p>
-<h2 id="transparency-what-runs-behind-the-curtain">Transparency: what runs behind the curtain</h2>
-<p>The golden path abstracts, it never hides. Every stage summary names the sensors, evals, guides, and
-refs that ran, actual names, not a generic &quot;done&quot;:</p>
-<pre><code>sensors: plan-structure ok, plan-feasibility ok
-eval:    plan-quality 8/10 (attempts: 1)
+<p>These files are feedforward the team controls; see <a href="Guides.html">Guides</a>.</p>
+<h1 id="what-runs-behind-the-curtain">What runs behind the curtain</h1>
+<p>Every stage summary names the sensors, evals, guides, and refs that ran:</p>
+<pre><code>sensors: plan-structure ok
+eval:    plan-quality 8.4/10 (attempts: 1)
 guides:  pipeline.md, coding-style.md, skills/{area}/SKILL.md
 refs:    prp/{feature_id}.md, conventions/{area}.md
 </code></pre>
-<p>Want to see deeper? Read the <code>sensors/</code>, <code>evals/</code>, <code>guides/</code> under <code>.claude/agents/&lt;agent&gt;/</code>. Plain
-markdown. Nothing sealed.</p>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: the six stages in detail</li>
-<li><a href="Harness-Engineering.html">Harness Engineering</a>: why the path is gated the way it is</li>
-<li><a href="Agents.html">Agents</a>: the agents the path orchestrates</li>
-</ul>
+<p>The files behind them are plain markdown under <code>.claude/agents/&lt;agent&gt;/sensors/</code>, <code>evals/</code>, and <code>guides/</code>. Which judge scored the eval depends on <code>/hk:eval</code>; see <a href="Evals.html">Evals</a>.</p>
+<p>See also <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, <a href="Harness-Engineering.html">Harness Engineering</a>, <a href="Agents.html">Agents</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Golden-Path" target="_blank" rel="noopener">Golden Path</a> in the wiki. Edit it there.</p>
   </main>

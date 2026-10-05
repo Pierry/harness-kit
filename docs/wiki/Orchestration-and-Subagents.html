@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Orchestration and Subagents &middot; harness-kit wiki</title>
-<meta name="description" content="harness-kit&#x27;s original pipeline is carried by two monolithic agents: product-manager runs prd then prp inline, and staff-software-engineer runs plan →..." />
+<meta name="description" content="The pipeline runs as one orchestrator plus small subagents. intake is a read-only subagent, each stage&#x27;s eval goes to a judge that did not write the..." />
 <meta property="og:title" content="Orchestration and Subagents &middot; harness-kit wiki" />
-<meta property="og:description" content="harness-kit&#x27;s original pipeline is carried by two monolithic agents: product-manager runs prd then prp inline, and staff-software-engineer runs plan →..." />
+<meta property="og:description" content="The pipeline runs as one orchestrator plus small subagents. intake is a read-only subagent, each stage&#x27;s eval goes to a judge that did not write the..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Orchestration-and-Subagents.html" />
@@ -59,214 +59,84 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="orchestration-and-subagents">Orchestration and Subagents</h1>
-<blockquote>
-<p><strong>Status: live (v5).</strong> The orchestrator-and-leaf topology is in place across every stage: <code>intake</code>
-is a read-only subagent, each stage's eval is dispatched to a fresh evaluator that did not author the
-artifact, and inputs follow resolve-mark-proceed. The canonical shape lives at
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
-Model tiering to Haiku for the cheapest checks is still <em>(planned)</em>.</p>
-</blockquote>
-<p>harness-kit's original pipeline is carried by two monolithic agents: <code>product-manager</code> runs <code>prd</code> then
-<code>prp</code> inline, and <code>staff-software-engineer</code> runs <code>plan → dev → test → pr</code> inline. Inside each agent, the
-sensors and evals run in the same context as the author. This page explains why v5 breaks that into an
-<strong>orchestrator plus small, single-purpose subagents</strong>, and, just as importantly, where it deliberately
-does <em>not</em>.</p>
-<h2 id="why-subagents">Why subagents</h2>
-<p>A subagent is a fresh, isolated context invoked through the Task tool. Splitting work into subagents
-pays off in exactly three situations, and v5 uses each of them:</p>
-<ol>
-<li><strong>Context isolation.</strong> A stage that reads hundreds of files (<code>intake</code>, <code>dev</code>) should not carry that
-bulk into the stages after it. Each subagent boots clean and returns only a distilled result.</li>
-<li><strong>Parallelism.</strong> Genuinely independent work runs concurrently: a panel of reviewers, or <code>dev</code>
-fanning out over independent modules.</li>
-<li><strong>Adversarial separation.</strong> The agent that writes an artifact must not be the agent that grades it.
-A fresh critic with no stake in the text gives an honest score.</li>
-</ol>
-<p>The third is the strongest reason. Today the same agent writes a PRD and then evaluates it, which is
-grade-your-own-homework: the score is inflated because the grader is attached to the work. A separate
-evaluator, booted fresh and handed only the artifact, has nothing to defend.</p>
-<p>This is not a new idea in harness-kit. The SDD loop already runs its <code>spec-satisfied</code> eval in a <strong>fresh
-session with no worker context</strong> (see <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>). v5 generalizes that
-one instance into the rule for every gate.</p>
-<h2 id="the-over-decomposition-trap">The over-decomposition trap</h2>
-<p>Every subagent hop has a cost: a fresh context boot, re-reading files it does not inherit (subagents
-share no memory), added latency, and added tokens. So the goal is <strong>not</strong> one subagent per step. Split
-only when a hop buys one of the three payoffs above. Otherwise, keep the work inline or, better, in a
-deterministic script.</p>
-<p>The dividing line is judgment versus determinism:</p>
-<ul>
-<li>A check that is a structural rule, &quot;does the PRD contain the required sections?&quot;, is a <strong>sensor
-script</strong>. It does not need a model, and a model would only make it slower and less reliable.</li>
-<li>A check that requires reading and weighing, &quot;is this hypothesis actually testable?&quot;, is an <strong>eval
-subagent</strong>.</li>
-</ul>
-<p>harness-kit already keeps its deterministic sensors as scripts. v5 preserves that. Decomposition adds
-subagents for <em>judgment and isolation</em>, not for work that code already does better.</p>
-<h2 id="three-concerns-separated">Three concerns, separated</h2>
-<p>The core move is to stop tangling three different responsibilities inside one agent:</p>
+<p>The pipeline runs as one orchestrator plus small subagents. <code>intake</code> is a read-only subagent, each stage's eval goes to a judge that did not write the artifact, and inputs follow resolve, mark, proceed. The canonical shape is <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>. Model tiering to Haiku is planned; today every agent runs on Opus.</p>
+<h1 id="why-subagents">Why subagents</h1>
+<p>A subagent is a fresh, isolated context started through the Task tool. A split pays off in three cases. Context isolation keeps a stage that reads hundreds of files, like <code>intake</code>, from carrying that bulk forward. Parallelism runs independent work at once. Adversarial separation keeps the author from grading its own work.</p>
+<p>The third matters most. An author grading its own PRD inflates the score. A fresh evaluator that receives only the artifact and the rubric has nothing to defend. The SDD loop's <code>spec-satisfied</code> eval already ran in a fresh session; v5 made that the rule for every gate.</p>
+<h1 id="the-over-decomposition-trap">The over-decomposition trap</h1>
+<p>Every hop costs a context boot, re-reading files (subagents share no memory), latency, and tokens. Split only when a hop buys one of the three payoffs. A structural rule (&quot;does the PRD have the required sections&quot;) is a sensor script with no model. A judgment (&quot;is this hypothesis testable&quot;) is an eval.</p>
+<h1 id="three-concerns">Three concerns</h1>
 <table>
 <thead>
 <tr>
 <th>Concern</th>
-<th>Who owns it in v5</th>
+<th>Owner</th>
 <th>Rule</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Coordination</strong> — sequencing, state, markers, retries, gates</td>
-<td>one <strong>orchestrator</strong> (the main session)</td>
-<td>Never writes an artifact. Only dispatches and commits state.</td>
+<td>Coordination: sequencing, state, markers, retries, gates</td>
+<td>the orchestrator (main session)</td>
+<td>Never writes an artifact</td>
 </tr>
 <tr>
-<td><strong>Generation</strong> — write the PRD, PRP, plan, code</td>
-<td><strong>author subagents</strong></td>
-<td>Stateless. Explicit inputs, structured output.</td>
+<td>Generation: PRD, PRP, plan, code</td>
+<td>the stage author</td>
+<td>Explicit inputs, structured output</td>
 </tr>
 <tr>
-<td><strong>Verification</strong> — sensor + eval</td>
-<td><strong>verifier subagents</strong>, separate from the author</td>
-<td>The grader never wrote the thing it grades.</td>
+<td>Verification: sensors and eval</td>
+<td>sensor runner and a separate judge</td>
+<td>The grader never wrote what it grades</td>
 </tr>
 </tbody>
 </table>
-<p>The monolithic agents mixed all three. Separating them is what makes the gates trustworthy and the
-contexts clean.</p>
-<h2 id="the-topology">The topology</h2>
-<pre><code>/pipeline:run &quot;&lt;one-line idea&gt;&quot;
-  │  orchestrator = main session: owns .pipeline-state.json, markers, gates
-  │
-  ├─ intake        subagent   harvest repo + context-library → intake.md
-  │      ↓ orchestrator reads unknowns[], decides the PRD gate
-  ├─ prd-author    subagent   write PRD
-  ├─ prd-sensor    script     structural pass/fail (no model)
-  ├─ prd-eval      subagent   adversarial score, fresh context
-  │      ↓ score ≥ 8.0 → orchestrator writes approval marker → next stage
-  ├─ prp-author / prp-eval
-  ├─ planner
-  ├─ dev × N       subagents  fan out only over independent modules
-  ├─ tester
-  ├─ reviewer × 3  subagents  parallel, distinct lenses (correctness · security · repro)
-  └─ pr-author
-</code></pre>
-<p>The orchestrator is a coordinator, not a worker. It spawns each leaf, reads the leaf's structured
-return, and commits the resulting state transition. Leaves never talk to each other; all information
-flows through the orchestrator and the artifacts on disk.</p>
-<h2 id="the-adversarial-split">The adversarial split</h2>
-<p>The rule that makes gates honest:</p>
-<blockquote>
-<p>The subagent that authors an artifact is never the subagent that evaluates it.</p>
-</blockquote>
-<p>The evaluator is booted with no memory of how the artifact was written. It receives only the artifact
-and the rubric, and it is prompted to find what is wrong, not to defend what is there. For high-stakes
-gates a <strong>panel</strong> replaces a single judge: three evaluators with distinct lenses run in parallel and a
-majority decides. Diversity of lens catches failure modes that a single reviewer, or three identical
-reviewers, would miss.</p>
-<h2 id="model-tiering">Model tiering</h2>
-<p>Separating concerns lets each subagent run on the right-sized model:</p>
-<table>
-<thead>
-<tr>
-<th>Work</th>
-<th>Model</th>
-<th>Why</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Deterministic sensors</td>
-<td><em>(none — script)</em></td>
-<td>Structural rules do not need inference.</td>
-</tr>
-<tr>
-<td>Mechanical / cheap judgment</td>
-<td>Haiku <em>(planned)</em></td>
-<td>Fast, cheap, good enough for narrow checks.</td>
-</tr>
-<tr>
-<td>Authoring and adversarial eval</td>
-<td>Opus</td>
-<td>The parts that need real reasoning.</td>
-</tr>
-</tbody>
-</table>
-<p>A monolithic agent has to run everything at one tier. Decomposition lets the cheap work be cheap and
-reserves the strong model for authoring and judgment.</p>
-<h2 id="claude-code-constraints-shape-the-design">Claude Code constraints shape the design</h2>
-<p>Subagents in Claude Code are <strong>stateless leaves</strong>: they cannot mutate shared state, they inherit no
-memory from the caller, and nesting is limited (a subagent cannot freely spawn its own subagents). This
-is not a limitation to fight; it dictates a clean design:</p>
-<ul>
-<li>The <strong>orchestrator owns all state.</strong> <code>.claude/.pipeline-state.json</code> and the marker files are written
-by the orchestrator, through the existing <code>pipeline.py</code> and <code>marker.sh</code>, never by a leaf.</li>
-<li>Leaves <strong>return, they do not commit.</strong> A subagent fills an artifact and reports a structured result.
-The orchestrator reads that result and performs the state transition.</li>
-<li>The existing <strong>hook, marker, and token machinery is untouched.</strong> Subagents slot in underneath it: a
-leaf writes the artifact, the orchestrator flips state, and the same post-write hooks fire as before.</li>
-</ul>
-<p>Nothing that works today is thrown away. Subagents enter as leaves under the coordination layer that
-already exists.</p>
-<h2 id="contracts">Contracts</h2>
-<p>Reliable orchestration needs explicit contracts. Each subagent is given:</p>
-<ul>
-<li><strong>Explicit inputs</strong> — file paths, not &quot;the context&quot;. <code>prd-author</code> is handed the path to <code>intake.md</code>
-and the guide paths, not a vague instruction to &quot;use what you know&quot;.</li>
-<li><strong>Structured output</strong> — a defined shape the orchestrator can parse and branch on. For example,
-<code>intake</code> returns <code>{ squad, problem, repos[], customers[], unknowns[] }</code>, and the orchestrator reads
-<code>unknowns[]</code> to decide whether the PRD gate needs the human.</li>
-</ul>
-<p>Without contracts, orchestration degrades into guesswork about what a leaf produced. With them, the
-control flow is deterministic even though the leaves are inferential.</p>
-<h2 id="how-it-rolled-out-a-vertical-slice-first">How it rolled out: a vertical slice first</h2>
-<p>v5 did not rebuild both monoliths at once. That would be a large, hard-to-debug change. The rollout
-proved a <strong>single vertical slice</strong> — the <code>prd</code> stage — through the new pattern end to end first:</p>
-<pre><code>intake (subagent) → prd-author → prd-sensor (script) → prd-eval (subagent, fresh context)
-</code></pre>
-<p>Once that slice worked against a real repository, it became the template, captured as
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
-Every other stage (<code>prp</code>, <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code>, and the <code>system-design</code> stages) was then a
-replication of that validated pattern rather than a simultaneous experiment: each reads its inputs via
-resolve-mark-proceed and dispatches its eval to a fresh evaluator. New stages follow the same file.</p>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a>: the intake subagent and gated autonomy</li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: the stages the orchestrator drives</li>
-<li><a href="Agents.html">Agents</a>: the agents being decomposed</li>
-<li><a href="Harness-Engineering.html">Harness Engineering</a>: computational vs inferential controls</li>
-</ul>
+<h1 id="the-topology">The topology</h1>
+<pre class="mermaid">flowchart TD
+    O[orchestrator: owns .pipeline-state.json, markers, gates] --&gt; I[intake subagent: writes intake.md]
+    I --&gt; O
+    O --&gt; A[stage author: prd, prp, plan, dev, test, pr]
+    A --&gt; S[sensor runner: pass or fail, no model]
+    S --&gt; E[judge: local Claude or jev, fresh context]
+    E --&gt; V[eval-score.py verifies the total]
+    V --&gt;|&gt;= 8.0| O
+    V --&gt;|below| A
+</pre>
+<p>Leaves never talk to each other. Information flows through the orchestrator and the artifacts on disk.</p>
+<h1 id="the-judge">The judge</h1>
+<p>The evaluator starts with no memory of how the artifact was written and gets only the artifact and the rubric. The project picks it with <code>/hk:eval jev | local</code>, stored in <code>.claude/hk-config.json</code>. <code>local</code> is a fresh Claude evaluator. <code>jev</code> is Jev by TypeSafe AI, a different model family, which reduces self-preference bias without removing it; it escalates to Claude when unsure on a deciding check. <code>spec-satisfied</code> and the readiness gates always use Claude. See <a href="Evals.html">Evals</a>.</p>
+<p>The pattern allows a panel of three evaluators with distinct lenses for the highest-stakes gates. No stage command uses one today, and <code>dev</code> runs as a single author with no module fan-out.</p>
+<h1 id="claude-code-constraints">Claude Code constraints</h1>
+<p>Subagents are stateless leaves: they cannot mutate shared state, inherit no memory, and cannot freely spawn their own subagents. So the orchestrator owns all state and writes <code>.claude/.pipeline-state.json</code> and markers through <code>pipeline.py</code> and <code>marker.sh</code>. A leaf fills an artifact and returns a result; the orchestrator performs the state transition. The hook, marker, and token machinery stays as it was.</p>
+<h1 id="contracts">Contracts</h1>
+<p>Each subagent gets file paths as inputs and returns a shape the orchestrator can parse. <code>intake</code> returns <code>squad</code>, <code>problem</code>, <code>repos</code>, <code>customers</code>, and <code>unknowns</code>, and the orchestrator reads <code>unknowns</code> to decide what the PRD gate shows you. With contracts, control flow is deterministic while the leaves are inferential.</p>
+<h1 id="rollout">Rollout</h1>
+<p>v5 proved one vertical slice first: intake, prd author, prd sensor script, prd eval in a fresh context. Once it worked against a real repo it became <code>pipeline-pattern.md</code>, and <code>prp</code>, <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code>, and the system-design stages copied it. New stages follow the same file.</p>
+<h1 id="see-also">See also</h1>
+<p><a href="Autonomy.html">Autonomy</a>, <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, <a href="Agents.html">Agents</a>, <a href="Harness-Engineering.html">Harness Engineering</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents" target="_blank" rel="noopener">Orchestration and Subagents</a> in the wiki. Edit it there.</p>
   </main>

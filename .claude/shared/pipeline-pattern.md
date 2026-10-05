@@ -79,6 +79,28 @@ grading its own work inflates it. Below threshold (8.0) retries per
 For the highest-stakes gates, use a **panel**: three evaluators with distinct lenses run in parallel and
 a majority decides.
 
+**Jev judge (opt-in).** Always try this first. When the project picked `jev` (`/hk:eval jev`, stored in
+`.claude/hk-config.json`), weighted-rubric evals (`### Name (weight N%)`) are judged by Jev, TypeSafe
+AI's System One model, instead of a Claude evaluator:
+
+```
+python3 .claude/scripts/jev-judge.py --rubric {evals/x-quality.md} --artifact {artifact} > judge.json
+```
+
+Each `- check:` line under a rubric dimension is one yes/no question, and the dimension scores the
+share of checks met; `- absent:` lines are regexes run in code (Jev cannot count or spot a literal
+character). The artifact goes in as `sections.{slug}` per `## ` heading, so a check reads only the part
+it names, and a check naming a missing section fails without a call. All questions go in one request.
+Jev is a different model family, which reduces the self-preference bias below without removing it. It
+writes no prose: `feedback` lists each failed or unclear check verbatim, which is what the retry fixes.
+
+Exit 3 means dispatch the Claude evaluator as above: judge is `local`, no key, artifact over Jev's 32k
+context, API error, or Jev is unsure on checks that decide pass/fail (the total recomputed with unsure
+answers forced to no and then to yes lands on both sides of the threshold). Exit 2 means the rubric is not
+weighted (`spec-satisfied`, the readiness gates), so those always stay with Claude. Every run appends to
+`.claude/runtime/outputs/evals/jev-judge.jsonl` for later agreement checks. Paid API: local only, never
+in CI. The Claude evaluator scores the same checks, so both judges grade against one checklist.
+
 **Verify the arithmetic, do not trust it.** Pipe the judge's JSON through the score verifier. It reads
 the weights out of the rubric, recomputes the total from the dimension scores, and rejects a judge
 that scored a dimension the rubric does not weight, skipped one it does, or wrote a total its own
@@ -94,7 +116,7 @@ means the judge's output is malformed and the score is meaningless, so do not ap
 **What this does not fix.** The dimension scores are still unvalidated against human labels, and the
 threshold of 8.0 is a convention, not a calibrated boundary. Two known biases apply and neither is
 mitigated here: LLM judges inflate scores for output from their own family
-([Panickssery et al.](https://arxiv.org/abs/2410.21819)), and uncalibrated 1-10 scales get interpreted
+([Wataoka et al.](https://arxiv.org/abs/2410.21819)), and uncalibrated 1-10 scales get interpreted
 differently by every grader ([Husain](https://hamel.dev/blog/posts/llm-judge/), who recommends binary
 judgments plus measured agreement with human labels). Treat the score as a rough signal that catches
 weak artifacts, not as a measurement. Read the feedback, not just the number.

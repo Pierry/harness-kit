@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Wiki do harness-kit &middot; harness-kit wiki</title>
-<meta name="description" content="A base de conhecimento do harness-kit: um conjunto de agents do Claude Code que levam uma ideia crua até um PR merged por um único pipeline com gates,..." />
+<meta name="description" content="O harness-kit é um conjunto de agents do Claude Code que levam uma ideia até um merged PR por um único pipeline com gates, mais um agent..." />
 <meta property="og:title" content="Wiki do harness-kit &middot; harness-kit wiki" />
-<meta property="og:description" content="A base de conhecimento do harness-kit: um conjunto de agents do Claude Code que levam uma ideia crua até um PR merged por um único pipeline com gates,..." />
+<meta property="og:description" content="O harness-kit é um conjunto de agents do Claude Code que levam uma ideia até um merged PR por um único pipeline com gates, mais um agent..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/pt/index.html" />
@@ -59,47 +59,30 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="wiki-do-harness-kit">Wiki do harness-kit</h1>
-<p>A base de conhecimento do <a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">harness-kit</a>: um conjunto de agents do
-Claude Code que levam uma ideia crua até um PR merged por um único pipeline com gates, mais um agent
-system-architect que transforma um problema em um System Design Doc rigoroso.</p>
-<p>O repo guarda a forma condensada, voltada para o agent (guides, sensors e evals como markdown enxuto).
-Esta wiki é a profundidade voltada para gente: a teoria por trás do harness, como cada controle funciona
-e o material de estudo completo, com referências para cada system design.</p>
-<h2 id="o-harness">O harness</h2>
-<p>Como e por que o harness-kit é construído do jeito que é.</p>
+<p>O <a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">harness-kit</a> é um conjunto de agents do Claude Code que levam uma ideia até um merged PR por um único pipeline com gates, mais um agent system-architect que escreve System Design Docs. O repo guarda os arquivos enxutos voltados para o agent. Esta wiki guarda a teoria e o material de estudo. Comece por <a href="Harness-Engineering.html">Harness Engineering</a>.</p>
+<h1 id="o-harness">O harness</h1>
 <table>
 <thead>
 <tr>
@@ -110,44 +93,52 @@ e o material de estudo completo, com referências para cada system design.</p>
 <tbody>
 <tr>
 <td><a href="Harness-Engineering.html">Harness Engineering</a></td>
-<td><code>Agent = Model + Harness</code>, feedforward vs feedback, controles computacionais vs inferenciais, humanos on the loop (Böckeler/Fowler)</td>
+<td><code>Agent = Model + Harness</code>, feedforward e feedback, humanos on the loop</td>
+</tr>
+<tr>
+<td><a href="References.html">Referências</a></td>
+<td>as fontes por trás de cada escolha de design</td>
 </tr>
 <tr>
 <td><a href="Guides.html">Guides</a></td>
-<td>controles de feedforward: templates, exemplos, estilo de escrita, convenções</td>
+<td>templates, exemplos, estilo de escrita, convenções</td>
 </tr>
 <tr>
 <td><a href="Sensors.html">Sensores</a></td>
-<td>feedback determinístico: checagens de estrutura, o sensor runner, gates rígidas</td>
+<td>checagens determinísticas de estrutura e gates rígidos</td>
 </tr>
 <tr>
 <td><a href="Evals.html">Evals</a></td>
-<td>feedback inferencial: rubricas de LLM-judge, threshold 8.0, retry, spec-satisfied</td>
+<td>rubrics de checks atômicos, judge <code>local</code> ou <code>jev</code>, aprovação em 8.0</td>
 </tr>
 <tr>
 <td><a href="Pipeline-and-Stages.html">Pipeline e stages</a></td>
-<td>os seis stages com gate, anatomia de um stage, markers, tokens, status bar, loop SDD</td>
+<td>os seis stages, markers, tokens, ferramentas de contexto, loop SDD</td>
+</tr>
+<tr>
+<td><a href="Graph-Engineering.html">Graph Engineering</a></td>
+<td>ids de requisito, manifesto de rastreabilidade, gate de escopo, grafo FalkorDB</td>
 </tr>
 <tr>
 <td><a href="Golden-Path.html">Golden Path</a></td>
-<td>a estrada pavimentada, as cinco propriedades, os desvios, pavimentação por disciplina</td>
+<td><code>/golden-path</code>, suas cinco propriedades, desvios</td>
 </tr>
 <tr>
 <td><a href="Agents.html">Agents</a></td>
 <td>product-manager, staff-software-engineer, system-architect</td>
 </tr>
 <tr>
+<td><a href="Agent-Pipelines.html">Pipelines dos agents</a></td>
+<td>o fluxo de stages de cada agent</td>
+</tr>
+<tr>
 <td><a href="Designer-Skill.html">Designer Skill</a></td>
-<td>M3, tema dark/light, tipografia moderna, acabamento nível Behance, i18n, favicon para novas UIs</td>
+<td>M3, tema dark e light, i18n, favicon para novas UIs</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Comece por aqui:</strong> <a href="Harness-Engineering.html">Harness Engineering</a> explica o modelo mental inteiro; todo o
-resto é uma visão detalhada de uma parte.</p>
-<h2 id="v5-autonomia-e-subagents">v5: autonomia e subagents</h2>
-<p>O pipeline está saindo de <em>humanos in the loop</em> (responder uma pergunta antes de cada artefato) para
-<em>humanos on the loop</em> (aprovar a direção em duas gates, tudo entre elas roda sozinho), conduzido por um
-orquestrador que despacha subagents pequenos e de propósito único.</p>
+<h1 id="autonomia-e-subagents">Autonomia e subagents</h1>
+<p>Você aprova a direção em dois gates e tudo entre eles roda sozinho. Um stage <code>intake</code> coleta o contexto primeiro, e um orquestrador despacha subagents de propósito único.</p>
 <table>
 <thead>
 <tr>
@@ -158,21 +149,17 @@ orquestrador que despacha subagents pequenos e de propósito único.</p>
 <tbody>
 <tr>
 <td><a href="Autonomy.html">Autonomia</a></td>
-<td>o stage <code>intake</code>, resolve-mark-proceed, autonomia com gates, feedforward acima de feedback</td>
+<td><code>intake</code>, resolve-mark-proceed, <code>/pipeline:run</code></td>
 </tr>
 <tr>
 <td><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></td>
-<td>orquestrador + subagents folha, a divisão adversarial writer/critic, tiering de modelo, restrições do Claude Code</td>
+<td>orquestrador e folhas, divisão entre writer e critic, tiering de modelo</td>
 </tr>
 </tbody>
 </table>
-<p>Estas páginas descrevem o modelo v5, hoje rodando em todos os stages. A forma canônica é
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>;
-alguns refinamentos (tiering com Haiku, <code>repos.md</code> por org) ainda aparecem marcados como <em>(planned)</em> no
-próprio texto.</p>
-<h2 id="system-design">System design</h2>
-<p>O agent <code>system-architect</code> e seus playbooks por tópico. Cada episódio da série System Design vira um
-skill mais uma página detalhada aqui: teoria, arquitetura de referência, trade-offs e citações.</p>
+<p>A forma canônica está em <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>. O tiering com Haiku e o <code>repos.md</code> por organização ainda estão <em>(planejados)</em>.</p>
+<h1 id="system-design">System design</h1>
+<p>O agent <code>system-architect</code> roda um playbook por episódio da série System Design. Um design doc é um stage opcional na frente do pipeline principal: ele alimenta um PRP e um plan mais precisos.</p>
 <table>
 <thead>
 <tr>
@@ -183,37 +170,25 @@ skill mais uma página detalhada aqui: teoria, arquitetura de referência, trade
 <tbody>
 <tr>
 <td><a href="System-Design-Method.html">Método de system design</a></td>
-<td>o método de 13 stages, os três pilares, contas de guardanapo, o cânone</td>
+<td>o método de 13 stages, três pilares, números de back-of-envelope</td>
 </tr>
 <tr>
 <td><a href="URL-Shortener.html">URL Shortener</a> (#1)</td>
-<td>lookup de chave read-heavy, geração de short-code, cache, abuso</td>
+<td>lookup com muita leitura, geração de código curto, cache, abuso</td>
 </tr>
 <tr>
 <td><a href="Rate-Limiter.html">Rate Limiter</a> (#2)</td>
-<td>throttling distribuído, token bucket, fail-open, orçamentos multi-região</td>
+<td>token bucket, fail-open, orçamentos multi-região</td>
 </tr>
 <tr>
 <td><a href="Search-Engine.html">Search Engine</a> (#3)</td>
-<td>web crawler, indexação, ranking, atendimento de queries em escala</td>
+<td>crawler, indexação, ranking, serving de consultas</td>
 </tr>
 </tbody>
 </table>
-<p>Novos episódios chegam como novos playbooks e novas páginas. Candidatos: API gateway, fila distribuída,
-news feed, cache distribuído, sistema de notificações.</p>
-<h2 id="como-as-duas-metades-se-conectam">Como as duas metades se conectam</h2>
-<p>Um System Design Doc é um stage opcional na frente do pipeline principal: um design forte alimenta um
-PRP mais afiado e um plan mais aterrado. A mesma forma de harness, guides, sensors, evals e aprovação
-com gate, roda nas duas metades.</p>
-<h2 id="referências-globais">Referências globais</h2>
-<ul>
-<li>Birgitta Böckeler, <em>Harness engineering for coding agent users</em> e <em>Maintainability sensors for coding
-agents</em>, martinfowler.com, 2026.</li>
-<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017.</li>
-<li>Jeff Dean, <em>Designs, Lessons and Advice from Building Large Distributed Systems</em>, LADIS, 2009.</li>
-<li>Werner Vogels (design for failure), Pat Helland (imutabilidade, transações distribuídas), Michael
-Nygard (<em>Release It!</em>), John Ousterhout (<em>A Philosophy of Software Design</em>).</li>
-</ul>
+<p>Os próximos candidatos são API gateway, fila distribuída, news feed, cache distribuído e sistema de notificações.</p>
+<h1 id="referências-gerais">Referências gerais</h1>
+<p>Birgitta Böckeler, <em>Harness engineering for coding agent users</em> e <em>Maintainability sensors for coding agents</em>, martinfowler.com, 2026. Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017. Jeff Dean, <em>Designs, Lessons and Advice from Building Large Distributed Systems</em>, LADIS, 2009. Werner Vogels sobre design para falha, Pat Helland sobre imutabilidade, <em>Release It!</em> de Michael Nygard, <em>A Philosophy of Software Design</em> de John Ousterhout. A pesquisa sobre evals está em <a href="References.html">Referências</a>.</p>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/Home" target="_blank" rel="noopener">Wiki do harness-kit</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

@@ -1,0 +1,38 @@
+# harness-kit ontology. Which node types exist and which links are legal.
+#
+# Versioned on purpose: a new type or edge arrives as a pull request someone
+# can argue with. trace.py reads it on every write, the validator reads it in
+# CI. Add a type only when a real document or real code asks for it, never
+# because the picture looks incomplete.
+#
+# Override per project by copying this file to {repo}/.claude/graph/ontology.yml.
+
+version: 1
+
+nodes:
+  Requirement:
+    source: prp
+    id: stable
+  Decision:
+    source: graphiti
+  Method:
+    source: code
+  Test:
+    source: code
+
+statuses: [PROPOSED, VALIDATED, STALE]
+
+edges:
+  AFFECTS:
+    from: Requirement
+    to: Method
+    statuses: [PROPOSED, VALIDATED, STALE]
+    requires: [status, confidence, methods, evidence, commit, recorded]
+  IMPLEMENTS:
+    from: Method
+    to: Requirement
+    requires: [commit, evidence, recorded]
+  VERIFIED_BY:
+    from: Requirement
+    to: Test
+    requires: [commit, recorded]

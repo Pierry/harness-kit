@@ -27,12 +27,15 @@ Read:
 - guides/examples/good-prp-example.md
 - .claude/shared/context-strategy.md, pick the right tier when exploring target repos
 
-Explore target repos. Ask user for repo paths if not provided. Use the context-strategy tier order:
-1. Cached graphify graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → query for symbols/callers (much cheaper than grep)
-2. Cached repomix pack at `.claude/runtime/cache/repomix/*.xml` → read for full file content
-3. Fall back to Grep + Read on live repo
+Explore target repos. Ask user for repo paths if not provided. Run `.claude/scripts/context-tools.sh {repo}` once, then per `context-strategy.md` § `/product-manager:prp`:
+1. semble search per PRD capability → files touched with file:line. semble find-related on best match → Context patterns.
+2. repowise context/why on touched modules → gotchas. context7 for each external lib → external docs links.
+3. atomize skill present → PRD atoms become `Success criteria (verifiable)`, one per atom.
+4. Cached graphify graph / repomix pack if present. Fall back to Grep + Read.
 
-Capture file:line. Never invent paths. If a target repo is large + uncached, suggest the user run `/context:graph {repo}` before continuing, don't auto-build.
+Capture file:line. Never invent paths. Large repo with no semble/repowise and no cache → suggest `/context:graph {repo}`, don't auto-build.
+
+Graph, only when `python3 .claude/scripts/hk-config.py get graph` not `off` (`.claude/shared/graph-engineering.md` § `/product-manager:prp`): write each success criterion as `- [ ] REQ-001: ...` (stable ids, never renumber; atomize ids when atoms.json exists), then `python3 .claude/scripts/trace.py init {feature_id} --prp {prp path}` (or `--atoms`).
 
 Save to .claude/runtime/outputs/pm/prp/{feature_id}.md.
 

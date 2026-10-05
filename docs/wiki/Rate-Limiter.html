@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Rate Limiter &middot; harness-kit wiki</title>
-<meta name="description" content="From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does not solve the whole problem. When the system..." />
+<meta name="description" content="System Design series #2. Topic skill: skills/rate-limiter/. Distributed rate limiting at scale, from algorithm to operation." />
 <meta property="og:title" content="Rate Limiter &middot; harness-kit wiki" />
-<meta property="og:description" content="From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does not solve the whole problem. When the system..." />
+<meta property="og:description" content="System Design series #2. Topic skill: skills/rate-limiter/. Distributed rate limiting at scale, from algorithm to operation." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Rate-Limiter.html" />
@@ -59,72 +59,36 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="rate-limiter">Rate Limiter</h1>
-<blockquote>
-<p>System Design series #2. Topic skill: <code>skills/rate-limiter/</code>.
-Design distributed rate limiting at scale, from algorithm to operation.</p>
-</blockquote>
-<h2 id="1-the-problem-and-why-it-is-deceptive">1. The problem and why it is deceptive</h2>
-<p>From far away, rate limiting looks like &quot;a counter with TTL in Redis&quot;. That solves part of it. It does
-not solve the whole problem. When the system grows, the questions that matter are bigger than the
-algorithm:</p>
-<ul>
-<li><strong>Where</strong> is the limit enforced, edge, gateway, service, or all of them?</li>
-<li><strong>What is the key</strong>: user, token, IP, tenant, endpoint, method, region?</li>
-<li>Is the limit <strong>hard or soft</strong>?</li>
-<li>What happens when the rate-limit <strong>storage fails</strong>: fail open or fail closed?</li>
-<li>How do you stop <strong>abusive bursts</strong> without destroying legitimate throughput?</li>
-<li>How do you do this across <strong>many replicas</strong> without races and without a central bottleneck?</li>
-</ul>
-<p>The organizing question, asked first:</p>
-<blockquote>
-<p><strong>What exactly am I protecting, and how much imprecision do I accept to protect it without
-destroying latency and simplicity?</strong></p>
-</blockquote>
-<p>That one question drives almost every decision here.</p>
-<h2 id="2-why-rate-limiting-exists-five-goals-at-once">2. Why rate limiting exists (five goals at once)</h2>
-<ol>
-<li><strong>Protect finite capacity</strong> of a system.</li>
-<li><strong>Fairness</strong> between clients, tenants, users.</li>
-<li><strong>Reduce blast radius</strong>: a client in a loop, a deploy generating anomalous traffic.</li>
-<li><strong>Sustain commercial models</strong>: free / pro / enterprise plans.</li>
-<li><strong>Control cost</strong>: services that call expensive dependencies (LLM, search, third parties).</li>
-</ol>
-<p>A good design is a set of <strong>overlapping limits</strong> (global, tenant, user, endpoint, IP security), not a
-single counter. <strong>Policy first, Redis second.</strong></p>
-<h2 id="3-where-to-enforce-defense-in-depth">3. Where to enforce (defense in depth)</h2>
+<p>System Design series #2. Topic skill: <code>skills/rate-limiter/</code>. Distributed rate limiting at scale, from algorithm to operation.</p>
+<h1 id="the-problem">The problem</h1>
+<p>Rate limiting looks like a counter with a TTL in Redis. That covers part of it. At scale the hard questions sit outside the algorithm: where the limit is enforced (edge, gateway, service, or all), what the key is (user, token, IP, tenant, endpoint, method, region), whether the limit is hard or soft, whether to fail open or closed when the store fails, how to stop abusive bursts without hurting legitimate throughput, and how to count across many replicas without races or a central bottleneck.</p>
+<p>Start by naming what you protect and how much imprecision you accept to protect it without hurting latency and simplicity. That answer drives almost every decision below.</p>
+<h1 id="why-rate-limiting-exists">Why rate limiting exists</h1>
+<p>A limiter serves five goals at once. It protects finite capacity, keeps fairness between clients, tenants, and users, and shrinks the blast radius of a client in a loop or a deploy that generates anomalous traffic. It also enforces commercial plans (free, pro, enterprise) and caps cost for services that call expensive dependencies such as LLMs, search, or third parties.</p>
+<p>A good design is a set of overlapping limits (global, tenant, user, endpoint, IP security), never a single counter. Policy first, Redis second.</p>
+<h1 id="where-to-enforce">Where to enforce</h1>
 <table>
 <thead>
 <tr>
@@ -155,43 +119,18 @@ single counter. <strong>Policy first, Redis second.</strong></p>
 </tr>
 </tbody>
 </table>
-<p>The mature architecture is <strong>layered</strong>: edge for coarse protection, gateway for generic API limits,
-service for semantic/cost limits. Each layer catches what the layer above cannot see. This is the same
-&quot;defense in depth&quot; idea as security layering.</p>
-<h2 id="4-the-limit-key">4. The limit key</h2>
-<p>Choose the dimension(s) consciously: user, token, IP, tenant, endpoint, method, region, often a
-composite. The key choice sets:</p>
-<ul>
-<li><strong>Cardinality</strong>: how many distinct counters exist, which drives store load and hot-key risk.</li>
-<li><strong>Abuse surface</strong>: an IP limit is easy to evade behind NAT/proxies; a token limit ties to identity.</li>
-</ul>
-<p>Composite keys (tenant + endpoint) localize limits precisely but multiply the counter count.</p>
-<h2 id="5-theory-the-algorithms">5. Theory, the algorithms</h2>
-<p>This is the part everyone names and few explain. Each row is a different answer to &quot;how do we count&quot;.</p>
-<h3 id="fixed-window-counter">Fixed window counter</h3>
-<p>Count requests in a fixed clock bucket (e.g. per minute), reset at the boundary. Cheap, one counter
-per key. <strong>Flaw: boundary burst.</strong> A client can send a full window at 11:59:59 and another full window
-at 12:00:00, ~2x the intended rate across the boundary.</p>
-<h3 id="sliding-window-log">Sliding window log</h3>
-<p>Store a timestamp per request, count those within the trailing window. <strong>Exact and fair.</strong> Cost:
-memory and CPU grow with traffic, since you keep every timestamp in the window. Fine at low volume,
-expensive at scale.</p>
-<h3 id="sliding-window-counter">Sliding window counter</h3>
-<p>Approximate the sliding window with two fixed buckets (current + previous) weighted by the elapsed
-fraction of the current window:</p>
+<p>Mature architectures layer all three: edge for coarse protection, gateway for generic API limits, service for semantic and cost limits. Each layer catches what the one above cannot see, the same defense-in-depth idea as security layering.</p>
+<h1 id="the-limit-key">The limit key</h1>
+<p>Choose the dimensions on purpose, often as a composite. The key sets cardinality, which is how many distinct counters exist and so drives store load and hot-key risk. It also sets the abuse surface: an IP limit is easy to evade behind NAT or proxies, while a token limit ties to identity. Composite keys (tenant plus endpoint) localize limits precisely but multiply the counter count.</p>
+<h1 id="algorithms">Algorithms</h1>
+<p>Each algorithm is a different answer to how you count.</p>
+<p>Fixed window counter counts requests in a fixed clock bucket (for example per minute) and resets at the boundary. It costs one counter per key. Its flaw is the boundary burst: a client sends a full window at 11:59:59 and another at 12:00:00, about 2x the intended rate.</p>
+<p>Sliding window log stores a timestamp per request and counts those inside the trailing window. It is exact and fair, but memory and CPU grow with traffic. Fine at low volume, expensive at scale.</p>
+<p>Sliding window counter approximates the sliding window with two fixed buckets, current and previous, weighted by the elapsed fraction of the current window. It smooths the boundary burst with one or two counters per key and a single atomic operation. It is the common production compromise between fixed-window cost and sliding-log accuracy.</p>
 <pre><code>estimate = current_count + previous_count * (1 - elapsed_fraction)
 </code></pre>
-<p>Smooths the boundary burst, one or two counters per key, a single atomic operation. The common
-production compromise between fixed-window cheapness and sliding-log accuracy.</p>
-<h3 id="leaky-bucket">Leaky bucket</h3>
-<p>Requests enter a queue that drains at a constant rate; overflow is rejected. Produces a smooth,
-constant <strong>output</strong> rate, good for shaping traffic into a downstream that wants steady flow.</p>
-<h3 id="token-bucket---industry-default">Token bucket  ← industry default</h3>
-<p>A bucket holds up to <code>capacity</code> tokens. Tokens refill at a constant <code>rate</code>. Each request consumes one
-token; if the bucket is empty, reject (or queue). The key property: it <strong>separates the allowed burst
-(capacity) from the sustained rate (refill)</strong>. A client can burst up to <code>capacity</code> instantly, then is
-held to <code>rate</code> thereafter. This matches how platforms want to behave: &quot;you may spike a little, but
-your steady-state is capped.&quot;</p>
+<p>Leaky bucket queues requests and drains them at a constant rate, rejecting overflow. It produces a smooth, constant output rate, good for shaping traffic into a downstream that wants steady flow.</p>
+<p>Token bucket is the industry default. A bucket holds up to <code>capacity</code> tokens that refill at a constant <code>rate</code>; each request takes one token, and an empty bucket rejects or queues. It separates the allowed burst (capacity) from the sustained rate (refill): a client spikes up to <code>capacity</code> at once, then is held to <code>rate</code>. It is the classic traffic-shaping algorithm from networking (Tanenbaum, <em>Computer Networks</em>) and what most API platforms and cloud providers expose.</p>
 <pre><code>on request:
   now = clock()
   tokens = min(capacity, tokens + (now - last_refill) * rate)
@@ -199,77 +138,26 @@ your steady-state is capped.&quot;</p>
   if tokens &gt;= 1: tokens -= 1; allow
   else: reject (429, Retry-After)
 </code></pre>
-<p>Token bucket is the classic traffic-shaping algorithm from networking (see Tanenbaum, <em>Computer
-Networks</em>); it is what most API platforms and cloud providers expose.</p>
-<h3 id="choosing">Choosing</h3>
-<p>Default to <strong>token bucket</strong> when you want sustained rate + controlled burst; <strong>sliding window counter</strong>
-when you want a simple, near-exact rolling limit with a sub-ms check. Make the check <strong>atomic</strong>: a Lua
-script in Redis runs read-decide-write in one server-side operation, so concurrent replicas cannot
-race.</p>
-<h2 id="6-state-and-storage">6. State and storage</h2>
-<ul>
-<li>Per-key bucket/counter in an in-memory store (Redis), <strong>TTL-bounded</strong> (e.g. 2 windows) so cold keys
-expire and memory stays bounded.</li>
-<li><strong>Atomic decision:</strong> a single Lua script does refill/weight + check + decrement in one round trip.</li>
-<li><strong>Limit config</strong> (key to quota/refill) in a config service with a short local cache,
-<strong>hot-reloadable</strong> without redeploy.</li>
-</ul>
-<h2 id="7-theory-hot-keys">7. Theory, hot keys</h2>
-<p>One tenant with disproportionate traffic concentrates load on one store shard (a hot key). Mitigations:</p>
-<ul>
-<li><strong>Local budgets.</strong> Each node is granted a slice of the global budget and decrements it locally,
-reconciling with the central store periodically. This trades exactness (you may over-admit by up to
-one budget-slice per node) for a huge drop in central-store pressure. This is Helland's &quot;data on the
-outside, reconciled asynchronously&quot; applied to counters.</li>
-<li><strong>Composite limits</strong> spread a tenant across sub-keys (tenant+endpoint), so no single counter is hot.</li>
-<li><strong>Local pre-check / token pre-filter</strong> before the central call: a saturating key is throttled at the
-node before it touches the shared store.</li>
-<li><strong>Shard the store by key</strong> (consistent hashing), so one key's operations stay on one shard.</li>
-</ul>
-<h2 id="8-fail-open-vs-fail-closed">8. Fail-open vs fail-closed</h2>
-<p>When the rate-limit store fails, decide <em>deliberately</em>.</p>
-<ul>
-<li><strong>Fail-open (allow):</strong> protects legitimate traffic from your own outage, but drops protection during
-the outage.</li>
-<li><strong>Fail-closed (deny):</strong> preserves protection, but turns a limiter outage into an availability
-incident.</li>
-</ul>
-<p>Most platforms <strong>fail open</strong> on the generic path and <strong>fail closed</strong> only where the limit guards a
-hard capacity or cost ceiling. State which posture each layer takes, and why. Pair it with a <strong>circuit
-breaker</strong> (Nygard) so a slow store does not add latency to every request, once the store is detected
-unhealthy, the limiter stops calling it and applies the fallback posture immediately.</p>
-<h2 id="9-hard-vs-soft-limits">9. Hard vs soft limits</h2>
-<p>A <strong>hard</strong> limit rejects (<code>429 Too Many Requests</code> + <code>Retry-After</code>). A <strong>soft</strong> limit warns, degrades,
-or queues but still serves. Cost and fairness limits are often soft with escalating friction; security
-and capacity limits are hard.</p>
-<h2 id="10-multi-region">10. Multi-region</h2>
-<p>Strict global accuracy across regions would require a synchronous cross-region hop on every request,
-which destroys latency. The realistic compromise is <strong>regional budgets with reconciliation</strong>: each
-region enforces a local share of the global limit and reconciles asynchronously. You accept bounded
-over-admit (a global limit of N might briefly admit a bit more than N) in exchange for low latency.
-Reserve strict global counting for the few limits that genuinely need it. This is the CAP/PACELC
-trade-off made concrete: under normal operation you trade consistency for latency.</p>
-<h2 id="11-shadow-mode-the-highest-leverage-practice">11. Shadow mode (the highest-leverage practice)</h2>
-<p>Before enforcing a hard limit, run it in <strong>observation mode</strong>: the system computes the block decision
-but <strong>does not apply it</strong>, and emits what it <em>would</em> have blocked. This catches misconfigured policies
-before they cause an incident, you see &quot;this new limit would have 429'd 40% of tenant X's legitimate
-traffic&quot; in a dashboard instead of in a 3am page. Promote a limit from shadow to enforce only after
-the shadow metrics look right.</p>
-<h2 id="12-observability">12. Observability</h2>
-<p>Essential metrics:</p>
-<ul>
-<li>requests <strong>allowed</strong> per policy,</li>
-<li>requests <strong>blocked</strong> (429) per policy and dimension,</li>
-<li><strong>decision latency</strong>: the limiter must add near-zero to the request path,</li>
-<li>store op latency,</li>
-<li>fail-open events,</li>
-<li>top-throttled keys,</li>
-<li>shadow-mode would-block counts.</li>
-</ul>
-<p>At 3am someone must be able to answer: <strong>which limit fired, in which dimension, was the policy wrong,
-was there a traffic regression?</strong> If the design cannot answer that, it is not operationally governable
-, and &quot;operationally governable&quot; is the real bar, not a pretty algorithm.</p>
-<h2 id="13-failure-modes">13. Failure modes</h2>
+<p>Pick token bucket for a sustained rate with controlled burst, and sliding window counter for a near-exact rolling limit with a sub-ms check. Make the check atomic: a Lua script in Redis runs read, decide, and write as one server-side operation, so concurrent replicas cannot race.</p>
+<h1 id="state-and-storage">State and storage</h1>
+<p>Keep each key's bucket or counter in an in-memory store (Redis) with a TTL (for example 2 windows), so cold keys expire and memory stays bounded. One Lua script does refill or weighting, check, and decrement in one round trip. Limit config (key to quota and refill) lives in a config service with a short local cache and reloads without a redeploy.</p>
+<h1 id="hot-keys">Hot keys</h1>
+<p>One tenant with disproportionate traffic concentrates load on one store shard. Four mitigations apply.</p>
+<p>Local budgets grant each node a slice of the global budget to decrement locally, reconciling with the central store periodically. You over-admit by up to one slice per node in exchange for a large drop in central-store pressure. This is Helland's data on the outside, reconciled asynchronously, applied to counters.</p>
+<p>Composite limits spread a tenant across sub-keys (tenant plus endpoint) so no single counter runs hot. A local pre-check throttles a saturating key at the node before it touches the shared store. Sharding the store by key with consistent hashing keeps one key's operations on one shard.</p>
+<h1 id="fail-open-vs-fail-closed">Fail-open vs fail-closed</h1>
+<p>Decide on purpose what happens when the store fails. Fail-open (allow) protects legitimate traffic from your own outage but drops protection while it lasts. Fail-closed (deny) keeps protection but turns a limiter outage into an availability incident.</p>
+<p>Most platforms fail open on the generic path and fail closed only where the limit guards a hard capacity or cost ceiling. State the posture of each layer and why. Pair it with a circuit breaker (Nygard): once the store is unhealthy, the limiter stops calling it and applies the fallback posture at once, so a slow store does not add latency to every request.</p>
+<h1 id="hard-vs-soft-limits">Hard vs soft limits</h1>
+<p>A hard limit rejects with <code>429 Too Many Requests</code> and <code>Retry-After</code>. A soft limit warns, degrades, or queues and still serves. Cost and fairness limits are often soft with escalating friction; security and capacity limits are hard.</p>
+<h1 id="multi-region">Multi-region</h1>
+<p>Strict global accuracy needs a synchronous cross-region hop on every request, which destroys latency. The realistic compromise is regional budgets with reconciliation: each region enforces a local share of the global limit and reconciles asynchronously. A global limit of N may briefly admit a bit more than N, in exchange for low latency. Reserve strict global counting for the few limits that need it. This is the CAP/PACELC trade-off made concrete: in normal operation you trade consistency for latency.</p>
+<h1 id="shadow-mode">Shadow mode</h1>
+<p>Before enforcing a hard limit, run it in observation mode. The system computes the block decision, does not apply it, and emits what it would have blocked. You see &quot;this new limit would have 429'd 40% of tenant X's legitimate traffic&quot; on a dashboard instead of in a 3am page. Promote a limit from shadow to enforce only after the shadow metrics look right. Of every practice on this page, it pays back the most.</p>
+<h1 id="observability">Observability</h1>
+<p>Track requests allowed per policy, requests blocked (429) per policy and dimension, decision latency (the limiter must add near zero to the request path), store op latency, fail-open events, top-throttled keys, and shadow-mode would-block counts.</p>
+<p>At 3am someone must answer which limit fired, in which dimension, whether the policy was wrong, and whether traffic regressed. A design that cannot answer that is not operationally governable, and that is the bar.</p>
+<h1 id="failure-modes">Failure modes</h1>
 <table>
 <thead>
 <tr>
@@ -301,40 +189,89 @@ was there a traffic regression?</strong> If the design cannot answer that, it is
 </tr>
 </tbody>
 </table>
-<h2 id="14-incremental-plan">14. Incremental plan</h2>
-<ol>
-<li><strong>Vertical slice</strong>: one enforcement layer (gateway), fixed or sliding window, single Redis, one
-limit key, <code>429 + Retry-After</code>, allow/deny metrics.</li>
-<li><strong>Correctness / ops</strong>: token bucket via atomic Lua, fail-open + circuit breaker, shadow mode,
-hot-reload config, per-policy metrics.</li>
-<li><strong>Scale</strong>: sharded store, hot-key local budgets + pre-filter, layered enforcement
-(edge/gateway/service).</li>
-<li><strong>Global</strong>: regional budgets with reconciliation, composite policies, cost/LLM semantic limits in
-the service.</li>
-</ol>
-<h2 id="15-trade-offs-to-state-explicitly">15. Trade-offs to state explicitly</h2>
-<p>Accuracy vs latency (exact global count vs local budget); fail-open vs fail-closed; central store vs
-local budgets; one limit key vs composite; enforce now vs shadow first; per-layer placement (catch
-early at edge vs rich context in service).</p>
-<h2 id="16-a-worked-filled-example">16. A worked, filled example</h2>
-<p>The repo ships a complete filled SDD for a distributed rate limiter (sliding-window-counter variant,
-200k QPS, sub-ms budget, fail-open) as the agent's good example:
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/examples/good-system-design-example.md" target="_blank" rel="noopener"><code>good-system-design-example.md</code></a>.</p>
-<h2 id="references">References</h2>
-<ul>
-<li>Andrew Tanenbaum, <em>Computer Networks</em>, token bucket and leaky bucket traffic shaping.</li>
-<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, 2017, consistency vs latency, accepting
-bounded imprecision.</li>
-<li>Michael Nygard, <em>Release It!</em>, 2nd ed., 2018, circuit breaker, bulkhead, fail-fast as a stability
-decision.</li>
-<li>Werner Vogels / Amazon, design for failure (the store <em>will</em> fail).</li>
-<li>Pat Helland, <em>Life Beyond Distributed Transactions</em>, CIDR 2007, local budgets as independent,
-asynchronously-reconciled state.</li>
-<li>Eric Brewer, CAP theorem (PODC 2000); Abadi, PACELC (2012): the latency-vs-consistency framing for
-multi-region budgets.</li>
-<li>Stripe Engineering, <em>Scaling your API with rate limiters</em>, token bucket in production practice.</li>
-<li>Redis docs, <em>Rate limiting with Redis</em> and <code>EVAL</code>/Lua for atomic decisions.</li>
-</ul>
+<h1 id="incremental-plan">Incremental plan</h1>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vertical slice</td>
+<td>One enforcement layer (gateway), fixed or sliding window, single Redis, one limit key, <code>429 + Retry-After</code>, allow/deny metrics.</td>
+</tr>
+<tr>
+<td>Correctness and ops</td>
+<td>Token bucket via atomic Lua, fail-open + circuit breaker, shadow mode, hot-reload config, per-policy metrics.</td>
+</tr>
+<tr>
+<td>Scale</td>
+<td>Sharded store, hot-key local budgets + pre-filter, layered enforcement (edge, gateway, service).</td>
+</tr>
+<tr>
+<td>Global</td>
+<td>Regional budgets with reconciliation, composite policies, cost and LLM semantic limits in the service.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="trade-offs-to-state">Trade-offs to state</h1>
+<p>State each one in the design: accuracy vs latency (exact global count vs local budget), fail-open vs fail-closed, central store vs local budgets, one limit key vs composite, enforce now vs shadow first, and placement per layer (catch early at the edge vs rich context in the service).</p>
+<h1 id="worked-example">Worked example</h1>
+<p>The repo ships a complete filled SDD for a distributed rate limiter as the agent's good example: sliding window counter, 200k QPS, under 1 ms added latency, fail-open. See <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/examples/good-system-design-example.md" target="_blank" rel="noopener"><code>good-system-design-example.md</code></a>. The general method lives in <a href="System-Design-Method.html">System Design Method</a>.</p>
+<h1 id="references">References</h1>
+<table>
+<thead>
+<tr>
+<th>Author</th>
+<th>Work</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Andrew Tanenbaum</td>
+<td><em>Computer Networks</em></td>
+<td>token bucket and leaky bucket traffic shaping</td>
+</tr>
+<tr>
+<td>Martin Kleppmann</td>
+<td><em>Designing Data-Intensive Applications</em>, 2017</td>
+<td>consistency vs latency, accepting bounded imprecision</td>
+</tr>
+<tr>
+<td>Michael Nygard</td>
+<td><em>Release It!</em>, 2nd ed., 2018</td>
+<td>circuit breaker, bulkhead, fail-fast as a stability decision</td>
+</tr>
+<tr>
+<td>Werner Vogels / Amazon</td>
+<td>design for failure</td>
+<td>the store will fail</td>
+</tr>
+<tr>
+<td>Pat Helland</td>
+<td><em>Life Beyond Distributed Transactions</em>, CIDR 2007</td>
+<td>local budgets as independent, asynchronously reconciled state</td>
+</tr>
+<tr>
+<td>Eric Brewer; Daniel Abadi</td>
+<td>CAP (PODC 2000); PACELC (2012)</td>
+<td>latency vs consistency framing for multi-region budgets</td>
+</tr>
+<tr>
+<td>Stripe Engineering</td>
+<td><em>Scaling your API with rate limiters</em></td>
+<td>token bucket in production practice</td>
+</tr>
+<tr>
+<td>Redis docs</td>
+<td><em>Rate limiting with Redis</em>, <code>EVAL</code>/Lua</td>
+<td>atomic decisions</td>
+</tr>
+</tbody>
+</table>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Rate-Limiter" target="_blank" rel="noopener">Rate Limiter</a> in the wiki. Edit it there.</p>
   </main>

@@ -1,49 +1,24 @@
 # Designer Skill
 
-Um skill transversal do agent `staff-software-engineer`, aplicado quando você constrói **algo novo**
-com UI: um app, uma página, uma feature ou uma landing. Ele codifica os defaults visuais e de UX para
-que uma interface criada do zero saia com cara de coisa pensada e moderna, não de template padrão. Ele
-se acumula sobre o skill de área (web/mobile); as convenções por repo em `.claude/conventions/web.md`
-continuam vencendo, e se o repo já tem um design system o agent usa esse.
+Um skill transversal do `staff-software-engineer`, aplicado quando o trabalho constrói algo novo com UI: um app, uma página, uma feature ou uma landing. Ele se soma ao skill de área `web` ou `mobile`. O `{repo}/.claude/conventions/web.md` vence sobre ele, e um repo que já tem design system mantém esse sistema.
 
-Arquivo do skill:
-[`skills/designer/SKILL.md`](https://github.com/Pierry/harness-kit/blob/main/.claude/agents/staff-software-engineer/skills/designer/SKILL.md).
-Lido por `/sse:plan` e `/sse:dev` quando o trabalho inclui uma UI nova.
+Arquivo do skill: [`skills/designer/SKILL.md`](https://github.com/Pierry/harness-kit/blob/main/.claude/agents/staff-software-engineer/skills/designer/SKILL.md). O `/sse:plan` e o `/sse:dev` leem esse arquivo em trabalho de UI nova. Quando não está claro se ele se aplica, o `/sse:dev` marca `NOT FOUND - NEEDS REVIEW: designer-skill applicability` e segue sem ele.
 
-## Por que um skill de design
+# Por quê
 
-A maioria das UIs feitas por IA converge para o mesmo visual genérico: tudo centralizado, o azul padrão
-do framework, gradiente em toda superfície, emoji como ícone, lorem ipsum, um tema só, só em inglês. O
-designer skill é um guide de feedforward ([Guides](Guides)) que empurra o agent para uma régua mais alta
-antes de ele escrever um único componente, do mesmo jeito que o guide de estilo de código molda o
-código. Ele é opinativo de propósito.
+UIs feitas por IA convergem para um mesmo visual: tudo centralizado, azul padrão, ícones de emoji, lorem ipsum, um tema só, só em inglês. O skill é um [guide](Guides) de feedforward que sobe a régua antes do primeiro componente.
 
-## Material Design 3 como sistema
+# Material Design 3
 
-Use M3 como sistema de tokens, não como visual literal do Google. O ponto é estrutura: projetar com
-papéis e escalas, nunca com valores chumbados.
+O M3 é obrigatório e usado como sistema de tokens. A cor vem dos papéis do M3 (`primary`, `on-primary`, `*-container`, `surface`, `surface-container`, `on-surface-variant`, `outline`, `error`), derivados de uma única semente escolhida a partir do contexto do produto. O CSS dos componentes nunca tem hex cru.
 
-- **Papéis de cor.** Defina `primary`, `on-primary`, `primary-container`, `secondary`, `tertiary`,
-  `surface`, `surface-container` (do mais baixo ao mais alto), `on-surface`, `on-surface-variant`,
-  `outline`, `error`. Derive tudo de uma única cor semente (M3 dynamic color), e escolha a semente pelo
-  contexto do produto, não pelo roxo padrão.
-- **Escala tipográfica.** display / headline / title / body / label, cada uma em L/M/S, mapeadas para
-  classes CSS.
-- **Escala de forma.** none 0, xs 4, s 8, m 12, l 16, xl 28, full. Cards `l`, botões `full` ou `m`.
-- **Elevação tonal.** Seis níveis via camadas de tint de `surface-container` mais uma sombra sutil.
-  Prefira o tint do container em vez de drop shadows pesadas.
-- **State layers.** hover 8%, focus 10%, pressed 10% da cor `on-*` sobre o componente.
-- **Movimento.** Easing enfático do M3 `cubic-bezier(.2,0,0,1)`, padrão 200-300ms, pequeno 100ms.
+A tipografia segue display, headline, title, body e label, cada um em L, M e S, mapeados para classes uma vez. A forma é none 0, xs 4, s 8, m 12, l 16, xl 28, full; cards usam `l`, botões `full` ou `m`, sheets `xl`. A elevação tem 6 níveis de tons de `surface-container` mais uma sombra sutil. As camadas de estado são hover 8%, focus 10% e pressed 10% da cor `on-*`. O movimento usa a curva enfatizada `cubic-bezier(.2,0,0,1)`, 200 a 300ms no padrão e 100ms nos pequenos.
 
-## Dark e light, os dois obrigatórios
+Os inputs são text fields do M3, com 56px de altura e label flutuante. Os cabeçalhos de página têm um eyebrow, um título display e um subtítulo.
 
-Nunca entregue um tema só.
+# Escuro e claro
 
-- Preferência do sistema primeiro (`prefers-color-scheme`), toggle do usuário depois, escolha
-  persistida em `localStorage` e refletida em `:root[data-theme]`.
-- Dois conjuntos de tokens, light e dark. O dark é tonal, não preto puro: uma surface na faixa de
-  `#1A1C1E`, elevada com tints de container mais claros em vez de sombras.
-- Verifique contraste nos dois temas (veja Acessibilidade).
+Os dois temas vão juntos. A preferência do sistema vem primeiro, depois um toggle do usuário que grava `data-theme` e `localStorage`. O escuro usa uma superfície tingida `#1A1C1E`, nunca preto puro.
 
 ```css
 :root { color-scheme: light dark; }
@@ -51,101 +26,48 @@ Nunca entregue um tema só.
 :root[data-theme="dark"]  { --surface:#1A1C1E; --on-surface:#E3E2E6; --primary:#A8C7FA; }
 ```
 
-## Tipografia moderna
+# Tipografia
 
-- Default `Inter` (variável) para UI e corpo de texto; alternativa nativa do M3, `Roboto Flex`.
-  Self-host ou carregue com `font-display: swap`.
-- Opcionalmente uma fonte de display só para hero/headline (`Space Grotesk`, `Sora`,
-  `Plus Jakarta Sans`).
-- Números tabulares para dados (`font-variant-numeric: tabular-nums`).
-- Stack: `"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`.
+A UI carrega uma fonte variável de verdade, e a pilha do sistema nunca é o visual final. O corpo usa uma entre `Geist`, `Instrument Sans`, `General Sans`, `Manrope` e `Inter Tight`; a Inter é fallback. O display usa uma entre `Bricolage Grotesque`, `Clash Display`, `Sora`, `Fraunces` e `Space Grotesk`, com peso de 600 a 800. Dados usam `font-variant-numeric: tabular-nums`.
 
-## Acabamento nível Behance
+As fontes carregam com `font-display: swap`, embutidas como data URI `woff2` em base64 quando a superfície roda offline ou sob uma CSP restrita.
 
-A régua de "novo e bom" é o topo do Behance UI. Na prática:
+# Cor, profundidade, movimento
 
-- **Grid de espaçamento de 8pt** (4/8/12/16/24/32/48/64). Whitespace generoso; deixe o layout respirar.
-- **Hierarquia forte.** Um ponto focal claro por tela. Headline confiante, corpo calmo. Tamanho, peso e
-  espaço carregam a hierarquia antes da cor.
-- **Paleta contida.** Uma semente de marca, neutros, um acento. Cor precisa merecer atenção.
-- **Componentes precisos.** Raio consistente, grids alinhados, alinhamento óptico, nenhum elemento
-  órfão.
-- **Conteúdo real.** Texto e dados realistas, nunca lorem. Estados de vazio, loading e erro são
-  desenhados, não lembrados depois.
-- **Micro-interações.** Feedback de hover, focus e press em todo elemento interativo. Sutil e rápido.
-- **Ícones originais e modernos** (veja abaixo), nunca emoji.
+A paleta é viva: uma semente saturada, um segundo acento e gradientes no hero, nos botões primários e nos números de destaque.
 
-## Iconografia: original, moderna, nunca emoji
+As superfícies ganham sombras em camadas e tingidas, e brilho de acento. As views animam entrada, interação, mudança de valor, e o mostrar e esconder nos dois sentidos, nunca um corte seco de `display:none`. O movimento fica sob `prefers-reduced-motion` e anima só `transform` e `opacity`.
 
-- **Nunca use emojis.** Nem como ícone, nem em botões, labels, títulos, estados vazios ou texto. Emoji
-  renderiza diferente em cada plataforma, quebra a consistência visual e passa impressão de coisa
-  inacabada. Regra dura.
-- **Crie ícones originais.** Desenhe um set SVG próprio para as ações-chave e marcas do produto, em um
-  grid consistente (por exemplo 24px, traço de 2px, juntas arredondadas) com uma única linguagem visual.
-  O logo/glifo de marca e as ações primárias devem ser originais, não de banco.
-- **Estilo moderno.** Linha limpa ou duotone, opticamente equilibrado, legível em 16-20px, encaixado no
-  pixel, com peso de traço casado com o peso da tipografia.
-- Se um set próprio completo estiver fora de escopo, use **um** set aberto moderno como base (Lucide,
-  Material Symbols, Phosphor) e ainda assim desenhe as marcas de brand e hero originais. Nunca misture
-  famílias de ícone.
-- Entregue como SVG inline ou sprite, dirigido por `currentColor` para os ícones seguirem o tema
-  light/dark; dê a cada um um label acessível (`aria-label` ou `<title>`).
+Callouts e textos de ajuda usam um container tonal (`secondary-container` ou `surface-container-high`) com raio de verdade e um ícone `info`. Uma barra de acento colorida na borda esquerda é proibida.
 
-## Internacionalização (en, pt-BR, es)
+# Acabamento nível Behance
 
-Toda string voltada ao usuário é traduzível. Três locales saem juntos: inglês (default), português do
-Brasil, espanhol.
+O agent pesquisa trabalhos atuais no Behance e no Dribbble do domínio do produto e diz o que aproveitou. Os layouts usam grid de 8pt, um ponto focal por view, texto realista e estados de vazio, carregamento e erro desenhados. Uma soma de partes ganha um visual em CSS ou SVG (barra empilhada, donut, sparkline) em vez de uma lista de números.
 
-- Nada de string chumbada; um lookup `t('key')` com chaves semânticas (`cart.empty.title`).
-- `locales/{en,pt-BR,es}.json`, com conjuntos de chave idênticos nos três.
-- Detecte `navigator.language`, caia para `en`; o usuário pode trocar, persista a escolha.
-- Defina `<html lang>` dinamicamente; formate datas, números e moeda com `Intl` por locale; plurais
-  pelas regras de plural da biblioteca de i18n.
+# Ícones
 
-## Favicon consciente do contexto
+Emojis são proibidos em todo lugar. A marca e as ações primárias são SVGs originais num grid de 24px com traço de 2px; o resto vem de um único conjunto (Material Symbols, Lucide, Phosphor), nunca misturado. Os ícones usam `currentColor` e levam `aria-label` ou `<title>`.
 
-Gere um favicon que reflita o contexto do produto, não um placeholder.
+# Texto e i18n
 
-- Escreva como **SVG** (nítido, tematizável), usando a semente da marca, ciente de light/dark.
-- Derive a marca do contexto: a inicial/monograma do produto, ou um glifo que combine com o domínio (um
-  carrinho para commerce, um gráfico para analytics). Legível em 16px.
-- Entregue `favicon.svg` (primário), `favicon.ico` 32, `apple-touch-icon.png` 180 e um
-  `site.webmanifest` com PNGs maskable de 192 e 512, mais meta `theme-color` por scheme.
-- Diga qual símbolo e qual semente foram escolhidos e por quê (o elo com o contexto).
+O texto voltado ao usuário não tem travessão nem meia-risca em nenhum idioma. Toda string passa por `t('key')` com chaves semânticas como `cart.empty.title`. Os arquivos `locales/{en,pt-BR,es}.json` compartilham um mesmo conjunto de chaves; o app detecta `navigator.language`, cai para `en`, persiste a escolha do usuário, define `<html lang>` e formata com `Intl`.
 
-## Acessibilidade (inegociável)
+# Favicon
 
-- Contraste: texto de corpo >= 4.5:1, texto grande e UI >= 3:1 (WCAG 2.2 AA), nos **dois** temas.
-- Anel `:focus-visible` visível em todo elemento interativo. Alvo de toque >= 44x44px.
-- Respeite `prefers-reduced-motion`. HTML semântico, inputs com label, alcançável por teclado.
+O favicon é uma marca em SVG tirada do contexto do produto (um monograma, um carrinho para comércio) na cor semente da marca, legível em 16px. O conjunto é `favicon.svg`, `favicon.ico` 32, `apple-touch-icon.png` 180 e `site.webmanifest` com PNGs maskable de 192 e 512. O agent diz qual símbolo e qual semente escolheu, e por quê.
 
-## O que o agent entrega com uma UI nova
+# Acessibilidade
 
-1. Arquivo de tokens (papéis de cor, tipografia, forma) para light e dark.
-2. Toggle de tema ligado à preferência do sistema e com persistência.
-3. Fonte moderna carregada com `font-display: swap`.
-4. `locales/{en,pt-BR,es}.json` mais a fiação do `t()` e um seletor de idioma.
-5. Set de ícones SVG original e moderno (currentColor, labels acessíveis), sem emoji.
-6. Conjunto de favicon consciente do contexto, manifest e link tags.
-7. Estados de vazio, loading e erro desenhados.
+O contraste é de pelo menos 4.5:1 para texto de corpo e 3:1 para texto grande e UI (WCAG 2.2 AA), nos dois temas. Todo elemento interativo tem um anel de `:focus-visible` e uma área de toque de 44x44px, e é alcançável pelo teclado.
 
-## Proibido
+# O que vai junto
 
-Emojis em qualquer lugar (UI, ícones, botões, texto); ícones genéricos ou de banco para marca ou marcas
-primárias; misturar famílias de ícone; cores chumbadas em vez de tokens; um tema só; strings voltadas ao
-usuário chumbadas; favicon placeholder; lorem ipsum em UI entregue; contraste abaixo de AA em qualquer
-um dos temas.
+Uma UI nova sai com tokens claro e escuro, um toggle de tema, uma fonte carregada, os três arquivos de locale com seletor de idioma, ícones originais, o conjunto de favicon, profundidade e movimento, e estados de vazio, carregamento e erro desenhados.
 
-## Veja também
+# Veja também
 
-- [Agents](Agents) e [Guides](Guides)
-- [Pipeline e stages](Pipeline-and-Stages), onde `/sse:plan` e `/sse:dev` leem este skill
+[Agents](Agents), [Guides](Guides), [Pipeline e stages](Pipeline-and-Stages).
 
-## Referências
+# Referências
 
-- Especificação do Material Design 3, m3.material.io (papéis de cor, escala tipográfica, elevação,
-  movimento).
-- WCAG 2.2, Web Content Accessibility Guidelines (contraste, foco, alvos).
-- Tipografia Inter, rsms.me/inter; Roboto Flex (Google Fonts).
-- `Intl` (ECMAScript Internationalization API) para formatação ciente de locale.
-- Web App Manifest e boas práticas de favicon (MDN).
+Material Design 3, m3.material.io. WCAG 2.2. Inter, rsms.me/inter, e Roboto Flex no Google Fonts. ECMAScript `Intl`. MDN sobre o Web App Manifest e favicons.

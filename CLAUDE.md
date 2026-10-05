@@ -59,7 +59,7 @@ Area skills auto-detected from the repo: `backend`, `web`, `mobile`, `devops`. P
 
 Sub-agent `staff-software-engineer` is also Task-tool-invokable. Assets: `.claude/agents/staff-software-engineer/`.
 
-Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. The status bar tracks the current one.
+Full pipeline order: `prd → prp → plan → dev → test → pr`. Each stage gets an approval marker. `hk status` prints the current one.
 
 ### system-architect
 
@@ -87,6 +87,10 @@ Two opt-in helpers for big target repos. Both bind to external CLIs; missing bin
 
 PRP, plan, and SDD supervisor eval consult cache when present and fall back to grep otherwise. Tier order + when-to-use in `.claude/shared/context-strategy.md`.
 
+### graph engineering (optional, default off)
+
+`/hk:graph off | manifest | full`. manifest: PRP criteria get `REQ-001` ids, `trace/{feature_id}.yml` holds AFFECTS/IMPLEMENTS/VERIFIED_BY links with evidence + git-verified commits, plan scope = only files dev may touch (`trace.py gate` blocks), status PROPOSED → VALIDATED/STALE settled at next plan. full: + embedded FalkorDB (falkordblite) with Graphiti knowledge (NVIDIA build models) + Joern CPG, same 4 queries via `graph.py`. One writer per layer, manifest = truth, graph = projection. Guide: `.claude/shared/graph-engineering.md`.
+
 ## Project conventions override
 
 Each target repo can override SSE defaults with files in `.claude/conventions/`:
@@ -101,11 +105,11 @@ Each target repo can override SSE defaults with files in `.claude/conventions/`:
 
 When a file exists, the agent reads it on top of defaults. Project wins. Reference: `.claude/agents/staff-software-engineer/guides/conventions-override.md`.
 
-## Token accounting and status bar
+## Token accounting and status line
 
 After approval, hooks compute tokens used per phase from the Claude transcript and append to `.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json` (per agent). One JSON per agent collects phases across the full lifecycle.
 
-The status bar follows the active feature through the 6-stage pipeline. See `.claude/hooks/status-line.sh`.
+Pipeline bar `.claude/hooks/status-line.sh` is opt-in (`HK_STATUSLINE=1` at install). Default keeps user own global statusLine; project statusLine would override it. `hk status` prints same line on demand.
 
 ## Core Principles
 

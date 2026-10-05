@@ -1,29 +1,12 @@
 # Golden Path
 
-El golden path es el **camino pavimentado, opinado y con soporte, de la idea a producción**. El término
-viene de Spotify; Netflix lo llama "paved road". No es la *única* manera de atravesar el harness, es la
-*recomendada*.
+El golden path es el camino recomendado de la idea a producción, un término de Spotify que Netflix llama paved road. También puedes correr cualquier stage por separado.
 
 ```
 /golden-path
 ```
 
-Un solo comando corre los seis stages con gate: `/product-manager:run` (prd → prp) y después `/sse:run`
-(plan → dev → test → pr → monitor). Entra una idea, sale un PR mergeado.
-
-## Las cinco propiedades
-
-Un golden path de verdad se define por cinco propiedades, y harness-kit busca cumplir todas:
-
-- **Opinado**: un pipeline, las convenciones del repo, sin bikeshedding del flujo.
-- **Con soporte**: sensors + evals dan gate en cada stage. El drift lo atrapa el harness, no la persona.
-- **Opcional**: salirse en cualquier momento, correr stages sueltos. Sin imposición, sin castigo.
-- **Autoservicio**: un comando. Sin tickets, sin esperar a un equipo de plataforma.
-- **Transparente / extensible**: cada stage nombra lo que corrió (sensors, guides, evals); se puede
-  sobrescribir por repo via `conventions/`. Una abstracción que se puede ver por dentro y doblar.
-
-La combinación es el punto: opinado *y* opcional, con soporte *y* transparente. Pavimenta un carril sin
-levantar una cerca.
+Un comando corre `/product-manager:run` (prd, prp) y después `/sse:run` (plan, dev, test, pr, monitor). Entra una idea, sale un merged PR. Para la versión sin intervención, con dos gates de aprobación y un stage `intake`, usa `/pipeline:run`; mira [Autonomía](Autonomy).
 
 ```mermaid
 flowchart LR
@@ -40,65 +23,58 @@ flowchart LR
     end
 ```
 
-## Empezar por un brief
+# Las cinco propiedades
 
-El constructor de idea-brief junta los inputs que el PRD necesita (squad, problema, hipótesis, clientes,
-métrica) y emite un kick de `/golden-path` listo para pegar, con validación inline que mantiene el texto
-dentro de las convenciones del PRD mientras se escribe. Alojado en `pierry.github.io/harness-kit/brief/`.
-¿La idea ya está clarísima? Saltarse el constructor y escribir `/golden-path` con el brief a mano.
+Es opinado: un solo pipeline y las convenciones del repo. Tiene soporte: sensors y evals controlan cada stage, así el harness detecta la deriva. Es opcional: te sales cuando quieras y corres stages por separado. Es autoservicio: un comando, sin ticket a un equipo de plataforma. Es transparente y extensible: cada stage dice qué corrió, y sobrescribes por repo con `.claude/conventions/`.
 
-## Flags (se pasan a la mitad SSE)
+# Empezar por un brief
 
-- `--local`, para después del test, sin PR. Dev + test en local.
-- `--sdd`, variante del loop guiado por spec (plan una vez, dev↔test↔eval hasta cumplir la spec del PRP).
-  Solo local.
-- `--no-monitor`, el PR se abre, se salta el merge-watch automático.
+El constructor de briefs en `pierry.github.io/harness-kit/brief/` recolecta squad, problema, hipótesis, clientes y métrica, los valida contra las convenciones del PRD mientras escribes y genera una llamada a `/golden-path` lista para pegar. Si ya conoces la idea, escribe `/golden-path` con el brief tú mismo.
 
-## Salirse del camino
+# Flags
 
-La propiedad "opcional" en la práctica. Cualquier stage se puede correr suelto:
+Los flags pasan a la mitad SSE.
+
+| Flag | Efecto |
+|---|---|
+| `--local` | para después de test, sin PR |
+| `--sdd` | loop guiado por spec: planifica una vez, luego dev, test y eval hasta cumplir el PRP; solo local |
+| `--no-monitor` | abre el PR y omite la vigilancia del merge |
+
+# Salirse del camino
 
 | Desvío | Comando |
 |---|---|
-| Solo el PRD / PRP | `/product-manager:prd` · `:prp` |
-| Solo plan / dev / test / pr | `/sse:plan` · `:dev` · `:test` · `:pr` |
-| Dev + test, sin PR | `/sse:run --local` |
-| Loop guiado por spec | `/sse:sdd` |
-| Retomar donde se quedó | `/pipeline:continue` |
-| Abandonar la run activa | `/pipeline:reset` |
+| solo PRD o PRP | `/product-manager:prd`, `/product-manager:prp` |
+| un stage de SSE | `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr` |
+| dev y test, sin PR | `/sse:run --local` |
+| loop guiado por spec | `/sse:sdd` |
+| retomar | `/pipeline:continue` |
+| abandonar la corrida | `/pipeline:reset` |
 
-Los mismos sensors, los mismos evals, los mismos artefactos. Se pierde la comodidad de un solo comando, no
-el soporte.
+Los desvíos corren los mismos sensors, evals y artefactos. Solo se pierde la comodidad de un único comando.
 
-## Pavimentación por disciplina
+# Pavimentación por disciplina
 
-Un principio del golden path: un carril pavimentado por disciplina de ingeniería. harness-kit lo hace en
-el stage de dev, seleccionando automáticamente las convenciones de la disciplina del repo:
+El stage dev lee las convenciones de disciplina del repo encima de los defaults de SSE, y el proyecto gana:
 
 ```
 .claude/conventions/{backend,web,mobile,devops}.md
 ```
 
-Cuando el archivo existe, el proyecto le gana a los defaults del SSE. Esos overrides *son* la
-pavimentación por disciplina, feedforward bajo control del equipo. Vea [Guides](Guides).
+Estos archivos son feedforward que controla el equipo; mira [Guides](Guides).
 
-## Transparencia: lo que corre detrás de la cortina
+# Lo que corre detrás de la cortina
 
-El golden path abstrae, nunca esconde. El resumen de cada stage nombra los sensors, evals, guides y refs
-que corrieron, nombres reales, no un "done" genérico:
+Cada resumen de stage nombra los sensors, evals, guides y refs que corrieron:
 
 ```
-sensors: plan-structure ok, plan-feasibility ok
-eval:    plan-quality 8/10 (attempts: 1)
+sensors: plan-structure ok
+eval:    plan-quality 8.4/10 (attempts: 1)
 guides:  pipeline.md, coding-style.md, skills/{area}/SKILL.md
 refs:    prp/{feature_id}.md, conventions/{area}.md
 ```
 
-¿Ver más a fondo? Ahí están los `sensors/`, `evals/`, `guides/` dentro de `.claude/agents/<agent>/`.
-Markdown puro. Nada sellado.
+Los archivos detrás son markdown plano en `.claude/agents/<agent>/sensors/`, `evals/` y `guides/`. Qué judge calificó el eval depende de `/hk:eval`; mira [Evals](Evals).
 
-## Vea también
-
-- [Pipeline y stages](Pipeline-and-Stages): los seis stages en detalle
-- [Ingeniería de harness](Harness-Engineering): por qué el camino tiene gate como lo tiene
-- [Agents](Agents): los agents que el camino orquesta
+Mira también [Pipeline y stages](Pipeline-and-Stages), [Harness Engineering](Harness-Engineering), [Agents](Agents).

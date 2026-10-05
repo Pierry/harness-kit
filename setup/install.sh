@@ -24,6 +24,16 @@ fi
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 not found"; exit 1; }
 
+# Optional context tools. All no-ops if missing; .claude/scripts/context-tools.sh
+# reports what a stage can use. Never auto-installed.
+if ! command -v semble >/dev/null 2>&1 && ! command -v uvx >/dev/null 2>&1; then
+  echo "  optional: semble not found. intent code search falls back to grep."
+  echo "            pip install 'semble[mcp]'"
+fi
+if ! command -v repowise >/dev/null 2>&1; then
+  echo "  optional: repowise not found. risk scores and impacted tests skipped."
+  echo "            uv tool install repowise && repowise init <repo>"
+fi
 # Optional context tools (repomix snapshot, graphify knowledge graph).
 # Both are no-ops if missing, /context:pack and /context:graph will print install hints.
 if ! command -v repomix >/dev/null 2>&1; then
@@ -92,12 +102,17 @@ chmod +x "$TARGET/.claude/runtime/scripts/staff-software-engineer/run-sensors.sh
 
 # 4) Slash commands
 mkdir -p "$TARGET/.claude/commands"
-for ns in product-manager sse pipeline context system-design; do
+for ns in product-manager sse pipeline context system-design hk; do
   rm -rf "$TARGET/.claude/commands/$ns"
   cp -R "$SOURCE_ROOT/.claude/commands/$ns" "$TARGET/.claude/commands/$ns"
 done
 # Top-level commands (no namespace): /golden-path
 cp "$SOURCE_ROOT/.claude/commands/golden-path.md" "$TARGET/.claude/commands/golden-path.md"
+
+# 4.4) Graph engineering ontology + Joern export script (project copy wins if present)
+mkdir -p "$TARGET/.claude/graph"
+cp "$SOURCE_ROOT/.claude/graph/export_callgraph.sc" "$TARGET/.claude/graph/export_callgraph.sc"
+[ -f "$TARGET/.claude/graph/ontology.yml" ] || cp "$SOURCE_ROOT/.claude/graph/ontology.yml" "$TARGET/.claude/graph/ontology.yml"
 
 # 4.5) Shared cross-agent guides
 mkdir -p "$TARGET/.claude/shared"
@@ -112,11 +127,11 @@ done
 
 # 6) Root harness scripts (pipeline state, activity, PR monitor, stage-card, context wrappers)
 mkdir -p "$TARGET/.claude/scripts"
-for s in pipeline.py activity.py pr-monitor.py; do
+for s in pipeline.py activity.py pr-monitor.py eval-score.py jev-judge.py hk-config.py trace.py graph.py; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
-for s in pack-repo.sh graph-repo.sh marker.sh preflight.sh hk-update-check.sh; do
+for s in pack-repo.sh graph-repo.sh marker.sh preflight.sh hk-update-check.sh context-tools.sh; do
   cp "$SOURCE_ROOT/.claude/scripts/$s" "$TARGET/.claude/scripts/$s"
   chmod +x "$TARGET/.claude/scripts/$s"
 done
@@ -160,6 +175,25 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
       "Bash(bash .claude/runtime/scripts/product-manager/run-sensors.sh:*)",
       "Bash(.claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
       "Bash(bash .claude/runtime/scripts/staff-software-engineer/run-sensors.sh:*)",
+      "Bash(python3 .claude/scripts/eval-score.py:*)",
+      "Bash(.claude/scripts/context-tools.sh:*)",
+      "Bash(python3 .claude/scripts/trace.py:*)",
+      "Bash(python3 .claude/scripts/graph.py knowledge:*)",
+      "Bash(python3 .claude/scripts/graph.py symbols:*)",
+      "Bash(python3 .claude/scripts/graph.py tests:*)",
+      "Bash(python3 .claude/scripts/graph.py history:*)",
+      "Bash(python3 .claude/scripts/graph.py status:*)",
+      "Bash(python3 .claude/scripts/graph.py sync:*)",
+      "Bash(python3 .claude/scripts/hk-config.py get:*)",
+      "Bash(bash .claude/scripts/context-tools.sh:*)",
+      "Bash(semble search:*)",
+      "Bash(semble find-related:*)",
+      "Bash(repowise context:*)",
+      "Bash(repowise why:*)",
+      "Bash(repowise risk:*)",
+      "Bash(repowise impacted-tests:*)",
+      "Bash(python3 .claude/scripts/jev-judge.py:*)",
+      "Bash(python3 .claude/scripts/hk-config.py get:*)",
       "Read(.claude/runtime/outputs/**)",
       "Write(.claude/runtime/outputs/**)"
     ],
@@ -220,13 +254,23 @@ cat > "$TARGET/.claude/settings.json" <<'EOF'
         ]
       }
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "[ -x .claude/hooks/status-line.sh ] && bash .claude/hooks/status-line.sh || printf 'harness-kit not installed'"
   }
 }
 EOF
+
+# Pipeline status bar is opt-in: a project statusLine overrides the user's own
+# global one, so only wire it when asked (HK_STATUSLINE=1). `hk status` prints
+# the same line on demand either way.
+if [ "${HK_STATUSLINE:-0}" = "1" ]; then
+  python3 - "$TARGET/.claude/settings.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["statusLine"] = {"type": "command", "command": "[ -x .claude/hooks/status-line.sh ] && bash .claude/hooks/status-line.sh || printf 'harness-kit not installed'"}
+open(p, "w").write(json.dumps(d, indent=2) + "\n")
+PY
+  echo "  pipeline status bar enabled (HK_STATUSLINE=1)"
+fi
 
 # Scaffold conventions folder (idempotent)
 mkdir -p "$TARGET/.claude/conventions"
@@ -247,6 +291,51 @@ See `.claude/agents/staff-software-engineer/guides/conventions-override.md` for 
 EOF
 fi
 
+# Eval judge: local (Claude evaluator, default) or jev (TypeSafe AI, needs key).
+# Asked once; a reinstall keeps the existing choice. Non-interactive: HK_EVAL=jev|local.
+if [ ! -f "$TARGET/.claude/hk-config.json" ]; then
+  JUDGE="${HK_EVAL:-}"
+  if [ -z "$JUDGE" ] && [ -t 0 ]; then
+    printf "eval judge? [local] Claude evaluator (default) / [jev] Jev by TypeSafe AI, needs API key: "
+    read -r JUDGE
+  fi
+  case "$JUDGE" in
+    jev)
+      if [ -n "${TYPESAFE_API_KEY:-}" ]; then
+        CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" eval jev
+      elif [ -t 0 ]; then
+        printf "TypeSafe API key (https://console.typesafe.ai/keys), or env var name holding it: "
+        stty -echo 2>/dev/null; read -r ANSWER; stty echo 2>/dev/null; echo
+        if printf '%s' "$ANSWER" | grep -Eq '^[A-Z_][A-Z0-9_]*$'; then
+          CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" eval jev --key-env "$ANSWER" || true
+        else
+          printf '%s' "$ANSWER" | CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" eval jev --key - || true
+        fi
+      else
+        CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" eval jev || true
+      fi
+      ;;
+    *)
+      CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" eval local >/dev/null
+      echo "  eval judge: local (Claude). switch any time: /hk:eval jev"
+      ;;
+  esac
+fi
+
+# Graph engineering: off (default, plain pipeline) | manifest | full. Asked once;
+# reinstall keeps the choice. Non-interactive: HK_GRAPH=off|manifest|full.
+if ! python3 -c "import json,sys; sys.exit(0 if 'graph' in json.load(open('$TARGET/.claude/hk-config.json')) else 1)" 2>/dev/null; then
+  MODE="${HK_GRAPH:-}"
+  if [ -z "$MODE" ] && [ -t 0 ]; then
+    printf "graph engineering? [off] plain pipeline (default) / [manifest] REQ ids + trace + scope gate / [full] + FalkorDB graph: "
+    read -r MODE
+  fi
+  case "$MODE" in manifest|full) ;; *) MODE=off ;; esac
+  CLAUDE_PROJECT_DIR="$TARGET" python3 "$TARGET/.claude/scripts/hk-config.py" graph "$MODE" >/dev/null 2>&1 || true
+  echo "  graph engineering: $MODE. switch any time: /hk:graph off | manifest | full"
+  [ "$MODE" = "full" ] && echo "  full mode next steps: python3 .claude/scripts/graph.py setup, then /hk:graph full"
+fi
+
 # Record installed version
 echo "$VERSION" > "$TARGET/.claude/.hk-version"
 
@@ -259,3 +348,5 @@ echo "  /sse:plan | :dev | :test | :pr | :pr-monitor | :run | :sdd"
 echo "  /system-design:design | :review | :run"
 echo "  /context:pack | :graph"
 echo "  /pipeline:continue | :reset"
+echo "  /hk:eval jev | local    pick the eval judge"
+echo "  /hk:graph off | manifest | full   graph engineering (default off)"

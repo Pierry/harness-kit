@@ -12,7 +12,8 @@ Decide if current repo state satisfies source PRP. Run by independent session (n
 - latest dev summary: `.claude/runtime/outputs/sse/dev/{feature_id}.md`
 - latest test report: `.claude/runtime/outputs/sse/test/{feature_id}.md`
 - diff: `git diff {base}...HEAD` on dev branch
-- **optional richer context** (per `.claude/shared/context-strategy.md`):
+- **optional richer context** (per `.claude/shared/context-strategy.md`, probe `.claude/scripts/context-tools.sh`):
+  - `repowise risk` on diff if present → weight scope-discipline + caller breakage
   - cached pack `.claude/runtime/cache/repomix/{feature_id}.xml` if present → read for surrounding code
   - cached graph `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` if present → query for callers of touched symbols (impact analysis)
 

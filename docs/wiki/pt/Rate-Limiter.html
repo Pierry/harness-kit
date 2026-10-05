@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Rate Limiter &middot; harness-kit wiki</title>
-<meta name="description" content="De longe, rate limiting parece &quot;um contador com TTL no Redis&quot;. Isso resolve uma parte. Não resolve o problema inteiro. Quando o sistema cresce, as..." />
+<meta name="description" content="Série System Design #2. Topic skill: skills/rate-limiter/. Rate limiting distribuído em escala, do algoritmo à operação." />
 <meta property="og:title" content="Rate Limiter &middot; harness-kit wiki" />
-<meta property="og:description" content="De longe, rate limiting parece &quot;um contador com TTL no Redis&quot;. Isso resolve uma parte. Não resolve o problema inteiro. Quando o sistema cresce, as..." />
+<meta property="og:description" content="Série System Design #2. Topic skill: skills/rate-limiter/. Rate limiting distribuído em escala, do algoritmo à operação." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/pt/Rate-Limiter.html" />
@@ -59,71 +59,36 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="rate-limiter">Rate Limiter</h1>
-<blockquote>
-<p>Série System Design #2. Topic skill: <code>skills/rate-limiter/</code>.
-Projete rate limiting distribuído em escala, do algoritmo à operação.</p>
-</blockquote>
-<h2 id="1-o-problema-e-por-que-ele-engana">1. O problema e por que ele engana</h2>
-<p>De longe, rate limiting parece &quot;um contador com TTL no Redis&quot;. Isso resolve uma parte. Não resolve o
-problema inteiro. Quando o sistema cresce, as perguntas que importam são maiores que o algoritmo:</p>
-<ul>
-<li><strong>Onde</strong> o limite é aplicado, no edge, no gateway, no serviço, ou em todos eles?</li>
-<li><strong>Qual é a chave</strong>: usuário, token, IP, tenant, endpoint, método, região?</li>
-<li>O limite é <strong>hard ou soft</strong>?</li>
-<li>O que acontece quando o <strong>armazenamento</strong> do rate limit <strong>falha</strong>: fail open ou fail closed?</li>
-<li>Como você barra <strong>rajadas abusivas</strong> sem destruir o throughput legítimo?</li>
-<li>Como você faz isso em <strong>muitas réplicas</strong> sem corrida e sem um gargalo central?</li>
-</ul>
-<p>A pergunta organizadora, feita primeiro:</p>
-<blockquote>
-<p><strong>O que exatamente eu estou protegendo, e quanta imprecisão eu aceito para proteger isso sem
-destruir latency e simplicidade?</strong></p>
-</blockquote>
-<p>Essa única pergunta guia quase toda decisão aqui.</p>
-<h2 id="2-por-que-rate-limiting-existe-cinco-objetivos-ao-mesmo-tempo">2. Por que rate limiting existe (cinco objetivos ao mesmo tempo)</h2>
-<ol>
-<li><strong>Proteger a capacidade finita</strong> de um sistema.</li>
-<li><strong>Justiça</strong> entre clientes, tenants, usuários.</li>
-<li><strong>Reduzir o raio de dano</strong>: um cliente em loop, um deploy gerando tráfego anômalo.</li>
-<li><strong>Sustentar modelos comerciais</strong>: planos free / pro / enterprise.</li>
-<li><strong>Controlar custo</strong>: serviços que chamam dependências caras (LLM, busca, terceiros).</li>
-</ol>
-<p>Um bom design é um conjunto de <strong>limites sobrepostos</strong> (global, tenant, usuário, endpoint, segurança
-por IP), não um contador único. <strong>Política primeiro, Redis depois.</strong></p>
-<h2 id="3-onde-aplicar-defesa-em-profundidade">3. Onde aplicar (defesa em profundidade)</h2>
+<p>Série System Design #2. Topic skill: <code>skills/rate-limiter/</code>. Rate limiting distribuído em escala, do algoritmo à operação.</p>
+<h1 id="o-problema">O problema</h1>
+<p>Rate limiting parece um contador com TTL no Redis. Isso cobre uma parte. Em escala, as perguntas difíceis ficam fora do algoritmo: onde o limite é aplicado (edge, gateway, serviço, ou todos), qual é a chave (usuário, token, IP, tenant, endpoint, método, região), se o limite é hard ou soft, se o sistema faz fail open ou fail closed quando o store falha, como barrar rajadas abusivas sem prejudicar o throughput legítimo, e como contar em muitas réplicas sem corrida e sem um gargalo central.</p>
+<p>Comece dizendo o que você protege e quanta imprecisão você aceita para proteger isso sem prejudicar latência e simplicidade. Essa resposta guia quase toda decisão abaixo.</p>
+<h1 id="por-que-rate-limiting-existe">Por que rate limiting existe</h1>
+<p>Um limiter atende cinco objetivos ao mesmo tempo. Ele protege a capacidade finita, mantém justiça entre clientes, tenants e usuários, e reduz o raio de dano de um cliente em loop ou de um deploy que gera tráfego anômalo. Ele também sustenta planos comerciais (free, pro, enterprise) e limita o custo de serviços que chamam dependências caras, como LLMs, busca ou terceiros.</p>
+<p>Um bom design é um conjunto de limites sobrepostos (global, tenant, usuário, endpoint, segurança por IP), nunca um contador único. Política primeiro, Redis depois.</p>
+<h1 id="onde-aplicar">Onde aplicar</h1>
 <table>
 <thead>
 <tr>
@@ -154,48 +119,18 @@ por IP), não um contador único. <strong>Política primeiro, Redis depois.</str
 </tr>
 </tbody>
 </table>
-<p>A arquitetura madura é <strong>em camadas</strong>: edge para proteção grossa, gateway para limites genéricos de
-API, serviço para limites semânticos e de custo. Cada camada pega o que a camada acima não consegue
-enxergar. É a mesma ideia de &quot;defesa em profundidade&quot; do empilhamento de segurança.</p>
-<h2 id="4-a-chave-do-limite">4. A chave do limite</h2>
-<p>Escolha a dimensão (ou as dimensões) conscientemente: usuário, token, IP, tenant, endpoint, método,
-região, muitas vezes uma composição. A escolha da chave define:</p>
-<ul>
-<li><strong>Cardinalidade</strong>: quantos contadores distintos existem, o que dita a carga no store e o risco de
-hot key.</li>
-<li><strong>Superfície de abuso</strong>: um limite por IP é fácil de driblar atrás de NAT/proxy; um limite por token
-amarra na identidade.</li>
-</ul>
-<p>Chaves compostas (tenant + endpoint) localizam limites com precisão, mas multiplicam a quantidade de
-contadores.</p>
-<h2 id="5-teoria-os-algoritmos">5. Teoria, os algoritmos</h2>
-<p>Essa é a parte que todo mundo cita e poucos explicam. Cada linha é uma resposta diferente para &quot;como
-contamos&quot;.</p>
-<h3 id="fixed-window-counter">Fixed window counter</h3>
-<p>Conta requisições em um balde fixo de relógio (por exemplo, por minuto) e zera na virada. Barato, um
-contador por chave. <strong>Defeito: rajada de fronteira.</strong> Um cliente pode mandar uma janela cheia às
-11:59:59 e outra janela cheia às 12:00:00, ~2x a taxa pretendida atravessando a fronteira.</p>
-<h3 id="sliding-window-log">Sliding window log</h3>
-<p>Guarda um timestamp por requisição e conta os que caem dentro da janela retroativa. <strong>Exato e justo.</strong>
-Custo: memória e CPU crescem com o tráfego, já que você mantém todo timestamp da janela. Tranquilo em
-volume baixo, caro em escala.</p>
-<h3 id="sliding-window-counter">Sliding window counter</h3>
-<p>Aproxima a sliding window com dois baldes fixos (atual + anterior), ponderados pela fração já
-decorrida da janela atual:</p>
+<p>Arquiteturas maduras empilham as três: edge para proteção grossa, gateway para limites genéricos de API, serviço para limites semânticos e de custo. Cada camada pega o que a camada acima não enxerga, a mesma ideia de defesa em profundidade do empilhamento de segurança.</p>
+<h1 id="a-chave-do-limite">A chave do limite</h1>
+<p>Escolha as dimensões de propósito, muitas vezes em composição. A chave define a cardinalidade, que é quantos contadores distintos existem e portanto dita a carga no store e o risco de hot key. Ela também define a superfície de abuso: um limite por IP é fácil de driblar atrás de NAT ou proxy, enquanto um limite por token amarra na identidade. Chaves compostas (tenant mais endpoint) localizam limites com precisão, mas multiplicam a quantidade de contadores.</p>
+<h1 id="algoritmos">Algoritmos</h1>
+<p>Cada algoritmo é uma resposta diferente para como contar.</p>
+<p>Fixed window counter conta requisições em um balde fixo de relógio (por exemplo, por minuto) e zera na virada. Custa um contador por chave. O defeito é a rajada de fronteira: um cliente manda uma janela cheia às 11:59:59 e outra às 12:00:00, cerca de 2x a taxa pretendida.</p>
+<p>Sliding window log guarda um timestamp por requisição e conta os que caem dentro da janela retroativa. É exato e justo, mas memória e CPU crescem com o tráfego. Tranquilo em volume baixo, caro em escala.</p>
+<p>Sliding window counter aproxima a sliding window com dois baldes fixos, o atual e o anterior, ponderados pela fração já decorrida da janela atual. Suaviza a rajada de fronteira com um ou dois contadores por chave e uma única operação atômica. É o compromisso comum em produção entre o custo da fixed window e a precisão do sliding log.</p>
 <pre><code>estimate = current_count + previous_count * (1 - elapsed_fraction)
 </code></pre>
-<p>Suaviza a rajada de fronteira, um ou dois contadores por chave, uma única operação atômica. É o
-compromisso comum em produção entre o barateamento da fixed window e a precisão do sliding log.</p>
-<h3 id="leaky-bucket">Leaky bucket</h3>
-<p>Requisições entram em uma fila que drena a uma taxa constante; o que transborda é rejeitado. Produz
-uma taxa de <strong>saída</strong> suave e constante, boa para modelar tráfego rumo a um downstream que quer fluxo
-estável.</p>
-<h3 id="token-bucket---padrão-da-indústria">Token bucket  ← padrão da indústria</h3>
-<p>Um balde guarda até <code>capacity</code> tokens. Os tokens são repostos a uma <code>rate</code> constante. Cada requisição
-consome um token; se o balde está vazio, rejeita (ou enfileira). A propriedade chave: ele <strong>separa a
-rajada permitida (capacity) da taxa sustentada (refill)</strong>. Um cliente pode estourar até <code>capacity</code>
-instantaneamente e depois fica preso a <code>rate</code>. Isso combina com o jeito que as plataformas querem se
-comportar: &quot;você pode dar um pico pequeno, mas seu regime permanente tem teto.&quot;</p>
+<p>Leaky bucket enfileira requisições e drena a uma taxa constante, rejeitando o que transborda. Produz uma taxa de saída suave e constante, boa para moldar tráfego rumo a um downstream que quer fluxo estável.</p>
+<p>Token bucket é o padrão da indústria. Um balde guarda até <code>capacity</code> tokens, repostos a uma <code>rate</code> constante; cada requisição consome um token, e um balde vazio rejeita ou enfileira. Ele separa a rajada permitida (capacity) da taxa sustentada (refill): um cliente dá um pico de até <code>capacity</code> de uma vez e depois fica preso a <code>rate</code>. É o algoritmo clássico de traffic shaping de redes (Tanenbaum, <em>Computer Networks</em>) e o que a maioria das plataformas de API e provedores de nuvem expõe.</p>
 <pre><code>on request:
   now = clock()
   tokens = min(capacity, tokens + (now - last_refill) * rate)
@@ -203,82 +138,26 @@ comportar: &quot;você pode dar um pico pequeno, mas seu regime permanente tem t
   if tokens &gt;= 1: tokens -= 1; allow
   else: reject (429, Retry-After)
 </code></pre>
-<p>Token bucket é o algoritmo clássico de traffic shaping vindo de redes (ver Tanenbaum, <em>Computer
-Networks</em>); é o que a maioria das plataformas de API e provedores de nuvem expõe.</p>
-<h3 id="escolhendo">Escolhendo</h3>
-<p>Use <strong>token bucket</strong> como padrão quando você quer taxa sustentada + rajada controlada; <strong>sliding
-window counter</strong> quando você quer um limite deslizante simples e quase exato, com checagem abaixo do
-milissegundo. Faça a checagem ser <strong>atômica</strong>: um script Lua no Redis executa ler-decidir-escrever em uma única
-operação do lado do servidor, então réplicas concorrentes não correm entre si.</p>
-<h2 id="6-estado-e-armazenamento">6. Estado e armazenamento</h2>
-<ul>
-<li>Balde/contador por chave em um store em memória (Redis), <strong>limitado por TTL</strong> (por exemplo, 2
-janelas) para que chaves frias expirem e a memória fique limitada.</li>
-<li><strong>Decisão atômica:</strong> um único script Lua faz refill/ponderação + checagem + decremento em um round
-trip.</li>
-<li><strong>Config de limite</strong> (chave para quota/refill) em um serviço de configuração com um cache local
-curto, <strong>recarregável a quente</strong> sem redeploy.</li>
-</ul>
-<h2 id="7-teoria-hot-keys">7. Teoria, hot keys</h2>
-<p>Um tenant com tráfego desproporcional concentra carga em um shard do store (uma hot key). Mitigações:</p>
-<ul>
-<li><strong>Orçamentos locais.</strong> Cada nó recebe uma fatia do orçamento global e a decrementa localmente,
-reconciliando com o store central periodicamente. Isso troca exatidão (você pode admitir a mais em
-até uma fatia de orçamento por nó) por uma queda enorme na pressão sobre o store central. É o &quot;data on
-the outside, reconciled asynchronously&quot; (dados do lado de fora, reconciliados de forma assíncrona) de
-Helland aplicado a contadores.</li>
-<li><strong>Limites compostos</strong> espalham um tenant entre subchaves (tenant+endpoint), então nenhum contador
-isolado fica quente.</li>
-<li><strong>Pré-checagem local / pré-filtro de token</strong> antes da chamada central: uma chave que está saturando
-é freada no próprio nó antes de encostar no store compartilhado.</li>
-<li><strong>Shard do store por chave</strong> (consistent hashing), para que as operações de uma chave fiquem em um
-shard só.</li>
-</ul>
-<h2 id="8-fail-open-vs-fail-closed">8. Fail-open vs fail-closed</h2>
-<p>Quando o store do rate limit falha, decida <em>deliberadamente</em>.</p>
-<ul>
-<li><strong>Fail-open (permite):</strong> protege o tráfego legítimo da sua própria queda, mas abre mão da proteção
-durante a queda.</li>
-<li><strong>Fail-closed (nega):</strong> preserva a proteção, mas transforma uma queda do limiter em um incidente de
-disponibilidade.</li>
-</ul>
-<p>A maioria das plataformas usa <strong>fail open</strong> no caminho genérico e <strong>fail closed</strong> só onde o limite
-guarda um teto duro de capacidade ou de custo. Declare qual postura cada camada adota, e por quê.
-Combine isso com um <strong>circuit breaker</strong> (Nygard) para que um store lento não acrescente latency a toda
-requisição: assim que o store é detectado como insalubre, o limiter para de chamá-lo e aplica a
-postura de fallback na hora.</p>
-<h2 id="9-limites-hard-vs-soft">9. Limites hard vs soft</h2>
-<p>Um limite <strong>hard</strong> rejeita (<code>429 Too Many Requests</code> + <code>Retry-After</code>). Um limite <strong>soft</strong> avisa,
-degrada ou enfileira, mas ainda atende. Limites de custo e de justiça costumam ser soft com fricção
-crescente; limites de segurança e de capacidade são hard.</p>
-<h2 id="10-multi-região">10. Multi-região</h2>
-<p>Exatidão global estrita entre regiões exigiria um salto síncrono cross-region a cada requisição, o que
-destrói latency. O compromisso realista são <strong>orçamentos regionais com reconciliação</strong>: cada região
-aplica uma parcela local do limite global e reconcilia de forma assíncrona. Você aceita uma admissão a
-mais limitada (um limite global de N pode, por um instante, admitir um pouco mais que N) em troca de
-latency baixa. Reserve contagem global estrita para os poucos limites que realmente precisam. É o
-trade-off de CAP/PACELC posto em concreto: em operação normal, você troca consistência por latency.</p>
-<h2 id="11-shadow-mode-a-prática-de-maior-alavancagem">11. Shadow mode (a prática de maior alavancagem)</h2>
-<p>Antes de aplicar um limite hard, rode ele em <strong>modo de observação</strong>: o sistema calcula a decisão de
-bloqueio mas <strong>não a aplica</strong>, e emite o que <em>teria</em> bloqueado. Isso pega políticas mal configuradas
-antes que causem um incidente: você vê &quot;esse limite novo teria dado 429 em 40% do tráfego legítimo do
-tenant X&quot; num dashboard em vez de num alerta às 3 da manhã. Promova um limite de shadow para enforce
-só depois que as métricas do shadow parecerem certas.</p>
-<h2 id="12-observabilidade">12. Observabilidade</h2>
-<p>Métricas essenciais:</p>
-<ul>
-<li>requisições <strong>permitidas</strong> por política,</li>
-<li>requisições <strong>bloqueadas</strong> (429) por política e dimensão,</li>
-<li><strong>latency da decisão</strong>: o limiter tem que somar quase zero ao caminho da requisição,</li>
-<li>latency das operações no store,</li>
-<li>eventos de fail-open,</li>
-<li>chaves mais throttled,</li>
-<li>contagem de would-block do shadow mode.</li>
-</ul>
-<p>Às 3 da manhã alguém precisa conseguir responder: <strong>qual limite disparou, em qual dimensão, a política
-estava errada, houve uma regressão de tráfego?</strong> Se o design não consegue responder isso, ele não é
-governável na operação, e &quot;governável na operação&quot; é a barra de verdade, não um algoritmo bonito.</p>
-<h2 id="13-modos-de-falha">13. Modos de falha</h2>
+<p>Escolha token bucket para uma taxa sustentada com rajada controlada, e sliding window counter para um limite móvel quase exato com checagem abaixo de 1 ms. Faça a checagem atômica: um script Lua no Redis roda leitura, decisão e escrita como uma operação no servidor, então réplicas concorrentes não entram em corrida.</p>
+<h1 id="estado-e-armazenamento">Estado e armazenamento</h1>
+<p>Guarde o bucket ou contador de cada chave em um store em memória (Redis) com TTL (por exemplo, 2 janelas), para que chaves frias expirem e a memória fique limitada. Um script Lua faz reposição ou ponderação, checagem e decremento em uma ida e volta. A configuração de limites (chave para cota e reposição) mora em um serviço de configuração com cache local curto e recarrega sem redeploy.</p>
+<h1 id="hot-keys">Hot keys</h1>
+<p>Um tenant com tráfego desproporcional concentra carga em um shard do store. Quatro mitigações se aplicam.</p>
+<p>Orçamentos locais dão a cada nó uma fatia do orçamento global para decrementar localmente, reconciliando com o store central de tempos em tempos. Você admite a mais até uma fatia por nó em troca de uma queda grande na pressão sobre o store central. É o dado do lado de fora de Helland, reconciliado de forma assíncrona, aplicado a contadores.</p>
+<p>Limites compostos espalham um tenant por subchaves (tenant mais endpoint) para que nenhum contador fique quente sozinho. Uma pré-checagem local estrangula uma chave saturada no nó antes de ela tocar o store compartilhado. Fazer sharding do store por chave com consistent hashing mantém as operações de uma chave em um único shard.</p>
+<h1 id="fail-open-vs-fail-closed">Fail-open vs fail-closed</h1>
+<p>Decida de propósito o que acontece quando o store falha. Fail-open (permitir) protege o tráfego legítimo da sua própria queda, mas tira a proteção enquanto ela dura. Fail-closed (negar) mantém a proteção, mas transforma uma queda do limiter em um incidente de disponibilidade.</p>
+<p>A maioria das plataformas faz fail open no caminho genérico e fail closed só onde o limite guarda um teto rígido de capacidade ou custo. Declare a postura de cada camada e o motivo. Combine com um circuit breaker (Nygard): quando o store fica doente, o limiter para de chamá-lo e aplica a postura de fallback na hora, para que um store lento não acrescente latência a cada requisição.</p>
+<h1 id="limites-hard-vs-soft">Limites hard vs soft</h1>
+<p>Um limite hard rejeita com <code>429 Too Many Requests</code> e <code>Retry-After</code>. Um limite soft avisa, degrada ou enfileira e ainda atende. Limites de custo e de justiça costumam ser soft com fricção crescente; limites de segurança e de capacidade são hard.</p>
+<h1 id="multi-região">Multi-região</h1>
+<p>Precisão global estrita exige um salto síncrono entre regiões a cada requisição, o que destrói a latência. O compromisso realista são orçamentos regionais com reconciliação: cada região aplica uma fatia local do limite global e reconcilia de forma assíncrona. Um limite global de N pode admitir por um instante um pouco mais que N, em troca de latência baixa. Reserve a contagem global estrita para os poucos limites que precisam dela. É o trade-off de CAP/PACELC em forma concreta: em operação normal você troca consistência por latência.</p>
+<h1 id="shadow-mode">Shadow mode</h1>
+<p>Antes de aplicar um limite hard, rode ele em modo de observação. O sistema calcula a decisão de bloqueio, não aplica, e emite o que teria bloqueado. Você vê &quot;este novo limite teria devolvido 429 para 40% do tráfego legítimo do tenant X&quot; em um dashboard em vez de em um alerta às 3h da manhã. Promova um limite de shadow para enforce só depois que as métricas de shadow estiverem certas. De todas as práticas desta página, é a que mais se paga.</p>
+<h1 id="observabilidade">Observabilidade</h1>
+<p>Acompanhe requisições permitidas por política, requisições bloqueadas (429) por política e dimensão, latência de decisão (o limiter precisa acrescentar quase zero ao caminho da requisição), latência de operação no store, eventos de fail-open, chaves mais estranguladas e contagens de would-block do shadow mode.</p>
+<p>Às 3h da manhã alguém precisa responder qual limite disparou, em qual dimensão, se a política estava errada e se o tráfego regrediu. Um design que não responde isso não é governável na operação, e essa é a régua.</p>
+<h1 id="modos-de-falha">Modos de falha</h1>
 <table>
 <thead>
 <tr>
@@ -295,56 +174,104 @@ governável na operação, e &quot;governável na operação&quot; é a barra de
 </tr>
 <tr>
 <td>Hot key satura um shard</td>
-<td>pico de CPU no shard, latency</td>
+<td>pico de CPU no shard, latência</td>
 <td>pré-filtro local + chaves compostas + orçamentos locais</td>
 </tr>
 <tr>
 <td>Política ruim publicada</td>
-<td>429 falso em massa</td>
+<td>429 falsos em massa</td>
 <td>shadow mode primeiro; rollback rápido de config; alerta de taxa de bloqueio por política</td>
 </tr>
 <tr>
-<td>Limiter do gateway vira o gargalo</td>
-<td>latency em toda a plataforma</td>
-<td>empurre limites grossos para o edge, mantenha a checagem do gateway O(1)</td>
+<td>Limiter do gateway vira gargalo</td>
+<td>latência na plataforma inteira</td>
+<td>empurrar limites grossos para o edge, manter a checagem do gateway O(1)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="14-plano-incremental">14. Plano incremental</h2>
-<ol>
-<li><strong>Fatia vertical</strong>: uma camada de aplicação (gateway), fixed ou sliding window, um Redis só, uma
-chave de limite, <code>429 + Retry-After</code>, métricas de allow/deny.</li>
-<li><strong>Corretude / operação</strong>: token bucket via Lua atômico, fail-open + circuit breaker, shadow mode,
-config com hot-reload, métricas por política.</li>
-<li><strong>Escala</strong>: store shardeado, orçamentos locais + pré-filtro para hot key, aplicação em camadas
-(edge/gateway/serviço).</li>
-<li><strong>Global</strong>: orçamentos regionais com reconciliação, políticas compostas, limites semânticos de
-custo/LLM no serviço.</li>
-</ol>
-<h2 id="15-trade-offs-para-declarar-explicitamente">15. Trade-offs para declarar explicitamente</h2>
-<p>Exatidão vs latency (contagem global exata vs orçamento local); fail-open vs fail-closed; store
-central vs orçamentos locais; chave de limite única vs composta; aplicar agora vs shadow primeiro;
-posicionamento por camada (pegar cedo no edge vs contexto rico no serviço).</p>
-<h2 id="16-um-exemplo-completo-preenchido">16. Um exemplo completo, preenchido</h2>
-<p>O repo traz um SDD completo e preenchido para um rate limiter distribuído (variante
-sliding-window-counter, 200k QPS, orçamento abaixo do milissegundo, fail-open) como o bom exemplo do
-agent:
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/examples/good-system-design-example.md" target="_blank" rel="noopener"><code>good-system-design-example.md</code></a>.</p>
-<h2 id="referências">Referências</h2>
-<ul>
-<li>Andrew Tanenbaum, <em>Computer Networks</em>, traffic shaping com token bucket e leaky bucket.</li>
-<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, 2017, consistência vs latency, aceitar
-imprecisão limitada.</li>
-<li>Michael Nygard, <em>Release It!</em>, 2a ed., 2018, circuit breaker, bulkhead, fail-fast como decisão de
-estabilidade.</li>
-<li>Werner Vogels / Amazon, projete para a falha (o store <em>vai</em> falhar).</li>
-<li>Pat Helland, <em>Life Beyond Distributed Transactions</em>, CIDR 2007, orçamentos locais como estado
-independente, reconciliado de forma assíncrona.</li>
-<li>Eric Brewer, teorema CAP (PODC 2000); Abadi, PACELC (2012): o enquadramento latency vs consistência
-para orçamentos multi-região.</li>
-<li>Stripe Engineering, <em>Scaling your API with rate limiters</em>, token bucket na prática em produção.</li>
-<li>Docs do Redis, <em>Rate limiting with Redis</em> e <code>EVAL</code>/Lua para decisões atômicas.</li>
-</ul>
+<h1 id="plano-incremental">Plano incremental</h1>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Escopo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fatia vertical</td>
+<td>Uma camada de aplicação (gateway), fixed ou sliding window, Redis único, uma chave de limite, <code>429 + Retry-After</code>, métricas de allow/deny.</td>
+</tr>
+<tr>
+<td>Correção e operação</td>
+<td>Token bucket via Lua atômico, fail-open + circuit breaker, shadow mode, config com hot reload, métricas por política.</td>
+</tr>
+<tr>
+<td>Escala</td>
+<td>Store com sharding, orçamentos locais + pré-filtro para hot key, aplicação em camadas (edge, gateway, serviço).</td>
+</tr>
+<tr>
+<td>Global</td>
+<td>Orçamentos regionais com reconciliação, políticas compostas, limites semânticos de custo e LLM no serviço.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="trade-offs-a-declarar">Trade-offs a declarar</h1>
+<p>Declare cada um no design: precisão vs latência (contagem global exata vs orçamento local), fail-open vs fail-closed, store central vs orçamentos locais, uma chave de limite vs composta, aplicar já vs shadow primeiro, e posicionamento por camada (pegar cedo no edge vs contexto rico no serviço).</p>
+<h1 id="exemplo-resolvido">Exemplo resolvido</h1>
+<p>O repo traz um SDD completo e preenchido de um rate limiter distribuído como bom exemplo do agent: sliding window counter, 200k QPS, menos de 1 ms de latência acrescentada, fail-open. Veja <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/examples/good-system-design-example.md" target="_blank" rel="noopener"><code>good-system-design-example.md</code></a>. O método geral está em <a href="System-Design-Method.html">Método de System Design</a>.</p>
+<h1 id="referências">Referências</h1>
+<table>
+<thead>
+<tr>
+<th>Autor</th>
+<th>Obra</th>
+<th>Usado para</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Andrew Tanenbaum</td>
+<td><em>Computer Networks</em></td>
+<td>traffic shaping com token bucket e leaky bucket</td>
+</tr>
+<tr>
+<td>Martin Kleppmann</td>
+<td><em>Designing Data-Intensive Applications</em>, 2017</td>
+<td>consistência vs latência, aceitar imprecisão limitada</td>
+</tr>
+<tr>
+<td>Michael Nygard</td>
+<td><em>Release It!</em>, 2ª ed., 2018</td>
+<td>circuit breaker, bulkhead, fail-fast como decisão de estabilidade</td>
+</tr>
+<tr>
+<td>Werner Vogels / Amazon</td>
+<td>projetar para a falha</td>
+<td>o store vai falhar</td>
+</tr>
+<tr>
+<td>Pat Helland</td>
+<td><em>Life Beyond Distributed Transactions</em>, CIDR 2007</td>
+<td>orçamentos locais como estado independente, reconciliado de forma assíncrona</td>
+</tr>
+<tr>
+<td>Eric Brewer; Daniel Abadi</td>
+<td>CAP (PODC 2000); PACELC (2012)</td>
+<td>enquadramento latência vs consistência para orçamentos multi-região</td>
+</tr>
+<tr>
+<td>Stripe Engineering</td>
+<td><em>Scaling your API with rate limiters</em></td>
+<td>token bucket na prática de produção</td>
+</tr>
+<tr>
+<td>Redis docs</td>
+<td><em>Rate limiting with Redis</em>, <code>EVAL</code>/Lua</td>
+<td>decisões atômicas</td>
+</tr>
+</tbody>
+</table>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/Rate-Limiter" target="_blank" rel="noopener">Rate Limiter</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

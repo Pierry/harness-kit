@@ -59,79 +59,45 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="pipeline-e-stages">Pipeline e stages</h1>
 <p>O harness-kit leva uma feature por seis stages com gate:</p>
 <pre><code>prd → prp → plan → dev → test → pr
 </code></pre>
-<blockquote>
-<p><strong>v5 (no ar):</strong> um novo stage <a href="Autonomy.html"><code>intake</code></a> roda antes do <code>prd</code>. Ele colhe contexto do repo e da
-context library para que o pipeline rode sem parar para pedir inputs, e agora todo stage segue o padrão
-<a href="Orchestration-and-Subagents.html">orchestrator-plus-leaf-subagents</a>: inputs via resolve-mark-proceed, evals
-despachados para um avaliador novo. Os seis stages com gate abaixo continuam iguais; o intake fica na
-frente deles e a maquinaria de gating permanece a mesma.</p>
-</blockquote>
-<p>Os dois primeiros pertencem ao agent <strong>product-manager</strong>, os quatro últimos ao agent
-<strong>staff-software-engineer</strong>. Cada stage é um pequeno <a href="Harness-Engineering.html">harness</a>: um guide diz ao agent
-como escrever, as references dão contexto, um <a href="Sensors.html">sensor</a> impõe estrutura, um <a href="Evals.html">eval</a> pontua
-qualidade, e um marker de aprovação libera o stage seguinte.</p>
-<h2 id="anatomia-de-todo-stage">Anatomia de todo stage</h2>
-<pre><code>GUIDE     how to write it          pipeline.md · coding-style.md · templates/
-REF       context to pull in       AGENTS.md · prp/&lt;feature&gt;.md · conventions/{area}.md
-SENSOR    must-pass structure      deterministic, blocks approval
-EVAL      scored rubric            LLM-judge, threshold 8.0, retry x3
-</code></pre>
-<p>O fluxo dentro de um stage:</p>
-<ol>
-<li>O agent lê os guides e as references e escreve o artefato em
-<code>.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md</code>.</li>
-<li>Ao salvar, os <strong>sensors</strong> determinísticos disparam. Falha bloqueia e devolve feedback; o agent corrige
-só as partes que falharam.</li>
-<li>O <strong>eval</strong> pontua o artefato de 0 a 10. Abaixo de 8.0 tenta de novo (até 3 vezes), regerando só as
-dimensões com nota baixa.</li>
-<li>Ao passar, o agent adiciona um <strong>marker de aprovação</strong> <code>&lt;!-- approved: {date} score={n} --&gt;</code>.</li>
-<li>O <strong>gasto de tokens</strong> da fase é registrado e um comentário inline <code>&lt;!-- tokens: ... --&gt;</code> é anexado.</li>
-</ol>
-<p>O marker de aprovação é a gate: o stage seguinte procura por ele antes de começar.</p>
-<h2 id="os-stages">Os stages</h2>
+<p>O agent product-manager é dono dos dois primeiros e o agent staff-software-engineer dos quatro últimos. Um stage <a href="Autonomy.html"><code>intake</code></a> roda na frente: ele coleta o repo e a context library para que nenhum stage pare para perguntar, e cada stage então roda como um <a href="Orchestration-and-Subagents.html">orquestrador com subagents folha</a>. <code>/pipeline:run</code> conduz de <code>intake</code> até <code>pr</code> com dois gates humanos, depois do PRD e antes do PR.</p>
+<h1 id="anatomia-de-um-stage">Anatomia de um stage</h1>
+<p>Cada stage é um pequeno <a href="Harness-Engineering.html">harness</a>: guides como <code>pipeline.md</code> e <code>templates/</code> dizem como escrever, referências como <code>prp/&lt;feature&gt;.md</code> e <code>conventions/{area}.md</code> dão contexto, um <a href="Sensors.html">sensor</a> bloqueia estrutura ruim e um <a href="Evals.html">eval</a> pontua a qualidade.</p>
+<p>O agent escreve o artefato em <code>.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md</code>. Ao salvar, os sensors disparam, e uma falha devolve feedback para que o agent corrija só as partes que falharam. Depois o judge responde os checks atômicos de sim ou não da rubric, e <code>eval-score.py</code> recalcula o total ponderado de 0 a 10 a partir dos pesos da rubric.</p>
+<p>O judge é um avaliador Claude novo (<code>local</code>, o default) ou o Jev da TypeSafe AI (<code>jev</code>), definido por projeto com <code>/hk:eval</code>. Abaixo de 8.0 o stage tenta de novo até 3 vezes, regenerando só os checks que falharam. Na aprovação o agent acrescenta <code>&lt;!-- approved: {date} score={n} --&gt;</code>, e o stage seguinte procura esse marker antes de começar.</p>
+<h1 id="os-stages">Os stages</h1>
 <table>
 <thead>
 <tr>
 <th>Stage</th>
 <th>Agent</th>
 <th>Artefato</th>
-<th>Gates (sensors · evals)</th>
+<th>Sensors</th>
+<th>Evals</th>
 </tr>
 </thead>
 <tbody>
@@ -139,89 +105,69 @@ dimensões com nota baixa.</li>
 <td><code>prd</code></td>
 <td>product-manager</td>
 <td>Product Requirements Document</td>
-<td><code>prd-structure</code>, <code>prd-acceptance-criteria</code> · <code>prd-quality</code>, <code>prd-readiness</code></td>
+<td><code>prd-structure</code>, <code>prd-acceptance-criteria</code></td>
+<td><code>prd-quality</code>, <code>prd-readiness</code></td>
 </tr>
 <tr>
 <td><code>prp</code></td>
 <td>product-manager</td>
-<td>Product Requirements Prompt (handoff de eng)</td>
-<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code>, <code>link-validator</code> · <code>prp-quality</code>, <code>prp-context-readiness</code></td>
+<td>Product Requirements Prompt</td>
+<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code></td>
+<td><code>prp-quality</code>, <code>prp-context-readiness</code></td>
 </tr>
 <tr>
 <td><code>plan</code></td>
 <td>staff-software-engineer</td>
 <td>plano técnico</td>
-<td><code>plan-structure</code> · <code>plan-quality</code></td>
+<td><code>plan-structure</code></td>
+<td><code>plan-quality</code></td>
 </tr>
 <tr>
 <td><code>dev</code></td>
 <td>staff-software-engineer</td>
-<td>código + commits</td>
-<td><code>code-conventions</code>, <code>test-coverage</code>, <code>dev-structure</code> · <code>dev-quality</code></td>
+<td>código e commits</td>
+<td><code>dev-structure</code>, <code>code-conventions</code>, <code>code-maintainability</code>, <code>test-coverage</code></td>
+<td><code>dev-quality</code></td>
 </tr>
 <tr>
 <td><code>test</code></td>
 <td>staff-software-engineer</td>
-<td>relatório da rodada de testes</td>
-<td><code>test-structure</code> · <code>test-quality</code></td>
+<td>relatório da execução de testes</td>
+<td><code>test-structure</code></td>
+<td><code>test-quality</code></td>
 </tr>
 <tr>
 <td><code>pr</code></td>
 <td>staff-software-engineer</td>
 <td>pull request</td>
-<td><code>pr-structure</code> · <code>pr-quality</code> · arma o <code>pr-monitor</code></td>
+<td><code>pr-structure</code></td>
+<td><code>pr-quality</code>, depois arma o <code>pr-monitor</code></td>
 </tr>
 </tbody>
 </table>
-<p>System design (o agent <strong>system-architect</strong>) é um <em>stage opcional na frente do <code>prp</code>/<code>plan</code></em>: um
-<a href="index.html">System Design Doc</a> forte alimenta um PRP mais afiado e um plan bem fundamentado. Não faz parte do
-pipeline padrão de seis stages.</p>
-<h2 id="markers-de-aprovação-e-contabilidade-de-tokens">Markers de aprovação e contabilidade de tokens</h2>
-<ul>
-<li><strong>Marker de aprovação</strong>: <code>&lt;!-- approved: YYYY-MM-DD score=N --&gt;</code> (o PRP também carrega
-<code>ready-for-handoff: true</code>). É a presença dele que libera o início do stage seguinte.</li>
-<li><strong>Tokens</strong>: hooks cercam cada fase com markers de início e fim, depois o <code>token-phase.py</code> soma o uso a
-partir do transcript do Claude e escreve <code>.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json</code>.
-Todos os stages de uma mesma feature escrevem no <strong>mesmo</strong> arquivo, reusando o <code>feature_id</code>, então você
-tem o custo do ciclo de vida inteiro em um lugar só. A contabilidade de tokens nunca bloqueia um stage;
-se o transcript estiver ilegível, ela loga e sai limpa.</li>
-</ul>
-<h2 id="barra-de-status">Barra de status</h2>
-<p>Um indicador ao vivo acompanha a feature ativa por todos os stages:</p>
+<p><code>prp-links</code> roda <code>link-validator.py</code>. Os evals de readiness e o <code>spec-satisfied</code> sempre usam Claude, qualquer que seja o judge escolhido. System design, do agent system-architect, é um stage opcional antes de <code>prp</code> ou <code>plan</code> e fica fora desses seis.</p>
+<h1 id="approval-markers-e-tokens">Approval markers e tokens</h1>
+<p>O marker é <code>&lt;!-- approved: YYYY-MM-DD score=N --&gt;</code>, e o PRP também leva <code>ready-for-handoff: true</code>. A presença dele libera o início do stage seguinte.</p>
+<p>Hooks envolvem cada fase, e <code>token-phase.py</code> soma o uso a partir do transcript do Claude em <code>.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json</code>, um arquivo por agent para todo o ciclo de vida, porque todo stage reusa o <code>feature_id</code>. A contagem de tokens nunca bloqueia um stage; com um transcript ilegível ela registra no log e sai limpa.</p>
+<h1 id="status-do-pipeline">Status do pipeline</h1>
+<p><code>hk status</code> mostra a feature ativa. A mesma linha pode virar a status line do Claude Code, mas só se você instalar com <code>HK_STATUSLINE=1</code>; por padrão o harness não mexe na sua status line, porque uma configuração de projeto passaria por cima dela.</p>
 <pre><code>idle · /product-manager:run · /sse:run · /pipeline:continue
-billing-fix [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next /sse:plan · sensor: plan-structure
-billing-fix · complete (prd/prp/plan/dev/test/pr)
+billing-fix · prp approved · plan drafting · next /sse:plan
+billing-fix · complete
 </code></pre>
-<p>O estado persiste em <code>.claude/.pipeline-state.json</code>. Feche a sessão e reabra, <code>/pipeline:continue</code> retoma
-no próximo stage pendente. Quando o PR é mergeado, o monitor limpa o estado automaticamente.</p>
-<h2 id="comandos-de-stage-único-e-desvios">Comandos de stage único e desvios</h2>
-<p>Todo stage também é um comando próprio, então você roda só a parte que precisa:</p>
-<pre><code>/product-manager:prd | :prp
-/sse:plan | :dev | :test | :pr
-/sse:run --local        plan → dev → test, no PR
-/pipeline:continue      resume next pending stage
-/pipeline:reset         abandon the active run
+<p>O estado mora em <code>.claude/.pipeline-state.json</code>. Reabra uma sessão e <code>/pipeline:continue</code> retoma no próximo stage pendente. Quando o PR é mergeado, o monitor limpa o estado.</p>
+<h1 id="ferramentas-de-contexto">Ferramentas de contexto</h1>
+<p>Os stages que leem o repo alvo rodam <code>.claude/scripts/context-tools.sh</code> uma vez e usam o que estiver instalado. O semble acha código pela intenção e devolve arquivo e linha, o repowise explica módulos, mede o risco de mexer neles e lista os testes que cobrem uma mudança, o context7 traz a doc atual de bibliotecas, e o joern ou o graphify dizem quem chama o quê. Sem nenhum deles, o stage volta para o grep. O <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md" target="_blank" rel="noopener">context-strategy.md</a> liga cada pergunta a uma ferramenta.</p>
+<h1 id="comandos-de-stage-único">Comandos de stage único</h1>
+<p>Cada stage também é um comando próprio, com os mesmos sensors e evals. A lista de desvios está em <a href="Golden-Path.html#saindo-do-caminho">Golden Path</a>.</p>
+<h1 id="o-loop-sdd">O loop SDD</h1>
+<p><code>/sse:sdd</code> troca a passada única de dev e test por um loop com objetivo:</p>
+<pre><code>prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] → [user gate] → pr
+                         loop, cap 3 iterations           stops local
 </code></pre>
-<p>Mesmos sensors, mesmos evals, mesmos artefatos. Você perde a conveniência de um comando só, não o gating.</p>
-<h2 id="a-variante-sdd-loop-guiado-por-spec">A variante SDD (loop guiado por spec)</h2>
-<p><code>/sse:sdd</code> troca o <code>dev → test</code> de tiro único por um loop com objetivo:</p>
-<pre><code>prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval]  →  [user gate]  →  pr
-                         ↑ loop, cap 3 iterations          stops local
-</code></pre>
-<ul>
-<li>Um sensor de pré-voo <code>prp-has-acceptance-criteria</code> bloqueia se o PRP não for testável.</li>
-<li>O predicado do loop é montado a partir de <code>Success criteria (verifiable)</code> + <code>Validation gates</code> do PRP.</li>
-<li>O eval <code>spec-satisfied</code> de cada iteração roda em uma <strong>sessão nova</strong> (sem contexto do worker) e devolve
-PASS/FAIL, não uma nota. FAIL reentra com uma dica <code>next_iter_focus</code>.</li>
-<li>O PR <strong>nunca</strong> é aberto automaticamente; você revisa o transcript em
-<code>.claude/runtime/outputs/sse/sdd/{feature_id}.md</code> e roda <code>/sse:pr</code> quando estiver pronto.</li>
-</ul>
-<h2 id="veja-também">Veja também</h2>
-<ul>
-<li><a href="Golden-Path.html">Golden Path</a>: rodando os seis stages com um comando só</li>
-<li><a href="Sensors.html">Sensores</a> e <a href="Evals.html">Evals</a>: as gates em detalhe</li>
-<li><a href="Agents.html">Agents</a>: quem é dono de qual stage</li>
-</ul>
+<p>O sensor de pré-voo <code>prp-has-acceptance-criteria</code> bloqueia um PRP que não é testável. O predicado do loop vem de <code>Success criteria (verifiable)</code> e <code>Validation gates</code> do PRP. O eval <code>spec-satisfied</code> de cada iteração roda numa sessão Claude nova e devolve PASS ou FAIL; um FAIL volta ao loop com uma dica <code>next_iter_focus</code>.</p>
+<p>O PR nunca abre sozinho. Você lê o transcript em <code>.claude/runtime/outputs/sse/sdd/{feature_id}.md</code> e roda <code>/sse:pr</code> quando estiver pronto.</p>
+<p>Veja também <a href="Golden-Path.html">Golden Path</a>, <a href="Sensors.html">Sensores</a>, <a href="Evals.html">Evals</a>, <a href="Agents.html">Agents</a>.</p>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/Pipeline-and-Stages" target="_blank" rel="noopener">Pipeline e stages</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Autonomy &middot; harness-kit wiki</title>
-<meta name="description" content="harness-kit&#x27;s original design stops and asks the human for inputs before each artifact: the PRD agent asks for squad, problem, customers, hypothesis,..." />
+<meta name="description" content="One command carries an idea to a PR and pauses only where a human adds judgment. The intake stage and the resolve, mark, proceed rule run across every..." />
 <meta property="og:title" content="Autonomy &middot; harness-kit wiki" />
-<meta property="og:description" content="harness-kit&#x27;s original design stops and asks the human for inputs before each artifact: the PRD agent asks for squad, problem, customers, hypothesis,..." />
+<meta property="og:description" content="One command carries an idea to a PR and pauses only where a human adds judgment. The intake stage and the resolve, mark, proceed rule run across every..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Autonomy.html" />
@@ -59,89 +59,37 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="autonomy">Autonomy</h1>
-<blockquote>
-<p><strong>Status: live (v5).</strong> The <code>intake</code> stage and the resolve-mark-proceed disposition are rolled out
-across every stage (prd, prp, plan, dev, test, pr, and system-design). The canonical shape lives at
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
-A few refinements are still <em>(planned)</em> and marked inline: model tiering to Haiku for cheap checks,
-and populating each org's <code>context-library/repos.md</code> from the shipped template.</p>
-</blockquote>
-<p>harness-kit's original design stops and asks the human for inputs before each artifact: the PRD agent
-asks for squad, problem, customers, hypothesis, and bet link; the PRP agent asks for repo paths. Every
-question is a place the run halts. The autonomy work removes the <em>trivial</em> questions without removing
-the <em>real</em> decisions, so one command carries an idea end to end and only pauses where a human genuinely
-adds judgment.</p>
-<h2 id="questions-are-missing-context-in-disguise">Questions are missing context in disguise</h2>
-<p>An agent asks a question when it lacks the context to proceed. There are two ways to remove the
-question:</p>
-<ol>
-<li><strong>Delete it and let the agent guess.</strong> This produces confident, wrong artifacts: a hallucinated
-squad, an invented metric, a plausible-but-fake customer. Worse than asking.</li>
-<li><strong>Give the agent a way to find the answer itself.</strong> The repository, its history, and the context
-library already hold most of what the questions were fishing for. Read them first, ask only for
-what is genuinely external.</li>
-</ol>
-<p>harness-kit takes the second path. This mirrors what happens when a coding agent is turned loose on a
-well-structured repository with no bespoke setup: it reads the code, the README, the recent commits,
-and infers intent. The autonomy work makes that reading step <strong>explicit and mandatory</strong>, so inference
-happens before any question is raised.</p>
-<p>In harness-engineering terms this is a shift from <strong>feedback</strong> to <strong>feedforward</strong> (see
-<a href="Harness-Engineering.html">Harness Engineering</a>). Asking the human mid-run is feedback: the agent produces a
-gap and waits for a correction. Harvesting context up front is feedforward: the agent is handed what it
-needs before it starts, so the gap never forms.</p>
-<h2 id="the-intake-stage">The intake stage</h2>
-<p>Autonomy is anchored by a new first stage, <code>intake</code>, that runs before <code>prd</code>. It is a
-<a href="Orchestration-and-Subagents.html">subagent</a> whose entire job is to gather context and commit it to a single
-artifact the rest of the pipeline reads.</p>
-<pre><code>intake  →  prd  →  prp  →  plan  →  dev  →  test  →  pr
-  │
-  └─ reads:  target repo (code, README, recent commits, open PRs/issues)
-             context-library/ (business-info, squads/, metrics/, decisions/)
-             git remotes and repo registry
-  └─ emits:  .claude/runtime/outputs/intake/{feature_id}.md
-             { squad, problem, customers[], hypothesis, repos[], metrics, unknowns[] }
-</code></pre>
-<p>Because it is a subagent, intake runs in an isolated context. Its heavy exploration, potentially
-hundreds of files read, never pollutes the context of the stages that follow. They receive only the
-distilled <code>intake.md</code>, not the raw search.</p>
-<p>The intake artifact is the single source of the answers the PRD agent used to ask for. The PRD agent no
-longer interrogates the human; it reads <code>intake.md</code>.</p>
-<h2 id="resolve-mark-proceed">Resolve, mark, proceed</h2>
-<p>Every input the pipeline needs has one of three dispositions. This replaces the binary
-<em>ask-or-block</em>.</p>
+<p>One command carries an idea to a PR and pauses only where a human adds judgment. The <code>intake</code> stage and the resolve, mark, proceed rule run across every stage (prd, prp, plan, dev, test, pr, system-design). The canonical shape is <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>. Still planned: model tiering to Haiku for cheap checks, and each org filling its own <code>context-library/repos.md</code>.</p>
+<h1 id="questions-are-missing-context">Questions are missing context</h1>
+<p>The first version stopped before each artifact to ask for squad, problem, customers, hypothesis, bet link, and repo paths. Deleting those questions and letting the agent guess produces a hallucinated squad or an invented metric. harness-kit instead makes the agent read the repo, its history, and the context library before anything else, and asks only for what is external.</p>
+<p>In <a href="Harness-Engineering.html">Harness Engineering</a> terms this moves from feedback to feedforward. Asking mid-run is feedback: the agent produces a gap and waits. Harvesting context up front is feedforward: the gap never forms.</p>
+<h1 id="the-intake-stage">The intake stage</h1>
+<p><code>intake</code> runs before <code>prd</code> as a <a href="Orchestration-and-Subagents.html">subagent</a> (<code>/intake:run</code>). It reads the target repo (code, README, recent commits, open PRs and issues), <code>context-library/</code> (business-info, squads, metrics, decisions), and git remotes. It writes <code>.claude/runtime/outputs/intake/{feature_id}.md</code> with <code>squad</code>, <code>problem</code>, <code>customers</code>, <code>hypothesis</code>, <code>repos</code>, <code>metrics</code>, and <code>unknowns</code>.</p>
+<p>Because it runs in an isolated context, its exploration never reaches the later stages. They read the distilled artifact. The PRD agent reads it instead of asking you.</p>
+<h1 id="resolve-mark-proceed">Resolve, mark, proceed</h1>
+<p>Every input gets one of three dispositions, replacing ask-or-block.</p>
 <table>
 <thead>
 <tr>
@@ -152,74 +100,35 @@ longer interrogates the human; it reads <code>intake.md</code>.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>Resolve</strong></td>
+<td>Resolve</td>
 <td>The answer is in the repo or context library</td>
-<td>Intake writes the value into <code>intake.md</code>. No human contact.</td>
+<td>The value goes into the artifact, no human contact</td>
 </tr>
 <tr>
-<td><strong>Mark</strong></td>
-<td>The answer is genuinely unknowable from available context (e.g. a bet link, an exec's target)</td>
-<td>Intake writes <code>NOT FOUND - NEEDS REVIEW: {detail}</code> and adds it to <code>unknowns[]</code>. The run <strong>continues.</strong></td>
+<td>Mark</td>
+<td>The answer cannot be found (a bet link, an exec target)</td>
+<td><code>NOT FOUND - NEEDS REVIEW: {detail}</code> goes inline and into <code>unknowns</code>, the run continues</td>
 </tr>
 <tr>
-<td><strong>Proceed</strong></td>
+<td>Proceed</td>
 <td>Always</td>
-<td>The pipeline never blocks on a missing input mid-run. Unknowns are surfaced at the next gate, not as an interrupt.</td>
+<td>The run never blocks on a missing input; unknowns surface at the next gate</td>
 </tr>
 </tbody>
 </table>
-<p>The evals already tolerate a bounded number of unresolved markers (<code>prp-context-quality</code> blocks only
-above five <code>NEEDS REVIEW</code>/<code>TBD</code> markers). Autonomy leans on that existing tolerance: a few honest
-unknowns are acceptable and visible; they are not a reason to halt.</p>
-<p>The rule in one line: <strong>resolve from context, mark what you cannot, never stop to ask.</strong></p>
-<h2 id="gated-autonomy-humans-on-the-loop-not-in-it">Gated autonomy: humans on the loop, not in it</h2>
-<p>Full autonomy is not the goal. Unattended generation with no human checkpoint is both dangerous and
-expensive to undo. The goal is to move the human from <strong>in the loop</strong> (answering an input before every
-artifact) to <strong>on the loop</strong> (approving direction at the points where review is cheap and a mistake is
-expensive), a distinction drawn from Böckeler's harness-engineering writing.</p>
-<p>harness-kit places human gates only at high-leverage, low-reversibility boundaries:</p>
-<pre><code>intake → prd → [ GATE: approve direction ] → prp → plan →
-dev → test → [ GATE: approve PR before it opens ] → pr
-</code></pre>
-<ul>
-<li><strong>The PRD gate</strong> costs the human ~30 seconds and prevents an entire dev run aimed in the wrong
-direction. This is the single most valuable checkpoint in the pipeline.</li>
-<li><strong>The PR gate</strong> guards the one outward-facing, hard-to-retract action: opening a pull request.</li>
-</ul>
-<p>Everything between the gates runs without interruption. Two decisions, not a dozen questions.</p>
-<p>A <code>--yolo</code> flag removes even these gates for trusted, low-risk flows, collapsing the whole pipeline to
-a single unattended command. It is honored by the <code>/pipeline:run</code> orchestrator.</p>
-<h2 id="what-stays-deterministic">What stays deterministic</h2>
-<p>Not every removed question needs an LLM. Some are lookups, and a lookup should be code, not inference:</p>
-<ul>
-<li><strong>Repo paths.</strong> A <code>context-library/repos.md</code> registry maps <code>squad → repo paths</code>, so the PRP and SSE
-stages resolve targets by table lookup instead of asking. It ships as <code>repos-template.md</code>; each org
-fills in its own <em>(planned per-org)</em>. When the registry has no entry, intake falls back to
-auto-detecting from the current working directory and git remotes.</li>
-<li><strong>feature_id.</strong> Already computed deterministically as <code>{YYYY-MM-DD}-{squad}-{slug}</code>.</li>
-</ul>
-<p>Keeping these in code makes them cheap and reliable, and reserves the agents for the parts that
-actually need judgment.</p>
-<h2 id="how-it-plugs-into-the-existing-harness">How it plugs into the existing harness</h2>
-<p>Autonomy adds one stage and changes the disposition of inputs. It does <strong>not</strong> replace the gating
-machinery:</p>
-<ul>
-<li>Sensors and evals still fire on every stage. An autonomously-produced PRD is held to the same
-<code>prd-structure</code> and <code>prd-quality</code> bars as a hand-guided one.</li>
-<li>Markers, token accounting, and <code>.pipeline-state.json</code> are unchanged. Intake is just another stage
-that writes an artifact and flips state through the same hooks.</li>
-<li><code>/pipeline:continue</code> still resumes at the next pending stage, so an autonomous run that fails midway
-is as resumable as any other.</li>
-</ul>
-<p>The pipeline gets more independent without getting less governed. The gates that make the output
-trustworthy stay exactly where they were.</p>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a>: the intake subagent and the
-orchestrator that owns state</li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: where intake sits and how gates work</li>
-<li><a href="Harness-Engineering.html">Harness Engineering</a>: feedforward vs feedback, humans on vs in the loop</li>
-</ul>
+<p>The evals tolerate a bounded number of markers: <code>prp-context-quality</code> blocks only above 5. A missing upstream artifact is the one hard stop, and the stage aborts with the command to run first.</p>
+<h1 id="two-gates">Two gates</h1>
+<p>The human moves from in the loop, answering before every artifact, to on the loop, approving at the points where review is cheap and a mistake is expensive. The distinction comes from Böckeler's harness engineering writing.</p>
+<pre class="mermaid">flowchart LR
+    intake --&gt; prd --&gt; G1{{approve direction}} --&gt; prp --&gt; plan --&gt; dev --&gt; test --&gt; G2{{approve PR}} --&gt; pr
+</pre>
+<p>The PRD gate takes about 30 seconds and prevents a full dev run aimed the wrong way. The PR gate guards the one outward-facing action that is hard to retract. <code>/pipeline:run --yolo</code> removes both for trusted, low-risk flows.</p>
+<h1 id="what-stays-deterministic">What stays deterministic</h1>
+<p>Lookups are code. <code>context-library/repos.md</code> maps squad to repo paths; it ships as <code>context-library/repos-template.md</code> for each org to fill. Without an entry, intake detects repos from the working directory and git remotes. <code>feature_id</code> is computed as <code>{YYYY-MM-DD}-{squad}-{slug}</code>.</p>
+<h1 id="what-does-not-change">What does not change</h1>
+<p>Sensors and evals fire on every stage, so an autonomous PRD meets the same <code>prd-structure</code> and <code>prd-quality</code> bars as a guided one. Markers, token accounting, and <code>.pipeline-state.json</code> work as before, and intake flips state through the same hooks. <code>/pipeline:continue</code> resumes at the next pending stage after a failure.</p>
+<h1 id="see-also">See also</h1>
+<p><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a>, <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, <a href="Harness-Engineering.html">Harness Engineering</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Autonomy" target="_blank" rel="noopener">Autonomy</a> in the wiki. Edit it there.</p>
   </main>

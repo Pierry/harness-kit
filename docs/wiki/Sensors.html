@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Sensors (deterministic feedback) &middot; harness-kit wiki</title>
-<meta name="description" content="Sensors are the feedback control: they observe the artifact after the agent writes it and return a hard pass/fail. A failing sensor blocks approval and..." />
+<meta name="description" content="A sensor reads the artifact after the agent writes it and returns pass or fail. A failing sensor blocks approval, and the agent regenerates the failed..." />
 <meta property="og:title" content="Sensors (deterministic feedback) &middot; harness-kit wiki" />
-<meta property="og:description" content="Sensors are the feedback control: they observe the artifact after the agent writes it and return a hard pass/fail. A failing sensor blocks approval and..." />
+<meta property="og:description" content="A sensor reads the artifact after the agent writes it and returns pass or fail. A failing sensor blocks approval, and the agent regenerates the failed..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Sensors.html" />
@@ -59,73 +59,54 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="sensors-deterministic-feedback">Sensors (deterministic feedback)</h1>
-<p>Sensors are the feedback control: they observe the artifact after the agent writes it and return a
-hard pass/fail. A failing sensor <strong>blocks approval</strong> and the agent regenerates until it passes.</p>
-<p>Every sensor declares <strong>how it is enforced</strong>, and the distinction is the whole point:</p>
+<p>A sensor reads the artifact after the agent writes it and returns pass or fail. A failing sensor blocks approval, and the agent regenerates the failed parts until it passes.</p>
+<p>Every sensor declares how it is enforced:</p>
 <table>
 <thead>
 <tr>
 <th><code>Execution:</code></th>
 <th>Enforced by</th>
-<th>Can it report a pass?</th>
+<th>Can report a pass</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>computational</code></td>
-<td><code>sensor-runner.py</code>, deterministic, same verdict every time</td>
-<td>yes, it actually checked</td>
+<td><code>sensor-runner.py</code>, same verdict every time</td>
+<td>yes</td>
 </tr>
 <tr>
 <td><code>inferential</code></td>
 <td>a model or a human applying judgment</td>
-<td><strong>never</strong> as <code>pass</code>, only as <code>inferential</code></td>
+<td>never; it is recorded as <code>inferential</code></td>
 </tr>
 </tbody>
 </table>
-<p>This is Böckeler's computational/inferential split, and harness-kit learned it the hard way. Three
-sensors once declared themselves deterministic hard gates while writing their checks as prose the
-runner had no handler for. The runner returned 0, and the quality log recorded them as <code>passed</code> on
-every run, against a check that never happened. A sensor that cannot report a pass it did not earn is
-worth more than one that always says yes.</p>
-<p>Run <code>python3 .claude/scripts/check-sensors.py</code> to print the enforcement ledger: every sensor, its
-execution type, and the checks it actually wires up.</p>
-<h2 id="what-a-sensor-is">What a sensor is</h2>
-<p>A sensor is a plain markdown file describing checks, plus a small Python runner that applies them with
-real regex. The markdown is the spec; the runner is the enforcement. Example shape:</p>
+<p>This is Böckeler's split. Three harness-kit sensors once claimed to be hard gates while writing checks as prose the runner could not parse; the log recorded <code>passed</code> on every run for checks that never ran. <code>python3 .claude/scripts/check-sensors.py</code> prints every sensor, its execution type, and the checks it wires up.</p>
+<h1 id="what-a-sensor-is">What a sensor is</h1>
+<p>A sensor is a markdown spec; a Python runner enforces it with regex.</p>
 <pre><code class="language-markdown"># Sensor: PRD Structure
 Type: deterministic
 Execution: computational
@@ -134,7 +115,6 @@ Mode: hard gate
 ## Required sections
 - Problem and Hypothesis
 - Customers
-- ...
 
 ## Forbidden tokens
 - lorem, TODO, FIXME, placeholder
@@ -142,27 +122,13 @@ Mode: hard gate
 ## Markdown rules
 - exactly 1 H1 heading
 - no em-dash
-- no ASCII box-drawing
-
-## On failure
-Block publish. Return missing sections, forbidden tokens, rule violations.
-Agent regenerates failed parts only.
 </code></pre>
-<h2 id="how-the-runner-works">How the runner works</h2>
-<p><code>sensor-runner.py</code> parses known sections out of the sensor markdown and checks them against the
-artifact:</p>
-<ul>
-<li><strong>Required sections</strong>: for each bullet, it builds a heading regex (tolerant of numbered prefixes
-like <code>## 3) ...</code>) and fails if the heading is absent.</li>
-<li><strong>Forbidden tokens</strong>: fails if any appear (catches <code>TODO</code>, <code>lorem</code>, unfilled template tokens like
-<code>{System Name}</code>).</li>
-<li><strong>Markdown rules</strong>: exactly one H1, no em-dash, no ASCII box-drawing, minimum mermaid blocks, etc.</li>
-</ul>
-<p>Exit codes carry the distinction:</p>
+<h1 id="how-the-runner-works">How the runner works</h1>
+<p><code>.claude/runtime/scripts/{agent}/sensor-runner.py</code> parses five sections: <code>Required sections</code>, <code>Forbidden sections</code>, <code>Required tokens</code>, <code>Forbidden tokens</code> (or <code>Forbidden patterns</code>), <code>Markdown rules</code>. Required sections become heading regexes that tolerate prefixes such as <code>## 3) ...</code>. Anything else in the file is documentation, not enforced.</p>
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>Exit</th>
 <th>Meaning</th>
 </tr>
 </thead>
@@ -173,35 +139,22 @@ like <code>## 3) ...</code>) and fails if the heading is absent.</li>
 </tr>
 <tr>
 <td><code>1</code></td>
-<td>a check failed. The agent fixes only the failed parts</td>
+<td>a check failed; the agent fixes only the failed parts</td>
 </tr>
 <tr>
 <td><code>2</code></td>
-<td>the sensor spec is <strong>broken</strong>: it declares <code>computational</code> but wires up no check the runner understands. Not a pass, a bug in the sensor</td>
+<td>broken spec: <code>computational</code> with no check the runner understands</td>
 </tr>
 <tr>
 <td><code>3</code></td>
-<td>the sensor is <code>inferential</code>. The runner refuses it, and callers record <code>inferential</code>, never <code>pass</code></td>
+<td><code>inferential</code>; the runner refuses it and callers record <code>inferential</code>, never <code>pass</code></td>
 </tr>
 </tbody>
 </table>
-<p>Exit 2 exists because the alternative is silence. A sensor whose checks the runner cannot parse used
-to return 0 forever, which reads as &quot;checked and fine&quot; when the truth is &quot;never looked&quot;. A PostToolUse
-hook fires the runner on save and returns the feedback to the agent.</p>
-<p>Heading matching is lenient on purpose: a trailing parenthetical is ignored and a descriptive prefix
-is allowed, so <code>## Design doc, required sections (all present, in order)</code> resolves to <code>Required sections</code>. The original bug was exactly this: the runner accepted only <code>(all must be present, in order)</code>, three sensors wrote <code>(all present, in order)</code>, and about 30 written section assertions did
-nothing.</p>
-<h2 id="why-deterministic">Why deterministic</h2>
-<p>Structure is not a matter of opinion, so it should not cost an LLM call or be subject to a model's
-mood. Pushing every checkable rule into a sensor:</p>
-<ul>
-<li>makes the gate <strong>fast and free</strong> (no tokens),</li>
-<li>makes it <strong>exact</strong> (no false &quot;looks fine&quot;),</li>
-<li>frees the <a href="Evals.html">eval</a> to judge only what genuinely needs semantic judgment.</li>
-</ul>
-<p>This is the core harness-engineering move: make deterministic what you can, infer only what you must.</p>
-<h2 id="sensors-in-harness-kit">Sensors in harness-kit</h2>
-<p>Each stage has its own sensors. A sample:</p>
+<p>A PostToolUse hook runs the runner on save and returns the feedback to the agent. Heading matching ignores a trailing parenthetical, so <code>## Design doc, required sections (all present, in order)</code> resolves to <code>Required sections</code>. The original bug: the runner accepted only <code>(all must be present, in order)</code>, three sensors wrote <code>(all present, in order)</code>, and about 30 assertions did nothing.</p>
+<h1 id="why-deterministic">Why deterministic</h1>
+<p>A sensor costs no tokens, gives the same answer every time, and leaves the <a href="Evals.html">eval</a> only what needs semantic judgment. Make deterministic what you can, infer only what you must.</p>
+<h1 id="sensors-per-stage">Sensors per stage</h1>
 <table>
 <thead>
 <tr>
@@ -216,7 +169,7 @@ mood. Pushing every checkable rule into a sensor:</p>
 </tr>
 <tr>
 <td><code>prp</code></td>
-<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code>, <code>link-validator</code></td>
+<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code> (runs <code>link-validator.py</code>)</td>
 </tr>
 <tr>
 <td><code>plan</code></td>
@@ -224,51 +177,32 @@ mood. Pushing every checkable rule into a sensor:</p>
 </tr>
 <tr>
 <td><code>dev</code></td>
-<td><code>dev-structure</code>, <code>code-maintainability</code> (computational), <code>code-conventions</code>, <code>test-coverage</code> (inferential)</td>
+<td><code>dev-structure</code>, <code>code-maintainability</code>, <code>code-conventions</code> and <code>test-coverage</code> (both inferential)</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td><code>test-structure</code></td>
+</tr>
+<tr>
+<td><code>pr</code></td>
+<td><code>pr-structure</code></td>
+</tr>
+<tr>
+<td><code>sdd</code> entry</td>
+<td><code>prp-has-acceptance-criteria</code> (inferential)</td>
 </tr>
 <tr>
 <td>system design</td>
-<td><code>design-structure</code>, <code>review-structure</code> (computational), <code>design-rigor</code> (inferential)</td>
+<td><code>design-structure</code>, <code>review-structure</code>, <code>design-rigor</code> (inferential)</td>
 </tr>
 </tbody>
 </table>
-<p><code>code-maintainability</code> is the one that leaves the document and looks at the code. It runs whatever the
-repo actually configures (npm <code>lint</code>/<code>typecheck</code>, ruff, ktlint, checkstyle, gitleaks) and never an
-imposed config. When a repo configures nothing it knows, it exits 4, <strong>not checked</strong>, rather than
-passing. Nothing ran, so nothing is known.</p>
-<p><code>design-rigor</code> is the honest counter-example. It wants numeric targets, visible back-of-envelope math,
-at least three trade-offs and a vertical-slice phase. Those need judgment, so it is <code>inferential</code>: a
-model applies it and the log says so. It spent a long time claiming to be a deterministic hard gate
-while checking nothing at all.</p>
-<h2 id="feedback-optimized-for-the-agent">Feedback optimized for the agent</h2>
-<p>A sensor's value is not just the verdict, it is the <strong>message</strong>. &quot;missing required section: 'Success
-Metrics'&quot; tells the agent exactly what to add. Good sensor output reads like instructions for the next
-turn, not a stack trace. This is what makes deterministic feedback a self-correction loop instead of a
-wall.</p>
-<h2 id="writing-a-sensor">Writing a sensor</h2>
-<ul>
-<li>Declare <strong><code>Execution:</code></strong> honestly. If the runner cannot check it, it is <code>inferential</code>, and saying so
-costs you nothing. Claiming <code>computational</code> and expressing the check as prose is how you get a
-sensor that reports green forever without looking at anything.</li>
-<li>Express computational checks in a section the runner parses: <code>Required sections</code>, <code>Forbidden sections</code>, <code>Required tokens</code>, <code>Forbidden tokens</code>, <code>Markdown rules</code>. Anything else is documentation,
-not enforcement.</li>
-<li>Keep checks <strong>objective</strong>: if a human could disagree, it belongs in an eval or an inferential sensor.</li>
-<li>Name the <strong>failure precisely</strong> so the fix is obvious.</li>
-<li>Use <strong>forbidden tokens</strong> to catch unfilled template placeholders (<code>{N}</code>, <code>{...}</code>, <code>TBD</code>).</li>
-<li>Mark it <strong>hard gate</strong>; sensors do not have a threshold, they pass or block.</li>
-<li>Run <code>python3 .claude/scripts/check-sensors.py</code> before you commit it. CI runs it too, and the test
-suite asserts that every computational sensor rejects an empty artifact, so a sensor that checks
-nothing fails the build instead of shipping.</li>
-</ul>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Evals.html">Evals</a>: the inferential half that judges meaning</li>
-<li><a href="Harness-Engineering.html">Harness Engineering</a>: computational vs inferential controls</li>
-<li><a href="References.html">References</a>: the literature this is built on</li>
-<li>Böckeler, <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html" target="_blank" rel="noopener">Maintainability sensors for coding agents</a>,
-martinfowler.com. The source of the computational/inferential split, the maintainability sensor, and
-the warning about the &quot;illusion of quality&quot; that a sensor checking nothing produces.</li>
-</ul>
+<p><code>code-maintainability</code> checks code. It runs what the repo configures (npm <code>lint</code> and <code>typecheck</code>, ruff, ktlint, checkstyle, gitleaks), never an imposed config, and exits 4 (not checked) when it finds nothing it knows. <code>design-rigor</code> wants numeric targets, back-of-envelope math, three trade-offs and a vertical-slice phase; that needs judgment, so it is <code>inferential</code>.</p>
+<h1 id="writing-a-sensor">Writing a sensor</h1>
+<p>Declare <code>Execution:</code> honestly: if the runner cannot check it, it is <code>inferential</code>. Put computational checks in the five parsed sections, keep them objective, and use forbidden tokens to catch placeholders such as <code>{N}</code> and <code>TBD</code>. Write the failure message as an instruction, such as &quot;missing required section: 'Success Metrics'&quot;.</p>
+<p>Run <code>python3 .claude/scripts/check-sensors.py</code> before you commit. CI runs it too, and a test asserts that every computational sensor rejects an empty artifact.</p>
+<h1 id="see-also">See also</h1>
+<p><a href="Evals.html">Evals</a>, <a href="Harness-Engineering.html">Harness Engineering</a>, <a href="References.html">References</a>. Source: Böckeler, <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html" target="_blank" rel="noopener">Maintainability sensors for coding agents</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Sensors" target="_blank" rel="noopener">Sensors (deterministic feedback)</a> in the wiki. Edit it there.</p>
   </main>

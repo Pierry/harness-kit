@@ -1,91 +1,44 @@
 # Agents
 
-O harness-kit vem com três agents. Cada um vive em `.claude/agents/<name>/` com seu próprio README,
-sensors, evals, guides e skills, e está registrado em
-[`AGENTS.md`](https://github.com/Pierry/harness-kit/blob/main/AGENTS.md). Os três também podem ser
-invocados como sub-agents pela ferramenta Task.
+O harness-kit traz três agents, registrados em [`AGENTS.md`](https://github.com/Pierry/harness-kit/blob/main/AGENTS.md). Cada um mora em `.claude/agents/<name>/` com seu próprio README, guides, sensors, evals e skills, e cada um também pode ser chamado como subagent pela Task tool.
 
-## product-manager
+# product-manager
 
-Transforma um problema em um spec pronto para engenharia. Dois artefatos, dois skills:
+Escreve o PRD (voltado para o negócio) e o PRP (a passagem para engenharia). Rode `/product-manager:run` para os dois, ou `/product-manager:prd` e `/product-manager:prp` sozinhos. Os sensors `prd-structure`, `prd-acceptance-criteria`, `prp-structure`, `prp-context-quality` e `prp-links` fazem o gate de estrutura; os evals `prd-quality`, `prd-readiness`, `prp-quality` e `prp-context-readiness` fazem o gate de qualidade. Com `JIRA_USERNAME` e `JIRA_API_TOKEN` definidos, ele pode publicar no Confluence.
 
-- **`prd`**: Product Requirements Document, voltado ao negócio.
-- **`prp`**: Product Requirements Prompt, o handoff para engenharia.
+# staff-software-engineer
 
-Entrada: `/product-manager:run` (PRD → PRP completo), ou `/product-manager:prd` / `:prp` isolados.
-Passa pelas gates dos sensors e evals `prd-structure`/`prd-quality` e `prp-*`. Publica no Confluence
-quando `JIRA_USERNAME` + `JIRA_API_TOKEN` estão definidos.
+Leva um PRP aprovado até um merged PR. Ele escolhe uma area skill pelos arquivos do repo: `backend`, `web`, `mobile` ou `devops`, cada uma sobrescrevível por repo com `.claude/conventions/{area}.md`. A skill `designer` entra por cima quando você constrói uma UI nova; veja [Designer Skill](Designer-Skill).
 
-## staff-software-engineer
+Rode `/sse:run` para plan, dev, test, pr e monitor de merge, `/sse:run --local` para parar antes do PR, ou qualquer stage sozinho. `/sse:sdd` planeja uma vez e depois repete dev, test e um eval spec-satisfied até o PRP ser atendido, com limite de 3 iterações e sem PR automático. Veja [Pipeline e stages](Pipeline-and-Stages).
 
-Transforma um PRP aprovado em um PR mergeado. Escolhe o **area skill** certo a partir dos arquivos do
-repo:
+# system-architect
 
-- **`backend`**, **`web`**, **`mobile`**, **`devops`**: convenções de cada disciplina, sobrescritíveis
-  por repo via `.claude/conventions/{area}.md`.
-- **`designer`**: um skill transversal, aplicado quando você constrói uma UI nova: Material Design 3,
-  tema dark/light, tipografia moderna, acabamento nível Behance, i18n (en, pt-BR, es), favicon
-  sensível ao contexto. Entra por cima do area skill. Veja [Skill designer](Designer-Skill).
+Escreve um System Design Doc e depois roda uma review adversarial de nível staff que devolve ship, revise ou block. Ele escolhe uma topic skill por problema clássico: `url-shortener` ([#1](URL-Shortener)), `rate-limiter` ([#2](Rate-Limiter)), `search-engine` ([#3](Search-Engine)), com `design` como fallback genérico e `review` para a passada de review.
 
-Entrada: `/sse:run` (plan → dev → test → pr → monitor), `/sse:run --local` (sem PR), ou os comandos de
-stage único. A **variante SDD** `/sse:sdd` roda um loop guiado por spec (plana uma vez, dev↔test↔eval
-até o PRP ser satisfeito, teto de 3 iterações, sem PR automático). Veja
-[Pipeline e stages](Pipeline-and-Stages).
+Rode `/system-design:run`, `/system-design:design` ou `/system-design:review`. Os sensors `design-structure`, `design-rigor` e `review-structure` e os evals `design-quality` e `design-review-depth` fazem o gate. O método está em [Método de system design](System-Design-Method).
 
-## system-architect
+# A forma comum
 
-Transforma um sistema ou problema em um **System Design Doc** rigoroso e depois roda um **design
-review** adversarial. Assim como o agent SSE escolhe um area skill, este agent escolhe um **topic
-skill**: um por problema clássico de system design, tirado da série de podcasts System Design:
+Os três usam guides como feedforward, sensors e evals como feedback, um approval marker por artefato e contagem de tokens por fase. product-manager e staff-software-engineer se encadeiam no [golden path](Golden-Path) de seis stages; system-architect é um stage opcional na frente.
 
-- **`design`**: fallback genérico para qualquer sistema.
-- **`review`**: review adversarial, nível staff, de um design existente.
-- **`url-shortener`** ([#1](URL-Shortener)), **`rate-limiter`** ([#2](Rate-Limiter)),
-  **`search-engine`** ([#3](Search-Engine)): playbooks por tópico.
+Cada stage roda como um orquestrador mais subagents folha. A sessão principal é dona do estado e dos gates e despacha um coletor `intake`, autores por stage e avaliadores que nunca escreveram o artefato que avaliam. O avaliador é um subagent Claude novo ou o Jev, conforme `/hk:eval`; veja [Evals](Evals) e [Orquestração e subagents](Orchestration-and-Subagents).
 
-Entrada: `/system-design:run` (design → review), `/system-design:design`, `/system-design:review`.
-Passa pelas gates dos sensors `design-structure`/`design-rigor` e dos evals
-`design-quality`/`design-review-depth`. A teoria a fundo e as referências de cada tópico vivem nesta
-wiki. Método: [Método de system design](System-Design-Method).
+# Roteamento
 
-## O padrão que eles compartilham
-
-Os três seguem o mesmo formato de harness: guides (feedforward), sensors + evals (feedback), um marker
-de aprovação por artefato, contabilidade de tokens por fase, e um skill para o qual o orquestrador
-despacha. Os agents product-manager e staff-software-engineer se encadeiam no
-[golden path](Golden-Path) de seis stages; o agent system-architect é um stage opcional na frente
-dele.
-
-## v5: de monolitos para orquestrador + folhas
-
-Hoje cada agent roda seus stages inline, e os sensors e evals rodam no mesmo contexto de quem escreveu
-o artefato. A v5 decompõe isso em um **orquestrador** (a sessão principal, dona do estado e das gates)
-que despacha para **subagents folha** pequenos, de propósito único: um coletor de `intake`, autores
-por stage, avaliadores adversariais que nunca escreveram o artefato que corrigem, e painéis paralelos
-de revisores. Os agents acima continuam sendo os donos conceituais dos seus stages; por dentro, cada
-stage vira um conjunto de folhas que o orquestrador coordena. Veja
-[Orquestração e subagents](Orchestration-and-Subagents) e [Autonomia](Autonomy).
-
-## Roteamento
-
-Quando você digita um slash command, o ponto de entrada não tem ambiguidade. Quando você descreve o
-trabalho em linguagem natural, a sessão principal consulta a tabela de roteamento em
-[`AGENTS.md`](https://github.com/Pierry/harness-kit/blob/main/AGENTS.md):
+Um slash command escolhe seu ponto de entrada. Para pedidos em linguagem comum, a sessão principal lê a tabela de roteamento em `AGENTS.md`:
 
 | Intenção | Rota |
 |---|---|
-| ideia → PR mergeado | `/golden-path` |
-| rascunhar um spec | `product-manager` |
+| ideia até merged PR, sem intervenção | `/pipeline:run "<idea>"` |
+| ideia até merged PR | `/golden-path` |
+| coletar contexto | `/intake:run` |
+| rascunhar uma spec | `product-manager` |
 | entregar um PRP aprovado | `staff-software-engineer` |
 | projetar um sistema em escala | `system-architect` |
 
-## Adicionando um agent
+# Adicionando um agent
 
-1. Crie `.claude/agents/<name>.md` (ou `<name>/agent.md` com os assets junto).
-2. Registre em `AGENTS.md`, na seção certa.
-3. Adicione `.claude/commands/<name>.md` se ele for invocável por slash command.
-4. Ligue os hooks de ciclo de vida em `.claude/runtime/hooks/<name>/` se ele precisar.
+Crie `.claude/agents/<name>.md`, ou `<name>/agent.md` quando ele traz assets, e registre em `AGENTS.md`. Adicione `.claude/commands/<name>.md` se ele usar um slash command. Coloque os hooks de ciclo de vida em `.claude/runtime/hooks/<name>/` e ligue-os em `.claude/settings.json`.
 
-## Veja também
-
-- [Pipeline e stages](Pipeline-and-Stages) · [Golden path](Golden-Path) · [Engenharia de harness](Harness-Engineering)
+Veja também [Pipeline e stages](Pipeline-and-Stages), [Golden Path](Golden-Path), [Harness Engineering](Harness-Engineering).

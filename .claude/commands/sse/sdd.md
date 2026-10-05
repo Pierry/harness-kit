@@ -86,7 +86,8 @@ SDD loop FAIL. cap hit at 3 iters.
 
 ## Context tiers
 
-Before iter 1, check for cached context per `.claude/shared/context-strategy.md`:
+Before iter 1, probe `.claude/scripts/context-tools.sh {repo}` and check cached context per `.claude/shared/context-strategy.md`:
+- repowise present → supervisor runs `repowise risk` on the diff; cpg or graphify → callers of touched symbols
 - repomix pack at `.claude/runtime/cache/repomix/{feature_id}.xml` → supervisor eval reads it for richer judgment
 - graphify graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → supervisor eval queries for "does diff break callers"
 

@@ -1,102 +1,97 @@
 # Context Strategy
 
-Shared guide for PM + SSE agents. When pulling target-repo context into a stage, pick the right tier.
+Shared guide for PM, SSE, architect agents. Pull target-repo context with best tool present. All tools optional. Missing tool → next row, never block.
 
-Three tiers. Cost goes up left → right. Capability goes up too. Match tier to need.
-
-| Tier | Tool | When | Cost | Freshness |
-|---|---|---|---|---|
-| 1 | `grep` / `Read` | small repo, narrow question, one-shot | free | always live |
-| 2 | `repomix` snapshot | feature-scoped context, deterministic handoff | low (one pack per feature) | frozen at pack time |
-| 3 | `graphify` graph | long-lived repo, queryable, multi-feature reuse | medium upfront (one build per repo), tiny per query | merged via `--update` per commit (with hook) |
-
-## Decision tree
+## Probe once per stage
 
 ```
-question = "where does X live?" or "what calls Y?"
-  ├── repo <20 files? ──── grep / Read
-  ├── graph cached + repo unchanged? ── query graph.json
-  ├── graph stale or missing + repo big? ── /context:graph (one shot)
-  └── feature-scoped narrow scope? ──── /context:pack --include "..."
-
-question = "give me the full repo for an independent eval"
-  ├── repo packs under 200k tokens? ── /context:pack
-  └── too big? ── /context:pack --include "{narrowed glob}"
-
-question = "supervisor eval reads diff + minimal context (SDD loop)"
-  ├── pack of {changed files} ∪ {PRP files touched} → /context:pack --include
-  └── add graph query for impact analysis (v2)
+.claude/scripts/context-tools.sh {target_repo}
 ```
 
-## Per-stage hookup
+Prints yes/no per CLI + skill. MCP servers invisible to shell: check own tool list for `mcp__semble__*`, `mcp__repowise__*`, `mcp__context7__*`. MCP preferred over CLI when both present.
+
+## Pick by question
+
+| Question | First choice | Fallback |
+|---|---|---|
+| where is X implemented, by intent | semble: `mcp__semble__search` or `semble search "<intent>" {repo} --top-k 10` | Grep + Read |
+| similar code to copy pattern from | semble: `mcp__semble__find_related` or `semble find-related {file} {line} {repo}` | Grep for sibling names |
+| what is this module, why shaped so | repowise: `get_context` / `get_answer` MCP, or `repowise context {path}`, `repowise why {path}` | Read README + git log |
+| risk of touching these files | `repowise risk` (MCP `get_risk`) | git log churn on files |
+| which tests cover changed files | `repowise impacted-tests` | grep test names for module |
+| who calls X, blast radius | cpg skill (joern, needs `cpg.bin`) or graphify graph | Grep callers |
+| library / framework API, versions | context7: `mcp__context7__resolve-library-id` then `query-docs` | WebFetch official docs |
+| whole feature scope as one snapshot | repomix `/context:pack` | Read files listed in PRP |
+| what was decided before | memoria skill (if installed) | `context-library/decisions/` |
+| break requirements into verifiable units | atomize skill (if installed) → `atoms.json` validated | hand-written criteria |
+
+Semble rule: one focused query, go to returned file:line, read that symbol only. No re-grep same content. Grep only for every literal occurrence (rename, all callers by name).
+
+Graph engineering on (`hk-config.py get graph` not off): prefer the 4 calls in `.claude/shared/graph-engineering.md` (`graph.py knowledge|symbols|tests|history`), they wrap the rows above plus trace manifests and, in full mode, the graph.
+
+## Per stage
+
+### `/product-manager:prd`
+- memoria: prior decisions on same problem → cite in Evidence or Risks.
+- atomize (if present): decompose problem + hypothesis into atoms; feed Success Metrics. Keep `atoms.json` next to PRD: `.claude/runtime/outputs/pm/prd/{feature_id}.atoms.json`.
 
 ### `/product-manager:prp`
-- § 4 Context discovery: prefer graph query (if cached) over grep
-- `Repos and files touched` list: graph + grep both OK; graph faster
-- No pack here, PRP is upstream of pack
+- semble search per PRD capability → `Repos and files touched` with file:line.
+- semble find-related on best match → Context patterns with file:line (rubric `pattern_referencing`).
+- repowise context/why on touched modules → gotchas.
+- context7 for every external lib named → Context external docs links (rubric check: links external docs).
+- atomize (if present): PRD atoms → `Success criteria (verifiable)`, one criterion per atom.
 
 ### `/sse:plan`
-- Read order:
-  1. source PRP
-  2. cached graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` if present
-  3. cached pack at `.claude/runtime/cache/repomix/{feature_id}.{ext}` if present
-  4. fall back to grep + Read on target repo
-- Don't double-load. If pack covers all PRP-listed files, skip grep.
+- Read PRP, then semble on PRP files for current shape, repowise risk on files touched → Risks section with score (rubric `risk_awareness`).
+- context7 for any API whose version matters.
+- cached pack/graph if present; don't double-load files they cover.
 
 ### `/sse:dev`
-- Never reads stale pack/graph for the live code, code is mutating per commit.
-- Reads plan only. Use grep/Read on live repo for guidance lookups.
+- Live code mutates per commit: never trust stale pack/graph. semble index refreshes on its own; fine to use.
+- semble find-related before writing a new file: match nearest sibling conventions.
+- context7 for exact API syntax instead of memory.
 
 ### `/sse:test`
-- No context tools. Runs detected test command.
+- `repowise impacted-tests` on changed files → report which tests cover change, name uncovered files (rubric `coverage_of_changes`).
 
-### `/sse:sdd` supervisor eval
-- Fresh session reads:
-  1. PRP (full)
-  2. dev summary
-  3. test report
-  4. `git diff main...HEAD`
-- If pack exists: ALSO read `cache/repomix/{feature_id}.{ext}` for richer judgment
-- If graph exists: ALSO query graph for "does diff break callers of touched symbols"
+### `/sse:sdd` supervisor + `spec-satisfied`
+- Fresh session reads PRP, dev summary, test report, `git diff {base}...HEAD`.
+- repowise risk on diff, cpg or graphify for callers of touched symbols → "does diff break callers".
+- pack if present for surrounding code.
 
-## Cache layout
+### `/system-design:design`
+- Existing system: semble + repowise context to ground current architecture before proposing. Greenfield: skip.
+
+## Cache layout (repomix, graphify)
 
 ```
 .claude/runtime/cache/
-├── repomix/
-│   ├── .gitkeep
-│   └── {feature_id}.xml             ephemeral, per-feature, cleared on /pipeline:reset
-└── graphify/
-    ├── .gitkeep
-    └── {repo_slug}/                 long-lived, per-repo, manual rebuild or --update hook
-        └── graphify-out/
-            ├── graph.json
-            ├── graph.html
-            └── GRAPH_REPORT.md
+├── repomix/{feature_id}.xml         ephemeral, cleared on /pipeline:reset
+└── graphify/{repo_slug}/graphify-out/graph.json   long-lived, manual rebuild
 ```
 
-`{repo_slug}` = `basename(abs_target)` + `-` + `shasum(abs_target)[:8]`. Stable across machines for same path.
+`{repo_slug}` = `basename(abs_target)` + `-` + `shasum(abs_target)[:8]`. Semble, repowise, cpg keep own caches (`~/.cache/semble`, `{repo}/.repowise/`, `{repo}/cpg.bin`).
 
 ## Invalidation
 
 | Cache | Invalidated by |
 |---|---|
-| `repomix/{feature_id}.*` | `/pipeline:reset`, manual `rm`, or stage detecting target diff > 100 LOC since pack |
-| `graphify/{slug}/` | manual `/context:graph --update`, graphify git-hook auto-commit refresh, or manual `rm -rf` |
+| `repomix/{feature_id}.*` | `/pipeline:reset`, or target diff > 100 LOC since pack |
+| `graphify/{slug}/` | `/context:graph --update` or manual `rm -rf` |
+| repowise | `repowise update` (hook keeps it synced when installed) |
+| `cpg.bin` | rebuild by hand; takes minutes, ask user first |
 
-## Cost notes
-
-- **Repomix**: ~1-2s build for medium repo. Token count printed. Fits inside context.
-- **Graphify code-only**: Tree-sitter local, ~5-30s for medium repo, no API key, no network.
-- **Graphify --with-docs**: LLM semantic extraction on docs/PDFs/images. Sends semantic descriptions only (not raw code). Requires API key per their docs. Opt-in only; this harness defaults to code-only.
-
-## Install
-
-Both optional. Detect on `hk install`; print install hint if missing. Don't auto-install.
+## Install hints (never auto-install)
 
 ```
-repomix:   npm i -g repomix   |   brew install repomix
-graphify:  uv tool install graphifyy   |   pipx install graphifyy
+semble:   pip install 'semble[mcp]'   |   uvx --from 'semble[mcp]' semble
+repowise: uv tool install repowise && repowise init {repo}
+context7: MCP server, https://github.com/upstash/context7
+repomix:  npm i -g repomix
+graphify: uv tool install graphifyy
+rtk:      brew install rtk && rtk init -g
+joern:    https://joern.io  (cpg.bin per repo)
 ```
 
-PyPI package name is `graphifyy` (double y), CLI command is `graphify`.
+No tool here needs a paid API key in default mode. repowise `generate` and graphify `--with-docs` call LLMs: opt-in only, never in CI.

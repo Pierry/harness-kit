@@ -14,7 +14,7 @@ computable is now computed.
 
 It cannot fix the deeper limitation: the scores themselves are unvalidated
 against human labels, and an LLM judging output from its own family inflates
-scores (Panickssery et al., arXiv:2410.21819). Weights, arithmetic and the
+scores (Wataoka et al., arXiv:2410.21819). Weights, arithmetic and the
 threshold are enforced here; agreement with a human is not, and no amount of
 scripting makes it so. See guides/calibration.md.
 

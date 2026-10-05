@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Orquestração e subagents &middot; harness-kit wiki</title>
-<meta name="description" content="O pipeline original do harness-kit é carregado por dois agents monolíticos: product-manager roda prd e depois prp inline, e staff-software-engineer..." />
+<meta name="description" content="O pipeline roda como um orquestrador mais subagents pequenos. O intake é um subagent somente leitura, o eval de cada stage vai para um judge que não..." />
 <meta property="og:title" content="Orquestração e subagents &middot; harness-kit wiki" />
-<meta property="og:description" content="O pipeline original do harness-kit é carregado por dois agents monolíticos: product-manager roda prd e depois prp inline, e staff-software-engineer..." />
+<meta property="og:description" content="O pipeline roda como um orquestrador mais subagents pequenos. O intake é um subagent somente leitura, o eval de cada stage vai para um judge que não..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/pt/Orchestration-and-Subagents.html" />
@@ -59,216 +59,84 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="orquestração-e-subagents">Orquestração e subagents</h1>
-<blockquote>
-<p><strong>Status: live (v5).</strong> A topologia de orquestrador e folhas está em pé em todas as stages: <code>intake</code>
-é um subagent somente-leitura, o eval de cada stage é despachado para um avaliador novo que não
-escreveu o artefato, e os inputs seguem resolver-marcar-seguir. O formato canônico está em
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
-O model tiering para Haiku nas checagens mais baratas ainda é <em>(planned)</em>.</p>
-</blockquote>
-<p>O pipeline original do harness-kit é carregado por dois agents monolíticos: <code>product-manager</code> roda <code>prd</code>
-e depois <code>prp</code> inline, e <code>staff-software-engineer</code> roda <code>plan → dev → test → pr</code> inline. Dentro de cada
-agent, sensors e evals rodam no mesmo contexto do autor. Esta página explica por que a v5 quebra isso em
-um <strong>orquestrador mais subagents pequenos e de propósito único</strong>, e, tão importante quanto, onde ela
-deliberadamente <em>não</em> faz isso.</p>
-<h2 id="por-que-subagents">Por que subagents</h2>
-<p>Um subagent é um contexto novo e isolado, invocado pela Task tool. Dividir o trabalho em subagents
-compensa em exatamente três situações, e a v5 usa todas elas:</p>
-<ol>
-<li><strong>Isolamento de contexto.</strong> Uma stage que lê centenas de arquivos (<code>intake</code>, <code>dev</code>) não deveria
-carregar esse peso para as stages seguintes. Cada subagent sobe limpo e devolve só um resultado
-destilado.</li>
-<li><strong>Paralelismo.</strong> Trabalho genuinamente independente roda em paralelo: um painel de revisores, ou o
-<code>dev</code> se espalhando por módulos independentes.</li>
-<li><strong>Separação adversarial.</strong> O agent que escreve um artefato não pode ser o agent que dá nota a ele.
-Um crítico novo, sem participação no texto, dá uma nota honesta.</li>
-</ol>
-<p>A terceira é a razão mais forte. Hoje o mesmo agent escreve um PRD e depois o avalia, o que é corrigir a
-própria prova: a nota infla porque quem corrige está apegado ao trabalho. Um avaliador separado, subido
-do zero e recebendo apenas o artefato, não tem nada a defender.</p>
-<p>Isso não é ideia nova no harness-kit. O loop de SDD já roda seu eval <code>spec-satisfied</code> numa <strong>sessão
-nova, sem contexto do worker</strong> (veja <a href="Pipeline-and-Stages.html">Pipeline e stages</a>). A v5 generaliza esse
-caso único e o transforma na regra de toda gate.</p>
-<h2 id="a-armadilha-da-decomposição-excessiva">A armadilha da decomposição excessiva</h2>
-<p>Todo salto para um subagent tem custo: subir um contexto novo, reler arquivos que ele não herda
-(subagents não compartilham memória), mais latência e mais tokens. Ou seja, o objetivo <strong>não</strong> é um
-subagent por passo. Divida só quando o salto compra um dos três ganhos acima. Fora isso, mantenha o
-trabalho inline ou, melhor ainda, num script determinístico.</p>
-<p>A linha divisória é julgamento versus determinismo:</p>
-<ul>
-<li>Uma checagem que é regra estrutural, &quot;o PRD contém as seções obrigatórias?&quot;, é um <strong>script de
-sensor</strong>. Não precisa de modelo, e um modelo só deixaria a checagem mais lenta e menos confiável.</li>
-<li>Uma checagem que exige ler e ponderar, &quot;essa hipótese é mesmo testável?&quot;, é um <strong>eval subagent</strong>.</li>
-</ul>
-<p>O harness-kit já mantém seus sensors determinísticos como scripts. A v5 preserva isso. A decomposição
-adiciona subagents para <em>julgamento e isolamento</em>, não para trabalho que o código já faz melhor.</p>
-<h2 id="três-responsabilidades-separadas">Três responsabilidades, separadas</h2>
-<p>O movimento central é parar de embolar três responsabilidades diferentes dentro de um agent só:</p>
+<p>O pipeline roda como um orquestrador mais subagents pequenos. O <code>intake</code> é um subagent somente leitura, o eval de cada stage vai para um judge que não escreveu o artefato, e as entradas seguem resolver, marcar, seguir. O formato canônico é o <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>. O model tiering para Haiku está planejado; hoje todo agent roda no Opus.</p>
+<h1 id="por-que-subagents">Por que subagents</h1>
+<p>Um subagent é um contexto novo e isolado, iniciado pela Task tool. Dividir compensa em três casos. O isolamento de contexto impede que um stage que lê centenas de arquivos, como o <code>intake</code>, carregue esse volume adiante. O paralelismo roda trabalho independente ao mesmo tempo. A separação adversarial impede que o autor avalie o próprio trabalho.</p>
+<p>O terceiro é o que mais pesa. Um autor avaliando o próprio PRD infla a nota. Um avaliador novo, que recebe só o artefato e a rubric, não tem nada a defender. O eval <code>spec-satisfied</code> do loop SDD já rodava numa sessão nova; a v5 tornou isso a regra para toda gate.</p>
+<h1 id="a-armadilha-da-decomposição-excessiva">A armadilha da decomposição excessiva</h1>
+<p>Cada salto custa um boot de contexto, releitura de arquivos (subagents não compartilham memória), latência e tokens. Divida só quando o salto compra um dos três ganhos. Uma regra estrutural (&quot;o PRD tem as seções obrigatórias&quot;) é um script de sensor sem modelo. Um julgamento (&quot;esta hipótese é testável&quot;) é um eval.</p>
+<h1 id="três-responsabilidades">Três responsabilidades</h1>
 <table>
 <thead>
 <tr>
 <th>Responsabilidade</th>
-<th>Quem é dono na v5</th>
+<th>Dono</th>
 <th>Regra</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Coordenação</strong>: sequência, estado, markers, retries, gates</td>
-<td>um <strong>orquestrador</strong> (a sessão principal)</td>
-<td>Nunca escreve artefato. Só despacha e grava estado.</td>
+<td>Coordenação: sequência, estado, markers, retries, gates</td>
+<td>o orquestrador (sessão principal)</td>
+<td>Nunca escreve um artefato</td>
 </tr>
 <tr>
-<td><strong>Geração</strong>: escrever o PRD, o PRP, o plan, o código</td>
-<td><strong>subagents autores</strong></td>
-<td>Stateless. Inputs explícitos, saída estruturada.</td>
+<td>Geração: PRD, PRP, plan, código</td>
+<td>o autor do stage</td>
+<td>Entradas explícitas, saída estruturada</td>
 </tr>
 <tr>
-<td><strong>Verificação</strong>: sensor e eval</td>
-<td><strong>subagents verificadores</strong>, separados do autor</td>
-<td>Quem corrige nunca escreveu o que está corrigindo.</td>
+<td>Verificação: sensors e eval</td>
+<td>runner de sensors e um judge separado</td>
+<td>Quem avalia nunca escreveu o que avalia</td>
 </tr>
 </tbody>
 </table>
-<p>Os agents monolíticos misturavam os três. Separá-los é o que torna as gates confiáveis e os contextos
-limpos.</p>
-<h2 id="a-topologia">A topologia</h2>
-<pre><code>/pipeline:run &quot;&lt;one-line idea&gt;&quot;
-  │  orchestrator = main session: owns .pipeline-state.json, markers, gates
-  │
-  ├─ intake        subagent   harvest repo + context-library → intake.md
-  │      ↓ orchestrator reads unknowns[], decides the PRD gate
-  ├─ prd-author    subagent   write PRD
-  ├─ prd-sensor    script     structural pass/fail (no model)
-  ├─ prd-eval      subagent   adversarial score, fresh context
-  │      ↓ score ≥ 8.0 → orchestrator writes approval marker → next stage
-  ├─ prp-author / prp-eval
-  ├─ planner
-  ├─ dev × N       subagents  fan out only over independent modules
-  ├─ tester
-  ├─ reviewer × 3  subagents  parallel, distinct lenses (correctness · security · repro)
-  └─ pr-author
-</code></pre>
-<p>O orquestrador é coordenador, não trabalhador. Ele instancia cada folha, lê o retorno estruturado dela e
-grava a transição de estado resultante. As folhas nunca conversam entre si; toda informação passa pelo
-orquestrador e pelos artefatos em disco.</p>
-<h2 id="o-corte-adversarial">O corte adversarial</h2>
-<p>A regra que torna as gates honestas:</p>
-<blockquote>
-<p>O subagent que escreve um artefato nunca é o subagent que o avalia.</p>
-</blockquote>
-<p>O avaliador sobe sem nenhuma memória de como o artefato foi escrito. Ele recebe apenas o artefato e a
-rubric, e é instruído a achar o que está errado, não a defender o que está lá. Em gates de alto risco,
-um <strong>painel</strong> substitui o juiz único: três avaliadores com lentes distintas rodam em paralelo e a
-maioria decide. Diversidade de lente pega modos de falha que um revisor sozinho, ou três revisores
-idênticos, deixariam passar.</p>
-<h2 id="model-tiering">Model tiering</h2>
-<p>Separar responsabilidades permite rodar cada subagent no modelo do tamanho certo:</p>
-<table>
-<thead>
-<tr>
-<th>Trabalho</th>
-<th>Modelo</th>
-<th>Por quê</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sensors determinísticos</td>
-<td><em>(nenhum, é script)</em></td>
-<td>Regra estrutural não precisa de inferência.</td>
-</tr>
-<tr>
-<td>Julgamento mecânico e barato</td>
-<td>Haiku <em>(planned)</em></td>
-<td>Rápido, barato, suficiente para checagens estreitas.</td>
-</tr>
-<tr>
-<td>Autoria e eval adversarial</td>
-<td>Opus</td>
-<td>As partes que exigem raciocínio de verdade.</td>
-</tr>
-</tbody>
-</table>
-<p>Um agent monolítico precisa rodar tudo num tier só. A decomposição deixa o trabalho barato ser barato e
-reserva o modelo forte para autoria e julgamento.</p>
-<h2 id="as-restrições-do-claude-code-moldam-o-design">As restrições do Claude Code moldam o design</h2>
-<p>Subagents no Claude Code são <strong>folhas stateless</strong>: não podem mutar estado compartilhado, não herdam
-memória de quem os chamou, e o aninhamento é limitado (um subagent não instancia livremente seus
-próprios subagents). Isso não é uma limitação para brigar; é o que dita um design limpo:</p>
-<ul>
-<li>O <strong>orquestrador é dono de todo o estado.</strong> <code>.claude/.pipeline-state.json</code> e os arquivos de marker são
-escritos pelo orquestrador, através do <code>pipeline.py</code> e do <code>marker.sh</code> que já existem, nunca por uma
-folha.</li>
-<li>As folhas <strong>retornam, não gravam.</strong> Um subagent preenche um artefato e reporta um resultado
-estruturado. O orquestrador lê esse resultado e executa a transição de estado.</li>
-<li>A <strong>maquinaria de hooks, markers e tokens fica intocada.</strong> Os subagents se encaixam por baixo dela:
-uma folha escreve o artefato, o orquestrador vira o estado, e os mesmos hooks de pós-escrita disparam
-como antes.</li>
-</ul>
-<p>Nada do que funciona hoje é jogado fora. Os subagents entram como folhas debaixo da camada de
-coordenação que já existe.</p>
-<h2 id="contratos">Contratos</h2>
-<p>Orquestração confiável precisa de contratos explícitos. Cada subagent recebe:</p>
-<ul>
-<li><strong>Inputs explícitos</strong>: caminhos de arquivo, não &quot;o contexto&quot;. O <code>prd-author</code> recebe o caminho do
-<code>intake.md</code> e os caminhos dos guides, não uma instrução vaga do tipo &quot;use o que você sabe&quot;.</li>
-<li><strong>Saída estruturada</strong>: um formato definido que o orquestrador consegue parsear e usar para ramificar.
-Por exemplo, o <code>intake</code> retorna <code>{ squad, problem, repos[], customers[], unknowns[] }</code>, e o
-orquestrador lê <code>unknowns[]</code> para decidir se a gate do PRD precisa do humano.</li>
-</ul>
-<p>Sem contratos, a orquestração degenera em adivinhação sobre o que a folha produziu. Com eles, o controle
-de fluxo é determinístico mesmo com folhas inferenciais.</p>
-<h2 id="como-foi-o-rollout-uma-fatia-vertical-primeiro">Como foi o rollout: uma fatia vertical primeiro</h2>
-<p>A v5 não reconstruiu os dois monolitos de uma vez. Isso seria uma mudança grande e difícil de debugar. O
-rollout provou primeiro uma <strong>única fatia vertical</strong>, a stage <code>prd</code>, no padrão novo, de ponta a ponta:</p>
-<pre><code>intake (subagent) → prd-author → prd-sensor (script) → prd-eval (subagent, fresh context)
-</code></pre>
-<p>Assim que essa fatia funcionou contra um repositório real, virou o template, registrado em
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener"><code>.claude/shared/pipeline-pattern.md</code></a>.
-Toda outra stage (<code>prp</code>, <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code> e as stages de <code>system-design</code>) passou a ser uma
-replicação desse padrão já validado, em vez de um experimento simultâneo: cada uma lê seus inputs via
-resolver-marcar-seguir e despacha seu eval para um avaliador novo. Stages novas seguem o mesmo arquivo.</p>
-<h2 id="veja-também">Veja também</h2>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a>: o subagent de intake e a autonomia com gates</li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a>: as stages que o orquestrador dirige</li>
-<li><a href="Agents.html">Agents</a>: os agents que estão sendo decompostos</li>
-<li><a href="Harness-Engineering.html">Engenharia de harness</a>: controles computacionais versus inferenciais</li>
-</ul>
+<h1 id="a-topologia">A topologia</h1>
+<pre class="mermaid">flowchart TD
+    O[orquestrador: dono de .pipeline-state.json, markers, gates] --&gt; I[subagent intake: escreve intake.md]
+    I --&gt; O
+    O --&gt; A[autor do stage: prd, prp, plan, dev, test, pr]
+    A --&gt; S[runner de sensors: passa ou falha, sem modelo]
+    S --&gt; E[judge: Claude local ou jev, contexto novo]
+    E --&gt; V[eval-score.py verifica o total]
+    V --&gt;|&gt;= 8.0| O
+    V --&gt;|abaixo| A
+</pre>
+<p>As folhas nunca falam entre si. A informação passa pelo orquestrador e pelos artefatos em disco.</p>
+<h1 id="o-judge">O judge</h1>
+<p>O avaliador começa sem memória de como o artefato foi escrito e recebe só o artefato e a rubric. O projeto escolhe o judge com <code>/hk:eval jev | local</code>, guardado em <code>.claude/hk-config.json</code>. O <code>local</code> é um avaliador Claude novo. O <code>jev</code> é o Jev da TypeSafe AI, outra família de modelo, o que reduz o viés de autopreferência sem eliminá-lo; ele escala para o Claude quando fica incerto num check decisivo. O <code>spec-satisfied</code> e as gates de readiness sempre usam o Claude. Veja <a href="Evals.html">Evals</a>.</p>
+<p>O padrão permite um painel de três avaliadores com lentes distintas para as gates de maior risco. Nenhum comando de stage usa isso hoje, e o <code>dev</code> roda como um autor único, sem fan-out por módulo.</p>
+<h1 id="restrições-do-claude-code">Restrições do Claude Code</h1>
+<p>Subagents são folhas sem estado: não alteram estado compartilhado, não herdam memória e não podem criar seus próprios subagents livremente. Por isso o orquestrador é dono de todo o estado e escreve <code>.claude/.pipeline-state.json</code> e os markers por meio de <code>pipeline.py</code> e <code>marker.sh</code>. Uma folha preenche um artefato e devolve um resultado; o orquestrador faz a transição de estado. A maquinaria de hooks, markers e tokens continua como era.</p>
+<h1 id="contratos">Contratos</h1>
+<p>Cada subagent recebe caminhos de arquivo como entrada e devolve um formato que o orquestrador consegue parsear. O <code>intake</code> devolve <code>squad</code>, <code>problem</code>, <code>repos</code>, <code>customers</code> e <code>unknowns</code>, e o orquestrador lê <code>unknowns</code> para decidir o que a gate do PRD mostra a você. Com contratos, o fluxo de controle é determinístico enquanto as folhas são inferenciais.</p>
+<h1 id="rollout">Rollout</h1>
+<p>A v5 provou primeiro uma fatia vertical: intake, autor do prd, script de sensor do prd e eval do prd num contexto novo. Depois que funcionou contra um repo real, ela virou o <code>pipeline-pattern.md</code>, e <code>prp</code>, <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code> e os stages de system design copiaram o formato. Stages novos seguem o mesmo arquivo.</p>
+<h1 id="veja-também">Veja também</h1>
+<p><a href="Autonomy.html">Autonomia</a>, <a href="Pipeline-and-Stages.html">Pipeline e stages</a>, <a href="Agents.html">Agents</a>, <a href="Harness-Engineering.html">Harness Engineering</a>.</p>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/Orchestration-and-Subagents" target="_blank" rel="noopener">Orquestração e subagents</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

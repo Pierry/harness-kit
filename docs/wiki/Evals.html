@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Evals (inferential feedback) &middot; harness-kit wiki</title>
-<meta name="description" content="Evals are the inferential, LLM-based feedback control. Where a sensor checks structure deterministically, an eval judges meaning: is this PRD clear, is..." />
+<meta name="description" content="A sensor checks structure with regex. An eval judges meaning, such as whether the plan follows from the PRP. Each eval is a weighted rubric scored 0 to..." />
 <meta property="og:title" content="Evals (inferential feedback) &middot; harness-kit wiki" />
-<meta property="og:description" content="Evals are the inferential, LLM-based feedback control. Where a sensor checks structure deterministically, an eval judges meaning: is this PRD clear, is..." />
+<meta property="og:description" content="A sensor checks structure with regex. An eval judges meaning, such as whether the plan follows from the PRP. Each eval is a weighted rubric scored 0 to..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Evals.html" />
@@ -59,97 +59,84 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="evals-inferential-feedback">Evals (inferential feedback)</h1>
-<p>Evals are the <strong>inferential, LLM-based</strong> feedback control. Where a <a href="Sensors.html">sensor</a> checks structure
-deterministically, an eval judges <em>meaning</em>: is this PRD clear, is this design's trade-off real, does
-this plan actually follow from the PRP. An eval is an LLM-judge scored 0-10 against a rubric, with a
-pass <strong>threshold of 8.0</strong> and <strong>up to 3 retries</strong>.</p>
-<h2 id="why-you-need-inferential-controls">Why you need inferential controls</h2>
-<p>No regex can tell you a problem statement is vague, a hypothesis is unfalsifiable, or a design hid its
-hardest trade-off. That is semantic judgment, and only a language model can do it at this granularity.
-The cost: it is probabilistic, so you calibrate it with a rubric and weights rather than trusting a
-bare &quot;rate this 1-10&quot;.</p>
-<h2 id="anatomy-of-an-eval">Anatomy of an eval</h2>
-<p>A rubric is a markdown file: weighted dimensions, each with a 0/5/10 anchor, a threshold, and a strict
-output format.</p>
-<pre><code class="language-markdown"># Eval: Design Quality
-Type: LLM-judge
-Mode: quality gate
-Threshold: weighted total &gt;= 8.0
+<p>A <a href="Sensors.html">sensor</a> checks structure with regex. An eval judges meaning, such as whether the plan follows from the PRP. Each eval is a weighted rubric scored 0 to 10; pass is 8.0, with up to 3 retries.</p>
+<h1 id="anatomy-of-a-rubric">Anatomy of a rubric</h1>
+<p>Rubrics live in <code>.claude/agents/{agent}/evals/*.md</code>. Each <code>### Name (weight N%)</code> dimension carries atomic yes/no checks: <code>- check:</code> lines are questions for the judge, <code>- absent:</code> lines are regexes run in code (banned words, em dash, ASCII box diagrams).</p>
+<pre><code class="language-markdown">### Metric completeness (weight 20%)
+- check: Every metric in `sections.success_metrics` has a baseline value.
+- check: Every metric in `sections.success_metrics` has a target value.
+- check: `sections.success_metrics` states a kill criterion with a numeric threshold.
 
-## Rubric
-### Requirements rigor (weight 15%)
-Numeric targets + back-of-envelope math?
-- 10: numeric targets + sizing math
-- 5: some numbers, no math
-- 0: prose only
-...
-
-## On failure (total below 8.0)
-Retry. Regenerate lowest-scoring sections only. Max 3 attempts.
-
-## Output format
-{ &quot;scores&quot;: {...}, &quot;weighted_total&quot;: 0.0, &quot;feedback&quot;: [&quot;dimension: issue with line ref&quot;] }
+### Voice (weight 5%)
+- absent: (?i)\b(delve|leverage|utilize|unlock|streamline|robust|cutting-edge|seamless|best-in-class)\b
+- absent: (?m)^\s*\+[-=]{3,}\+
 </code></pre>
-<p><code>weighted_total = sum(score x weight%) / 100</code>. The judge must cite a line or section when it scores a
-dimension below 7, so the feedback is actionable, not a vibe.</p>
-<h2 id="the-retry-loop">The retry loop</h2>
-<pre><code>generate -&gt; sensors (hard gate) -&gt; eval (score)
-   ^                                   |
-   |          below 8.0                v
-   +------ regenerate weak sections ---+   (max 3 attempts, then blocker)
+<p>A dimension scores 10 times the share of its checks met; the 0/5/10 anchors only break ties.</p>
+<h1 id="verified-arithmetic">Verified arithmetic</h1>
+<p><code>eval-score.py</code> recomputes the weighted total from the rubric weights and refuses a judge whose arithmetic or keys do not match.</p>
+<pre><code>python3 .claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
 </code></pre>
-<p>Critically, the retry regenerates <strong>only the low-scoring dimensions</strong>, not the whole artifact, and the
-judge's per-dimension feedback says which. After 3 failed attempts the stage returns a blocker rather
-than shipping something sub-threshold.</p>
-<h2 id="weights-encode-what-matters">Weights encode what matters</h2>
-<p>The weights are where you express priorities. In the PRD-quality rubric, <em>metric completeness</em> and
-<em>clarity</em> carry the most weight because a PRD lives or dies on a crisp problem and measurable success.
-In the design-quality rubric, <em>architecture + deep dives</em> and <em>trade-off discipline</em> dominate because
-that is what separates a staff design from a box diagram. Tuning weights is a &quot;human on the loop&quot;
-action: you change what the gate cares about once, and it applies to every future artifact.</p>
-<h2 id="calibration-and-anti-rubber-stamp">Calibration and anti-rubber-stamp</h2>
-<p>An eval that always passes is worthless. Two practices keep it honest:</p>
-<ul>
-<li><strong>Anchored scales.</strong> Each dimension defines what 0, 5, and 10 look like, so the judge is not guessing
-what &quot;7&quot; means.</li>
-<li><strong>Adversarial framing where it matters.</strong> The system-architect's <code>design-review-depth</code> eval scores a
-<em>review</em> and explicitly fails one that rubber-stamps: a review with no named gaps, flat severity, or
-generic &quot;consider improving&quot; advice scores low by design.</li>
-</ul>
-<h2 id="evals-in-harness-kit">Evals in harness-kit</h2>
+<table>
+<thead>
+<tr>
+<th>Exit</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>consistent and at or above 8.0; prints the score for the approval marker</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>below threshold, retry</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>malformed output, wrong total, or missing or extra dimensions</td>
+</tr>
+</tbody>
+</table>
+<h1 id="the-retry-loop">The retry loop</h1>
+<p>Sensors run first, so no judge call goes to a malformed artifact. A failed eval regenerates only the failed checks, which are the feedback verbatim. After 3 failed attempts the stage returns a blocker.</p>
+<pre class="mermaid">flowchart LR
+  G[generate] --&gt; S[sensors]
+  S --&gt;|fail| G
+  S --&gt;|pass| E[eval]
+  E --&gt;|below 8.0, max 3| R[regenerate failed checks]
+  R --&gt; S
+  E --&gt;|8.0 or more| A[approve]
+</pre>
+<h1 id="two-judges">Two judges</h1>
+<p><code>/hk:eval jev | local</code> picks the judge per project. The choice lives in <code>.claude/hk-config.json</code>, asked once at install, default <code>local</code>.</p>
+<p><code>local</code> is a fresh Claude evaluator that sees only the artifact and the rubric. <code>jev</code> is Jev by <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe AI</a>, a System One model that returns calibrated probabilities instead of text, called through <code>.claude/scripts/jev-judge.py</code>. Each check is one Noul (yes/no) question. The artifact goes split by <code>## </code> section (<code>sections.success_metrics</code>), so a check reads only the part it names; a check on a missing section fails without a call. Every run appends to <code>.claude/runtime/outputs/evals/jev-judge.jsonl</code>.</p>
+<h1 id="escalation-to-claude">Escalation to Claude</h1>
+<p>The run escalates to the Claude evaluator when Jev is unsure on checks that decide the result: the total recomputed with unsure answers forced to no and to yes lands on both sides of 8.0. It also escalates on no key, an artifact over 32k tokens, or an API error.</p>
+<p>The key lives in an env var (default <code>TYPESAFE_API_KEY</code>) or in the <code>env</code> block of <code>.claude/settings.local.json</code>, never in a committed file. Jev is a paid API, about $0.042 per million input tokens, so it runs locally and never in CI. <code>spec-satisfied</code> and the readiness gates always use Claude.</p>
+<h1 id="evals-per-stage">Evals per stage</h1>
 <table>
 <thead>
 <tr>
@@ -175,8 +162,16 @@ generic &quot;consider improving&quot; advice scores low by design.</li>
 <td><code>dev-quality</code></td>
 </tr>
 <tr>
+<td><code>test</code></td>
+<td><code>test-quality</code></td>
+</tr>
+<tr>
 <td><code>pr</code></td>
 <td><code>pr-quality</code></td>
+</tr>
+<tr>
+<td><code>sdd</code> loop</td>
+<td><code>spec-satisfied</code></td>
 </tr>
 <tr>
 <td>system design</td>
@@ -184,44 +179,15 @@ generic &quot;consider improving&quot; advice scores low by design.</li>
 </tr>
 </tbody>
 </table>
-<h2 id="the-passfail-variant-spec-satisfied">The PASS/FAIL variant: spec-satisfied</h2>
-<p>The spec-driven loop (<code>/sse:sdd</code>) uses a different eval shape. Instead of a 0-10 score, <code>spec-satisfied</code>
-returns <strong>PASS/FAIL</strong> against the PRP's <code>Success criteria (verifiable)</code> and <code>Validation gates</code>. A
-<code>FAIL</code> re-enters the dev↔test loop with a <code>next_iter_focus</code> hint; the loop runs at most 3 iterations.
-It runs in a <strong>fresh session</strong> with no worker context, so the judge is not biased by the implementer's
-narrative. This is an eval used as a <em>goal predicate</em> rather than a quality score.</p>
-<h2 id="sensor-first-eval-second">Sensor first, eval second</h2>
-<p>Order matters: sensors run before evals. There is no point spending an LLM call scoring the prose of an
-artifact that is missing half its sections. The deterministic gate clears the cheap, objective failures
-first; the eval judges only well-formed artifacts.</p>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Sensors.html">Sensors</a>: the deterministic gate that runs first</li>
-<li><a href="Guides.html">Guides</a>: feedforward that reduces how often evals fail</li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>: where evals sit in a stage</li>
-</ul>
-<h2 id="what-the-score-is-not">What the score is not</h2>
-<p>The judge returns per-dimension scores and a weighted total, and until recently nothing checked that
-the total followed from the scores. It does now: pipe the judge's JSON through the score verifier,
-which reads the weights out of the rubric and recomputes.</p>
-<pre><code>.claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
-</code></pre>
-<p>Exit 0 prints the number the approval marker should carry. Exit 2 means the judge inflated the total,
-scored a dimension the rubric does not weight, or skipped one it does, in which case the score is
-meaningless and you do not approve on it.</p>
-<p>That fixes the computable half only. Two limits stand, and it is worth being blunt about them:</p>
-<ul>
-<li><strong>The scores are not validated against human labels.</strong> 8.0 is a convention, not a calibrated
-boundary. <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Husain</a> argues uncalibrated 1-10 scales mean
-different things to different graders and that binary judgments plus measured human agreement are
-what make an eval trustworthy. We do not do that yet.</li>
-<li><strong>A fresh evaluator is not an unbiased one.</strong> Dispatching a judge with no prior context removes the
-author's stake in the text, but LLM judges still inflate scores for output from their own family
-(<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Panickssery et al.</a>). A fresh Claude judging Claude is still
-self-preference. Fixing it properly needs a different model family or a human.</li>
-</ul>
-<p>Read the feedback, not just the number. The score is a signal that catches weak artifacts, not a
-measurement.</p>
+<p>Weights say what each gate cares about; PRD quality puts 20% each on clarity and metric completeness. You tune a weight once and it applies to every future artifact. <code>design-review-depth</code> fails a review that rubber-stamps: no named gaps, flat severity, generic advice.</p>
+<h1 id="spec-satisfied">spec-satisfied</h1>
+<p><code>/sse:sdd</code> uses <code>spec-satisfied</code>, which returns PASS or FAIL against the PRP's <code>Success criteria (verifiable)</code> and <code>Validation gates</code>. A FAIL re-enters the dev and test loop with a <code>next_iter_focus</code> hint, up to 3 iterations. It runs in a fresh session with no worker context.</p>
+<h1 id="why-this-shape">Why this shape</h1>
+<p>A Claude judge grading Claude output inflates scores (<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Wataoka et al.</a>; <a href="https://arxiv.org/abs/2404.13076" target="_blank" rel="noopener">Panickssery et al.</a>); a different family reduces this, it does not remove it. Atomic checklists raise judge agreement (<a href="https://arxiv.org/abs/2403.18771" target="_blank" rel="noopener">CheckEval</a>, <a href="https://arxiv.org/abs/2410.03608" target="_blank" rel="noopener">TICK</a>). Escalation follows <a href="https://arxiv.org/abs/2407.18370" target="_blank" rel="noopener">Trust or Escalate</a>. Jev checks follow its <a href="https://docs.typesafe.ai/model-jaggedness/jev-1.13" target="_blank" rel="noopener">guidance</a>: one judgment per question, no counting, filter state.</p>
+<h1 id="what-the-score-is-not">What the score is not</h1>
+<p>Neither judge is validated against human labels yet, and 8.0 is a convention, not a calibrated boundary. <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Hamel Husain</a> recommends about 100 labeled examples per failure mode; the jsonl log is the start of that set. Read the failed checks, not only the number.</p>
+<h1 id="see-also">See also</h1>
+<p><a href="Sensors.html">Sensors</a>, <a href="Guides.html">Guides</a>, <a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, <a href="References.html">References</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Evals" target="_blank" rel="noopener">Evals (inferential feedback)</a> in the wiki. Edit it there.</p>
   </main>

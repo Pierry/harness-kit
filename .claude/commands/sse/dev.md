@@ -29,7 +29,7 @@ Read:
 - .claude/agents/staff-software-engineer/guides/commit-style.md
 - project conventions: {repo}/.claude/conventions/{area}.md if present
 
-Read 3+ similar files in target repo before writing. Match conventions:
+Read 3+ similar files in target repo before writing (semble find-related on nearest sibling when present, per `.claude/shared/context-strategy.md` § `/sse:dev`; context7 for exact library API syntax). Match conventions:
 - framework version (Spring 4.3 no-Boot vs Spring Boot, Vue 2 vs 3)
 - build tool (Maven, Gradle, npm)
 - package layout, test framework, helpers
@@ -52,6 +52,12 @@ Run this. It executes the repo's own tooling (lint, typecheck, ruff, ktlint, che
 
 Exit 4 means the repo configures no tooling it knows. That is **not** a pass, nothing was checked.
 Report it as a gap; do not claim the gate passed.
+
+Graph gate, only when `python3 .claude/scripts/hk-config.py get graph` not `off` (`.claude/shared/graph-engineering.md` § `/sse:dev`): after each commit on a scoped symbol run `trace.py implement`; a file outside scope needs `trace.py scope --add --reason` first, named in the dev summary. Before the summary run this. Exit 1 fails dev, no exceptions:
+
+```
+python3 .claude/scripts/trace.py gate {feature_id}
+```
 
 Apply these yourself, they need judgment no script has (`Execution: inferential`). Read them with the
 Read tool, never `cat` in a loop. You are the sensor here, so say plainly which you applied and what

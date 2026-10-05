@@ -2,135 +2,54 @@
 
 # harness-kit
 
-**One idea in, one merged PR out, through the same gated pipeline every time.**
-
-harness-kit is a set of Claude Code agents (a product manager, a staff engineer, and a system architect) that take a rough idea and carry it through `prd → prp → plan → dev → test → pr`. Every stage produces a real document, passes a structural check, and clears a scored review before it moves on.
-
-[![Version](https://img.shields.io/badge/version-5.0.0-blue.svg)](VERSION)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8b5cf6.svg)](https://claude.ai/code)
-[![Stars](https://img.shields.io/github/stars/Pierry/harness-kit?style=flat&color=f5c518)](https://github.com/Pierry/harness-kit/stargazers)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
-
-<br/>
+One idea in, one merged PR out, through the same gated pipeline every time.
 
 ![harness-kit demo](demo/preview.gif)
 
-<sub>About 90 seconds: what it is, how to install it, the agents, the golden path, and how each stage is gated, from idea to merged PR.</sub>
-
 </div>
 
----
+# What it is
 
-## Contents
+harness-kit is a set of Claude Code agents that carry a rough idea through `prd → prp → plan → dev → test → pr`. A product manager agent writes the spec, a staff engineer agent builds and ships it, and a system architect agent designs the hard parts when you need one. Every stage writes a markdown document, passes a structural check, and clears a scored review before the next stage starts.
 
-- [Why this exists](#why-this-exists)
-- [The problem it solves](#the-problem-it-solves)
-- [Why it matters](#why-it-matters)
-- [What you get](#what-you-get)
-- [Install](#install)
-- [How to use it](#how-to-use-it)
-- [Features](#features)
-  - [1. Brief builder](#1-brief-builder)
-  - [2. The pipeline](#2-the-pipeline)
-  - [3. Quality dashboard](#3-quality-dashboard)
-  - [4. The cockpit](#4-the-cockpit)
-- [The agents](#the-agents)
-- [Context optimization](#context-optimization)
-- [More docs](#more-docs)
-- [Contributing](#contributing)
-- [Foundations](#foundations)
-- [License](#license)
+You make two decisions: whether the direction is right after the PRD, and whether the PR is good to open. The agents do the rest.
 
----
+# Why
 
-## Why this exists
+Fast AI-assisted work skips the parts that make a feature correct: a clear problem statement, acceptance criteria, your repo conventions, and an honest review. harness-kit writes each of those for you and refuses to advance until they pass, so quality stops depending on who is at the keyboard. Every approved stage records a score, so you can see whether your PRDs and tests get better or worse over time.
 
-Most features get built twice. Once in a hurry to see the thing work, and again later when you realize nobody wrote down the problem it solved, the acceptance criteria drifted, and the review was a rubber stamp.
+# Install
 
-The parts that make a feature correct are the framing, the definition of done, the conventions, and an honest review. Those are exactly the parts that get skipped when you are moving fast with an AI agent. harness-kit puts them back, and it does the writing for you.
-
-## The problem it solves
-
-Shipping on vibes quietly skips four things:
-
-1. A clear problem statement, so you are building the right thing.
-2. Acceptance criteria, so "done" means something.
-3. Your conventions, so the code fits the repo.
-4. A gated review, so quality is not optional.
-
-Doing all four by hand for every feature is tedious, so over time they rot. harness-kit generates each one as a normal markdown document, checks its structure, scores its quality, and only then advances. No blank page, no hand-written specs, no silent drop in quality.
-
-## Why it matters
-
-- **Same pipeline every time.** Quality stops depending on who is at the keyboard or how tired they are.
-- **Every stage is gated twice.** A deterministic sensor checks the structure, an LLM eval scores the quality. Weak output corrects itself before it reaches you. Every sensor declares whether a script enforces it or a model applies it, and one that nothing machine-checked can never report a pass.
-- **You stay on the loop, not in it.** You approve the direction and the PR. The agents do the typing. When something is off, you improve a guide or a gate, not the individual output.
-- **It is measurable.** Every approved stage records a score, so you can see whether your PRDs, or your tests, are getting better or worse across runs.
-
-## What you get
-
-One command takes a raw idea to a merged pull request. Six documents, a structural check and a scored review at each stage, and two moments where a human decides: is this the right direction, and is this PR good to open. Everything in between runs on rails you can watch.
-
-You spend your attention on those two decisions instead of on formatting a spec or trying to remember your own conventions.
-
-```mermaid
-sequenceDiagram
-    actor You
-    participant PM as product-manager
-    participant Gate as sensor + eval
-    participant SSE as staff-software-engineer
-    participant GH as GitHub
-
-    You->>PM: idea
-    PM->>Gate: PRD
-    Gate-->>You: pass + score
-    You->>PM: approve direction
-    PM->>Gate: PRP
-    Gate-->>PM: pass + score
-    PM->>SSE: approved spec
-    SSE->>Gate: plan, then dev, then test
-    Gate-->>SSE: pass + score at each
-    You->>SSE: approve the PR
-    SSE->>GH: open PR
-    GH-->>You: merged
-```
-
----
-
-## Install
-
-There are two layers: the **plugin**, fetched once from the marketplace, and the **harness**, laid into each repo you want to use it in.
+The plugin is fetched once. The harness is laid into each repo you use it in.
 
 ```
 /plugin marketplace add Pierry/harness-kit
 /plugin install harness-kit@harness-kit
 ```
 
-Restart Claude Code, then, inside the repo you want to use it in:
+Restart Claude Code, then run this inside your repo:
 
 ```
 /harness-kit:install
 ```
 
-That lays the full harness into the repo (agents, commands, skills, hooks, and the status bar) under `.claude/`, plus `AGENTS.md` and `CLAUDE.md` at the root. Run it once per repo.
+It writes agents, commands, and hooks under `.claude/`, plus `AGENTS.md` and `CLAUDE.md` at the root, and asks which eval judge to use (see Evals below). You need Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/). Full list in [Architecture](docs/ARCHITECTURE.md#tooling).
 
-You need Claude Code, `python3`, `git`, and the [gh CLI](https://cli.github.com/) for opening PRs. [Full tooling list](docs/ARCHITECTURE.md#tooling).
+# Update
 
-**Updating.** A new release does not reach you until you pull it, and the order matters:
+The order matters, because plugins load at startup.
 
 ```
-/plugin update harness-kit     # 1. fetch the newer plugin into the cache
-                               # 2. RESTART Claude Code (plugins load at startup)
-/harness-kit:update            # 3. re-lay it into this repo, once per repo
+/plugin update harness-kit
+# restart Claude Code
+/harness-kit:update
 ```
 
-Skip the restart and step 3 would re-install the old version that is still loaded (the updater notices and stops you). On session start the harness checks whether you are behind and prints a one-line notice. Turn that off with `HK_UPDATE_CHECK=0`.
+Skip the restart and the updater stops you, since it would reinstall the old version still in memory. A one-line notice at session start tells you when you are behind. `HK_UPDATE_CHECK=0` turns it off.
 
----
+# Use
 
-## How to use it
-
-The front door is one command. Paste a brief (or write it yourself) and approve each document when prompted. The status bar tracks where you are.
+Run the golden path with a short brief and approve each document when asked. `hk status` shows where you are. Your own status line stays untouched; install with `HK_STATUSLINE=1` if you want the pipeline bar instead.
 
 ```
 /golden-path
@@ -141,204 +60,116 @@ Hypothesis: If we add one-tap retry, completion rises 5 points.
 Success metric: checkout completion, from 71% to 76% within 30 days
 ```
 
-That is the whole thing: idea in, merged PR out. If you would rather run less than the full flow, every path shares the same pipeline state, so you can switch between them mid-feature.
+Every entry point shares the same pipeline state, so you can switch mid-feature.
 
-| You want | Run | Stages |
-|---|---|---|
-| Hands-off, idea to PR, two gates | `/pipeline:run "<idea>"` | `intake → prd → ... → pr` |
-| Idea to merged PR, approve each step | `/golden-path` | `prd → prp → plan → dev → test → pr` |
-| Spec only, align before any code | `/product-manager:run` | `prd → prp` |
-| Small change, plan in your head | `/sse:run` | `plan → dev → test → pr` |
-| Local only, no PR | `/sse:run --local` | `plan → dev → test` |
-| Loop until the spec passes | `/sse:sdd` | `plan → [dev, test, eval] up to 3x` |
-| Pick up where you left off | `/pipeline:continue` | next pending stage |
+| You want | Run |
+|---|---|
+| Idea to PR, only two human gates | `/pipeline:run "<idea>"` |
+| Idea to merged PR, approve each step | `/golden-path` |
+| Spec only, no code | `/product-manager:run` |
+| Plan, build, test, open PR | `/sse:run` |
+| Same, no PR | `/sse:run --local` |
+| Loop until the spec passes, up to 3 rounds | `/sse:sdd` |
+| Resume the next pending stage | `/pipeline:continue` |
+| Pick the eval judge | `/hk:eval jev` or `/hk:eval local` |
+| Turn graph engineering on or off | `/hk:graph manifest`, `full`, or `off` |
 
-Each stage is also its own command: `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`. To publish a finished static site, `/sse:firebase-publish` creates or reuses a Firebase project and deploys it.
+Each stage also runs alone: `/sse:plan`, `/sse:dev`, `/sse:test`, `/sse:pr`. `/sse:firebase-publish` deploys a finished static site to Firebase Hosting. [Every command and gate](docs/COMMANDS.md).
 
-[Every command and every gate](docs/COMMANDS.md) · [Golden path reference](docs/GOLDEN-PATH.md)
+# How a stage is gated
 
----
+The agent writes the document. A sensor checks its structure in code. An eval scores its quality against a weighted rubric. Below 8.0 the agent rewrites only what failed, up to three times, and only then does a human approve.
 
-## Features
+```mermaid
+flowchart LR
+    gen[write document] --> sensor{sensor}
+    sensor -->|fail| gen
+    sensor -->|pass| eval{eval}
+    eval -->|below 8.0, up to 3x| gen
+    eval -->|8.0 or above| approve[human approves]
+```
 
-harness-kit is one product with four surfaces. Each does one job, and they connect: shape the idea, run the pipeline, watch its quality, drive it from a terminal. You can start with any of them.
+This is the harness engineering split from Birgitta Böckeler: guides steer before the work, sensors and evals check after it, and you improve the guides and gates instead of fixing each output by hand.
 
-| | Feature | What it does | Where |
-|---|---|---|---|
-| **1** | [Brief builder](#1-brief-builder) | A web page that turns your idea into a paste-ready `/golden-path` prompt, validating as you type. | [Open it](https://pierry.github.io/harness-kit/brief/) |
-| **2** | [The pipeline](#2-the-pipeline) | The agents and the gated flow. Carries the idea from `prd` to a merged `pr`. | Claude Code |
-| **3** | [Quality dashboard](#3-quality-dashboard) | Tracks each stage's score, gaps, and sensor failures across every run over time. | [Open it](https://pierry.github.io/harness-kit/quality/phase-report.html) |
-| **4** | [The cockpit](#4-the-cockpit) | A terminal UI over the pipeline. Every stage live, run a stage on a keypress, gates as prompts. | `hk-tui` |
+# Sensors
 
-The pipeline is the engine. The brief builder feeds it, the dashboard measures it, the cockpit drives it.
+Each sensor declares whether code enforces it (`computational`) or a model applies it (`inferential`). Only a computational sensor can record a pass. An inferential one is logged as `inferential`, never as green, and a sensor that claims to be computational without a real check fails CI. This rule exists because sensors once declared themselves hard gates while their checks were prose the runner could not parse, and every run logged a pass that nothing had verified. `python3 .claude/scripts/check-sensors.py` prints the ledger.
 
-### 1. Brief builder
+# Evals
 
-The on-ramp. A single web page that turns a rough idea into a well-formed `/golden-path` prompt. You fill in squad, problem, hypothesis, and metric, it checks each field against the PRD conventions as you type, and it assembles the exact prompt to paste into Claude Code. No blank page to stare at.
+Every rubric dimension is broken into atomic yes/no checks, such as "every metric in Success Metrics has a baseline value". A dimension scores the share of its checks met. Checks that code can answer, like banned words or em dashes, run as regexes instead of going to a model. `eval-score.py` recomputes the weighted total from the rubric and rejects a judge whose numbers do not add up. When a stage fails, the feedback is the list of failed checks, which is what the retry fixes.
+
+You pick the judge per project with `/hk:eval`. The default, `local`, dispatches a fresh Claude evaluator that sees only the document and the rubric. `jev` sends the checks to [Jev](https://typesafe.ai), a TypeSafe AI model that returns calibrated probabilities instead of text, in one call per document, with each check reading only the section it names. When Jev is unsure on checks that would flip pass to fail, when the key is missing, or when the call fails, the stage falls back to the Claude evaluator. Jev is a paid API (about $0.042 per million input tokens) and runs only locally, never in CI. Its key lives in an environment variable or in `.claude/settings.local.json`, never in a committed file.
+
+The reason for a second judge: a Claude judge grading Claude output inflates scores ([Wataoka et al.](https://arxiv.org/abs/2410.21819)), and a different model family reduces that without removing it. Atomic checklists make judges agree more often ([CheckEval](https://arxiv.org/abs/2403.18771), [TICK](https://arxiv.org/abs/2410.03608)). Neither judge is validated against human labels yet, and 8.0 is a convention, not a calibrated boundary. Every Jev run is logged to `.claude/runtime/outputs/evals/jev-judge.jsonl` to start building that labeled set.
+
+# Graph engineering
+
+Optional, off by default. `/hk:graph manifest` gives every PRP criterion a stable id (`REQ-001`), records each code symbol the plan expects to touch as a link with its evidence in `trace/{feature}.yml`, and makes that list the only scope dev may change: a file outside it fails the stage unless scope is widened with a written reason. Every commit hash in a link is checked against git before it is written. After a merge, links proven by a test become VALIDATED and links whose symbol moved become STALE, so the next feature starts from what the last one left. `/hk:graph full` adds a graph embedded in the project with no Docker: FalkorDB holding Graphiti facts from your decision docs (on free NVIDIA build models) and the Joern call graph of your code, behind the same four queries the agent already uses. `/hk:graph off` brings back the plain pipeline. [How it works](https://github.com/Pierry/harness-kit/wiki/Graph-Engineering).
+
+# Brief builder
+
+A web page that turns an idea into a `/golden-path` prompt, checking each field against the PRD conventions as you type. [Open it](https://pierry.github.io/harness-kit/brief/).
 
 ![brief builder](docs/media/brief.gif)
 
-**[Open the brief builder](https://pierry.github.io/harness-kit/brief/)**
+# Quality dashboard
 
-Fill the fields, watch the preview build the prompt on the right, hit **Copy brief**, and paste it into Claude Code. If you already know the idea cold, skip the builder and type `/golden-path` with the brief yourself.
-
-### 2. The pipeline
-
-The engine. Two agents carry a feature through six gated stages, and every stage produces a markdown document that has to pass a check before it advances.
-
-```mermaid
-flowchart LR
-    idea([idea]) --> prd
-    subgraph PM[product-manager]
-        prd --> prp
-    end
-    subgraph SSE[staff-software-engineer]
-        plan --> dev --> test --> pr
-    end
-    prp --> plan
-    pr --> merged([merged PR])
-```
-
-After the PR opens, a monitor in the session watches for the merge and clears the state on its own.
-
-**How one stage is gated.** The same loop runs at every stage. The agent writes the document, a **sensor** checks its structure deterministically, an **eval** scores its quality with an LLM judge, and only then does a human approve. Failures correct themselves before they reach you.
-
-```mermaid
-flowchart LR
-    gen[write document] --> sensor{sensor:<br/>structure check}
-    sensor -->|fail| gen
-    sensor -->|pass| eval{eval:<br/>LLM judge}
-    eval -->|score below 8.0, retry up to 3x| gen
-    eval -->|score 8.0 or above| approve[human approves]
-    approve --> next([next stage])
-```
-
-This is the harness-engineering split: **guides** steer before the work, **sensors** give deterministic feedback, **evals** give judgment-based feedback, and humans stay on the loop, improving the guides and gates rather than fixing each output by hand. See [Foundations](#foundations).
-
-**Sensors say how they are enforced.** Böckeler splits controls into *computational* (deterministic, CPU-run) and *inferential* (needs judgment), and every sensor here declares which it is. A computational one is enforced by the runner; an inferential one is applied by a model and is logged as `inferential`, never as a pass. A sensor that claims to be computational but wires up no real check is a hard error, not a pass.
-
-That distinction is not academic. Sensors here once declared themselves deterministic hard gates while expressing their checks as prose the runner could not parse. The runner returned 0, the quality log recorded them as `passed` on every run, and nothing had been checked. `python3 .claude/scripts/check-sensors.py` prints the enforcement ledger, and CI fails a sensor that lies about it.
-
-### 3. Quality dashboard
-
-The feedback surface. Scores used to disappear into the chat once a stage was approved. The dashboard keeps that signal across every run and answers one question: is each stage getting better or worse over time?
+Each approved stage appends its score, open gaps, sensor results, and status to `.claude/runtime/outputs/quality/phase-log.json`, with no token cost. Drop that file on the dashboard to see the trend per stage, the failure rate, and the sensors that block most. [Open it](https://pierry.github.io/harness-kit/quality/phase-report.html) and click Load sample to explore. [How it is fed](docs/quality/README.md).
 
 ![quality dashboard](docs/media/quality.gif)
 
-**[Open the dashboard](https://pierry.github.io/harness-kit/quality/phase-report.html)** (click **Load sample** to explore with example data).
+# Cockpit
 
-Every time a stage is approved, a hook appends one entry (deterministic, no token cost) to `.claude/runtime/outputs/quality/phase-log.json`:
-
-| Field | Where it comes from |
-|---|---|
-| `score` | the eval score parsed from the approval marker |
-| `gaps` | how many `NOT FOUND - NEEDS REVIEW` markers are left in the document |
-| `sensors` | the stage sensors re-run against the document: `passed`, `failed`, `inferential` (a model applied it, nothing machine-checked it) or `not_checked` (the repo configures no tooling for it) |
-| `status` | `failed` if a sensor blocked, `degraded` if the score is low or there are gaps, otherwise `ok` |
-
-`inferential` and `not_checked` are deliberately not green. A sensor that reports a pass nobody verified is worse than a missing one: it is the [illusion of quality](https://martinfowler.com/articles/sensors-for-coding-agents.html) the gates exist to prevent.
-
-Drop that JSON on the page, which is a single static file with no build and no network, and it renders the trend by stage, the failure rate, the score against the threshold, the sensors that block most often, and the full run table. [More](docs/quality/README.md).
-
-### 4. The cockpit
-
-The control surface. A terminal UI over the pipeline. It shows every stage live, renders each document, runs a stage on a keypress, and turns the two human gates into prompts. It reads pipeline state and documents straight off disk, so it stays in sync with any Claude Code session working on the same feature.
-
-![the cockpit](docs/media/cockpit.gif)
+A terminal UI over the pipeline. It shows every stage live, renders each document, runs a stage on a keypress, and turns the two human gates into prompts. It reads state from disk, so it stays in sync with any Claude Code session on the same feature. It needs Node 18 or newer.
 
 ```
-npm i -g @pieerry/harness-kit   # once; puts hk, harness-kit, and hk-tui on your PATH
-
-hk-tui                     # open the cockpit in the current repo
-hk-tui path/to/repo        # or point it at one
-hk-tui -- "add one-tap retry to checkout"   # seed the idea for intake
+npm i -g @pieerry/harness-kit
+hk-tui
+hk-tui path/to/repo
+hk-tui -- "add one-tap retry to checkout"
 ```
 
 | Key | Action |
 |---|---|
-| `up down` or `j k` | move between stages |
-| `enter` | run the selected stage, output tails in the pane |
-| `tab` | focus the reader, scroll with `j k` or space |
-| `a` | at a gate, approve and continue. `x` to hold |
-| `r` | refresh. `q` to quit |
+| `up` `down` or `j` `k` | move between stages |
+| `enter` | run the selected stage |
+| `tab` | focus the reader |
+| `a` / `x` | approve or hold at a gate |
+| `r` / `q` | refresh or quit |
 
-The cockpit ships bundled with harness-kit as a single file, so `hk-tui` works the moment the package is installed. It needs a terminal and Node 18 or newer.
+![the cockpit](docs/media/cockpit.gif)
 
----
+# Agents
 
-## The agents
+`product-manager` turns a problem into an engineering-ready spec with the `prd` and `prp` skills. [Docs](.claude/agents/product-manager/README.md).
 
-All three are registered in [`AGENTS.md`](./AGENTS.md). Each one ships its own sensors, evals, guides, and skills.
+`staff-software-engineer` turns an approved spec into a merged PR. It picks the `backend`, `web`, `mobile`, or `devops` skill from the repo, and applies `designer` when it builds a new UI. [Docs](.claude/agents/staff-software-engineer/README.md).
 
-- **`product-manager`** turns a problem into an engineering-ready spec. Skills: `prd`, `prp`. [Docs](.claude/agents/product-manager/README.md)
-- **`staff-software-engineer`** turns an approved spec into a merged PR. Skills: `backend`, `web`, `mobile`, `devops` (auto-detected from the repo), plus `designer` for new UIs (Material Design 3, dark and light, modern type, i18n, favicon). [Docs](.claude/agents/staff-software-engineer/README.md)
-- **`system-architect`** turns a problem into a rigorous system design document, then runs an adversarial review of it. Topic playbooks for classic designs (url-shortener, rate-limiter, search-engine). An optional stage before the pipeline. [Docs](.claude/agents/system-architect/README.md) · [Wiki](https://github.com/Pierry/harness-kit/wiki)
+`system-architect` writes a system design document and then runs an adversarial review of it, with playbooks for the URL shortener, rate limiter, and search engine. It is an optional stage before the pipeline. [Docs](.claude/agents/system-architect/README.md).
 
----
+All three are registered in [AGENTS.md](./AGENTS.md).
 
-## Context optimization
+# Context tools
 
-Optional and local-first. As a repo and the harness grow, the tokens spent loading context and reading command output start to add up. Four tools cut that, and they stack with the per-stage model tiers.
+Stages that read your repo run `.claude/scripts/context-tools.sh` once and use whatever is installed, falling back to grep when nothing is. [semble](https://github.com/MinishLab/semble) finds code by intent and returns file and line, which feeds the file references a PRP needs. [repowise](https://github.com/repowise-dev/repowise) explains why a module is shaped the way it is, scores the risk of touching it for the plan, and lists the tests that cover a change for the test report. [context7](https://github.com/upstash/context7) fetches current library docs instead of relying on memory. joern and graphify answer who calls what, and `/context:pack` caches a `repomix` snapshot of the feature. Installed skills for requirement atomization and decision memory are picked up the same way. [context-strategy.md](.claude/shared/context-strategy.md) maps each question to a tool. None of them needs a paid key in default mode.
 
-| Tool | Cuts | How | Setup |
-|---|---|---|---|
-| [`/context:pack`](docs/COMMANDS.md) | input | a `repomix` snapshot of the repo, cached per feature | ships with the harness |
-| [`/context:graph`](docs/COMMANDS.md) | input | a `graphify` knowledge graph, ask "what calls X" for far fewer tokens | ships with the harness |
-| **qmd** | input | local semantic search over the guides, returns just the relevant excerpt | `setup/setup-qmd.sh` |
-| **rtk** | output | a shell proxy that compresses `git`, `test`, `lint`, and `grep` output | `brew install rtk && rtk init -g` |
+# Docs
 
-`pack` and `graph` ship with the harness and feed the plan and SDD stages, falling back to grep otherwise. qmd and rtk are third-party, so you install them yourself. See [issue #2](https://github.com/Pierry/harness-kit/issues/2) for the reasoning and the measured wins.
+The [wiki](https://github.com/Pierry/harness-kit/wiki) covers the method and the theory, also in Portuguese and Spanish on the [site](https://pierry.github.io/harness-kit/wiki/). In the repo: [Golden path](docs/GOLDEN-PATH.md), [Commands and gates](docs/COMMANDS.md), [Architecture](docs/ARCHITECTURE.md), [Quality tracking](docs/quality/README.md), [Convention overrides](.claude/agents/staff-software-engineer/guides/conventions-override.md), and [AGENTS.md](./AGENTS.md).
 
----
+# Foundations
 
-## More docs
+The harness model comes from Birgitta Böckeler: [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) and [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html). The second one changed the code most. Her finding that agents ignore sensor checks unless they are hardwired is why `code-maintainability` runs the repo's linter itself, and her warning about an illusion of quality is why an unverified sensor never shows green. Fowler's [Agentic Programming](https://martinfowler.com/bliki/AgenticProgramming.html) explains why the two human gates sit where they do.
 
-| | |
-|---|---|
-| [Golden path](docs/GOLDEN-PATH.md) | the full front-door walkthrough |
-| [Commands and gates](docs/COMMANDS.md) | every command, every sensor and eval |
-| [Architecture](docs/ARCHITECTURE.md) | stage anatomy, status bar, repo layout, tooling |
-| [Quality tracking](docs/quality/README.md) | how the dashboard is fed |
-| [Conventions](.claude/agents/staff-software-engineer/guides/conventions-override.md) | per-repo overrides for the engineer agent |
-| [AGENTS.md](./AGENTS.md) | the agent registry and a path-by-path map |
+The eval design draws on Hamel Husain's [LLM-as-a-Judge guide](https://hamel.dev/blog/posts/llm-judge/), [Trust or Escalate](https://arxiv.org/abs/2407.18370) for falling back when the judge is unsure, and TypeSafe's [Jev guidance](https://docs.typesafe.ai/model-jaggedness/jev-1.13) on one judgment per question.
 
----
+The system architect reasons from Kleppmann's [Designing Data-Intensive Applications](https://dataintensive.net/), Ousterhout's A Philosophy of Software Design, Nygard's Release It!, and Jeff Dean, Werner Vogels, and Pat Helland. [design-method.md](.claude/agents/system-architect/guides/design-method.md) maps each source to what it changed, and the [References](https://github.com/Pierry/harness-kit/wiki/References) wiki page does the same for the whole harness.
 
-## Foundations
+# Contributing
 
-This is not an invented method. harness-kit is a concrete implementation of **harness engineering**, and the system-architect agent reasons from the established engineering canon.
+Issues and PRs are welcome. Everything is markdown, Python, and shell: agents in `.claude/agents/`, commands in `.claude/commands/`, hooks in `.claude/settings.json`. [AGENTS.md](./AGENTS.md) maps where each piece lives.
 
-**The harness model** comes from Birgitta Böckeler (Thoughtworks / martinfowler.com):
+# License
 
-- [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html): guides (feedforward), sensors (deterministic feedback), evals (judgment-based feedback), humans on the loop. Every stage gate here is exactly this, and the computational/inferential split is this taxonomy made literal in every sensor's `Execution:` header.
-- [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html): the follow-up, and the article that cost us the most commits. Three findings landed straight in the code. That an agent "reliably ignores sensor checks unless hardwired", and that markdown guides alone are "quite unreliable", is why `code-maintainability` runs the repo's linter instead of asking the agent to. Her warning about "a false sense of security and an illusion of quality" described what we had built. And her point that the limits which actually bound complexity are off by default is why `pyproject.toml` configures them and CI runs them.
-
-**Agentic programming**, also Fowler:
-
-- [Agentic Programming](https://martinfowler.com/bliki/AgenticProgramming.html): humans stop typing code and start reviewing it, "still responsible for what the software does", through "code review, examining test results, and reviewing outputs from other sensors". The argument for why the two human gates sit where they do.
-
-**Evals, and their limits:**
-
-- [Using LLM-as-a-Judge for evaluation](https://hamel.dev/blog/posts/llm-judge/), Hamel Husain: uncalibrated 1-10 scales mean different things to different graders, and what makes an eval trustworthy is measured agreement with human labels. harness-kit does not do that yet, and the 8.0 threshold is a convention rather than a calibrated boundary.
-- [Self-Preference Bias in LLM-as-a-Judge](https://arxiv.org/abs/2410.21819), Panickssery et al.: judges inflate scores for output from their own family. Dispatching a fresh evaluator removes the author's stake in the text but not this. Read the eval feedback, not just the number.
-
-Full mapping of what each source changed, in the [References](https://github.com/Pierry/harness-kit/wiki/References) wiki page.
-
-**The system-design canon** behind the `system-architect` agent (full mapping in [`design-method.md`](.claude/agents/system-architect/guides/design-method.md)):
-
-- [*Designing Data-Intensive Applications*](https://dataintensive.net/), Martin Kleppmann: reliability, scalability, and maintainability as the spine.
-- *A Philosophy of Software Design*, John Ousterhout: deep modules, simple interfaces, complexity as the enemy.
-- *Release It!*, Michael Nygard: stability patterns such as circuit breaker, bulkhead, timeout, and backoff.
-- Jeff Dean (numbers every engineer should know), Werner Vogels (design for failure), Pat Helland (immutability, events over mutable state), Leslie Lamport, Sam Newman, Gregor Hohpe.
-
-**The topic playbooks** adapt the [System Design series](https://github.com/Pierry/harness-kit/wiki), one wiki page per classic problem (url-shortener, rate-limiter, search-engine), with the theory, diagrams, and references for each.
-
----
-
-## Contributing
-
-Issues and PRs are welcome. The harness is plain markdown, Python, and shell: agents under `.claude/agents/`, commands under `.claude/commands/`, hooks wired in `.claude/settings.json`. See [`AGENTS.md`](./AGENTS.md) for where everything lives.
-
-## License
-
-MIT. Built on [Claude Code](https://claude.ai/code). Works in any repo Claude Code touches.
+MIT. Built on [Claude Code](https://claude.ai/code).

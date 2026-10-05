@@ -1,74 +1,43 @@
-# Guides (controles de feedforward)
+# Guides
 
-Los guides orientan al agent **antes** de que actúe. Son la mitad feedforward del harness: anticipar lo
-que el agent va a hacer y darle forma de entrada, para que haga lo correcto a la primera. En harness-kit,
-los guides son markdown plano dentro del directorio `guides/` de cada agent.
+Los guides orientan al agent antes de que actúe. Son la mitad feedforward del harness, markdown plano en el directorio `guides/` de cada agent. Sensors y evals detectan un error después y cuestan un retry; un guide lo previene. Cuando un artefacto falla una y otra vez el mismo check de eval, corrige el guide antes de endurecer el eval.
 
-## Por qué importa el feedforward
-
-El feedback (sensors, evals) detecta el error una vez cometido y cuesta un retry. El feedforward lo
-evita. Un buen guide saca trabajo del costoso loop de feedback y lo convierte en una instrucción barata,
-dada al inicio. Si un artefacto falla siempre en la misma dimensión del eval, la solución rara vez es un
-eval más estricto, es un guide mejor.
-
-## Tipos de guide en harness-kit
+# Tipos de guide
 
 | Guide | Rol |
 |---|---|
 | `pipeline.md` | las reglas de operación de un agent: stages, política de retry, markers de aprobación, contabilidad de tokens |
-| `writing-style.md` | voz, palabras prohibidas, puntuación, cuándo usar tablas en vez de bullets, mermaid en vez de ASCII |
-| `*-guidelines.md` | reglas específicas por artefacto (ej.: `prd-guidelines.md`, `prp-guidelines.md`) |
-| `templates/*.md` | el esqueleto exacto que el artefacto debe llenar |
-| `examples/good-*.md` | un artefacto de alta calidad, ya resuelto, que el agent imita |
-| `design-method.md` (system-architect) | el método y el canon con los que razona el agent |
-| `conventions-override.md` (SSE) | cómo las conventions de cada repo se superponen a los defaults del agent |
+| `writing-style.md` | voz, palabras prohibidas, puntuación, tablas frente a bullets, mermaid en vez de ASCII (product-manager, system-architect) |
+| `*-guidelines.md` | reglas del artefacto, como `prd-guidelines.md` y `prp-guidelines.md` |
+| `templates/*.md` | el esqueleto que el artefacto llena |
+| `examples/good-*.md` | un artefacto terminado escrito según el estándar |
+| `design-method.md` | el método y el canon del agent system-architect |
+| `coding-style.md`, `commit-style.md` | reglas de código y de commits para el agent staff-software-engineer |
+| `conventions-override.md` | cómo las convenciones por repo se superponen a los defaults de SSE |
+| `sdd-loop.md` | el loop guiado por spec y su predicado |
 
-## Los templates y los examples también son guides
+# Templates y ejemplos
 
-Una template es el control de feedforward más fuerte que existe: convierte la estructura deseada en el
-camino de menor resistencia. El agent llena un esqueleto en vez de inventar una forma. Súmale un **buen
-ejemplo**, un artefacto concreto, ya resuelto, escrito según el estándar, y el agent tiene la forma y
-además la textura de un buen resultado. harness-kit incluye, por ejemplo, `good-prd-example.md`,
-`good-prp-example.md` y `good-system-design-example.md`.
+Un template es el control feedforward más fuerte: el agent llena un esqueleto en vez de inventar una forma. Un buen ejemplo agrega la textura del trabajo terminado. harness-kit trae `good-prd-example.md`, `good-prp-example.md` y `good-system-design-example.md`.
 
-> **¿Por qué prosa natural en templates/examples y caveman en el resto?** Los guides internos, los
-> sensors y los evals se escriben telegráficos ("caveman") para ahorrar tokens de input. Pero los
-> templates y los examples son prosa de *artefacto* de referencia, la leen stakeholders externos, así que
-> quedan en inglés natural. Le enseñan al agent cómo se lee un buen resultado.
+Los guides, sensors y evals internos están escritos en estilo caveman escueto para ahorrar tokens de entrada. Templates y ejemplos se quedan en inglés natural porque modelan artefactos que leen los stakeholders.
 
-## Conventions: el feedforward que se sobrescribe por repo
+# Convenciones por repo
 
-El agent staff-software-engineer trae defaults por disciplina. Un repo consumidor los sobrescribe
-dejando archivos en `.claude/conventions/`:
+El agent staff-software-engineer tiene defaults por disciplina. Un repo consumidor los sobrescribe con archivos aquí:
 
 ```
 {your-repo}/.claude/conventions/{backend,web,mobile,devops}.md
 ```
 
-Cuando el archivo existe, el agent lo lee por encima de sus defaults y **gana el proyecto**. Es la
-"pavimentación por disciplina" del [golden path](Golden-Path): un carril afinado por disciplina,
-expresado como feedforward que el equipo controla. También es un control de **architecture fitness**, las
-conventions fijan la forma a la que el código debe ajustarse.
+Cuando un archivo existe, el agent lo lee encima de sus defaults y el proyecto gana. Esta es la pavimentación por disciplina del [golden path](Golden-Path), y fija la forma que el código debe respetar.
 
-## Voz y palabras prohibidas
+# Voz y palabras prohibidas
 
-`writing-style.md` es un control de feedforward contra el relleno de la IA. Prohíbe las delatoras de siempre
-(delve, leverage, utilize, robust, "in today's fast-paced world"), prohíbe las rayas de diálogo, exige
-mermaid en vez de ASCII y empuja la especificidad (números reales, nombres reales, citas reales) por
-encima de la prosa genérica. La dimensión de eval correspondiente puntúa la voz, así que el guide y el
-eval se refuerzan mutuamente.
+`writing-style.md` prohíbe las marcas comunes de texto de IA como `delve`, `leverage`, `utilize` y `robust`, prohíbe las rayas largas, exige mermaid en vez de ASCII y pide números, nombres y citas reales. Los evals aplican las mismas reglas en código: los regex `- absent:` de cada rubric hacen fallar un check ante una palabra prohibida, una raya larga o un diagrama de cajas en ASCII sin preguntarle al judge. Mira [Evals](Evals).
 
-## Cómo escribir un buen guide
+# Cómo escribir un buen guide
 
-- **Sé concreto.** "Arranca por la decisión, después el motivo" vale más que "escribe con claridad".
-- **Muestra, no solo expliques.** Un par bueno/malo de dos líneas enseña más rápido que un párrafo de reglas.
-- **Haz fácil lo correcto.** Una template que el agent llena vale más que diez reglas en prosa.
-- **Optimiza el mensaje de falla para el turno siguiente.** Si un sensor cita el guide en su feedback,
-  redáctalo para que el agent pueda actuar directo sobre él.
-- **Lleva las fallas repetidas río arriba.** Cuando la misma dimensión del eval insiste en puntuar bajo,
-  escribe o afila el guide en vez de apretar la gate.
+Sé concreto: "empieza por la decisión, después la razón" enseña más que "escribe con claridad". Acompaña cada regla con un ejemplo bueno y uno malo de dos líneas. Dale al agent un template para llenar en vez de diez reglas en prosa. Cuando el feedback de un sensor apunta a un guide, redacta el guide para que el agent pueda actuar sobre él en el siguiente turno.
 
-## Ver también
-
-- [Ingeniería de harness](Harness-Engineering): feedforward vs feedback
-- [Sensors](Sensors) y [Evals](Evals): la mitad de feedback cuya carga alivian los guides
+Mira también [Harness Engineering](Harness-Engineering), [Sensores](Sensors), [Evals](Evals).

@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Agent Pipelines &middot; harness-kit wiki</title>
-<meta name="description" content="One sequence diagram per agent, showing what actually happens between the command you type and the artifact you get back: which sensors run, which eval..." />
+<meta name="description" content="Which sensors run, which eval scores the result, and where the gate sits, from command to artifact. Pipeline and Stages describes the stages, Sensors..." />
 <meta property="og:title" content="Agent Pipelines &middot; harness-kit wiki" />
-<meta property="og:description" content="One sequence diagram per agent, showing what actually happens between the command you type and the artifact you get back: which sensors run, which eval..." />
+<meta property="og:description" content="Which sensors run, which eval scores the result, and where the gate sits, from command to artifact. Pipeline and Stages describes the stages, Sensors..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Agent-Pipelines.html" />
@@ -59,187 +59,114 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="agent-pipelines">Agent Pipelines</h1>
-<p>One sequence diagram per agent, showing what actually happens between the command you type and the
-artifact you get back: which sensors run, which eval scores the result, and where the gate sits.</p>
-<p><a href="Pipeline-and-Stages.html">Pipeline and Stages</a> describes the stages themselves. <a href="Sensors.html">Sensors</a> and
-<a href="Evals.html">Evals</a> describe the two kinds of feedback. This page is the wiring.</p>
-<h2 id="what-every-stage-shares">What every stage shares</h2>
-<p>The same loop runs at every stage of every agent, so read it once and the three diagrams below get
-much shorter:</p>
-<ol>
-<li>The agent generates the artifact under <code>.claude/runtime/outputs/</code>.</li>
-<li><strong>Sensors</strong> check it deterministically. Pass or fail, no score, no judgment.</li>
-<li>An <strong>eval</strong> scores it. The evaluator is a fresh sub-agent (Task tool, <code>general-purpose</code>) that gets
-only the artifact path and the rubric path. The author never grades its own work.</li>
-<li>Below the threshold, the agent regenerates only the failed or low-scoring sections and tries
-again. <strong>Maximum three attempts</strong>, then it returns a blocker instead of proceeding.</li>
-<li>On success it appends an approval marker: <code>&lt;!-- approved: {YYYY-MM-DD} score={weighted-total} --&gt;</code>.
-That marker is the gate the next stage checks.</li>
-</ol>
-<p>The threshold is <strong>weighted total &gt;= 8.0</strong> for every scored eval: <code>prd-quality</code>, <code>prp-quality</code>,
-<code>plan-quality</code>, <code>dev-quality</code>, <code>test-quality</code>, <code>pr-quality</code>, <code>design-quality</code>, and
-<code>design-review-depth</code>.</p>
-<p>Human gates belong to the orchestrator, not to the agents. <code>/pipeline:run</code> stops at exactly two:
-approve the direction after the PRD, and approve the PR before it opens. Individual stages never add
-gates of their own.</p>
-<h2 id="product-manager">product-manager</h2>
-<p><code>prd → prp</code>. Entry point <code>/product-manager:run</code>. Inputs come from the intake artifact rather than
-from you, so the agent does not stop to ask.</p>
+<p>Which sensors run, which eval scores the result, and where the gate sits, from command to artifact. <a href="Pipeline-and-Stages.html">Pipeline and Stages</a> describes the stages, <a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a> describe the two kinds of feedback.</p>
+<h1 id="the-loop-every-stage-runs">The loop every stage runs</h1>
+<p>The agent writes the artifact under <code>.claude/runtime/outputs/</code>. Sensors check it deterministically through the committed runner, pass or fail, no score. Then a judge that did not write the artifact answers the rubric's yes/no checks in <code>.claude/agents/{agent}/evals/*.md</code>.</p>
+<p>The judge is the one picked with <code>/hk:eval jev | local</code>: a fresh Claude evaluator that gets only the artifact and rubric paths, or Jev, which escalates to Claude when unsure on a deciding check. <code>eval-score.py</code> recomputes the weighted total and refuses a judge whose arithmetic or keys do not match. Below 8.0 the agent regenerates only the failed checks, up to 3 attempts, then returns a blocker. On pass it appends <code>&lt;!-- approved: {YYYY-MM-DD} score={weighted-total} --&gt;</code>, the marker the next stage checks. Details in <a href="Evals.html">Evals</a>.</p>
 <pre class="mermaid">sequenceDiagram
-    actor You
-    participant PM as product-manager
+    participant A as agent
     participant S as sensors
-    participant E as eval (fresh judge)
-
-    You-&gt;&gt;PM: /product-manager:run
-    PM-&gt;&gt;PM: read intake artifact for {feature_id}
-    PM-&gt;&gt;S: PRD → prd-structure, prd-acceptance-criteria
-    S--&gt;&gt;PM: pass or fail, retry up to 3
-    PM-&gt;&gt;E: prd-quality, then prd-readiness (advisory)
-    E--&gt;&gt;PM: weighted total, needs &gt;= 8.0
-    PM-&gt;&gt;PM: append approval marker to the PRD
-    Note over PM: pre-prp-check.sh refuses to start&lt;br/&gt;the PRP without an approved PRD
-    PM-&gt;&gt;S: PRP → prp-structure, prp-context-quality, prp-links
-    S--&gt;&gt;PM: pass or fail, retry up to 3
-    PM-&gt;&gt;E: prp-quality, then prp-context-readiness
-    E--&gt;&gt;PM: score plus one-shot likelihood
-    PM--&gt;&gt;You: PRP marked ready-for-handoff
+    participant J as judge (local or jev)
+    participant V as eval-score.py
+    A-&gt;&gt;A: write artifact
+    A-&gt;&gt;S: run sensors
+    S--&gt;&gt;A: pass or fail
+    A-&gt;&gt;J: artifact + rubric
+    J--&gt;&gt;A: per-check yes/no, dimension scores
+    A-&gt;&gt;V: verify weighted total
+    V--&gt;&gt;A: exit 0 &gt;= 8.0, exit 1 retry, exit 2 malformed
+    A-&gt;&gt;A: approval marker, or retry failed checks (max 3)
 </pre>
-<p>Artifacts land at <code>.claude/runtime/outputs/pm/prd/{feature_id}.md</code> and
-<code>.claude/runtime/outputs/pm/prp/{feature_id}.md</code>.</p>
-<p>Two details the diagram compresses. <code>prd-readiness</code> is advisory and has no numeric threshold, so it
-reports without blocking. <code>prp-context-readiness</code> is the real handoff gate: it passes only when every
-structural sensor passed, <code>shippable</code> is yes or partial, there are at most two blocking questions,
-and <code>one_shot_likelihood &gt;= 0.7</code>.</p>
-<h2 id="staff-software-engineer">staff-software-engineer</h2>
-<p><code>plan → dev → test → pr</code>. Entry point <code>/sse:run</code>. It reads the latest approved PRP and auto-detects
-the area skill (<code>backend</code>, <code>web</code>, <code>mobile</code>, <code>devops</code>) from the repo's files, layering the <code>designer</code>
-skill on top when the work is clearly a new UI.</p>
-<pre class="mermaid">sequenceDiagram
-    actor You
-    participant SSE as staff-software-engineer
-    participant S as sensors
-    participant E as eval (fresh judge)
-    participant GH as GitHub
-
-    You-&gt;&gt;SSE: /sse:run
-    SSE-&gt;&gt;SSE: read approved PRP, detect area skill
-    SSE-&gt;&gt;S: plan → plan-structure
-    S--&gt;&gt;SSE: pass
-    SSE-&gt;&gt;E: plan-quality
-    E--&gt;&gt;SSE: score &gt;= 8.0, plan approved
-    SSE-&gt;&gt;S: dev → code-conventions, test-coverage after each step
-    S--&gt;&gt;SSE: fail means fix and retry, hard stop after 3
-    SSE-&gt;&gt;E: dev-quality on the dev summary
-    E--&gt;&gt;SSE: score &gt;= 8.0, dev approved
-    SSE-&gt;&gt;SSE: detect and run the repo&#x27;s test command
-    SSE-&gt;&gt;E: test-quality, approved only when exit code is 0
-    E--&gt;&gt;SSE: score &gt;= 8.0, test approved
-    Note over You,SSE: /pipeline:run stops here for the PR gate&lt;br/&gt;/sse:run --local stops for good
-    SSE-&gt;&gt;GH: gh pr create --draft
-    GH--&gt;&gt;SSE: PR url
-    SSE-&gt;&gt;E: pr-quality
-    E--&gt;&gt;SSE: score &gt;= 8.0, PR approved
-    SSE-&gt;&gt;GH: /sse:pr-monitor polls for the merge
-    GH--&gt;&gt;You: merged, pipeline state cleared
-</pre>
-<p>Artifacts land under <code>.claude/runtime/outputs/sse/{plan,dev,test,pr}/{feature_id}.md</code>.</p>
-<p>The <code>dev</code> stage is the only one that gates twice: <code>code-conventions</code> and <code>test-coverage</code> run against
-the code after each implementation step, and <code>dev-structure</code> plus <code>dev-quality</code> then run against the
-written summary. Failing tests are never retried automatically; the agent returns a blocker and lets
-you decide.</p>
-<h3 id="the-sdd-variant">The SDD variant</h3>
-<p><code>/sse:sdd</code> replaces the linear dev and test stages with a goal loop. It plans once, then iterates
-until the PRP's own spec is satisfied. It is local-only and never opens a PR.</p>
-<pre class="mermaid">sequenceDiagram
-    participant SSE as staff-software-engineer
-    participant Sup as supervisor eval (fresh session)
-
-    SSE-&gt;&gt;SSE: prp-has-acceptance-criteria, fail blocks the run
-    SSE-&gt;&gt;SSE: /sse:plan once, wait for the approval marker
-    loop up to 3 iterations
-        SSE-&gt;&gt;SSE: /sse:dev, later passes get --focus from the last verdict
-        SSE-&gt;&gt;SSE: /sse:test
-        SSE-&gt;&gt;Sup: PRP, dev summary, test report, git diff main...HEAD
-        Sup--&gt;&gt;SSE: PASS breaks the loop, FAIL returns next_iter_focus
-    end
-    SSE-&gt;&gt;SSE: write the transcript, approved on PASS, blocked at the cap
-</pre>
-<p>The predicate is built from the PRP itself: every bullet under <code>Success criteria (verifiable)</code> must
-be met by both code and a test, and every command in the <code>Validation gates</code> block must exit 0. The
-supervisor runs in a fresh session so the worker's context cannot leak into its own grading. Hitting
-the three-iteration cap is real signal that the spec and the code disagree.</p>
-<h2 id="system-architect">system-architect</h2>
-<p><code>design → review</code>. Entry point <code>/system-design:run</code>. This agent is an optional front stage before the
-PRP, not part of the golden path. It picks a <strong>topic skill</strong> the same way the staff engineer picks an
-area skill: <code>url-shortener</code>, <code>rate-limiter</code>, or <code>search-engine</code> when the problem matches one, and the
-generic <code>design</code> skill otherwise.</p>
-<pre class="mermaid">sequenceDiagram
-    actor You
-    participant SA as system-architect
-    participant S as sensors (self-applied)
-    participant E as eval (fresh judge)
-
-    You-&gt;&gt;SA: /system-design:run
-    SA-&gt;&gt;SA: route to a topic skill, or fall back to generic design
-    SA-&gt;&gt;S: design → design-structure, design-rigor
-    S--&gt;&gt;SA: a missing section, number, or mermaid diagram blocks
-    SA-&gt;&gt;E: design-quality
-    E--&gt;&gt;SA: score &gt;= 8.0, design approved
-    SA-&gt;&gt;SA: adversarial review, the 10 staff questions
-    SA-&gt;&gt;S: review → design-structure, review variant
-    S--&gt;&gt;SA: 10 questions answered, verdict present
-    SA-&gt;&gt;E: design-review-depth
-    E--&gt;&gt;SA: score &gt;= 8.0
-    SA--&gt;&gt;You: verdict ship, revise, or block
-</pre>
-<p>Artifacts land at <code>.claude/runtime/outputs/architect/design/{feature_id}.md</code> and
-<code>.claude/runtime/outputs/architect/review/{feature_id}.md</code>.</p>
-<p>This agent is deliberately hook-free: its sensors are self-applied markdown rules rather than scripts
-run by <code>settings.json</code> hooks, which keeps it portable to any tool that reads <code>AGENTS.md</code>. The review
-defaults to skeptical and interrogates rather than summarizes. A <code>block</code> verdict is terminal, the
-design is not marked ready and the run surfaces the blockers instead.</p>
-<h2 id="related">Related</h2>
-<ul>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, the stages and their artifacts</li>
-<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>, the two feedback mechanisms</li>
-<li><a href="Agents.html">Agents</a>, what each agent is for</li>
-<li><a href="Golden-Path.html">Golden Path</a>, the end-to-end front door</li>
-<li><a href="System-Design-Method.html">System Design Method</a>, the method behind the architect</li>
-</ul>
+<p>Human gates belong to the orchestrator. <code>/pipeline:run</code> stops at two: approve the direction after the PRD, approve the PR before it opens. Stages never add their own.</p>
+<h1 id="stage-lookup">Stage lookup</h1>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Sensors</th>
+<th>Eval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prd</td>
+<td>prd-structure, prd-acceptance-criteria</td>
+<td>prd-quality, prd-readiness (advisory)</td>
+</tr>
+<tr>
+<td>prp</td>
+<td>prp-structure, prp-context-quality, prp-links</td>
+<td>prp-quality, prp-context-readiness</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>plan-structure</td>
+<td>plan-quality</td>
+</tr>
+<tr>
+<td>dev</td>
+<td>code-conventions, test-coverage, dev-structure</td>
+<td>dev-quality</td>
+</tr>
+<tr>
+<td>test</td>
+<td>test-structure</td>
+<td>test-quality, approved only on exit code 0</td>
+</tr>
+<tr>
+<td>pr</td>
+<td>pr-structure</td>
+<td>pr-quality</td>
+</tr>
+<tr>
+<td>design</td>
+<td>design-structure, design-rigor</td>
+<td>design-quality</td>
+</tr>
+<tr>
+<td>review</td>
+<td>design-structure (review variant)</td>
+<td>design-review-depth</td>
+</tr>
+</tbody>
+</table>
+<p>Artifacts land at <code>.claude/runtime/outputs/pm/{prd,prp}/{feature_id}.md</code>, <code>.claude/runtime/outputs/sse/{plan,dev,test,pr}/{feature_id}.md</code>, and <code>.claude/runtime/outputs/architect/{design,review}/{feature_id}.md</code>.</p>
+<h1 id="product-manager">product-manager</h1>
+<p><code>/product-manager:run</code> runs <code>prd</code> then <code>prp</code>. Inputs come from the intake artifact, so the agent does not stop to ask. <code>pre-prp-check.sh</code> refuses to start the PRP without an approved PRD.</p>
+<p><code>prd-readiness</code> is advisory and never blocks. <code>prp-context-readiness</code> is the handoff gate: it passes only when every structural sensor passed, <code>shippable</code> is yes or partial, there are at most 2 blocking questions, and <code>one_shot_likelihood &gt;= 0.7</code>. A passing PRP is marked <code>ready-for-handoff</code>.</p>
+<h1 id="staff-software-engineer">staff-software-engineer</h1>
+<p><code>/sse:run</code> runs <code>plan</code>, <code>dev</code>, <code>test</code>, <code>pr</code>. It reads the latest approved PRP, detects the area skill (<code>backend</code>, <code>web</code>, <code>mobile</code>, <code>devops</code>) from the repo files, and adds the <a href="Designer-Skill.html">designer skill</a> when the work is a new UI.</p>
+<p><code>dev</code> gates twice: <code>code-conventions</code> and <code>test-coverage</code> run on the code after each implementation step, then <code>dev-structure</code> and <code>dev-quality</code> run on the written summary. Failing tests are never retried automatically; the agent returns a blocker with the failing test names. <code>/sse:run --local</code> stops after test. Otherwise <code>pr</code> runs <code>gh pr create --draft</code>, scores <code>pr-quality</code>, and <code>/sse:pr-monitor</code> polls until the merge clears the pipeline state.</p>
+<h1 id="the-sdd-variant">The SDD variant</h1>
+<p><code>/sse:sdd</code> plans once, then loops dev, test, and a supervisor eval up to 3 iterations. It is local only and never opens a PR. The <code>prp-has-acceptance-criteria</code> sensor runs first and blocks the run on failure.</p>
+<p>The supervisor eval, <code>spec-satisfied</code>, always runs on Claude in a fresh session that gets the PRP, the dev summary, the test report, and <code>git diff main...HEAD</code>. Every bullet under <code>Success criteria (verifiable)</code> must be met by code and a test, and every command in <code>Validation gates</code> must exit 0. FAIL returns <code>next_iter_focus</code>, passed to the next <code>/sse:dev --focus</code>. Hitting the cap means the spec and the code disagree.</p>
+<h1 id="system-architect">system-architect</h1>
+<p><code>/system-design:run</code> runs <code>design</code> then <code>review</code>. It is an optional front stage before the PRP, outside the golden path. It routes to a topic skill (<code>url-shortener</code>, <code>rate-limiter</code>, <code>search-engine</code>) when the problem matches one, and to the generic <code>design</code> skill otherwise.</p>
+<p>The agent has no hooks and no sensor runner; it applies its sensor rules itself, so it ports to any tool that reads <code>AGENTS.md</code>. The review answers the 10 staff questions skeptically and returns ship, revise, or block. A <code>block</code> verdict is terminal: the design is not marked ready and the run surfaces the blockers.</p>
+<h1 id="related">Related</h1>
+<p><a href="Pipeline-and-Stages.html">Pipeline and Stages</a>, <a href="Sensors.html">Sensors</a>, <a href="Evals.html">Evals</a>, <a href="Agents.html">Agents</a>, <a href="Golden-Path.html">Golden Path</a>, <a href="System-Design-Method.html">System Design Method</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Agent-Pipelines" target="_blank" rel="noopener">Agent Pipelines</a> in the wiki. Edit it there.</p>
   </main>

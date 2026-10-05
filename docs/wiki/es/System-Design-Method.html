@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Método de System Design &middot; harness-kit wiki</title>
-<meta name="description" content="La lente que aplica cada playbook de tema. Leerla antes de cualquier design puntual." />
+<meta name="description" content="Cada playbook de tema aplica esta lente. Léela antes de cualquier design puntual." />
 <meta property="og:title" content="Método de System Design &middot; harness-kit wiki" />
-<meta property="og:description" content="La lente que aplica cada playbook de tema. Leerla antes de cualquier design puntual." />
+<meta property="og:description" content="Cada playbook de tema aplica esta lente. Léela antes de cualquier design puntual." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="es" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/es/System-Design-Method.html" />
@@ -59,45 +59,32 @@
         aria-controls="wikinav">Contenido</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Inicio</a></li>
-</ul>
-<p><strong>El harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referencias</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline y stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines de los agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomía</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomía</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Inicio</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referencias</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline y stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines de los agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomía</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="método-de-system-design">Método de System Design</h1>
-<p>La lente que aplica cada playbook de tema. Leerla antes de cualquier design puntual.</p>
-<p>System design es una <strong>cadena de decisiones bajo restricción</strong>. Se decide qué ingerir, qué almacenar,
-qué computar, qué servir. Cada stage elimina costo inútil y conserva señal útil. El mejor design no es
-el que hace más cosas. Es el que elige mejor qué hacer.</p>
-<h2 id="la-forma-de-cualquier-sistema">La forma de cualquier sistema</h2>
-<p>Casi todo sistema no trivial tiene cuatro capacidades más dos planos de apoyo.</p>
+<p>Cada playbook de tema aplica esta lente. Léela antes de cualquier design puntual.</p>
+<p>System design es una cadena de decisiones bajo restricción: qué ingerir, qué almacenar, qué computar, qué servir. Cada stage recorta desperdicio y conserva señal. El mejor design elige bien qué hacer, y no hace más que eso.</p>
+<h1 id="la-forma-de-cualquier-sistema">La forma de cualquier sistema</h1>
+<p>Casi todo sistema no trivial tiene cuatro capacidades.</p>
 <table>
 <thead>
 <tr>
@@ -110,7 +97,7 @@ el que hace más cosas. Es el que elige mejor qué hacer.</p>
 <tr>
 <td>Descubrir / ingerir</td>
 <td>crawler</td>
-<td>traer datos adentro (API, eventos, uploads, crawl)</td>
+<td>traer datos (API, eventos, uploads, crawl)</td>
 </tr>
 <tr>
 <td>Entender / modelar</td>
@@ -125,36 +112,18 @@ el que hace más cosas. Es el que elige mejor qué hacer.</p>
 <tr>
 <td>Servir</td>
 <td>camino de query</td>
-<td>responder solicitudes dentro de un budget de latency</td>
+<td>responder solicitudes dentro de un budget de latencia</td>
 </tr>
 </tbody>
 </table>
-<p>Planos de apoyo, presentes casi siempre:</p>
-<ul>
-<li><strong>Metadatos / política</strong>: reglas, agendamiento, dedup, config, cuotas.</li>
-<li><strong>Observabilidad / control</strong>: métricas, debugging, replay, backfill, listas de permitidos y bloqueados.</li>
-</ul>
-<h2 id="los-tres-pilares-kleppmann-ddia">Los tres pilares (Kleppmann, DDIA)</h2>
-<p>Todo design se evalúa contra ellos. Son la columna no funcional.</p>
-<h3 id="reliability">Reliability</h3>
-<p>Funciona correctamente bajo falla: hardware que se rompe, bug de software, error humano. Hay que
-diseñar <em>para</em> la falla, Werner Vogels: &quot;everything fails all the time&quot;. Las herramientas son los
-stability patterns (Nygard): timeouts, retries con backoff exponencial, circuit breakers, bulkheads,
-idempotencia. Un sistema confiable asume que sus dependencias van a fallar y degrada a propósito, no
-por accidente.</p>
-<h3 id="scalability">Scalability</h3>
-<p>Aguanta el crecimiento de la carga. La disciplina: <strong>definir los parámetros de carga primero</strong> (QPS,
-tamaño del payload, fan-out, razón lectura/escritura), y después describir la performance bajo esa
-carga (p50/p95/p99, throughput). Conviene la escala horizontal sobre la vertical. Particionar por una
-clave que evite hot spots. &quot;Escalable&quot; no es una propiedad del sistema; es la respuesta a &quot;si la carga
-crece X, ¿cuál es nuestro plan?&quot;</p>
-<h3 id="maintainability">Maintainability</h3>
-<p>Operable, simple, evolucionable. John Ousterhout, en <em>A Philosophy of Software Design</em>: construir
-<strong>deep modules</strong>, interfaces simples que esconden implementación significativa. La complejidad es el
-enemigo; se acumula en dependencias y en oscuridad. La observabilidad es parte del design, no algo que
-se piensa después.</p>
-<h2 id="números-que-todo-ingeniero-debería-saber-jeff-dean">Números que todo ingeniero debería saber (Jeff Dean)</h2>
-<p>Sirven para las cuentas de servilleta. Orden de magnitud, no valor exacto.</p>
+<p>A su lado hay dos planos de apoyo. El plano de metadatos y política guarda reglas, agendamiento, dedup, config y cuotas. El plano de observabilidad y control guarda métricas, debugging, replay, backfill y listas de permitidos y bloqueados.</p>
+<h1 id="los-tres-pilares-kleppmann-ddia">Los tres pilares (Kleppmann, DDIA)</h1>
+<p>Evalúa cada design contra reliability, scalability y maintainability. Son la columna no funcional.</p>
+<p>Reliability significa que el sistema funciona correctamente ante fallas de hardware, bugs de software y errores humanos. Werner Vogels: &quot;everything fails all the time&quot;. Las herramientas son los stability patterns de Nygard: timeouts, retries con backoff exponencial, circuit breakers, bulkheads, idempotencia. Un sistema confiable asume que sus dependencias fallan y se degrada a propósito.</p>
+<p>Scalability significa aguantar el crecimiento de la carga. Define primero los parámetros de carga (QPS, tamaño del payload, fan-out, razón lectura/escritura), y después describe la performance bajo esa carga (p50, p95, p99, throughput). Prefiere la escala horizontal y particiona por una clave que evite hot spots. Una afirmación de escalabilidad es la respuesta a &quot;si la carga crece X, cuál es el plan&quot;.</p>
+<p>Maintainability significa operable, simple y evolucionable. <em>A Philosophy of Software Design</em> de Ousterhout pide deep modules: interfaces simples sobre una implementación significativa. La complejidad se acumula en las dependencias y en la oscuridad. La observabilidad es parte del design desde el inicio.</p>
+<h1 id="números-que-todo-ingeniero-debería-conocer-jeff-dean">Números que todo ingeniero debería conocer (Jeff Dean)</h1>
+<p>Úsalos para cuentas rápidas. Son órdenes de magnitud.</p>
 <table>
 <thead>
 <tr>
@@ -164,114 +133,136 @@ se piensa después.</p>
 </thead>
 <tbody>
 <tr>
-<td>L1 cache reference</td>
+<td>Referencia a cache L1</td>
 <td>~1 ns</td>
 </tr>
 <tr>
-<td>Branch mispredict</td>
+<td>Predicción de branch fallida</td>
 <td>~5 ns</td>
 </tr>
 <tr>
-<td>Main memory reference</td>
+<td>Referencia a memoria principal</td>
 <td>~100 ns</td>
 </tr>
 <tr>
-<td>Compress 1 KB</td>
+<td>Comprimir 1 KB</td>
 <td>~2 us</td>
 </tr>
 <tr>
-<td>SSD random read</td>
+<td>Lectura aleatoria en SSD</td>
 <td>~16 us</td>
 </tr>
 <tr>
-<td>Read 1 MB sequentially from memory</td>
+<td>Leer 1 MB secuencial de memoria</td>
 <td>~10 us</td>
 </tr>
 <tr>
-<td>Read 1 MB sequentially from SSD</td>
+<td>Leer 1 MB secuencial de SSD</td>
 <td>~50 us</td>
 </tr>
 <tr>
-<td>Round trip within same datacenter</td>
+<td>Ida y vuelta dentro del mismo datacenter</td>
 <td>~0.5 ms</td>
 </tr>
 <tr>
-<td>Read 1 MB sequentially from disk</td>
+<td>Leer 1 MB secuencial de disco</td>
 <td>~5 ms</td>
 </tr>
 <tr>
-<td>Disk seek</td>
+<td>Seek de disco</td>
 <td>~2 ms</td>
 </tr>
 <tr>
-<td>Round trip CA to Netherlands</td>
+<td>Ida y vuelta de California a Países Bajos</td>
 <td>~150 ms</td>
 </tr>
 </tbody>
 </table>
-<p>Cálculo de dimensionamiento, siempre a la vista:</p>
+<p>Muestra siempre la cuenta de dimensionamiento. Si no puedes hacerla, todavía no entiendes la escala.</p>
 <pre><code>QPS         = DAU x actions/day / 86400
 peak QPS    = avg x (2 to 10)
 storage     = records x bytes/record x replication x retention
 bandwidth   = QPS x payload
 </code></pre>
-<p>Si no se puede hacer la cuenta, todavía no se entendió la escala.</p>
-<h2 id="el-método-de-13-stages">El método de 13 stages</h2>
-<p>Un SDD los recorre todos. El <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/templates/system-design.md" target="_blank" rel="noopener">template</a>
-refleja ese orden.</p>
-<ol>
-<li><strong>Problema + contexto</strong>: encuadre en una línea. Quién, qué escala, interno versus web-scale.</li>
-<li><strong>Requisitos</strong>: funcionales, más los no funcionales <em>con números</em> (SLO de latency, throughput,
-disponibilidad, modelo de consistencia, techo de costo).</li>
-<li><strong>Modelo mental</strong>: flujo de punta a punta, numerado o en mermaid. Ver el camino completo antes de
-cualquier componente.</li>
-<li><strong>Arquitectura de alto nivel</strong>: componentes + mermaid + los dos planos de apoyo.</li>
-<li><strong>Deep dives</strong>: los 2 o 3 componentes que cargan el riesgo: estructuras de datos, algoritmo,
-trade-off difícil. Aquí es donde staff se separa de senior.</li>
-<li><strong>Datos + almacenamiento</strong>: separar el store por función y patrón de acceso. KV/wide-column para
-updates aleatorios, object storage para blobs, search index para texto, relacional para
-transacciones. Conviene la inmutabilidad (Helland: eventos en lugar de estado mutable).</li>
-<li><strong>Escala + particionamiento</strong>: estrategia de sharding, replicación, rebalanceo. Un dueño por
-partición para la coordinación. Los workers stateless escalan solos; stateful necesita liderazgo +
-réplicas.</li>
-<li><strong>Consistencia + falla</strong>: elegir un modelo de consistencia con honestidad (eventual está bien si
-converge). Enumerar los modos de falla y cómo el design resiste cada uno. &quot;¿Qué se rompe primero?&quot;</li>
-<li><strong>Observabilidad + ops</strong>: métricas por stage; las herramientas de debugging que tienen que existir
-(inspeccionar el ciclo de vida de un registro, explicar el resultado de una solicitud).</li>
-<li><strong>Seguridad + compliance</strong>: almacenar la menor cantidad de datos, sandbox para input no confiable,
-sanitizar el parsing, respetar la política externa.</li>
-<li><strong>Plan incremental</strong>: rebanada vertical primero (probar punta a punta en alcance chico, reusar
-engines ya probados), después eficiencia/calidad, después escala real, después lo avanzado.</li>
-<li><strong>Trade-offs</strong>: cobertura versus calidad, frescura versus costo, recall versus latency,
-complejidad versus velocidad de entrega, centralizar versus particionar.</li>
-<li><strong>Preguntas abiertas / design review</strong>: qué debería interrogar un revisor.</li>
-</ol>
-<h2 id="disciplina-de-trade-off">Disciplina de trade-off</h2>
-<p>Nunca hay que presentar una opción como obvia. Se nombra la alternativa, el eje, la elección:</p>
+<h1 id="el-método-de-13-stages">El método de 13 stages</h1>
+<p>Un System Design Doc recorre estos stages, y el <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/system-architect/guides/templates/system-design.md" target="_blank" rel="noopener">template</a> los refleja.</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Qué cubre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Problema y contexto</td>
+<td>Encuadre en una línea: quién, escala, interno o web-scale.</td>
+</tr>
+<tr>
+<td>2. Requisitos</td>
+<td>Funcionales, más no funcionales con números: SLO de latencia, throughput, disponibilidad, modelo de consistencia, techo de costo.</td>
+</tr>
+<tr>
+<td>3. Modelo mental</td>
+<td>Flujo de punta a punta como diagrama mermaid. Ver el camino completo antes de cualquier componente.</td>
+</tr>
+<tr>
+<td>4. Arquitectura de alto nivel</td>
+<td>Componentes, mermaid y los dos planos de apoyo.</td>
+</tr>
+<tr>
+<td>5. Deep dives</td>
+<td>Los 2 o 3 componentes que cargan el riesgo: estructuras de datos, algoritmo, trade-off difícil. Acá el trabajo staff se separa del senior.</td>
+</tr>
+<tr>
+<td>6. Datos y almacenamiento</td>
+<td>Separar stores por función y patrón de acceso: KV o wide-column para updates aleatorios, object storage para blobs, search index para texto, relacional para transacciones. Favorecer la inmutabilidad (Helland: eventos sobre estado mutable).</td>
+</tr>
+<tr>
+<td>7. Escala y particionamiento</td>
+<td>Sharding, replicación, rebalanceo. Un dueño por partición para coordinar. Los workers sin estado escalan solos; los que tienen estado necesitan liderazgo y réplicas.</td>
+</tr>
+<tr>
+<td>8. Consistencia y falla</td>
+<td>Elegir un modelo de consistencia con honestidad (eventual está bien si converge). Enumerar los modos de falla, cómo los resiste el design y qué se rompe primero.</td>
+</tr>
+<tr>
+<td>9. Observabilidad y operación</td>
+<td>Métricas por stage, más las herramientas de debugging que tienen que existir: inspeccionar el ciclo de vida de un registro, explicar el resultado de una solicitud.</td>
+</tr>
+<tr>
+<td>10. Seguridad y cumplimiento</td>
+<td>Guardar el mínimo de datos, aislar la entrada no confiable, sanear el parseo, respetar las políticas externas.</td>
+</tr>
+<tr>
+<td>11. Plan incremental</td>
+<td>Primero un corte vertical sobre un alcance chico con motores probados, después eficiencia y calidad, después escala real, después lo avanzado.</td>
+</tr>
+<tr>
+<td>12. Trade-offs</td>
+<td>Cobertura vs calidad, frescura vs costo, recall vs latencia, complejidad vs velocidad de entrega, centralizar vs particionar.</td>
+</tr>
+<tr>
+<td>13. Preguntas abiertas</td>
+<td>Lo que un revisor de design debería interrogar.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="disciplina-de-trade-off">Disciplina de trade-off</h1>
+<p>Nunca presentes una opción como obvia. Nombra la alternativa, el eje y la elección:</p>
 <blockquote>
-<p>Elegí X sobre Y porque {eje} pesa más aquí, dado {restricción}.</p>
+<p>Elegí X sobre Y porque {eje} pesa más acá, dada {restricción}.</p>
 </blockquote>
-<p>Un design sin trade-off declarado es un design que escondió uno.</p>
-<h2 id="construir-con-pragmatismo">Construir con pragmatismo</h2>
-<p>No hay que reinventar las partes difíciles si la diferenciación está en otro lado. Conviene usar un
-engine ya probado (Lucene, Postgres, Kafka, una cola gestionada) para la capa llena de detalles
-traicioneros, y gastar los trimestres en el pipeline y en la lógica que sí son la ventaja real. Se
-reinventa solo la parte que es el producto.</p>
-<h2 id="consistencia-tiempo-y-ordenamiento">Consistencia, tiempo y ordenamiento</h2>
-<p><em>Time, Clocks, and the Ordering of Events in a Distributed System</em> (1978), de Leslie Lamport, es la
-raíz del razonamiento distribuido: en un sistema distribuido no existe un &quot;ahora&quot; global único; se
-razona sobre ordenamiento <em>causal</em>, no sobre reloj de pared. Eso sostiene la consistencia eventual, los
-vector clocks, y el motivo por el que &quot;con usar timestamps alcanza&quot; es una trampa (clock skew). <em>Life
-Beyond Distributed Transactions</em>, de Helland, lleva la idea hasta la conclusión práctica: en escala se
-renuncia al ACID entre entidades y se diseña alrededor de unidades independientes, idempotentes y
-reconciliadas con el tiempo.</p>
-<h2 id="el-encuadre-cap-y-pacelc">El encuadre CAP y PACELC</h2>
-<p>Bajo una partición de red (P) se elige disponibilidad (A) o consistencia (C): CAP (Brewer). PACELC
-agrega: <em>else</em> (E), cuando no hay partición, se cambia latency (L) por consistencia (C). La mayoría de
-los designs reales son &quot;AP bajo partición, y cambian latency por consistencia en operación normal&quot;.
-Hay que decir en qué esquina se está y por qué; rara vez es todo o nada por sistema, es por operación.</p>
-<h2 id="el-canon">El canon</h2>
-<p>Se cita cuando afila el argumento.</p>
+<p>Un design sin trade-off declarado escondió uno.</p>
+<h1 id="construir-con-pragmatismo">Construir con pragmatismo</h1>
+<p>Usa un motor probado (Lucene, Postgres, Kafka, una cola gestionada) para la capa llena de detalles traicioneros, e invierte tus trimestres en el pipeline y la lógica que son tu ventaja. Reinventa solo la parte que es el producto.</p>
+<h1 id="consistencia-tiempo-y-orden">Consistencia, tiempo y orden</h1>
+<p><em>Time, Clocks, and the Ordering of Events in a Distributed System</em> (1978) de Lamport es la raíz del razonamiento distribuido. Un sistema distribuido no tiene un &quot;ahora&quot; global único, así que razonas sobre el orden causal en lugar del orden del reloj de pared. Esto sostiene la consistencia eventual y los vector clocks, y es la razón por la que confiar en timestamps es una trampa (clock skew).</p>
+<p><em>Life Beyond Distributed Transactions</em> de Helland saca la conclusión práctica. A escala renuncias a ACID entre entidades y diseñas alrededor de unidades independientes e idempotentes que se reconcilian con el tiempo.</p>
+<h1 id="cap-y-pacelc">CAP y PACELC</h1>
+<p>Ante una partición de red (P) eliges disponibilidad (A) o consistencia (C): el CAP de Brewer. PACELC agrega que, en otro caso (E), sin partición, cambias latencia (L) por consistencia (C). La mayoría de los designs reales son AP ante una partición y cambian latencia por consistencia en operación normal. Di en qué esquina estás y por qué, por operación y no por sistema.</p>
+<h1 id="el-canon">El canon</h1>
+<p>Cítalos cuando afilen un punto.</p>
 <table>
 <thead>
 <tr>
@@ -288,17 +279,17 @@ Hay que decir en qué esquina se está y por qué; rara vez es todo o nada por s
 </tr>
 <tr>
 <td>Jeff Dean, Sanjay Ghemawat</td>
-<td>los números que todos saben; batch con forma de MapReduce</td>
+<td>los números que todos conocen; batch con forma de MapReduce</td>
 <td>LADIS 2009; OSDI 2004</td>
 </tr>
 <tr>
 <td>Werner Vogels</td>
-<td>diseñar para la falla; consistencia eventual en escala</td>
+<td>diseñar para la falla; consistencia eventual a escala</td>
 <td>Dynamo (SOSP 2007)</td>
 </tr>
 <tr>
 <td>Pat Helland</td>
-<td>inmutabilidad; vida más allá de las transacciones distribuidas</td>
+<td>inmutabilidad; la vida más allá de las transacciones distribuidas</td>
 <td>CIDR 2007; 2015</td>
 </tr>
 <tr>
@@ -313,7 +304,7 @@ Hay que decir en qué esquina se está y por qué; rara vez es todo o nada por s
 </tr>
 <tr>
 <td>Leslie Lamport</td>
-<td>ordenamiento causal, sin reloj global</td>
+<td>orden causal, sin reloj global</td>
 <td>CACM 1978</td>
 </tr>
 <tr>
@@ -323,35 +314,85 @@ Hay que decir en qué esquina se está y por qué; rara vez es todo o nada por s
 </tr>
 <tr>
 <td>Sam Newman</td>
-<td>fronteras de servicio a lo largo de la capacidad de negocio</td>
+<td>límites de servicio según capacidad de negocio</td>
 <td>Building Microservices</td>
 </tr>
 <tr>
 <td>Gregor Hohpe</td>
-<td>el ascensor del arquitecto: conectar el trade-off de la sala de máquinas con el interés del negocio</td>
+<td>el ascensor del arquitecto: conectar el trade-off de la sala de máquinas con lo que está en juego para el negocio</td>
 <td>2020</td>
 </tr>
 </tbody>
 </table>
-<h2 id="la-conexión-con-el-harness">La conexión con el harness</h2>
-<p>Este agent es, él mismo, un harness (Böckeler/Fowler). Guides = feedforward, sensors + evals =
-feedback, humanos on the loop. La misma división de control que necesita el <em>design</em>: controles
-computacionales (tests, linters, chequeo de schema) y controles inferenciales (review semántico). Los
-dos, siempre.</p>
-<h2 id="referencias">Referencias</h2>
-<ul>
-<li>Martin Kleppmann, <em>Designing Data-Intensive Applications</em>, O'Reilly, 2017.</li>
-<li>Jeff Dean, <em>Designs, Lessons and Advice from Building Large Distributed Systems</em>, LADIS, 2009.</li>
-<li>Dean &amp; Ghemawat, <em>MapReduce: Simplified Data Processing on Large Clusters</em>, OSDI, 2004.</li>
-<li>DeCandia et al., <em>Dynamo: Amazon's Highly Available Key-value Store</em>, SOSP, 2007.</li>
-<li>Pat Helland, <em>Life Beyond Distributed Transactions</em>, CIDR, 2007.</li>
-<li>Pat Helland, <em>Immutability Changes Everything</em>, ACM Queue, 2015.</li>
-<li>Michael Nygard, <em>Release It!</em>, 2nd ed., Pragmatic Bookshelf, 2018.</li>
-<li>John Ousterhout, <em>A Philosophy of Software Design</em>, 2018.</li>
-<li>Leslie Lamport, <em>Time, Clocks, and the Ordering of Events in a Distributed System</em>, CACM, 1978.</li>
-<li>Eric Brewer, <em>Towards Robust Distributed Systems</em> (CAP), PODC keynote, 2000.</li>
-<li>Birgitta Böckeler, <em>Harness engineering for coding agent users</em>, martinfowler.com, 2026.</li>
-</ul>
+<h1 id="la-conexión-con-el-harness">La conexión con el harness</h1>
+<p>El agent system-architect es él mismo un harness (Böckeler/Fowler): los guides son feedforward, los sensors y evals son feedback, y las personas quedan sobre el loop. Un design necesita la misma división. Los controles computacionales (tests, linters, checks de schema) y los inferenciales (review semántica) corren juntos. Ver <a href="Harness-Engineering.html">Harness Engineering</a> y <a href="Evals.html">Evals</a>.</p>
+<h1 id="referencias">Referencias</h1>
+<table>
+<thead>
+<tr>
+<th>Autor</th>
+<th>Obra</th>
+<th>Publicación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Martin Kleppmann</td>
+<td><em>Designing Data-Intensive Applications</em></td>
+<td>O'Reilly, 2017</td>
+</tr>
+<tr>
+<td>Jeff Dean</td>
+<td><em>Designs, Lessons and Advice from Building Large Distributed Systems</em></td>
+<td>LADIS, 2009</td>
+</tr>
+<tr>
+<td>Dean, Ghemawat</td>
+<td><em>MapReduce: Simplified Data Processing on Large Clusters</em></td>
+<td>OSDI, 2004</td>
+</tr>
+<tr>
+<td>DeCandia et al.</td>
+<td><em>Dynamo: Amazon's Highly Available Key-value Store</em></td>
+<td>SOSP, 2007</td>
+</tr>
+<tr>
+<td>Pat Helland</td>
+<td><em>Life Beyond Distributed Transactions</em></td>
+<td>CIDR, 2007</td>
+</tr>
+<tr>
+<td>Pat Helland</td>
+<td><em>Immutability Changes Everything</em></td>
+<td>ACM Queue, 2015</td>
+</tr>
+<tr>
+<td>Michael Nygard</td>
+<td><em>Release It!</em>, 2nd ed.</td>
+<td>Pragmatic Bookshelf, 2018</td>
+</tr>
+<tr>
+<td>John Ousterhout</td>
+<td><em>A Philosophy of Software Design</em></td>
+<td>2018</td>
+</tr>
+<tr>
+<td>Leslie Lamport</td>
+<td><em>Time, Clocks, and the Ordering of Events in a Distributed System</em></td>
+<td>CACM, 1978</td>
+</tr>
+<tr>
+<td>Eric Brewer</td>
+<td><em>Towards Robust Distributed Systems</em> (keynote de CAP)</td>
+<td>PODC, 2000</td>
+</tr>
+<tr>
+<td>Birgitta Böckeler</td>
+<td><em>Harness engineering for coding agent users</em></td>
+<td>martinfowler.com, 2026</td>
+</tr>
+</tbody>
+</table>
 
     <p class="editnote">Traducci&oacute;n manual de <a href="https://github.com/Pierry/harness-kit/wiki/System-Design-Method" target="_blank" rel="noopener">Método de System Design</a>, la p&aacute;gina original en ingl&eacute;s en la wiki.</p>
   </main>

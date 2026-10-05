@@ -1,66 +1,37 @@
 # Acortador de URL
 
-> Serie System Design #1 (EP22). Skill del tema: `skills/url-shortener/`.
-> Diseñar un TinyURL / bit.ly a escala, desde el requisito hasta la operación.
+Serie System Design #1 (EP22). Topic skill: `.claude/agents/system-architect/skills/url-shortener/SKILL.md`. La tarea es un TinyURL o bit.ly a escala, del requisito a la operación.
 
-## 1. El problema y por qué engaña
+# El problema
 
-El producto cabe en una frase: recibir una URL larga, devolver una URL corta, redirigir al usuario a la
-original. Por eso mismo es una trampa excelente de entrevista. Debajo están casi todos los temas
-centrales de system design: carga read-heavy, generación de clave única, cache, particionamiento,
-consistencia, abuso, analytics, multi-región, costo y evolución de la arquitectura.
+El producto cabe en una frase: recibir una URL larga, devolver una corta, redirigir a la original. Debajo están la mayoría de los temas centrales de system design: carga dominada por lectura, generación de claves únicas, cache, particionamiento, consistencia, abuso, analytics, multi-región, costo y evolución.
 
-El encuadre más importante de todos: hay **dos flujos muy distintos**.
+Hay dos flujos muy distintos. Crear es una escritura moderada: un link se crea una vez. Resolver es una lectura enorme y crítica en latency: ese link puede leerse millones de veces. Diseña alrededor del redirect y acomoda todo lo demás a él. Primero producto y prioridad, después tecnología.
 
-- **Crear**: escritura moderada. Un link se crea una vez.
-- **Resolver**: lectura enorme, crítica en latency. Ese mismo link puede leerse millones de veces.
+# Requisitos
 
-Diseñe la arquitectura alrededor del redirect. Todo lo demás se pliega a él. Quien empieza dibujando
-Kafka en los primeros tres minutos está respondiendo la pregunta equivocada. Producto y prioridad
-primero, tecnología después.
+Funcionales: URL larga a URL corta única, resolver la corta para redirigir, expiración opcional, alias personalizado, analytics básico (clic, timestamp, user agent, referer, país aproximado), y deshabilitar o banear links maliciosos.
 
-## 2. Requisitos
+No funcionales, en orden de prioridad: primero la disponibilidad del redirect (que un create falle unos segundos es malo, que un redirect falle mata el producto), después la latency del redirect en decenas de ms con cache hit, la durabilidad de cada código emitido, la escala horizontal de lectura, la seguridad y el antiabuso (el producto se convierte rápido en vector de phishing, malware y spam), y la observabilidad con auditoría.
 
-**Funcionales:** URL larga a URL corta única; resolver la corta para redirigir; expiración opcional;
-alias personalizado; analytics básico (clic, timestamp, user agent, referer, país aproximado);
-deshabilitar/banear links maliciosos.
+Extras de nivel staff: links con TTL, borrado lógico con tombstone, dedup opcional, página de vista previa para links sospechosos, rate limit por cuenta, IP y tenant, dominios personalizados multi-tenant, y SLAs distintos para redirect y analytics.
 
-**No funcionales, en orden de prioridad:**
+# Dimensionamiento de escala
 
-1. **Disponibilidad del redirect.** Si la creación falla por unos segundos es malo; si falla el
-   redirect, el producto muere.
-2. Latency baja en el redirect, decenas de ms en cache hit.
-3. Durabilidad: una vez emitido un código, el mapeo nunca puede desaparecer.
-4. Escala horizontal de lectura.
-5. Seguridad / antiabuso: este producto se convierte rápido en vector de phishing/malware/spam.
-6. Observabilidad y auditabilidad.
-
-**Extras de nivel staff** que separan una respuesta senior de una respuesta staff: links con TTL,
-borrado lógico/tombstone, dedup opcional, página de preview para links sospechosos, rate limit por
-cuenta/IP/tenant, dominios personalizados multi-tenant y **SLAs distintos para redirect y para
-analytics**.
-
-## 3. Dimensionamiento de escala (cuentas de servilleta)
-
-Supuestos: 100M de links nuevos/mes, 3B de redirects/mes, lectura:escritura ~30:1, pico 5x el promedio,
-retención de 5 años.
+Supuestos: 100M links nuevos por mes, 3B redirects por mes, lectura:escritura cerca de 30:1, pico 5x el promedio, retención de 5 años.
 
 ```
 Writes:  100M / 2.6M s  ~ 38 wps avg,   ~200 wps peak.   Trivial.
 Reads:   3B   / 2.6M s  ~ 1157 rps avg, ~6k rps peak.    Comfortable.
 ```
 
-Pero clientes enterprise, una campaña viral, un código QR de un evento o uso global pueden empujar las
-lecturas a decenas o cientos de miles por segundo. Diseñe para crecer aunque el v1 sea chico.
+Clientes enterprise, una campaña viral, un código QR de un evento o el uso global llevan las lecturas a decenas o cientos de miles por segundo, así que diseña para crecer aunque la v1 sea chica.
 
-**Almacenamiento:** ~1 KB/registro (código 8-10 B, URL larga ~500 B, metadatos 100-200 B). 6B de
-registros en 5 años = ~6 TB en bruto, 15-25 TB con indexes, replicación y backup. La distinción
-crucial: **el dato caliente es chico, el dato total es grande.** Eso obliga a un cache pesado delante
-de un almacenamiento durable y particionable.
+El almacenamiento es cerca de 1 KB por registro (código de 8 a 10 B, URL larga de unos 500 B, metadata de 100 a 200 B). 6B registros en 5 años son unos 6 TB en crudo, 15 a 25 TB con índices, replicación y backup. Los datos calientes son pocos y los datos totales son muchos, lo que pide cache pesado delante de un almacenamiento durable y particionable.
 
-**Analytics:** 3B de eventos/mes. Nunca un contador síncrono en la DB transaccional. Desacóplelo.
+Analytics son 3B eventos por mes. Nunca mantengas un contador síncrono en la DB transaccional; desacóplalo.
 
-## 4. API
+# API
 
 ```
 POST /v1/links   {long_url, custom_alias?, expires_at?, domain?, idempotency_key?}
@@ -71,279 +42,175 @@ GET /{code}   -> 301 if the mapping is immutable (lowest perceived latency on re
                  may change)
 ```
 
-La elección entre 301 y 302 es **control versus eficiencia**. El 301 lo cachean con fuerza clientes e
-intermediarios, así que los redirects repetidos son instantáneos, pero se pierde la capacidad de
-cambiar o revocar barato. El 302 mantiene el control al costo de un round trip al servidor cada vez.
-Preguntas de producto que cambian la arquitectura: ¿un link se puede editar después de creado? ¿un
-alias se puede reusar después de expirar? ¿la misma URL larga da el mismo código o no? Esas respuestas
-determinan idempotencia, cache e invalidación.
+301 contra 302 es control contra eficiencia. Clientes e intermediarios cachean un 301 con fuerza, así que las repeticiones son instantáneas pero cambiar o revocar el link sale caro. Un 302 mantiene el control al costo de un round trip al servidor cada vez.
 
-## 5. Modelo de datos
+Tres preguntas de producto cambian la arquitectura: si un link se puede editar después de crearlo, si un alias se puede reusar después de expirar, y si la misma URL larga recibe el mismo código. Definen idempotencia, cache e invalidación.
 
-Dos dominios, separados a propósito.
+# Modelo de datos
 
-**Tabla transaccional de links**
+Dos dominios, separados. La tabla transaccional de links:
 
 ```
 code PK, long_url, url_hash?, owner_id?, domain, created_at, expires_at?,
 status(active|disabled|expired|banned), is_custom, redirect_type, metadata_json
 ```
 
-Indexes: PK en `code`, `(owner_id, created_at)`, `expires_at` si la limpieza por TTL es frecuente,
-`url_hash` si hay dedup.
+Índices: PK en `code`, `(owner_id, created_at)`, `expires_at` si la limpieza por TTL corre seguido, `url_hash` si haces dedup.
 
-**Eventos de analytics** (asíncrono, columnar / data lake / stream)
+Los eventos de analytics van a un store columnar, un data lake o un stream, de forma asíncrona y nunca en el camino síncrono del redirect:
 
 ```
 code, timestamp, ip_prefix or hashed IP, user_agent_hash, referer_domain, country, device_type
 ```
 
-Nunca en el camino síncrono del redirect.
+# Generación del short code
 
-## 6. Teoría: generación del short code
+Hash de la URL larga, truncado, base62. Determinístico y fácil de deduplicar, pero el truncado colisiona, la misma entrada siempre da el mismo código (malo cuando dos usuarios quieren links distintos para una misma landing page), y la salida es predecible y enumerable.
 
-El núcleo clásico de la entrevista. Cuatro enfoques, con sus modos de falla.
+ID secuencial, base62. Corto y sin colisiones con un buen generador, pero predecible: filtra tu volumen total y cualquiera puede extraerlo incrementando.
 
-### A. Hash de la URL larga, truncado, base62
-Determinístico y trivial de deduplicar, pero el truncamiento **colisiona**, la misma entrada siempre
-produce el mismo código (malo cuando dos usuarios quieren links distintos para la misma landing page),
-y la salida es predecible y enumerable.
+ID único más ofuscación reversible, base62 (recomendado). Genera un ID único de 64 bits, pásalo por una biyección con clave (una red Feistel u otra permutación biyectiva), y después codifícalo en base62, con un padding opcional de largo fijo. La biyección mantiene la unicidad y quita la predictibilidad: no puedes adivinar vecinos sin la clave.
 
-### B. ID secuencial, codificado en base62
-Simple, corto, libre de colisiones con un buen generador. Pero un ID puramente secuencial es
-**predecible**: filtra el volumen total y se raspa trivialmente incrementando.
+Una red Feistel (Horst Feistel, IBM, años 70, la base de DES) convierte cualquier función en una permutación invertible sobre un ancho fijo de bits. Para short codes da una mezcla 1:1, reversible y dependiente de la clave del espacio de IDs. Es el truco estándar de "cifrar el contador".
 
-### C. ID único + ofuscación reversible, base62  ← recomendado
-Genere un ID único de 64 bits, páselo por una **biyección con clave** (una red de Feistel u otra
-permutación biyectiva) y luego codifique en base62. La biyección preserva la unicidad (sin colisiones)
-mientras destruye la predictibilidad (no se pueden adivinar los vecinos sin la clave). El padding de
-largo fijo es opcional.
+Base62 es `[A-Za-z0-9]`. La capacidad es `62^7 ~ 3.5 trillion` y `62^8 ~ 218 trillion`. Siete caracteres alcanzan para la mayoría de las plataformas; ocho dan holgura operativa. Los alias personalizados se saltan esto.
 
-> **¿Por qué una red de Feistel?** Es una construcción (Horst Feistel, IBM, años 1970, base del DES)
-> que convierte cualquier función en una permutación invertible sobre un ancho de bits fijo. Para short
-> codes da un revuelto 1:1, reversible y dependiente de la clave del espacio de IDs: unicidad gratis,
-> impredictibilidad por construcción. Es el truco estándar de "cifrar el contador".
+La respuesta staff: IDs únicos asignados de forma central por rangos (o descentralizada con garantía de unicidad), una biyección reversible contra la predictibilidad, codificación base62, y un índice único en el almacenamiento como última línea de defensa.
 
-### Base62 y largo del código
-Base62 = `[A-Za-z0-9]`. Capacidad: `62^7 ~ 3.5 trillion`, `62^8 ~ 218 trillion`. Siete caracteres
-alcanzan para la mayoría de las plataformas; ocho dan holgura operativa. Los alias personalizados se
-saltan todo esto.
-
-### Encuadre staff
-ID único coordinado centralmente por rangos (o descentralizado con garantía de unicidad), biyección
-reversible para cortar la predictibilidad, codificación base62, y **validar la unicidad en el
-almacenamiento como última línea de defensa** (un index único atrapa lo imposible).
-
-## 7. Teoría: generación de ID único
+# Generación de ID único
 
 | Enfoque | Cómo | Trade-off |
 |---|---|---|
-| Auto-increment de la DB | la base entrega el siguiente entero | sirve para MVP; hotspot central; bloquea multi-región activa |
-| **Estilo Snowflake** | `timestamp \| worker id \| local sequence` en 64 bits | horizontal, más o menos ordenado en el tiempo, independiente de la DB; ojo con clock skew, coordinación de worker-id, layout de bits |
-| **Asignación por rangos** | un servicio entrega a cada instancia un bloque de 1M de IDs para consumir localmente | muy simple, coordinación casi nula por request; desperdicia IDs al reiniciar (normalmente está bien), necesita un refill confiable |
+| Auto-increment de la DB | la base de datos entrega el siguiente entero | sirve para MVP; hotspot central; bloquea multi-región activo |
+| Estilo Snowflake | `timestamp \| worker id \| local sequence` en 64 bits | horizontal, ordenado más o menos por tiempo, independiente de la DB; cuidado con el clock skew, la coordinación de worker-id y la distribución de bits |
+| Asignación por rangos | un servicio le entrega a cada instancia un bloque de 1M IDs para consumir localmente | coordinación por request casi nula; desperdicia IDs al reiniciar (en general no importa), necesita recarga confiable |
 
-El **Snowflake** de Twitter (2010) es el esquema canónico de 64 bits: ~41 bits de timestamp, ~10 bits
-de máquina, ~12 bits de secuencia. Para un acortador de URL, tanto la asignación por rangos como
-snowflake funcionan bien.
+El Snowflake de Twitter (2010) es el esquema canónico de 64 bits: unos 41 bits de timestamp, 10 bits de máquina, 12 bits de secuencia. La asignación por rangos y Snowflake sirven los dos para un acortador de URL.
 
-## 8. Flujo de creación
+# Flujo de creación
 
-1. Valide la URL (ver abajo).
-2. Si hay alias personalizado, verifique disponibilidad y política.
-3. Genere el código.
-4. Persista en la DB transaccional.
-5. Haga write-through al cache.
-6. Devuelva la `short_url`.
+Valida la URL, revisa disponibilidad y política si hay alias personalizado, genera el código, persiste en la DB transaccional, escribe en cache con write-through, devuelve `short_url`.
 
-**Validar la URL no es cosmético.** Acepte solo http/https. Bloquee objetivos de SSRF: `127.0.0.1`,
-`169.254.169.254` (metadatos de cloud), rangos privados RFC1918, hostnames internos. Canonicalice.
-Imponga un límite de tamaño. Maneje punycode y caracteres sospechosos. (SSRF, Server-Side Request
-Forgery, es el riesgo real: su validador buscando una URL interna provista por el atacante.)
+La validación de URL es un control de seguridad. Acepta solo http y https. Bloquea destinos de SSRF: `127.0.0.1`, `169.254.169.254` (metadata de la nube), rangos privados RFC1918, hostnames internos. Canonicaliza, impone un límite de tamaño, y maneja punycode y caracteres sospechosos. SSRF (Server-Side Request Forgery) es tu validador pidiendo una URL interna que mandó un atacante.
 
-**Idempotencia.** Guarde la respuesta por `idempotency_key` durante una ventana corta, para que un
-retry del cliente tras un timeout no acuñe links duplicados.
+Idempotencia: guarda la respuesta por `idempotency_key` durante una ventana corta para que un reintento del cliente después de un timeout no cree links duplicados.
 
-**Dedup, por defecto no.** Deduplicar globalmente por URL larga rompe el analytics por campaña y por
-tenant, filtra privacidad (un usuario se entera de que otra persona ya acortó un link) e impide links
-distintos para la misma landing page. Si lo quiere igual, deduplique solo como optimización interna de
-almacenamiento, separando la entidad lógica del link del destino físico de la URL.
+El dedup por default es no. El dedup global por URL larga rompe analytics por campaña y por tenant, filtra privacidad (un usuario se entera de que alguien ya acortó ese link) y bloquea links distintos para una misma landing page. Si lo quieres, deduplica solo como optimización interna de almacenamiento, separando el link lógico del destino físico de la URL.
 
-## 9. Flujo de redirect (el corazón)
+# Flujo de redirect
 
 ```mermaid
 sequenceDiagram
   Client->>Edge: GET /abc123X
-  Edge->>Cache: lookup code
+  Edge->>Cache: buscar código
   alt cache hit
-    Cache-->>Edge: target
+    Cache-->>Edge: destino
   else miss
-    Edge->>DB: read (replica), validate status + expiry
-    DB-->>Edge: target
-    Edge->>Cache: populate (TTL)
+    Edge->>DB: leer (réplica), validar estado + expiración
+    DB-->>Edge: destino
+    Edge->>Cache: poblar (TTL)
   end
-  Edge-)Analytics: emit click event (async)
+  Edge-)Analytics: emitir evento de clic (async)
   Edge-->>Client: 301/302 Location
 ```
 
-**Negative caching.** Si alguien martilla códigos al azar, cada miss pega en la DB: una tormenta de
-misses. Cachee el resultado "no existe" por un TTL corto (30-60s).
+Cache negativo: cuando alguien golpea códigos al azar, cada miss llega a la DB en una tormenta de misses. Cachea el resultado "no existe" por 30 a 60 s.
 
-**Elección del TTL.** Si el mapeo es inmutable, el TTL puede ser de horas y la invalidación casi
-desaparece. Si los links se pueden deshabilitar o editar, elija un TTL corto, invalidación por evento,
-o separe capas: mantenga el destino casi inmutable (cacheado con fuerza) y use una capa rápida de
-**blacklist** para bloqueos urgentes.
+TTL: si el mapeo es inmutable, el TTL puede ser de horas y la invalidación casi desaparece. Si los links se pueden deshabilitar o editar, elige un TTL corto, invalidación por eventos, o capas separadas: cachea el destino con fuerza y mantén una capa rápida de blacklist para bloqueos urgentes.
 
-## 10. Teoría: cache y el camino de lectura
+# Cache y el camino de lectura
 
-Este es un **camino de lectura cache-heavy** de manual.
+Es un camino de lectura cargado de cache. L1 es una cache local en el proceso para hot keys extremas (chica, TTL corto). L2 es una cache distribuida (Redis) compartida entre instancias. La DB es la fuente de verdad.
 
-- **L1**: cache local in-process para claves extremadamente calientes (chico, TTL corto).
-- **L2**: cache distribuido (Redis) compartido entre instancias.
-- **DB** como fuente de verdad.
+Un link viral concentra la carga en una hot key. Single-flight (request coalescing) en el miss significa que cuando 1000 requests fallan a la vez, uno va a la DB y el resto espera su resultado. Sin eso, una hot key fría provoca un cache stampede (thundering herd, dog-piling) que puede tumbar la DB.
 
-**Problema de hot key.** Un link viral concentra carga. Más allá de un buen cache, el staff piensa en:
+Refresh-ahead refresca una entrada caliente antes de que expire para que nunca se enfríe bajo carga. La variante probabilística (Vattani et al., *Optimal Probabilistic Cache Stampede Prevention*, 2015) refresca antes con una probabilidad que sube a medida que se acerca la expiración. Asegúrate de que el valor caliente quepa en L1 y limita el refresco concurrente.
 
-- **Single-flight** (coalescencia de requests) en el miss: si 1000 requests fallan al mismo tiempo,
-  exactamente uno va a la DB y el resto espera su resultado. Sin esto, una hot key fría causa un **cache
-  stampede** (también llamado thundering herd o dog-piling) capaz de tumbar la DB.
-- **Refresh-ahead:** refresque una entrada caliente antes de que expire, para que nunca se enfríe bajo
-  carga. La variante probabilística (Vattani et al., *Optimal Probabilistic Cache Stampede Prevention*,
-  2015) refresca temprano con una probabilidad que sube a medida que se acerca la expiración.
-- Asegure que el valor caliente entre en L1; limite el refresh concurrente.
+# Elección de almacenamiento
 
-## 11. Teoría: elección de almacenamiento
+La carga es búsqueda por PK según código, pocas relaciones, escritura moderada, lectura muy alta, durabilidad fuerte. SQL o un KV persistente sirven los dos. Lo que importa es la búsqueda rápida por clave, una replicación madura, backup y restore confiables, y que el equipo conozca la herramienta.
 
-La carga: lookup por PK usando el código, pocas relaciones, escritura moderada, lectura altísima,
-durabilidad fuerte. SQL o un KV persistente sirven. Lo que importa es un lookup eficiente por clave,
-replicación madura, backup/restore confiable y familiaridad del equipo.
+La elección pragmática es Postgres con particionamiento cuando haga falta, réplicas de lectura y cache pesado delante. Pasa a un KV distribuido estilo Dynamo o Cassandra solo cuando la escala lo exija. La respuesta staff es el sistema más chico que aguanta la carga con margen y evoluciona de forma segura. Amazon Dynamo (DeCandia et al., 2007) es la referencia del extremo KV distribuido: consistent hashing, lecturas y escrituras por quórum, consistencia eventual.
 
-**Elección pragmática:** una base relacional madura (Postgres) con particionamiento cuando haga falta,
-read replicas y cache pesado adelante. Evolucione a un KV distribuido estilo Dynamo/Cassandra solo
-cuando la escala realmente lo obligue. La respuesta staff es el **sistema más chico que aguanta la
-carga con margen y evoluciona seguro**, no la tecnología más exótica. (Amazon Dynamo, DeCandia et al.
-2007, es la referencia para el extremo de KV distribuido de ese espectro: consistent hashing,
-lecturas/escrituras por quórum, consistencia eventual.)
+# Particionamiento
 
-## 12. Particionamiento
+Particiona por `code` o por su ID interno. El particionamiento por hash reparte la carga de forma pareja y sirve para búsquedas aleatorias, pero rebalancear es más difícil y no hay localidad temporal. Consistent hashing (Karger et al., 1997) minimiza las claves que se mueven cuando agregas o quitas un nodo.
 
-Particione por `code` o por su ID interno.
+El particionamiento por rango de tiempo o de ID da buen archivado, ciclo de vida y localidad, pero un ID monótono crea un shard más nuevo caliente. Para la búsqueda del redirect prefiere hash o una distribución pseudoaleatoria sobre el ID ofuscado. Analytics particiona por tiempo.
 
-- **Partición por hash:** distribución pareja, buena para lookup aleatorio; rebalanceo más difícil, sin
-  localidad temporal. **Consistent hashing** (Karger et al., 1997) minimiza las claves que se mueven
-  cuando se agrega o quita un nodo: la técnica estándar.
-- **Partición por rango de tiempo/ID:** buena para archivo y ciclo de vida, buena localidad, pero un ID
-  monotónico crea un shard más nuevo caliente.
+# Consistencia
 
-Para el lookup del redirect, prefiera hash o una distribución pseudoaleatoria sobre el ID ofuscado. El
-analytics particiona distinto (por tiempo).
+La consistencia fuerte es obligatoria para la unicidad del alias personalizado (índice único en `(domain, code)`), para persistir el link antes de la respuesta de éxito, y para cambios críticos de estado de administración. La consistencia eventual sirve para analytics, la replicación de DR entre regiones y los dashboards agregados.
 
-## 13. Consistencia
+Read-after-write: un usuario que crea un link y le hace clic de inmediato espera que funcione, aunque una réplica esté atrasada. Resuélvelo con lecturas pegadas a la región por unos segundos, una cache write-through (la opción más limpia, porque el redirect lee lo que el create escribió un momento antes), o un fallback al primario cuando la réplica se atrasa.
 
-- **Consistencia fuerte obligatoria:** unicidad del alias personalizado (index único en
-  `(domain, code)`), link persistido antes de la respuesta de éxito, cambios críticos de status hechos
-  por el admin.
-- **Consistencia eventual aceptable:** analytics, replicación de DR entre regiones, dashboards
-  agregados.
+# Multi-región
 
-**Read-after-write.** Si un usuario crea un link y lo clickea al instante, espera que funcione, aunque
-una read replica todavía no se haya puesto al día. Resuélvalo con lecturas pegadas a la región por unos
-segundos, cache write-through (lo más limpio: el redirect lee el cache que la creación acaba de
-escribir), o un fallback al primary cuando la réplica se atrasa.
+Separa create y resolve. Resolve está dominado por lectura y es cacheable, así que llévalo al edge y a varias regiones como un servicio regional sin estado con una cache regional fuerte. Create puede empezar como un solo escritor en una región primaria, lo que mantiene simples la unicidad de alias y la generación de IDs.
 
-## 14. Multi-región
+Evoluciona en tres pasos: una región de create con muchas regiones de redirect sobre réplica más cache, después create multi-región con rangos de ID o namespaces por región, después active-active solo si el negocio lo exige. Evita el active-active prematuro.
 
-Separe crear y resolver.
+# Analytics fuera del camino del redirect
 
-- **Resolver** está dominado por lectura y es cacheable: empújelo a la edge y a varias regiones,
-  servicio regional stateless con un cache regional fuerte.
-- **Crear** puede arrancar con un único writer por región primaria, lo que simplifica la unicidad de
-  alias y la generación de ID.
+El redirect es el camino A y analytics es el camino B; nunca los acoples de forma rígida. El redirect responde rápido, el evento de clic va a una cola o log, los consumidores agregan contadores por minuto, hora, día, país, dispositivo y referer, y los dashboards consultan un store analítico separado.
 
-Evolución: (1) una región de creación, muchas regiones de redirect con réplica + cache; (2) creación
-multi-región con rangos/namespaces de ID por región; (3) active-active sofisticado solo si el negocio
-lo exige. Evite el active-active prematuro.
+Si la cola muere, elige best-effort (perder analytics, mantener el redirect), un buffer local corto con reintento, o muestreo en degradación. El redirect siempre gana. Niveles de retención: crudo 30 días, agregado por hora 1 año, agregado por día 5 años. Para visitantes únicos a este volumen, HyperLogLog (Flajolet et al., 2007) estima la cardinalidad en kilobytes en lugar de guardar cada ID.
 
-## 15. Analytics sin lastimar el redirect
+# Seguridad y antiabuso
 
-> El redirect es el camino A. El analytics es el camino B. Nunca los acople con fuerza.
+Riesgos: phishing, distribución de malware, spam, enumeración de links, abuso de open redirect, SSRF durante la validación. Controles: rate limit por IP, token, tenant y ASN sospechoso, reputación de dominio al crear, chequeos de safe browsing (síncronos o asíncronos según el riesgo), deshabilitación rápida de links, una página intersticial de vista previa para links sospechosos, fricción progresiva y CAPTCHA, y autenticación más fuerte para cuentas de alto volumen.
 
-El redirect responde rápido; el evento de clic va a una cola o log; los consumidores agregan contadores
-por minuto/hora/día/país/dispositivo/referer; los dashboards consultan un store analítico separado. Si
-la cola muere: best-effort (descarte el analytics, mantenga el redirect), buffer local corto con retry,
-o muestreo bajo degradación. Preserve siempre el redirect primero. Capas de retención: crudo 30 días,
-agregado por hora 1 año, agregado por día 5 años. Para conteos de visitantes únicos a ese volumen,
-**HyperLogLog** (Flajolet et al., 2007) estima cardinalidad en kilobytes en vez de guardar cada ID.
+El antienumeración combina ofuscación, un largo de código adecuado, rate limit en resolve y monitoreo de patrones de escaneo. Para privacidad, minimiza, trunca o aplica hash de ventana corta a las IPs.
 
-## 16. Seguridad y antiabuso
+# Ciclo de vida y alias personalizado
 
-Riesgos: phishing, distribución de malware, spam, enumeración de links, abuso de open redirect, SSRF
-durante la validación. Controles: rate limit por IP/token/tenant/ASN sospechoso, reputación de dominio
-al momento de crear, chequeos de safe browsing (síncronos o asíncronos según el riesgo), desactivación
-rápida de links, interstitial de preview para links sospechosos, fricción progresiva/CAPTCHA, auth más
-fuerte para cuentas de alto volumen.
+Expiración: persiste `expires_at`, valídalo al momento de la lectura (un job de limpieza offline solo deja que un link expirado sobreviva en cache), desaloja al expirar, y corre una limpieza asíncrona para archivado o borrado lógico. Marca con tombstone los links baneados o eliminados para impedir el reuso y mantener un rastro de auditoría.
 
-**Antienumeración:** ofuscación + largo de código adecuado + rate limit en el endpoint de resolución +
-monitoreo de patrones de escaneo. **Privacidad:** minimice, trunque o haga hash de las IPs en ventana
-corta.
+Los alias personalizados necesitan consistencia fuerte (índice único en `(domain, code)`), palabras reservadas (admin, login, api), política por tenant, y ninguna colisión con rutas internas. Son una parte chica del tráfico con valor alto, lo que justifica un flujo de creación más estricto.
 
-## 17. Ciclo de vida y alias personalizado
+# Observabilidad
 
-**Expiración:** persista `expires_at`, valide al leer (no dependa solo de un job offline de limpieza:
-un link expirado podría sobrevivir en el cache), haga evict al expirar, corra un job asíncrono de
-limpieza para archivo/borrado lógico. Use **tombstone** en links baneados o eliminados, para impedir el
-reuso y ayudar a la auditoría.
+Métricas: QPS de create y resolve, p50, p95 y p99 de resolve, cache hit ratio por capa, errores por clase, tasa de not-found, tasa de acceso a links baneados y expirados, tiempo de propagación de create al primer resolve, throughput y atraso de analytics. Logs: access logs muestreados y logs de auditoría para operaciones de administración, estructurados con un correlation id. Tracing: completo en create, muestreado en el camino caliente de resolve.
 
-**El alias personalizado** necesita consistencia fuerte (index único en `(domain, code)`), palabras
-reservadas (admin, login, api), política por tenant y ninguna colisión con rutas internas. Es una
-minoría del tráfico pero de alto valor, así que se justifica un flujo de creación más estricto.
+Alerta ante una caída del cache hit ratio, una suba del p99, errores de redirect por encima del umbral, un crecimiento anormal de 404 (un escaneo) y un crecimiento del backlog de analytics.
 
-## 18. Observabilidad
-
-Métricas: QPS de creación/resolución, p50/p95/p99 de la resolución, cache hit ratio por capa, errores
-por clase, tasa de not-found, tasa de acceso a baneados/expirados, tiempo de propagación de la creación
-hasta la primera resolución, throughput y lag del pipeline de analytics. Logs: logs de acceso
-muestreados, logs de auditoría para operaciones de admin, estructurados con correlation id. Tracing:
-completo en la creación; muestreado en el camino caliente de resolución. Alertas: caída del cache hit
-ratio, subida del p99, error de redirect por encima del threshold, crecimiento anormal de 404
-(escaneo), crecimiento del backlog de analytics.
-
-## 19. Modos de falla
+# Modos de falla
 
 | Falla | Impacto | Mitigación |
 |---|---|---|
-| Cache caído | avalancha en la DB | rate limit + circuit breaker, L1 para hot keys, degradar analytics, cortar tráfico sospechoso |
-| DB degradada | sufren los misses y las creaciones | servir hot keys desde el cache, encolar/reintentar las creaciones, failover a una réplica promovida, proteger las operaciones de alias |
-| Región caída | indisponibilidad regional | DNS/anycast a otra región, réplicas/caches precalentados; la creación puede pausarse, el redirect debe sobrevivir |
-| Sistema de reputación caído | riesgo de abuso | modo degradado con reglas locales, más fricción para usuarios nuevos, review posterior de los links de esa ventana |
+| Cache caída | avalancha sobre la DB | rate limit + circuit breaker, L1 para hot keys, degradar analytics, descartar tráfico sospechoso |
+| DB degradada | misses y creates sufren | servir hot keys desde cache, encolar/reintentar creates, failover a réplica promovida, proteger operaciones de alias |
+| Región caída | caída regional | DNS/anycast a otra región, réplicas/caches precalentadas; create puede pausar, redirect tiene que sobrevivir |
+| Sistema de reputación caído | riesgo de abuso | modo degradado con reglas locales, más fricción para usuarios nuevos, revisión posterior de links de esa ventana |
 
-## 20. Roadmap
+# Roadmap
 
-1. **MVP robusto**: una región, API stateless, Postgres primary + replica, cache Redis, generador de ID
-   por rangos, analytics en una cola, dashboard offline básico.
-2. **Escala media**: cache local L1, control de hot key, particionamiento de la DB o almacenamiento
-   distribuido, redirect multi-región, analytics más maduro, reputación en capas.
-3. **Escala global**: creación multi-región con rangos por región, failover automático probado,
-   dominios personalizados por tenant, links premium con marca y SLA por cliente, edge compute para
-   algunos redirects.
+MVP: una región, API sin estado, Postgres primario más réplica, cache Redis, generador de IDs por rangos, analytics sobre una cola, dashboard offline básico.
 
-## 21. Errores comunes
+Escala media: cache local L1, control de hot keys, particionamiento de la DB o almacenamiento distribuido, redirect multi-región, analytics más maduro, reputación en capas.
 
-Partir de la tecnología en vez de los requisitos; dejar que el analytics bloquee el camino crítico del
-redirect; hash truncado sin discutir colisión y predictibilidad; ignorar seguridad y abuso; hacer
-sharding demasiado temprano cuando relacional + cache todavía aguantan; saltear la invalidación de
-cache, la expiración y el read-after-write; saltear la operación (métricas, failover, degradación).
+Escala global: create multi-región con rangos por región, failover automático probado, dominios personalizados por tenant, links premium con marca y SLA por cliente, edge compute para algunos redirects.
 
-## Referencias
+# Errores comunes
 
-- Martin Kleppmann, *Designing Data-Intensive Applications*, O'Reilly, 2017 (parámetros de carga,
-  consistencia, replicación, particionamiento).
-- DeCandia et al., *Dynamo: Amazon's Highly Available Key-value Store*, SOSP, 2007 (KV distribuido,
-  consistent hashing, consistencia eventual).
-- Karger et al., *Consistent Hashing and Random Trees*, STOC, 1997.
-- Twitter Engineering, *Announcing Snowflake*, 2010 (IDs únicos distribuidos).
-- Horst Feistel, *Cryptography and Computer Privacy*, Scientific American, 1973 (redes de Feistel).
-- Flajolet et al., *HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm*,
-  2007.
-- Vattani, Chierichetti, Lowenstein, *Optimal Probabilistic Cache Stampede Prevention*, VLDB, 2015.
-- Michael Nygard, *Release It!*, 2ª ed., 2018 (circuit breaker, bulkhead, pensamiento single-flight).
-- OWASP, *Server-Side Request Forgery Prevention Cheat Sheet*.
+Empezar por la tecnología en lugar de los requisitos. Dejar que analytics bloquee el camino del redirect. Usar un hash truncado sin discutir colisión y predictibilidad. Ignorar seguridad y abuso. Hacer sharding temprano cuando relacional más cache todavía aguanta. Saltarse la invalidación de cache, la expiración y read-after-write. Saltarse la operación: métricas, failover, degradación.
+
+# Referencias
+
+Martin Kleppmann, *Designing Data-Intensive Applications*, O'Reilly, 2017 (parámetros de carga, consistencia, replicación, particionamiento).
+
+DeCandia et al., *Dynamo: Amazon's Highly Available Key-value Store*, SOSP, 2007 (KV distribuido, consistent hashing, consistencia eventual).
+
+Karger et al., *Consistent Hashing and Random Trees*, STOC, 1997.
+
+Twitter Engineering, *Announcing Snowflake*, 2010 (IDs únicos distribuidos).
+
+Horst Feistel, *Cryptography and Computer Privacy*, Scientific American, 1973 (redes Feistel).
+
+Flajolet et al., *HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm*, 2007.
+
+Vattani, Chierichetti, Lowenstein, *Optimal Probabilistic Cache Stampede Prevention*, VLDB, 2015.
+
+Michael Nygard, *Release It!*, 2a ed., 2018 (circuit breaker, bulkhead, la lógica de single-flight).
+
+OWASP, *Server-Side Request Forgery Prevention Cheat Sheet*.

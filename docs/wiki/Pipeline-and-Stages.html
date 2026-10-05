@@ -59,79 +59,45 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="pipeline-and-stages">Pipeline and Stages</h1>
 <p>harness-kit carries one feature through six gated stages:</p>
 <pre><code>prd → prp → plan → dev → test → pr
 </code></pre>
-<blockquote>
-<p><strong>v5 (live):</strong> a new <a href="Autonomy.html"><code>intake</code></a> stage runs before <code>prd</code>. It harvests context from the repo
-and the context library so the pipeline runs without stopping to ask for inputs, and every stage now
-follows the <a href="Orchestration-and-Subagents.html">orchestrator-plus-leaf-subagents</a> pattern: inputs via
-resolve-mark-proceed, evals dispatched to a fresh evaluator. The six gated stages below are unchanged;
-intake sits in front of them and the gating machinery stays the same.</p>
-</blockquote>
-<p>The first two belong to the <strong>product-manager</strong> agent, the last four to the
-<strong>staff-software-engineer</strong> agent. Each stage is a small <a href="Harness-Engineering.html">harness</a>: a guide tells
-the agent how to write, references give it context, a <a href="Sensors.html">sensor</a> enforces structure, an
-<a href="Evals.html">eval</a> scores quality, and an approval marker gates the next stage.</p>
-<h2 id="anatomy-of-every-stage">Anatomy of every stage</h2>
-<pre><code>GUIDE     how to write it          pipeline.md · coding-style.md · templates/
-REF       context to pull in       AGENTS.md · prp/&lt;feature&gt;.md · conventions/{area}.md
-SENSOR    must-pass structure      deterministic, blocks approval
-EVAL      scored rubric            LLM-judge, threshold 8.0, retry x3
-</code></pre>
-<p>The flow inside a stage:</p>
-<ol>
-<li>The agent reads the guides and references and writes the artifact to
-<code>.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md</code>.</li>
-<li>On save, deterministic <strong>sensors</strong> fire. Failure blocks and returns feedback; the agent fixes only
-the failed parts.</li>
-<li>The <strong>eval</strong> scores the artifact 0-10. Below 8.0 retries (up to 3), regenerating only the
-low-scoring dimensions.</li>
-<li>On pass, the agent appends an <strong>approval marker</strong> <code>&lt;!-- approved: {date} score={n} --&gt;</code>.</li>
-<li><strong>Token spend</strong> for the phase is recorded and an inline <code>&lt;!-- tokens: ... --&gt;</code> comment is appended.</li>
-</ol>
-<p>The approval marker is the gate: the next stage checks for it before starting.</p>
-<h2 id="the-stages">The stages</h2>
+<p>The product-manager agent owns the first two and the staff-software-engineer agent owns the last four. An <a href="Autonomy.html"><code>intake</code></a> stage runs in front: it harvests the repo and the context library so no stage stops to ask, and each stage then runs as an <a href="Orchestration-and-Subagents.html">orchestrator with leaf subagents</a>. <code>/pipeline:run</code> drives <code>intake</code> through <code>pr</code> with two human gates, after the PRD and before the PR.</p>
+<h1 id="anatomy-of-a-stage">Anatomy of a stage</h1>
+<p>Each stage is a small <a href="Harness-Engineering.html">harness</a>: guides such as <code>pipeline.md</code> and <code>templates/</code> say how to write, references such as <code>prp/&lt;feature&gt;.md</code> and <code>conventions/{area}.md</code> give context, a <a href="Sensors.html">sensor</a> blocks on bad structure, and an <a href="Evals.html">eval</a> scores quality.</p>
+<p>The agent writes the artifact to <code>.claude/runtime/outputs/{pm,sse}/{stage}/{feature_id}.md</code>. On save the sensors fire, and a failure returns feedback so the agent fixes only the failed parts. Then the judge answers the rubric's atomic yes/no checks, and <code>eval-score.py</code> recomputes the weighted 0 to 10 total from the rubric weights.</p>
+<p>The judge is a fresh Claude evaluator (<code>local</code>, the default) or Jev by TypeSafe AI (<code>jev</code>), set per project with <code>/hk:eval</code>. Below 8.0 the stage retries up to 3 times, regenerating only the failed checks. On pass the agent appends <code>&lt;!-- approved: {date} score={n} --&gt;</code>, and the next stage checks for that marker before it starts.</p>
+<h1 id="the-stages">The stages</h1>
 <table>
 <thead>
 <tr>
 <th>Stage</th>
 <th>Agent</th>
 <th>Artifact</th>
-<th>Gates (sensors · evals)</th>
+<th>Sensors</th>
+<th>Evals</th>
 </tr>
 </thead>
 <tbody>
@@ -139,89 +105,69 @@ low-scoring dimensions.</li>
 <td><code>prd</code></td>
 <td>product-manager</td>
 <td>Product Requirements Document</td>
-<td><code>prd-structure</code>, <code>prd-acceptance-criteria</code> · <code>prd-quality</code>, <code>prd-readiness</code></td>
+<td><code>prd-structure</code>, <code>prd-acceptance-criteria</code></td>
+<td><code>prd-quality</code>, <code>prd-readiness</code></td>
 </tr>
 <tr>
 <td><code>prp</code></td>
 <td>product-manager</td>
-<td>Product Requirements Prompt (eng handoff)</td>
-<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code>, <code>link-validator</code> · <code>prp-quality</code>, <code>prp-context-readiness</code></td>
+<td>Product Requirements Prompt</td>
+<td><code>prp-structure</code>, <code>prp-context-quality</code>, <code>prp-links</code></td>
+<td><code>prp-quality</code>, <code>prp-context-readiness</code></td>
 </tr>
 <tr>
 <td><code>plan</code></td>
 <td>staff-software-engineer</td>
 <td>technical plan</td>
-<td><code>plan-structure</code> · <code>plan-quality</code></td>
+<td><code>plan-structure</code></td>
+<td><code>plan-quality</code></td>
 </tr>
 <tr>
 <td><code>dev</code></td>
 <td>staff-software-engineer</td>
-<td>code + commits</td>
-<td><code>code-conventions</code>, <code>test-coverage</code>, <code>dev-structure</code> · <code>dev-quality</code></td>
+<td>code and commits</td>
+<td><code>dev-structure</code>, <code>code-conventions</code>, <code>code-maintainability</code>, <code>test-coverage</code></td>
+<td><code>dev-quality</code></td>
 </tr>
 <tr>
 <td><code>test</code></td>
 <td>staff-software-engineer</td>
 <td>test run report</td>
-<td><code>test-structure</code> · <code>test-quality</code></td>
+<td><code>test-structure</code></td>
+<td><code>test-quality</code></td>
 </tr>
 <tr>
 <td><code>pr</code></td>
 <td>staff-software-engineer</td>
 <td>pull request</td>
-<td><code>pr-structure</code> · <code>pr-quality</code> · arms <code>pr-monitor</code></td>
+<td><code>pr-structure</code></td>
+<td><code>pr-quality</code>, then arms <code>pr-monitor</code></td>
 </tr>
 </tbody>
 </table>
-<p>System design (the <strong>system-architect</strong> agent) is an <em>optional front stage before <code>prp</code>/<code>plan</code></em>: a
-strong <a href="index.html">System Design Doc</a> feeds a sharper PRP and a grounded plan. It is not part of the default
-six-stage pipeline.</p>
-<h2 id="approval-markers-and-token-accounting">Approval markers and token accounting</h2>
-<ul>
-<li><strong>Approval marker</strong>: <code>&lt;!-- approved: YYYY-MM-DD score=N --&gt;</code> (the PRP also carries
-<code>ready-for-handoff: true</code>). Its presence is what lets the next stage begin.</li>
-<li><strong>Tokens</strong>: hooks bracket each phase with start/end markers, then <code>token-phase.py</code> sums usage from
-the Claude transcript and writes <code>.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json</code>. All
-stages of one feature append to the <strong>same</strong> file by reusing the <code>feature_id</code>, so you get the whole
-lifecycle's cost in one place. Token accounting never blocks a stage; if the transcript is
-unreadable it logs and exits clean.</li>
-</ul>
-<h2 id="status-bar">Status bar</h2>
-<p>A live indicator tracks the active feature across all stages:</p>
+<p><code>prp-links</code> runs <code>link-validator.py</code>. The readiness evals and <code>spec-satisfied</code> always use Claude, whichever judge you pick. System design, owned by the system-architect agent, is an optional front stage before <code>prp</code> or <code>plan</code> and sits outside these six.</p>
+<h1 id="approval-markers-and-tokens">Approval markers and tokens</h1>
+<p>The marker is <code>&lt;!-- approved: YYYY-MM-DD score=N --&gt;</code>, and the PRP also carries <code>ready-for-handoff: true</code>. Its presence lets the next stage begin.</p>
+<p>Hooks bracket each phase, and <code>token-phase.py</code> sums usage from the Claude transcript into <code>.claude/runtime/outputs/{pm,sse}/tokens/{feature_id}.json</code>, one file per agent for the whole lifecycle because every stage reuses the <code>feature_id</code>. Token accounting never blocks a stage; on an unreadable transcript it logs and exits clean.</p>
+<h1 id="pipeline-status">Pipeline status</h1>
+<p><code>hk status</code> prints the active feature. The same line can drive the Claude Code status line, but only if you install with <code>HK_STATUSLINE=1</code>; by default the harness leaves your own status line alone, since a project setting would override it.</p>
 <pre><code>idle · /product-manager:run · /sse:run · /pipeline:continue
-billing-fix [prd+prp+plan+dev+test+pr] · prp approved · plan drafting · next /sse:plan · sensor: plan-structure
-billing-fix · complete (prd/prp/plan/dev/test/pr)
+billing-fix · prp approved · plan drafting · next /sse:plan
+billing-fix · complete
 </code></pre>
-<p>State persists at <code>.claude/.pipeline-state.json</code>. Close the session and reopen, <code>/pipeline:continue</code>
-resumes at the next pending stage. When the PR merges, the monitor clears state automatically.</p>
-<h2 id="single-stage-and-detour-commands">Single-stage and detour commands</h2>
-<p>Every stage is also its own command, so you can run just the part you need:</p>
-<pre><code>/product-manager:prd | :prp
-/sse:plan | :dev | :test | :pr
-/sse:run --local        plan → dev → test, no PR
-/pipeline:continue      resume next pending stage
-/pipeline:reset         abandon the active run
+<p>State lives in <code>.claude/.pipeline-state.json</code>. Reopen a session and <code>/pipeline:continue</code> resumes at the next pending stage. When the PR merges, the monitor clears the state.</p>
+<h1 id="context-tools">Context tools</h1>
+<p>Stages that read the target repo run <code>.claude/scripts/context-tools.sh</code> once and use what is installed. semble finds code by intent and returns file and line, repowise explains modules and scores the risk of touching them and lists the tests that cover a change, context7 fetches current library docs, and joern or graphify answer who calls what. With none of them the stage falls back to grep. <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/context-strategy.md" target="_blank" rel="noopener">context-strategy.md</a> maps each question to a tool.</p>
+<h1 id="single-stage-commands">Single-stage commands</h1>
+<p>Every stage is also its own command with the same sensors and evals. The list of detours is on <a href="Golden-Path.html#stepping-off-the-path">Golden Path</a>.</p>
+<h1 id="the-sdd-loop">The SDD loop</h1>
+<p><code>/sse:sdd</code> replaces the single pass of dev and test with a goal loop:</p>
+<pre><code>prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval] → [user gate] → pr
+                         loop, cap 3 iterations           stops local
 </code></pre>
-<p>Same sensors, same evals, same artifacts, you lose the one-command convenience, not the gating.</p>
-<h2 id="the-sdd-variant-spec-driven-loop">The SDD variant (spec-driven loop)</h2>
-<p><code>/sse:sdd</code> replaces the single-shot <code>dev → test</code> with a goal loop:</p>
-<pre><code>prd → prp → plan → [dev ↔ test ↔ spec-satisfied eval]  →  [user gate]  →  pr
-                         ↑ loop, cap 3 iterations          stops local
-</code></pre>
-<ul>
-<li>A pre-flight sensor <code>prp-has-acceptance-criteria</code> blocks if the PRP is not testable.</li>
-<li>The loop predicate is built from the PRP's <code>Success criteria (verifiable)</code> + <code>Validation gates</code>.</li>
-<li>Each iteration's <code>spec-satisfied</code> eval runs in a <strong>fresh session</strong> (no worker context) and returns
-PASS/FAIL, not a score. FAIL re-enters with a <code>next_iter_focus</code> hint.</li>
-<li>The PR is <strong>never</strong> auto-opened; you review the transcript at
-<code>.claude/runtime/outputs/sse/sdd/{feature_id}.md</code> and run <code>/sse:pr</code> when ready.</li>
-</ul>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Golden-Path.html">Golden Path</a>: running all six stages with one command</li>
-<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>: the gates in detail</li>
-<li><a href="Agents.html">Agents</a>: who owns which stage</li>
-</ul>
+<p>The pre-flight sensor <code>prp-has-acceptance-criteria</code> blocks a PRP that is not testable. The loop predicate comes from the PRP's <code>Success criteria (verifiable)</code> and <code>Validation gates</code>. Each iteration's <code>spec-satisfied</code> eval runs in a fresh Claude session and returns PASS or FAIL; a FAIL re-enters with a <code>next_iter_focus</code> hint.</p>
+<p>The PR never opens on its own. You read the transcript at <code>.claude/runtime/outputs/sse/sdd/{feature_id}.md</code> and run <code>/sse:pr</code> when ready.</p>
+<p>See also <a href="Golden-Path.html">Golden Path</a>, <a href="Sensors.html">Sensors</a>, <a href="Evals.html">Evals</a>, <a href="Agents.html">Agents</a>.</p>
 
     <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Pipeline-and-Stages" target="_blank" rel="noopener">Pipeline and Stages</a> in the wiki. Edit it there.</p>
   </main>

@@ -22,6 +22,9 @@ Read:
 - guides/templates/system-design.md
 - guides/pipeline.md
 - guides/examples/good-system-design-example.md
+- .claude/shared/context-strategy.md § `/system-design:design`
+
+Existing system → ground current architecture first with semble + repowise context (probe `.claude/scripts/context-tools.sh {repo}`). Greenfield → skip.
 
 Generate the SDD: walk all 13 stages of the template. Every non-functional claim carries a number.
 Show back-of-envelope math. Name a trade-off per major choice. Mermaid for flow and architecture.

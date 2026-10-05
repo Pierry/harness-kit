@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Agents &middot; harness-kit wiki</title>
-<meta name="description" content="O harness-kit vem com três agents. Cada um vive em .claude/agents/&lt;name&gt;/ com seu próprio README, sensors, evals, guides e skills, e está registrado em..." />
+<meta name="description" content="O harness-kit traz três agents, registrados em AGENTS.md. Cada um mora em .claude/agents/&lt;name&gt;/ com seu próprio README, guides, sensors, evals e..." />
 <meta property="og:title" content="Agents &middot; harness-kit wiki" />
-<meta property="og:description" content="O harness-kit vem com três agents. Cada um vive em .claude/agents/&lt;name&gt;/ com seu próprio README, sensors, evals, guides e skills, e está registrado em..." />
+<meta property="og:description" content="O harness-kit traz três agents, registrados em AGENTS.md. Cada um mora em .claude/agents/&lt;name&gt;/ com seu próprio README, guides, sensors, evals e..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/pt/Agents.html" />
@@ -59,98 +59,42 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="agents">Agents</h1>
-<p>O harness-kit vem com três agents. Cada um vive em <code>.claude/agents/&lt;name&gt;/</code> com seu próprio README,
-sensors, evals, guides e skills, e está registrado em
-<a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md" target="_blank" rel="noopener"><code>AGENTS.md</code></a>. Os três também podem ser
-invocados como sub-agents pela ferramenta Task.</p>
-<h2 id="product-manager">product-manager</h2>
-<p>Transforma um problema em um spec pronto para engenharia. Dois artefatos, dois skills:</p>
-<ul>
-<li><strong><code>prd</code></strong>: Product Requirements Document, voltado ao negócio.</li>
-<li><strong><code>prp</code></strong>: Product Requirements Prompt, o handoff para engenharia.</li>
-</ul>
-<p>Entrada: <code>/product-manager:run</code> (PRD → PRP completo), ou <code>/product-manager:prd</code> / <code>:prp</code> isolados.
-Passa pelas gates dos sensors e evals <code>prd-structure</code>/<code>prd-quality</code> e <code>prp-*</code>. Publica no Confluence
-quando <code>JIRA_USERNAME</code> + <code>JIRA_API_TOKEN</code> estão definidos.</p>
-<h2 id="staff-software-engineer">staff-software-engineer</h2>
-<p>Transforma um PRP aprovado em um PR mergeado. Escolhe o <strong>area skill</strong> certo a partir dos arquivos do
-repo:</p>
-<ul>
-<li><strong><code>backend</code></strong>, <strong><code>web</code></strong>, <strong><code>mobile</code></strong>, <strong><code>devops</code></strong>: convenções de cada disciplina, sobrescritíveis
-por repo via <code>.claude/conventions/{area}.md</code>.</li>
-<li><strong><code>designer</code></strong>: um skill transversal, aplicado quando você constrói uma UI nova: Material Design 3,
-tema dark/light, tipografia moderna, acabamento nível Behance, i18n (en, pt-BR, es), favicon
-sensível ao contexto. Entra por cima do area skill. Veja <a href="Designer-Skill.html">Skill designer</a>.</li>
-</ul>
-<p>Entrada: <code>/sse:run</code> (plan → dev → test → pr → monitor), <code>/sse:run --local</code> (sem PR), ou os comandos de
-stage único. A <strong>variante SDD</strong> <code>/sse:sdd</code> roda um loop guiado por spec (plana uma vez, dev↔test↔eval
-até o PRP ser satisfeito, teto de 3 iterações, sem PR automático). Veja
-<a href="Pipeline-and-Stages.html">Pipeline e stages</a>.</p>
-<h2 id="system-architect">system-architect</h2>
-<p>Transforma um sistema ou problema em um <strong>System Design Doc</strong> rigoroso e depois roda um <strong>design
-review</strong> adversarial. Assim como o agent SSE escolhe um area skill, este agent escolhe um <strong>topic
-skill</strong>: um por problema clássico de system design, tirado da série de podcasts System Design:</p>
-<ul>
-<li><strong><code>design</code></strong>: fallback genérico para qualquer sistema.</li>
-<li><strong><code>review</code></strong>: review adversarial, nível staff, de um design existente.</li>
-<li><strong><code>url-shortener</code></strong> (<a href="URL-Shortener.html">#1</a>), <strong><code>rate-limiter</code></strong> (<a href="Rate-Limiter.html">#2</a>),
-<strong><code>search-engine</code></strong> (<a href="Search-Engine.html">#3</a>): playbooks por tópico.</li>
-</ul>
-<p>Entrada: <code>/system-design:run</code> (design → review), <code>/system-design:design</code>, <code>/system-design:review</code>.
-Passa pelas gates dos sensors <code>design-structure</code>/<code>design-rigor</code> e dos evals
-<code>design-quality</code>/<code>design-review-depth</code>. A teoria a fundo e as referências de cada tópico vivem nesta
-wiki. Método: <a href="System-Design-Method.html">Método de system design</a>.</p>
-<h2 id="o-padrão-que-eles-compartilham">O padrão que eles compartilham</h2>
-<p>Os três seguem o mesmo formato de harness: guides (feedforward), sensors + evals (feedback), um marker
-de aprovação por artefato, contabilidade de tokens por fase, e um skill para o qual o orquestrador
-despacha. Os agents product-manager e staff-software-engineer se encadeiam no
-<a href="Golden-Path.html">golden path</a> de seis stages; o agent system-architect é um stage opcional na frente
-dele.</p>
-<h2 id="v5-de-monolitos-para-orquestrador--folhas">v5: de monolitos para orquestrador + folhas</h2>
-<p>Hoje cada agent roda seus stages inline, e os sensors e evals rodam no mesmo contexto de quem escreveu
-o artefato. A v5 decompõe isso em um <strong>orquestrador</strong> (a sessão principal, dona do estado e das gates)
-que despacha para <strong>subagents folha</strong> pequenos, de propósito único: um coletor de <code>intake</code>, autores
-por stage, avaliadores adversariais que nunca escreveram o artefato que corrigem, e painéis paralelos
-de revisores. Os agents acima continuam sendo os donos conceituais dos seus stages; por dentro, cada
-stage vira um conjunto de folhas que o orquestrador coordena. Veja
-<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a> e <a href="Autonomy.html">Autonomia</a>.</p>
-<h2 id="roteamento">Roteamento</h2>
-<p>Quando você digita um slash command, o ponto de entrada não tem ambiguidade. Quando você descreve o
-trabalho em linguagem natural, a sessão principal consulta a tabela de roteamento em
-<a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md" target="_blank" rel="noopener"><code>AGENTS.md</code></a>:</p>
+<p>O harness-kit traz três agents, registrados em <a href="https://github.com/Pierry/harness-kit/blob/main/AGENTS.md" target="_blank" rel="noopener"><code>AGENTS.md</code></a>. Cada um mora em <code>.claude/agents/&lt;name&gt;/</code> com seu próprio README, guides, sensors, evals e skills, e cada um também pode ser chamado como subagent pela Task tool.</p>
+<h1 id="product-manager">product-manager</h1>
+<p>Escreve o PRD (voltado para o negócio) e o PRP (a passagem para engenharia). Rode <code>/product-manager:run</code> para os dois, ou <code>/product-manager:prd</code> e <code>/product-manager:prp</code> sozinhos. Os sensors <code>prd-structure</code>, <code>prd-acceptance-criteria</code>, <code>prp-structure</code>, <code>prp-context-quality</code> e <code>prp-links</code> fazem o gate de estrutura; os evals <code>prd-quality</code>, <code>prd-readiness</code>, <code>prp-quality</code> e <code>prp-context-readiness</code> fazem o gate de qualidade. Com <code>JIRA_USERNAME</code> e <code>JIRA_API_TOKEN</code> definidos, ele pode publicar no Confluence.</p>
+<h1 id="staff-software-engineer">staff-software-engineer</h1>
+<p>Leva um PRP aprovado até um merged PR. Ele escolhe uma area skill pelos arquivos do repo: <code>backend</code>, <code>web</code>, <code>mobile</code> ou <code>devops</code>, cada uma sobrescrevível por repo com <code>.claude/conventions/{area}.md</code>. A skill <code>designer</code> entra por cima quando você constrói uma UI nova; veja <a href="Designer-Skill.html">Designer Skill</a>.</p>
+<p>Rode <code>/sse:run</code> para plan, dev, test, pr e monitor de merge, <code>/sse:run --local</code> para parar antes do PR, ou qualquer stage sozinho. <code>/sse:sdd</code> planeja uma vez e depois repete dev, test e um eval spec-satisfied até o PRP ser atendido, com limite de 3 iterações e sem PR automático. Veja <a href="Pipeline-and-Stages.html">Pipeline e stages</a>.</p>
+<h1 id="system-architect">system-architect</h1>
+<p>Escreve um System Design Doc e depois roda uma review adversarial de nível staff que devolve ship, revise ou block. Ele escolhe uma topic skill por problema clássico: <code>url-shortener</code> (<a href="URL-Shortener.html">#1</a>), <code>rate-limiter</code> (<a href="Rate-Limiter.html">#2</a>), <code>search-engine</code> (<a href="Search-Engine.html">#3</a>), com <code>design</code> como fallback genérico e <code>review</code> para a passada de review.</p>
+<p>Rode <code>/system-design:run</code>, <code>/system-design:design</code> ou <code>/system-design:review</code>. Os sensors <code>design-structure</code>, <code>design-rigor</code> e <code>review-structure</code> e os evals <code>design-quality</code> e <code>design-review-depth</code> fazem o gate. O método está em <a href="System-Design-Method.html">Método de system design</a>.</p>
+<h1 id="a-forma-comum">A forma comum</h1>
+<p>Os três usam guides como feedforward, sensors e evals como feedback, um approval marker por artefato e contagem de tokens por fase. product-manager e staff-software-engineer se encadeiam no <a href="Golden-Path.html">golden path</a> de seis stages; system-architect é um stage opcional na frente.</p>
+<p>Cada stage roda como um orquestrador mais subagents folha. A sessão principal é dona do estado e dos gates e despacha um coletor <code>intake</code>, autores por stage e avaliadores que nunca escreveram o artefato que avaliam. O avaliador é um subagent Claude novo ou o Jev, conforme <code>/hk:eval</code>; veja <a href="Evals.html">Evals</a> e <a href="Orchestration-and-Subagents.html">Orquestração e subagents</a>.</p>
+<h1 id="roteamento">Roteamento</h1>
+<p>Um slash command escolhe seu ponto de entrada. Para pedidos em linguagem comum, a sessão principal lê a tabela de roteamento em <code>AGENTS.md</code>:</p>
 <table>
 <thead>
 <tr>
@@ -160,11 +104,19 @@ trabalho em linguagem natural, a sessão principal consulta a tabela de roteamen
 </thead>
 <tbody>
 <tr>
-<td>ideia → PR mergeado</td>
+<td>ideia até merged PR, sem intervenção</td>
+<td><code>/pipeline:run &quot;&lt;idea&gt;&quot;</code></td>
+</tr>
+<tr>
+<td>ideia até merged PR</td>
 <td><code>/golden-path</code></td>
 </tr>
 <tr>
-<td>rascunhar um spec</td>
+<td>coletar contexto</td>
+<td><code>/intake:run</code></td>
+</tr>
+<tr>
+<td>rascunhar uma spec</td>
 <td><code>product-manager</code></td>
 </tr>
 <tr>
@@ -177,17 +129,9 @@ trabalho em linguagem natural, a sessão principal consulta a tabela de roteamen
 </tr>
 </tbody>
 </table>
-<h2 id="adicionando-um-agent">Adicionando um agent</h2>
-<ol>
-<li>Crie <code>.claude/agents/&lt;name&gt;.md</code> (ou <code>&lt;name&gt;/agent.md</code> com os assets junto).</li>
-<li>Registre em <code>AGENTS.md</code>, na seção certa.</li>
-<li>Adicione <code>.claude/commands/&lt;name&gt;.md</code> se ele for invocável por slash command.</li>
-<li>Ligue os hooks de ciclo de vida em <code>.claude/runtime/hooks/&lt;name&gt;/</code> se ele precisar.</li>
-</ol>
-<h2 id="veja-também">Veja também</h2>
-<ul>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a> · <a href="Golden-Path.html">Golden path</a> · <a href="Harness-Engineering.html">Engenharia de harness</a></li>
-</ul>
+<h1 id="adicionando-um-agent">Adicionando um agent</h1>
+<p>Crie <code>.claude/agents/&lt;name&gt;.md</code>, ou <code>&lt;name&gt;/agent.md</code> quando ele traz assets, e registre em <code>AGENTS.md</code>. Adicione <code>.claude/commands/&lt;name&gt;.md</code> se ele usar um slash command. Coloque os hooks de ciclo de vida em <code>.claude/runtime/hooks/&lt;name&gt;/</code> e ligue-os em <code>.claude/settings.json</code>.</p>
+<p>Veja também <a href="Pipeline-and-Stages.html">Pipeline e stages</a>, <a href="Golden-Path.html">Golden Path</a>, <a href="Harness-Engineering.html">Harness Engineering</a>.</p>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/Agents" target="_blank" rel="noopener">Agents</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

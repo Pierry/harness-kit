@@ -66,6 +66,7 @@ function cmdUninstall(target) {
     '.claude/commands/product-manager',
     '.claude/commands/sse',
     '.claude/commands/pipeline',
+    '.claude/commands/hk',
     '.claude/runtime/hooks/product-manager',
     '.claude/runtime/hooks/staff-software-engineer',
     '.claude/runtime/scripts/product-manager',
@@ -79,6 +80,13 @@ function cmdUninstall(target) {
     '.claude/scripts/pipeline.py',
     '.claude/scripts/activity.py',
     '.claude/scripts/pr-monitor.py',
+    '.claude/scripts/eval-score.py',
+    '.claude/scripts/jev-judge.py',
+    '.claude/scripts/hk-config.py',
+    '.claude/scripts/context-tools.sh',
+    '.claude/scripts/trace.py',
+    '.claude/scripts/graph.py',
+    '.claude/graph/export_callgraph.sc',
     '.claude/scripts/stage-card.md',
     '.claude/.pipeline-state.json',
     '.claude/.pr-monitor-state.json',
@@ -97,7 +105,7 @@ function cmdUninstall(target) {
     }
   }
   console.log(`uninstalled harness-kit v${v} from ${target}`);
-  console.log(`note: CLAUDE.md, .claude/conventions/, .claude/runtime/outputs/, and .claude/.legacy-v3-backup/ kept. delete manually if desired.`);
+  console.log(`note: CLAUDE.md, .claude/hk-config.json, trace/, .claude/graph/ontology.yml, .claude/conventions/, .claude/runtime/outputs/, and .claude/.legacy-v3-backup/ kept. delete manually if desired.`);
 }
 
 function cmdStatus(target) {
@@ -146,7 +154,9 @@ usage:
 after install, restart Claude Code and use:
   /product-manager:prd | :prp | :run
   /sse:plan | :dev | :test | :pr | :pr-monitor | :run
-  /pipeline:continue | :reset`);
+  /pipeline:continue | :reset
+  /hk:eval jev | local    pick the eval judge (default local)
+  /hk:graph off | manifest | full   graph engineering (default off)`);
 }
 
 function main() {

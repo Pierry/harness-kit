@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Referências &middot; harness-kit wiki</title>
-<meta name="description" content="A literatura sobre a qual o harness-kit foi construído, e o que cada fonte de fato mudou aqui. Fontes que só confirmaram o que já fazíamos não valem..." />
+<meta name="description" content="Cada fonte aqui mudou alguma coisa no código." />
 <meta property="og:title" content="Referências &middot; harness-kit wiki" />
-<meta property="og:description" content="A literatura sobre a qual o harness-kit foi construído, e o que cada fonte de fato mudou aqui. Fontes que só confirmaram o que já fazíamos não valem..." />
+<meta property="og:description" content="Cada fonte aqui mudou alguma coisa no código." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/pt/References.html" />
@@ -59,116 +59,46 @@
         aria-controls="wikinav">Conte&uacute;do</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Início</a></li>
-</ul>
-<p><strong>O harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referências</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline e stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomia</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomia</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Início</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referências</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline e stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines dos agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomia</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestração e subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Voltar para o repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="referências">Referências</h1>
-<p>A literatura sobre a qual o harness-kit foi construído, e o que cada fonte de fato mudou aqui. Fontes que
-só confirmaram o que já fazíamos não valem uma linha; estas são as que nos custaram um commit.</p>
-<h2 id="o-harness">O harness</h2>
-<p><strong>Böckeler, <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener">Harness engineering for coding agent users</a></strong>
-(martinfowler.com). A fundação. Guides são <strong>feedforward</strong>, orientam o agent antes de ele agir. Sensors
-são <strong>feedback</strong>, observam depois e permitem que ele se corrija sozinho. Ambos vêm em dois tipos de
-execução: <strong>computacional</strong> (determinístico, roda em CPU, barato o bastante para toda mudança) e
-<strong>inferencial</strong> (precisa do julgamento de um modelo). O pipeline inteiro tem esse formato, e o
-<code>Execution: computational | inferential</code> em cada sensor é essa taxonomia levada ao pé da letra.</p>
-<p><strong>Böckeler, <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html" target="_blank" rel="noopener">Maintainability sensors for coding agents</a></strong>
-(martinfowler.com). A continuação, e o artigo mais caro desta página.</p>
-<p>Três achados caíram direto no código:</p>
-<ol>
-<li><em>&quot;The agent reliably ignores sensor checks unless hardwired via hooks or extensions&quot;</em> (o agent ignora
-de forma confiável as checagens de sensor, a menos que estejam ligadas na marra via hooks ou
-extensões), e guides em markdown, sozinhos, são <strong>&quot;quite unreliable&quot;</strong> (bastante pouco confiáveis).
-<code>code-conventions.md</code> era um arquivo markdown pedindo educadamente que o agent rodasse o linter. O
-<a href="Sensors.html"><code>code-maintainability</code></a> agora roda.</li>
-<li>O alerta sobre <em>&quot;a false sense of security and an illusion of quality&quot;</em> (uma falsa sensação de
-segurança e uma ilusão de qualidade). Tínhamos construído exatamente isso: sensors se declarando
-gates duros e determinísticos enquanto não checavam nada, e um log de qualidade registrando <code>passed</code>
-em toda execução. Daí o exit 3 (<code>inferential</code>, nunca é um pass) e o exit 2 (um sensor computacional
-que não liga checagem nenhuma está quebrado, não passando).</li>
-<li>Os limites que contêm complexidade, número máximo de argumentos de função, tamanho de arquivo, tamanho
-de função, complexidade ciclomática, <em>&quot;weren't even active in ESLint's default preset, I had to
-configure maximums for them first&quot;</em> (nem estavam ativos no preset default do ESLint, tive que
-configurar os máximos antes). Vale o mesmo para o ruff. Agora estão configurados no <code>pyproject.toml</code>, e
-o CI roda eles. Isso achou dívida real na hora.</li>
-</ol>
-<p>O alerta dela sobre <strong>sobrecarga de feedback</strong>, <em>&quot;sending it into a spiral of over-engineered
-refactorings&quot;</em> (jogando o agent numa espiral de refatorações sobre-engenheiradas), é o motivo de a única
-violação de complexidade que encontramos ser um ignore nomeado por arquivo, com o motivo escrito, em vez
-de uma refatoração de código sem teste só para satisfazer uma regra criada ontem.</p>
-<p><strong>Fowler, <a href="https://martinfowler.com/bliki/AgenticProgramming.html" target="_blank" rel="noopener">Agentic Programming</a></strong>
-(martinfowler.com). Dá nome à virada que o pipeline pressupõe: humanos param de digitar código e passam a
-revisá-lo, <em>&quot;still responsible for what the software does&quot;</em> (ainda responsáveis pelo que o software faz),
-mas via <em>&quot;code review, examining test results, and reviewing outputs from other sensors&quot;</em> (code review,
-exame de resultados de teste e revisão de saídas de outros sensors). Harness engineering é a habilidade
-central. É esse o
-argumento para as duas gates humanas estarem onde estão.</p>
-<h2 id="evals-e-o-judge">Evals e o judge</h2>
-<p><strong>Husain, <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Using LLM-as-a-Judge for evaluation</a></strong> e
-<a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener">Your AI product needs evals</a>. A crítica que acerta em cheio nossas
-rubricas: escalas de 1 a 10 não calibradas são interpretadas de um jeito diferente por cada avaliador,
-julgamentos binários são mais confiáveis, e o que realmente importa é a <strong>concordância medida entre o
-judge e rótulos humanos</strong>. O harness-kit ainda não faz isso. Nosso threshold de 8.0 é uma convenção, não
-uma fronteira calibrada, e o
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener">pipeline-pattern.md</a>
-diz isso em voz alta em vez de deixar implícito que a nota é uma medição.</p>
-<p><strong>Panickssery et al., <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Self-Preference Bias in LLM-as-a-Judge</a></strong>
-(arXiv). Judges LLM preferem sistematicamente texto da própria família, acompanhando a perplexidade: dão
-nota mais alta ao que lhes é familiar do que humanos dariam. Despachar um avaliador <em>novo</em>, o que fazemos,
-remove o contexto do autor, mas não isso. Um Claude novo julgando prosa de Claude continua sendo
-auto-preferência. Uma mitigação honesta seria outra família de modelo ou rótulos humanos; não temos nem
-uma nem outra ainda, e a wiki não deveria fingir o contrário.</p>
-<p>Esses dois juntos são o motivo de o <code>eval-score.py</code> existir. Ele não consegue tornar o julgamento
-confiável, mas a aritmética nunca foi questão de julgamento: ele lê os pesos da rubrica e recalcula o
-total, então, no mínimo, o número decorre das notas.</p>
-<h2 id="testando-o-próprio-harness">Testando o próprio harness</h2>
-<p>A maior lição não precisa de citação. O harness-kit colocava gate em todo artefato que produzia e não
-tinha nada colocando gate nele mesmo: sem testes, sem CI, sem linter. Foi assim que a divergência de uma
-palavra num heading desativou cerca de 30 asserções de seção em três sensors e ninguém notou. O teste que
-teria pego isso no dia zero tem quatro linhas, e hoje ele é genérico sobre todo sensor, inclusive os que
-ainda não foram escritos.</p>
-<p>O harness precisa de um harness.</p>
-<h2 id="o-cânone-de-engenharia-system-architect">O cânone de engenharia (system-architect)</h2>
-<p>O <a href="System-Design-Method.html">método de system design</a> bebe de Kleppmann (<em>Designing Data-Intensive
-Applications</em>), dos números de latência do Jeff Dean, de Vogels sobre consistência eventual, de Helland
-sobre dados por fora vs por dentro, de Nygard (<em>Release It!</em>) sobre padrões de estabilidade e de
-Ousterhout (<em>A Philosophy of Software Design</em>) sobre complexidade. Isso alimenta a rubrica de design e as
-dez perguntas de staff, não a mecânica do harness.</p>
-<h2 id="veja-também">Veja também</h2>
-<ul>
-<li><a href="Harness-Engineering.html">Engenharia de harness</a>: a teoria, a fundo</li>
-<li><a href="Sensors.html">Sensors</a> e <a href="Evals.html">Evals</a>: as duas metades do feedback, como foram implementadas</li>
-<li><a href="Agent-Pipelines.html">Pipelines dos agents</a>: onde fica cada gate em cada agent</li>
-</ul>
+<p>Cada fonte aqui mudou alguma coisa no código.</p>
+<h1 id="o-harness">O harness</h1>
+<p>Böckeler, <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener">Harness engineering for coding agent users</a> (martinfowler.com), é a base: guides são feedforward, sensors são feedback, e os dois são computacionais (determinísticos) ou inferenciais (julgamento de modelo). O <code>Execution: computational | inferential</code> em cada sensor é essa taxonomia levada ao pé da letra.</p>
+<p>Böckeler, <a href="https://martinfowler.com/articles/sensors-for-coding-agents.html" target="_blank" rel="noopener">Maintainability sensors for coding agents</a> (martinfowler.com), custou três commits. Primeiro, <em>&quot;the agent reliably ignores sensor checks unless hardwired via hooks or extensions&quot;</em>, e guides em markdown sozinhos são <em>&quot;quite unreliable&quot;</em>. O <code>code-conventions.md</code> pedia ao agent que rodasse o linter; o <a href="Sensors.html"><code>code-maintainability</code></a> agora roda.</p>
+<p>Segundo, o alerta dela sobre <em>&quot;a false sense of security and an illusion of quality&quot;</em>. O harness-kit tinha construído isso: sensors que se diziam gates determinísticas e rígidas sem checar nada, e um log de qualidade registrando <code>passed</code> em toda run. Daí vieram o exit 3 (<code>inferential</code>, nunca um pass) e o exit 2 (um sensor computacional sem check ligado está quebrado).</p>
+<p>Terceiro, os limites de complexidade (máximo de argumentos, tamanho de arquivo, tamanho de função, complexidade ciclomática) <em>&quot;weren't even active in ESLint's default preset&quot;</em>. O Ruff é igual. Agora eles estão em <code>pyproject.toml</code>, o CI roda, e acharam dívida real na hora. O alerta dela sobre excesso de feedback, <em>&quot;sending it into a spiral of over-engineered refactorings&quot;</em>, é o motivo de a única violação encontrada virar um ignore por arquivo, nomeado e com o motivo escrito, em vez de um refactor de código sem testes.</p>
+<p>Fowler, <a href="https://martinfowler.com/bliki/AgenticProgramming.html" target="_blank" rel="noopener">Agentic Programming</a> (martinfowler.com): humanos param de digitar código e passam a revisá-lo, <em>&quot;still responsible for what the software does&quot;</em>. É por isso que as duas gates humanas ficam onde ficam.</p>
+<h1 id="evals-e-o-judge">Evals e o judge</h1>
+<p>Wataoka et al., <a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Self-Preference Bias in LLM-as-a-Judge</a>, e Panickssery et al., <a href="https://arxiv.org/abs/2404.13076" target="_blank" rel="noopener">LLM Evaluators Recognize and Favor Their Own Generations</a>, mostram que um judge dá nota maior à saída da própria família do que humanos dão; um avaliador novo não resolve isso. Daí o <code>/hk:eval jev</code>: o Jev, da <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe AI</a>, é de outra família, o que reduz o viés sem eliminá-lo.</p>
+<p><a href="https://arxiv.org/abs/2403.18771" target="_blank" rel="noopener">CheckEval</a> e <a href="https://arxiv.org/abs/2410.03608" target="_blank" rel="noopener">TICK</a> mostram que checklists atômicos de sim ou não aumentam a concordância entre judges. Por isso toda dimensão de rubric agora tem linhas <code>- check:</code> e <code>- absent:</code> e pontua a fração de checks atendidos.</p>
+<p>Jung et al., <a href="https://arxiv.org/abs/2407.18370" target="_blank" rel="noopener">Trust or Escalate</a>, é o motivo de uma run do Jev escalar para o avaliador Claude quando respostas incertas podem inverter pass ou fail. A <a href="https://docs.typesafe.ai/model-jaggedness/jev-1.13" target="_blank" rel="noopener">orientação do Jev 1.13</a> (um julgamento por pergunta, sem contagem, filtrar estado) moldou como os checks são escritos e por que o artefato é enviado dividido por seção.</p>
+<p>Husain, <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Using LLM-as-a-Judge for evaluation</a> e <a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener">Your AI product needs evals</a>, argumenta que escalas de 1 a 10 sem calibração significam coisas diferentes para avaliadores diferentes, e que a confiança vem da concordância medida com rótulos humanos, cerca de 100 por modo de falha. O harness-kit ainda não tem rótulos humanos; 8.0 é uma convenção, não um limite calibrado, como diz o <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/shared/pipeline-pattern.md" target="_blank" rel="noopener">pipeline-pattern.md</a>. O log <code>jev-judge.jsonl</code> começa esse conjunto, e o <code>eval-score.py</code> faz a aritmética ser calculada em vez de julgada.</p>
+<h1 id="testando-o-próprio-harness">Testando o próprio harness</h1>
+<p>O harness-kit colocava gate em todo artefato que produzia e não tinha nada colocando gate nele mesmo: sem testes, sem CI, sem linter. Uma diferença de uma palavra num título desligou cerca de 30 asserções de seção em três sensors, e ninguém percebeu. O teste que pega isso tem quatro linhas e roda sobre todo sensor, inclusive os que ainda não foram escritos. O harness precisa de um harness.</p>
+<h1 id="o-cânone-de-engenharia-system-architect">O cânone de engenharia (system-architect)</h1>
+<p>O <a href="System-Design-Method.html">método de system design</a> se apoia em Kleppmann (<em>Designing Data-Intensive Applications</em>), nos números de latência de Jeff Dean, em Vogels sobre consistência eventual, em Helland sobre dados de fora versus dados de dentro, em Nygard (<em>Release It!</em>) sobre stability patterns e em Ousterhout (<em>A Philosophy of Software Design</em>) sobre complexidade. Eles moldam a rubric de design e as dez perguntas de staff.</p>
+<h1 id="veja-também">Veja também</h1>
+<p><a href="Harness-Engineering.html">Harness Engineering</a>, <a href="Sensors.html">Sensors</a>, <a href="Evals.html">Evals</a>, <a href="Agent-Pipelines.html">Pipelines dos agents</a>.</p>
 
     <p class="editnote">Tradu&ccedil;&atilde;o manual de <a href="https://github.com/Pierry/harness-kit/wiki/References" target="_blank" rel="noopener">Referências</a>, a p&aacute;gina original em ingl&ecirc;s na wiki.</p>
   </main>

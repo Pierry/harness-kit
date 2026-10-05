@@ -1,79 +1,65 @@
-# Evals (feedback inferential)
+# Evals (feedback inferencial)
 
-Los evals son el control de feedback **inferential, basado en LLM**. Donde un [sensor](Sensors) revisa
-la estructura de forma determinista, un eval juzga el *significado*: si este PRD es claro, si el
-trade-off de este diseño es real, si este plan realmente se desprende del PRP. Un eval es un LLM-judge
-puntuado de 0 a 10 contra una rubric, con un threshold de aprobación de **8.0** y **hasta 3 retries**.
+Un [sensor](Sensors) revisa la estructura con regex. Un eval juzga el significado, por ejemplo si el plan se desprende del PRP. Cada eval es una rubric ponderada que puntúa de 0 a 10; se aprueba con 8.0, con hasta 3 retries.
 
-## Por qué hacen falta controles inferential
+# Anatomía de una rubric
 
-Ningún regex te dice que el planteo del problema es vago, que la hipótesis es infalsable, o que un
-diseño escondió su trade-off más difícil. Eso es criterio semántico, y solo un modelo de lenguaje puede
-hacerlo con esta granularidad. El costo: es probabilístico, así que lo calibras con una rubric y pesos
-en vez de confiar en un "califica esto del 1 al 10" pelado.
-
-## Anatomía de un eval
-
-Una rubric es un archivo markdown: dimensiones con peso, cada una con anclas en 0/5/10, un threshold, y
-un formato de salida estricto.
+Las rubrics viven en `.claude/agents/{agent}/evals/*.md`. Cada dimensión `### Name (weight N%)` lleva checks atómicos de sí o no: las líneas `- check:` son preguntas para el judge, y las líneas `- absent:` son regex que corren en código (palabras prohibidas, raya larga, diagramas de cajas en ASCII).
 
 ```markdown
-# Eval: Design Quality
-Type: LLM-judge
-Mode: quality gate
-Threshold: weighted total >= 8.0
+### Metric completeness (weight 20%)
+- check: Every metric in `sections.success_metrics` has a baseline value.
+- check: Every metric in `sections.success_metrics` has a target value.
+- check: `sections.success_metrics` states a kill criterion with a numeric threshold.
 
-## Rubric
-### Requirements rigor (weight 15%)
-Numeric targets + back-of-envelope math?
-- 10: numeric targets + sizing math
-- 5: some numbers, no math
-- 0: prose only
-...
-
-## On failure (total below 8.0)
-Retry. Regenerate lowest-scoring sections only. Max 3 attempts.
-
-## Output format
-{ "scores": {...}, "weighted_total": 0.0, "feedback": ["dimension: issue with line ref"] }
+### Voice (weight 5%)
+- absent: (?i)\b(delve|leverage|utilize|unlock|streamline|robust|cutting-edge|seamless|best-in-class)\b
+- absent: (?m)^\s*\+[-=]{3,}\+
 ```
 
-`weighted_total = sum(score x weight%) / 100`. El judge debe citar una línea o sección cada vez que
-puntúa una dimensión por debajo de 7, para que el feedback sea accionable y no una corazonada.
+Una dimensión puntúa 10 veces la proporción de sus checks cumplidos; las anclas 0/5/10 solo desempatan.
 
-## El loop de retry
+# Aritmética verificada
+
+`eval-score.py` recalcula el total ponderado a partir de los pesos de la rubric y rechaza un judge cuya aritmética o claves no coinciden.
 
 ```
-generate -> sensors (hard gate) -> eval (score)
-   ^                                   |
-   |          below 8.0                v
-   +------ regenerate weak sections ---+   (max 3 attempts, then blocker)
+python3 .claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
 ```
 
-Lo crítico: el retry regenera **solo las dimensiones con puntaje bajo**, no el artefacto completo, y el
-feedback por dimensión del judge dice cuáles son. Después de 3 intentos fallidos, la stage devuelve un
-blocker en vez de entregar algo por debajo del threshold.
+| Salida | Significado |
+|---|---|
+| `0` | consistente y en 8.0 o más; imprime el puntaje para el marker de aprobación |
+| `1` | por debajo del threshold, reintentar |
+| `2` | salida malformada, total incorrecto o dimensiones faltantes o sobrantes |
 
-## Los pesos codifican lo que importa
+# El loop de retry
 
-Los pesos son donde expresas prioridades. En la rubric de calidad de PRD, *completitud de métricas* y
-*claridad* llevan el mayor peso, porque un PRD vive o muere por un problema nítido y un éxito medible.
-En la rubric de calidad de diseño, *arquitectura + deep dives* y *disciplina de trade-off* dominan,
-porque eso es lo que separa un diseño de staff de un diagrama de cajitas. Ajustar los pesos es una
-acción de "human on the loop": cambias una vez lo que a la gate le importa, y aplica a todo artefacto
-futuro.
+Los sensors corren primero, así ninguna llamada al judge va a un artefacto malformado. Un eval fallido regenera solo los checks que fallaron, que son el feedback textual. Después de 3 intentos fallidos el stage devuelve un blocker.
 
-## Calibración y anti-sello de goma
+```mermaid
+flowchart LR
+  G[generate] --> S[sensors]
+  S -->|fail| G
+  S -->|pass| E[eval]
+  E -->|below 8.0, max 3| R[regenerate failed checks]
+  R --> S
+  E -->|8.0 or more| A[approve]
+```
 
-Un eval que siempre pasa no sirve de nada. Dos prácticas lo mantienen honesto:
+# Dos judges
 
-- **Escalas ancladas.** Cada dimensión define cómo se ven el 0, el 5 y el 10, así el judge no adivina
-  qué significa un "7".
-- **Encuadre adversarial donde importa.** El eval `design-review-depth` del system-architect puntúa un
-  *review* y reprueba explícitamente al que solo pone el sello: un review sin brechas nombradas, con
-  severidad plana, o con consejos genéricos de "considera mejorar" saca puntaje bajo por diseño.
+`/hk:eval jev | local` elige el judge por proyecto. La elección vive en `.claude/hk-config.json`, se pregunta una vez en la instalación, y el default es `local`.
 
-## Evals en harness-kit
+`local` es un evaluador nuevo de Claude que solo ve el artefacto y la rubric. `jev` es Jev de [TypeSafe AI](https://typesafe.ai), un modelo System One que devuelve probabilidades calibradas en vez de texto, llamado desde `.claude/scripts/jev-judge.py`. Cada check es una pregunta Noul (sí o no). El artefacto se envía dividido por sección `## ` (`sections.success_metrics`), así un check lee solo la parte que nombra; un check sobre una sección ausente falla sin llamada. Cada corrida agrega una línea a `.claude/runtime/outputs/evals/jev-judge.jsonl`.
+
+# Escalamiento a Claude
+
+La corrida escala al evaluador de Claude cuando Jev duda en checks que deciden el resultado: el total recalculado con las respuestas dudosas forzadas a no y a sí cae a ambos lados de 8.0. También escala cuando no hay key, cuando el artefacto supera los 32k tokens o ante un error de la API.
+
+La key vive en una variable de entorno (por default `TYPESAFE_API_KEY`) o en el bloque `env` de `.claude/settings.local.json`, nunca en un archivo commiteado. Jev es una API paga, unos $0.042 por millón de tokens de entrada, así que corre en local y nunca en CI. `spec-satisfied` y los gates de readiness siempre usan Claude.
+
+# Evals por stage
 
 | Stage | Evals |
 |---|---|
@@ -81,54 +67,25 @@ Un eval que siempre pasa no sirve de nada. Dos prácticas lo mantienen honesto:
 | `prp` | `prp-quality`, `prp-context-readiness` |
 | `plan` | `plan-quality` |
 | `dev` | `dev-quality` |
+| `test` | `test-quality` |
 | `pr` | `pr-quality` |
+| loop `sdd` | `spec-satisfied` |
 | system design | `design-quality`, `design-review-depth` |
 
-## La variante PASS/FAIL: spec-satisfied
+Los pesos dicen qué le importa a cada gate; la calidad del PRD pone 20% en claridad y 20% en completitud de métricas. Ajustas un peso una vez y se aplica a todo artefacto futuro. `design-review-depth` hace fallar una revisión que aprueba por inercia: sin brechas nombradas, severidad plana, consejos genéricos.
 
-El loop spec-driven (`/sse:sdd`) usa otra forma de eval. En vez de un puntaje de 0 a 10,
-`spec-satisfied` devuelve **PASS/FAIL** contra el `Success criteria (verifiable)` y los `Validation
-gates` del PRP. Un `FAIL` reingresa al loop dev↔test con una pista en `next_iter_focus`; el loop corre
-como máximo 3 iteraciones. Corre en una **sesión nueva**, sin contexto del worker, para que el judge no
-quede sesgado por la narrativa de quien implementó. Este es un eval usado como *predicado de objetivo*
-en lugar de puntaje de calidad.
+# spec-satisfied
 
-## Sensor primero, eval después
+`/sse:sdd` usa `spec-satisfied`, que devuelve PASS o FAIL contra `Success criteria (verifiable)` y `Validation gates` del PRP. Un FAIL vuelve a entrar al loop de dev y test con una pista `next_iter_focus`, hasta 3 iteraciones. Corre en una sesión nueva, sin contexto del worker.
 
-El orden importa: los sensors corren antes que los evals. No tiene sentido gastar una llamada a un LLM
-puntuando la prosa de un artefacto al que le falta la mitad de las secciones. La gate determinista
-despeja primero las fallas baratas y objetivas; el eval juzga solo artefactos bien formados.
+# Por qué esta forma
 
-## Ver también
+Un judge Claude que califica salida de Claude infla los puntajes ([Wataoka et al.](https://arxiv.org/abs/2410.21819); [Panickssery et al.](https://arxiv.org/abs/2404.13076)); una familia distinta lo reduce, no lo elimina. Los checklists atómicos aumentan el acuerdo entre judges ([CheckEval](https://arxiv.org/abs/2403.18771), [TICK](https://arxiv.org/abs/2410.03608)). El escalamiento sigue [Trust or Escalate](https://arxiv.org/abs/2407.18370). Los checks de Jev siguen su [guía](https://docs.typesafe.ai/model-jaggedness/jev-1.13): un juicio por pregunta, sin conteos, estado de filtro.
 
-- [Sensors](Sensors): la gate determinista que corre primero
-- [Guides](Guides): feedforward que reduce cuán seguido fallan los evals
-- [Pipeline y stages](Pipeline-and-Stages): dónde se ubican los evals dentro de una stage
+# Lo que el puntaje no es
 
-## Lo que el puntaje no es
+Ningún judge está validado todavía contra etiquetas humanas, y 8.0 es una convención, no un límite calibrado. [Hamel Husain](https://hamel.dev/blog/posts/llm-judge/) recomienda unos 100 ejemplos etiquetados por modo de falla; el log jsonl es el comienzo de ese conjunto. Lee los checks que fallaron, no solo el número.
 
-El judge devuelve puntajes por dimensión y un total ponderado, y hasta hace poco nada verificaba que el
-total se desprendiera de los puntajes. Ahora sí: pasa el JSON del judge por el verificador de puntaje,
-que lee los pesos de la rubric y recalcula.
+# Ver también
 
-```
-.claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
-```
-
-Exit 0 imprime el número que el marker de aprobación debe llevar. Exit 2 significa que el judge infló
-el total, puntuó una dimensión que la rubric no pesa, o se saltó una que sí pesa, y en ese caso el
-puntaje no significa nada y no apruebas con base en él.
-
-Eso arregla solo la mitad computable. Quedan dos límites en pie, y vale la pena ser franco sobre ellos:
-
-- **Los puntajes no están validados contra etiquetas humanas.** 8.0 es una convención, no un límite
-  calibrado. [Husain](https://hamel.dev/blog/posts/llm-judge/) sostiene que las escalas del 1 al 10 sin
-  calibrar significan cosas distintas para distintos evaluadores, y que los juicios binarios más la
-  concordancia humana medida son lo que vuelve confiable a un eval. Todavía no hacemos eso.
-- **Un evaluador nuevo no es uno imparcial.** Lanzar un judge sin contexto previo le quita el interés
-  del autor en el texto, pero los LLM judges siguen inflando puntajes para salida de su propia familia
-  ([Panickssery et al.](https://arxiv.org/abs/2410.21819)). Un Claude nuevo juzgando a Claude sigue
-  siendo autopreferencia. Arreglarlo en serio requiere otra familia de modelo o una persona.
-
-Lee el feedback, no solo el número. El puntaje es una señal que atrapa artefactos débiles, no una
-medición.
+[Sensores](Sensors), [Guides](Guides), [Pipeline y stages](Pipeline-and-Stages), [Referencias](References).

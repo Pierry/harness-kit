@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Designer Skill &middot; harness-kit wiki</title>
-<meta name="description" content="Un skill transversal del agent staff-software-engineer, que se aplica al construir algo nuevo con UI: una app, una página, una feature o una landing...." />
+<meta name="description" content="Un skill transversal de staff-software-engineer, que se aplica cuando el trabajo construye algo nuevo con UI: una app, una página, una feature o una..." />
 <meta property="og:title" content="Designer Skill &middot; harness-kit wiki" />
-<meta property="og:description" content="Un skill transversal del agent staff-software-engineer, que se aplica al construir algo nuevo con UI: una app, una página, una feature o una landing...." />
+<meta property="og:description" content="Un skill transversal de staff-software-engineer, que se aplica cuando el trabajo construye algo nuevo con UI: una app, una página, una feature o una..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="es" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/es/Designer-Skill.html" />
@@ -59,177 +59,65 @@
         aria-controls="wikinav">Contenido</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Inicio</a></li>
-</ul>
-<p><strong>El harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referencias</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline y stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines de los agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomía</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomía</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Inicio</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referencias</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline y stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines de los agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomía</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo</a></p>
 </aside>
   <main class="wikibody">
 <h1 id="designer-skill">Designer Skill</h1>
-<p>Un skill transversal del agent <code>staff-software-engineer</code>, que se aplica al construir <strong>algo nuevo</strong> con
-UI: una app, una página, una feature o una landing. Codifica los defaults visuales y de UX para que una
-interfaz hecha desde cero salga con aspecto deliberado y moderno, no de plantilla por defecto. Se apila
-sobre el skill de área (web/mobile); las convenciones por repo en <code>.claude/conventions/web.md</code> siguen
-ganando, y si el repo ya tiene un design system el agent usa ese.</p>
-<p>Archivo del skill:
-<a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/staff-software-engineer/skills/designer/SKILL.md" target="_blank" rel="noopener"><code>skills/designer/SKILL.md</code></a>.
-Lo leen <code>/sse:plan</code> y <code>/sse:dev</code> cuando el trabajo incluye una UI nueva.</p>
-<h2 id="por-qué-un-skill-de-diseño">Por qué un skill de diseño</h2>
-<p>La mayoría de las UIs hechas por IA converge al mismo look genérico: todo centrado, el azul por defecto
-del framework, degradados en cada superficie, emoji como ícono, lorem ipsum, un solo tema, solo en
-inglés. El designer skill es un guide de feedforward (<a href="Guides.html">Guides</a>) que empuja al agent hacia una
-vara más alta antes de que escriba un solo componente, igual que el guide de estilo de código moldea el
-código. Es opinado a propósito.</p>
-<h2 id="material-design-3-como-sistema">Material Design 3 como sistema</h2>
-<p>Usa M3 como sistema de tokens, no como el look literal de Google. El punto es la estructura: diseñar con
-roles y escalas, nunca con valores hardcodeados.</p>
-<ul>
-<li><strong>Roles de color.</strong> Define <code>primary</code>, <code>on-primary</code>, <code>primary-container</code>, <code>secondary</code>, <code>tertiary</code>,
-<code>surface</code>, <code>surface-container</code> (del más bajo al más alto), <code>on-surface</code>, <code>on-surface-variant</code>,
-<code>outline</code>, <code>error</code>. Derívalos todos de un único color semilla (M3 dynamic color), y elige la semilla
-según el contexto del producto, no el morado por defecto.</li>
-<li><strong>Escala tipográfica.</strong> display / headline / title / body / label, cada una en L/M/S, mapeadas a
-clases CSS.</li>
-<li><strong>Escala de forma.</strong> none 0, xs 4, s 8, m 12, l 16, xl 28, full. Cards <code>l</code>, botones <code>full</code> o <code>m</code>.</li>
-<li><strong>Elevación tonal.</strong> Seis niveles con capas de tint de <code>surface-container</code> más una sombra sutil.
-Prefiere el tint del container antes que drop shadows pesadas.</li>
-<li><strong>State layers.</strong> hover 8%, focus 10%, pressed 10% del color <code>on-*</code> sobre el componente.</li>
-<li><strong>Movimiento.</strong> Easing enfático de M3 <code>cubic-bezier(.2,0,0,1)</code>, estándar 200-300ms, pequeño 100ms.</li>
-</ul>
-<h2 id="dark-y-light-ambos-obligatorios">Dark y light, ambos obligatorios</h2>
-<p>Nunca entregues un solo tema.</p>
-<ul>
-<li>Preferencia del sistema primero (<code>prefers-color-scheme</code>), toggle del usuario después, elección
-persistida en <code>localStorage</code> y reflejada en <code>:root[data-theme]</code>.</li>
-<li>Dos conjuntos de tokens, light y dark. El dark es tonal, no negro puro: una surface cercana a
-<code>#1A1C1E</code>, elevada con tints de container más claros en vez de sombras.</li>
-<li>Verifica el contraste en ambos temas (ver Accesibilidad).</li>
-</ul>
+<p>Un skill transversal de <code>staff-software-engineer</code>, que se aplica cuando el trabajo construye algo nuevo con UI: una app, una página, una feature o una landing. Se apila sobre el área skill <code>web</code> o <code>mobile</code>. <code>{repo}/.claude/conventions/web.md</code> tiene prioridad sobre él, y un repo que ya tiene un design system conserva ese sistema.</p>
+<p>Archivo del skill: <a href="https://github.com/Pierry/harness-kit/blob/main/.claude/agents/staff-software-engineer/skills/designer/SKILL.md" target="_blank" rel="noopener"><code>skills/designer/SKILL.md</code></a>. <code>/sse:plan</code> y <code>/sse:dev</code> lo leen para trabajo de UI nueva. Cuando no está claro si aplica, <code>/sse:dev</code> marca <code>NOT FOUND - NEEDS REVIEW: designer-skill applicability</code> y sigue sin él.</p>
+<h1 id="por-qué">Por qué</h1>
+<p>Las UIs hechas por IA convergen en un mismo aspecto: todo centrado, azul por defecto, íconos con emoji, lorem ipsum, un solo tema, solo en inglés. El skill es un <a href="Guides.html">guide</a> feedforward que sube la vara antes del primer componente.</p>
+<h1 id="material-design-3">Material Design 3</h1>
+<p>M3 es obligatorio y se usa como sistema de tokens. El color sale de los roles de M3 (<code>primary</code>, <code>on-primary</code>, <code>*-container</code>, <code>surface</code>, <code>surface-container</code>, <code>on-surface-variant</code>, <code>outline</code>, <code>error</code>) derivados de una sola semilla elegida a partir del contexto del producto. El CSS de los componentes nunca lleva hex crudo.</p>
+<p>La tipografía sigue display, headline, title, body y label, cada una en L, M y S, mapeadas a clases una sola vez. La forma va de none 0, xs 4, s 8, m 12, l 16, xl 28 a full; las cards usan <code>l</code>, los botones <code>full</code> o <code>m</code>, las sheets <code>xl</code>. La elevación tiene 6 niveles de tintes de <code>surface-container</code> más una sombra sutil. Las capas de estado son hover 8%, focus 10% y pressed 10% del color <code>on-*</code>. El movimiento usa el easing enfatizado <code>cubic-bezier(.2,0,0,1)</code>, 200 a 300ms el estándar y 100ms el chico.</p>
+<p>Los inputs son text fields de M3, de 56px de alto con label flotante. Los encabezados de página tienen un eyebrow, un título display y un subtítulo.</p>
+<h1 id="oscuro-y-claro">Oscuro y claro</h1>
+<p>Se entregan los dos temas. Primero va la preferencia del sistema, después un toggle del usuario que escribe <code>data-theme</code> y <code>localStorage</code>. El oscuro usa una superficie tintada <code>#1A1C1E</code>, nunca negro puro.</p>
 <pre><code class="language-css">:root { color-scheme: light dark; }
 :root[data-theme=&quot;light&quot;] { --surface:#FDFCFF; --on-surface:#1A1C1E; --primary:#0B57D0; }
 :root[data-theme=&quot;dark&quot;]  { --surface:#1A1C1E; --on-surface:#E3E2E6; --primary:#A8C7FA; }
 </code></pre>
-<h2 id="tipografía-moderna">Tipografía moderna</h2>
-<ul>
-<li>Por defecto <code>Inter</code> (variable) para UI y cuerpo de texto; alternativa nativa de M3, <code>Roboto Flex</code>.
-Self-host o carga con <code>font-display: swap</code>.</li>
-<li>Opcionalmente una tipografía display solo para hero/headline (<code>Space Grotesk</code>, <code>Sora</code>,
-<code>Plus Jakarta Sans</code>).</li>
-<li>Números tabulares para datos (<code>font-variant-numeric: tabular-nums</code>).</li>
-<li>Stack: <code>&quot;Inter&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif</code>.</li>
-</ul>
-<h2 id="acabado-nivel-behance">Acabado nivel Behance</h2>
-<p>La vara de &quot;nuevo y bueno&quot; es el mejor trabajo de UI en Behance. En concreto:</p>
-<ul>
-<li><strong>Grilla de espaciado de 8pt</strong> (4/8/12/16/24/32/48/64). Whitespace generoso; deja respirar al layout.</li>
-<li><strong>Jerarquía fuerte.</strong> Un punto focal claro por vista. Headline con carácter, cuerpo tranquilo. Tamaño,
-peso y espacio cargan la jerarquía antes que el color.</li>
-<li><strong>Paleta contenida.</strong> Una semilla de marca, neutros, un acento. El color se gana la atención.</li>
-<li><strong>Componentes precisos.</strong> Radio consistente, grillas alineadas, alineación óptica, ningún elemento
-huérfano.</li>
-<li><strong>Contenido real.</strong> Textos y datos realistas, nunca lorem. Los estados vacío, de carga y de error se
-diseñan, no se dejan para después.</li>
-<li><strong>Microinteracciones.</strong> Feedback de hover, focus y press en cada elemento interactivo. Sutil y rápido.</li>
-<li><strong>Íconos originales y modernos</strong> (ver abajo), nunca emoji.</li>
-</ul>
-<h2 id="iconografía-original-moderna-nunca-emoji">Iconografía: original, moderna, nunca emoji</h2>
-<ul>
-<li><strong>Nunca uses emojis.</strong> Ni como íconos, ni en botones, labels, títulos, estados vacíos o textos. Los
-emojis se renderizan distinto en cada plataforma, rompen la consistencia visual y se leen como algo
-sin terminar. Regla dura.</li>
-<li><strong>Crea íconos originales.</strong> Diseña un set SVG propio para las acciones clave y las marcas del
-producto, sobre una grilla consistente (por ejemplo 24px, trazo de 2px, uniones redondeadas) con un
-solo lenguaje visual. El logo/glifo de marca y las acciones primarias deben ser originales, no de
-stock.</li>
-<li><strong>Estilo moderno.</strong> Línea limpia o duotono, ópticamente equilibrado, legible a 16-20px, ajustado al
-pixel, con el peso del trazo emparejado al peso tipográfico.</li>
-<li>Si un set propio completo queda fuera de alcance, usa <strong>un</strong> set abierto moderno como base (Lucide,
-Material Symbols, Phosphor) y aun así dibuja originales las marcas de brand y hero. Nunca mezcles
-familias de íconos.</li>
-<li>Entrega como SVG inline o sprite, manejado con <code>currentColor</code> para que los íconos sigan el tema
-light/dark; dale a cada uno una etiqueta accesible (<code>aria-label</code> o <code>&lt;title&gt;</code>).</li>
-</ul>
-<h2 id="internacionalización-en-pt-br-es">Internacionalización (en, pt-BR, es)</h2>
-<p>Todo string visible para el usuario es traducible. Salen tres locales: inglés (default), portugués de
-Brasil, español.</p>
-<ul>
-<li>Nada de strings hardcodeados; un lookup <code>t('key')</code> con claves semánticas (<code>cart.empty.title</code>).</li>
-<li><code>locales/{en,pt-BR,es}.json</code>, con conjuntos de claves idénticos en los tres.</li>
-<li>Detecta <code>navigator.language</code>, con fallback a <code>en</code>; el usuario puede cambiarlo, persiste la elección.</li>
-<li>Define <code>&lt;html lang&gt;</code> de forma dinámica; formatea fechas, números y moneda con <code>Intl</code> por locale;
-plurales según las reglas de plural de la librería de i18n.</li>
-</ul>
-<h2 id="favicon-consciente-del-contexto">Favicon consciente del contexto</h2>
-<p>Genera un favicon que refleje el contexto del producto, no un placeholder.</p>
-<ul>
-<li>Créalo como <strong>SVG</strong> (nítido, tematizable), usando la semilla de marca, consciente de light/dark.</li>
-<li>Deriva la marca del contexto: la inicial/monograma del producto, o un glifo acorde al dominio (un
-carrito para commerce, un gráfico para analytics). Legible a 16px.</li>
-<li>Entrega <code>favicon.svg</code> (primario), <code>favicon.ico</code> 32, <code>apple-touch-icon.png</code> 180 y un <code>site.webmanifest</code>
-con PNGs maskable de 192 y 512, más meta <code>theme-color</code> por scheme.</li>
-<li>Indica qué símbolo y qué semilla se eligieron y por qué (el vínculo con el contexto).</li>
-</ul>
-<h2 id="accesibilidad-no-negociable">Accesibilidad (no negociable)</h2>
-<ul>
-<li>Contraste: texto de cuerpo &gt;= 4.5:1, texto grande y UI &gt;= 3:1 (WCAG 2.2 AA), en <strong>ambos</strong> temas.</li>
-<li>Anillo <code>:focus-visible</code> visible en cada elemento interactivo. Área de toque &gt;= 44x44px.</li>
-<li>Respeta <code>prefers-reduced-motion</code>. HTML semántico, inputs etiquetados, alcanzable por teclado.</li>
-</ul>
-<h2 id="qué-entrega-el-agent-con-una-ui-nueva">Qué entrega el agent con una UI nueva</h2>
-<ol>
-<li>Archivo de tokens (roles de color, tipografía, forma) para light y dark.</li>
-<li>Toggle de tema conectado a la preferencia del sistema y con persistencia.</li>
-<li>Tipografía moderna cargada con <code>font-display: swap</code>.</li>
-<li><code>locales/{en,pt-BR,es}.json</code> más el cableado de <code>t()</code> y un selector de idioma.</li>
-<li>Set de íconos SVG original y moderno (currentColor, etiquetas accesibles), sin emoji.</li>
-<li>Set de favicon consciente del contexto, manifest y link tags.</li>
-<li>Estados vacío, de carga y de error diseñados.</li>
-</ol>
-<h2 id="prohibido">Prohibido</h2>
-<p>Emojis en cualquier lado (UI, íconos, botones, textos); íconos de stock o genéricos para la marca o las
-marcas primarias; mezclar familias de íconos; colores hardcodeados en vez de tokens; un solo tema;
-strings de usuario hardcodeados; un favicon placeholder; lorem ipsum en UI entregada; contraste por
-debajo de AA en cualquiera de los dos temas.</p>
-<h2 id="ver-también">Ver también</h2>
-<ul>
-<li><a href="Agents.html">Agents</a> y <a href="Guides.html">Guides</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline y stages</a>, donde <code>/sse:plan</code> y <code>/sse:dev</code> leen este skill</li>
-</ul>
-<h2 id="referencias">Referencias</h2>
-<ul>
-<li>Especificación de Material Design 3, m3.material.io (roles de color, escala tipográfica, elevación,
-movimiento).</li>
-<li>WCAG 2.2, Web Content Accessibility Guidelines (contraste, foco, áreas de toque).</li>
-<li>Tipografía Inter, rsms.me/inter; Roboto Flex (Google Fonts).</li>
-<li><code>Intl</code> (ECMAScript Internationalization API) para formateo consciente del locale.</li>
-<li>Web App Manifest y buenas prácticas de favicon (MDN).</li>
-</ul>
+<h1 id="tipografía">Tipografía</h1>
+<p>La UI carga una fuente variable de verdad, y el stack del sistema nunca es el aspecto final. El cuerpo elige una entre <code>Geist</code>, <code>Instrument Sans</code>, <code>General Sans</code>, <code>Manrope</code> e <code>Inter Tight</code>; Inter queda como fallback. Display elige una entre <code>Bricolage Grotesque</code>, <code>Clash Display</code>, <code>Sora</code>, <code>Fraunces</code> y <code>Space Grotesk</code> con peso de 600 a 800. Los datos usan <code>font-variant-numeric: tabular-nums</code>.</p>
+<p>Las fuentes cargan con <code>font-display: swap</code>, embebidas como data URI <code>woff2</code> en base64 cuando la superficie corre offline o bajo una CSP estricta.</p>
+<h1 id="color-profundidad-movimiento">Color, profundidad, movimiento</h1>
+<p>La paleta es vívida: una semilla saturada, un segundo acento y gradientes en el hero, en los botones primarios y en los números focales.</p>
+<p>Las superficies llevan sombras tintadas en capas y brillo de acento. Las vistas animan la entrada, la interacción, los cambios de valor y el mostrar y ocultar en ambas direcciones, nunca un salto con <code>display:none</code>. El movimiento queda bajo <code>prefers-reduced-motion</code> y anima solo <code>transform</code> y <code>opacity</code>.</p>
+<p>Los callouts y textos de ayuda usan un contenedor tonal (<code>secondary-container</code> o <code>surface-container-high</code>) con un radio real y un ícono <code>info</code>. Una barra de acento de color en el borde izquierdo está prohibida.</p>
+<h1 id="pulido-nivel-behance">Pulido nivel Behance</h1>
+<p>El agent busca trabajos actuales de Behance y Dribbble en el dominio del producto y dice qué tomó. Los layouts usan una grilla de 8pt, un punto focal por vista, textos realistas y estados vacío, de carga y de error diseñados. Una suma de partes recibe una visualización en CSS o SVG (barra apilada, donut, sparkline) en lugar de una lista de números.</p>
+<h1 id="íconos">Íconos</h1>
+<p>Los emojis están prohibidos en todas partes. La marca y las acciones primarias son SVGs originales en una grilla de 24px con trazo de 2px; el resto sale de un solo set (Material Symbols, Lucide, Phosphor), nunca mezclados. Los íconos usan <code>currentColor</code> y llevan <code>aria-label</code> o <code>&lt;title&gt;</code>.</p>
+<h1 id="textos-e-i18n">Textos e i18n</h1>
+<p>El texto visible para el usuario no tiene rayas largas ni medias en ningún idioma. Cada string pasa por <code>t('key')</code> con claves semánticas como <code>cart.empty.title</code>. <code>locales/{en,pt-BR,es}.json</code> comparten un mismo conjunto de claves; la app detecta <code>navigator.language</code>, cae a <code>en</code> como respaldo, guarda la elección del usuario, define <code>&lt;html lang&gt;</code> y formatea con <code>Intl</code>.</p>
+<h1 id="favicon">Favicon</h1>
+<p>El favicon es una marca SVG sacada del contexto del producto (un monograma, un carrito para comercio) en la semilla de la marca, legible a 16px. El set es <code>favicon.svg</code>, <code>favicon.ico</code> de 32, <code>apple-touch-icon.png</code> de 180 y <code>site.webmanifest</code> con PNGs maskable de 192 y 512. El agent dice qué símbolo y qué semilla eligió y por qué.</p>
+<h1 id="accesibilidad">Accesibilidad</h1>
+<p>El contraste es de al menos 4.5:1 para el texto del cuerpo y 3:1 para texto grande y UI (WCAG 2.2 AA) en los dos temas. Cada elemento interactivo tiene un anillo <code>:focus-visible</code> y un área táctil de 44x44px, y se alcanza con el teclado.</p>
+<h1 id="qué-se-entrega">Qué se entrega</h1>
+<p>Una UI nueva se entrega con tokens claros y oscuros, un toggle de tema, una fuente cargada, los tres archivos de idioma con selector de idioma, íconos originales, el set de favicon, profundidad y movimiento, y estados vacío, de carga y de error diseñados.</p>
+<h1 id="ver-también">Ver también</h1>
+<p><a href="Agents.html">Agents</a>, <a href="Guides.html">Guides</a>, <a href="Pipeline-and-Stages.html">Pipeline y stages</a>.</p>
+<h1 id="referencias">Referencias</h1>
+<p>Material Design 3, m3.material.io. WCAG 2.2. Inter, rsms.me/inter, y Roboto Flex en Google Fonts. <code>Intl</code> de ECMAScript. MDN sobre el Web App Manifest y los favicons.</p>
 
     <p class="editnote">Traducci&oacute;n manual de <a href="https://github.com/Pierry/harness-kit/wiki/Designer-Skill" target="_blank" rel="noopener">Designer Skill</a>, la p&aacute;gina original en ingl&eacute;s en la wiki.</p>
   </main>

@@ -37,6 +37,8 @@ Save .claude/runtime/outputs/sse/pr/{feature_id}.md with:
 - test plan checklist
 - refs (plan + dev paths)
 
+Graph, only when `python3 .claude/scripts/hk-config.py get graph` not `off`: `python3 .claude/scripts/trace.py validate` must exit 0 before `gh pr create`; commit `trace/{feature_id}.yml`; paste `python3 .claude/scripts/trace.py summary {feature_id}` into the body under a Traceability heading.
+
 Document gates (run on saved record):
 - Sensor: .claude/agents/staff-software-engineer/sensors/pr-structure.md (auto-run by post-write hook)
 - Eval:   .claude/agents/staff-software-engineer/evals/pr-quality.md (threshold 8.0)

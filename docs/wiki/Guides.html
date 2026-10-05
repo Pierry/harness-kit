@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Guides (feedforward controls) &middot; harness-kit wiki</title>
-<meta name="description" content="Guides steer the agent before it acts. They are the feedforward half of the harness: anticipate what the agent will do, and shape it up front so it..." />
-<meta property="og:title" content="Guides (feedforward controls) &middot; harness-kit wiki" />
-<meta property="og:description" content="Guides steer the agent before it acts. They are the feedforward half of the harness: anticipate what the agent will do, and shape it up front so it..." />
+<title>Guides &middot; harness-kit wiki</title>
+<meta name="description" content="Guides steer the agent before it acts. They are the feedforward half of the harness, plain markdown under each agent&#x27;s guides/ directory. Sensors and..." />
+<meta property="og:title" content="Guides &middot; harness-kit wiki" />
+<meta property="og:description" content="Guides steer the agent before it acts. They are the feedforward half of the harness, plain markdown under each agent&#x27;s guides/ directory. Sensors and..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="en" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/Guides.html" />
@@ -59,48 +59,30 @@
         aria-controls="wikinav">Contents</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Home</a></li>
-</ul>
-<p><strong>The harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">References</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensors</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline and Stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Agent Pipelines</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomy</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomy</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">System Design Method</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Home</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">References</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensors</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline and Stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Agent Pipelines</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomy</a><br />
+<a href="Orchestration-and-Subagents.html">Orchestration and Subagents</a></p>
+<p><a href="System-Design-Method.html">System Design Method</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Back to repo</a></p>
 </aside>
   <main class="wikibody">
-<h1 id="guides-feedforward-controls">Guides (feedforward controls)</h1>
-<p>Guides steer the agent <strong>before</strong> it acts. They are the feedforward half of the harness: anticipate
-what the agent will do, and shape it up front so it does the right thing the first time. In
-harness-kit, guides are plain markdown under each agent's <code>guides/</code> directory.</p>
-<h2 id="why-feedforward-matters">Why feedforward matters</h2>
-<p>Feedback (sensors, evals) catches mistakes after the fact and costs a retry. Feedforward prevents the
-mistake. A good guide moves work from the expensive feedback loop into a cheap up-front instruction.
-If an artifact keeps failing the same eval dimension, the fix is usually not a stricter eval, it is a
-better guide.</p>
-<h2 id="kinds-of-guide-in-harness-kit">Kinds of guide in harness-kit</h2>
+<h1 id="guides">Guides</h1>
+<p>Guides steer the agent before it acts. They are the feedforward half of the harness, plain markdown under each agent's <code>guides/</code> directory. Sensors and evals catch a mistake after the fact and cost a retry; a guide prevents it. When an artifact keeps failing the same eval check, fix the guide before you tighten the eval.</p>
+<h1 id="kinds-of-guide">Kinds of guide</h1>
 <table>
 <thead>
 <tr>
@@ -111,77 +93,57 @@ better guide.</p>
 <tbody>
 <tr>
 <td><code>pipeline.md</code></td>
-<td>the operating rules of an agent: stages, retry policy, approval markers, token accounting</td>
+<td>an agent's operating rules: stages, retry policy, approval markers, token accounting</td>
 </tr>
 <tr>
 <td><code>writing-style.md</code></td>
-<td>voice, banned words, punctuation, when to use tables vs bullets, mermaid not ASCII</td>
+<td>voice, banned words, punctuation, tables versus bullets, mermaid over ASCII (product-manager, system-architect)</td>
 </tr>
 <tr>
 <td><code>*-guidelines.md</code></td>
-<td>artifact-specific rules (e.g. <code>prd-guidelines.md</code>, <code>prp-guidelines.md</code>)</td>
+<td>artifact rules, such as <code>prd-guidelines.md</code> and <code>prp-guidelines.md</code></td>
 </tr>
 <tr>
 <td><code>templates/*.md</code></td>
-<td>the exact skeleton the artifact must fill</td>
+<td>the skeleton the artifact fills</td>
 </tr>
 <tr>
 <td><code>examples/good-*.md</code></td>
-<td>a worked, high-quality artifact the agent imitates</td>
+<td>a finished artifact written to the standard</td>
 </tr>
 <tr>
-<td><code>design-method.md</code> (system-architect)</td>
-<td>the method and the canon the agent reasons with</td>
+<td><code>design-method.md</code></td>
+<td>the method and canon of the system-architect agent</td>
 </tr>
 <tr>
-<td><code>conventions-override.md</code> (SSE)</td>
-<td>how per-repo conventions layer over agent defaults</td>
+<td><code>coding-style.md</code>, <code>commit-style.md</code></td>
+<td>code and commit rules for the staff-software-engineer agent</td>
+</tr>
+<tr>
+<td><code>conventions-override.md</code></td>
+<td>how per-repo conventions layer over SSE defaults</td>
+</tr>
+<tr>
+<td><code>sdd-loop.md</code></td>
+<td>the spec-driven loop and its predicate</td>
 </tr>
 </tbody>
 </table>
-<h2 id="templates-and-examples-are-guides-too">Templates and examples are guides too</h2>
-<p>A template is the strongest feedforward control there is: it makes the desired structure the path of
-least resistance. The agent fills a skeleton instead of inventing a shape. Pair it with a
-<strong>good example</strong>: one concrete, filled artifact written to the standard, and the agent has both the
-shape and the texture of good output. harness-kit ships, for instance,
-<code>good-prd-example.md</code>, <code>good-prp-example.md</code>, and <code>good-system-design-example.md</code>.</p>
-<blockquote>
-<p><strong>Why natural prose in templates/examples, caveman in the rest?</strong> Internal guides, sensors, and
-evals are written terse (&quot;caveman&quot;) to save input tokens. But templates and examples are reference
-<em>artifact</em> prose that external stakeholders read, so they stay natural English. They teach the agent
-what good output reads like.</p>
-</blockquote>
-<h2 id="conventions-feedforward-you-override-per-repo">Conventions: feedforward you override per repo</h2>
-<p>The staff-software-engineer agent has built-in defaults per discipline. A consumer repo overrides them
-by dropping files in <code>.claude/conventions/</code>:</p>
+<h1 id="templates-and-examples">Templates and examples</h1>
+<p>A template is the strongest feedforward control: the agent fills a skeleton instead of inventing a shape. A good example adds the texture of finished work. harness-kit ships <code>good-prd-example.md</code>, <code>good-prp-example.md</code>, and <code>good-system-design-example.md</code>.</p>
+<p>Internal guides, sensors, and evals are written in terse caveman style to save input tokens. Templates and examples stay in natural English because they model artifacts that stakeholders read.</p>
+<h1 id="conventions-per-repo">Conventions per repo</h1>
+<p>The staff-software-engineer agent has defaults per discipline. A consumer repo overrides them with files here:</p>
 <pre><code>{your-repo}/.claude/conventions/{backend,web,mobile,devops}.md
 </code></pre>
-<p>When a file exists, the agent reads it on top of its defaults and <strong>project wins</strong>. This is the
-&quot;per-discipline paving&quot; of the <a href="Golden-Path.html">golden path</a>: one tuned lane per discipline, expressed as
-feedforward the team controls. It is also an <strong>architecture-fitness</strong> control, the conventions pin the
-shape the code must fit.</p>
-<h2 id="voice-and-banned-words">Voice and banned words</h2>
-<p><code>writing-style.md</code> is a feedforward control against AI fluff. It bans the dead giveaways (delve,
-leverage, utilize, robust, &quot;in today's fast-paced world&quot;), forbids em-dashes, requires mermaid over
-ASCII, and pushes specificity (real numbers, real names, real quotes) over generic prose. The matching
-eval dimension scores voice, so the guide and the eval reinforce each other.</p>
-<h2 id="writing-a-good-guide">Writing a good guide</h2>
-<ul>
-<li><strong>Be concrete.</strong> &quot;Lead with the decision, then the reason&quot; beats &quot;write clearly&quot;.</li>
-<li><strong>Show, don't only tell.</strong> A two-line good/bad pair teaches faster than a paragraph of rules.</li>
-<li><strong>Make the right thing easy.</strong> A template the agent fills is worth more than ten prose rules.</li>
-<li><strong>Optimize the failure message for the next turn.</strong> If the guide is referenced by a sensor's
-feedback, phrase it so the agent can act on it directly.</li>
-<li><strong>Move repeated failures upstream.</strong> When the same eval dimension keeps scoring low, write or sharpen
-the guide instead of tightening the gate.</li>
-</ul>
-<h2 id="see-also">See also</h2>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a>: feedforward vs feedback</li>
-<li><a href="Sensors.html">Sensors</a> and <a href="Evals.html">Evals</a>: the feedback half that guides reduce the load on</li>
-</ul>
+<p>When a file exists, the agent reads it on top of its defaults and the project wins. This is the per-discipline paving of the <a href="Golden-Path.html">golden path</a>, and it pins the shape the code must fit.</p>
+<h1 id="voice-and-banned-words">Voice and banned words</h1>
+<p><code>writing-style.md</code> bans the common AI tells such as <code>delve</code>, <code>leverage</code>, <code>utilize</code>, and <code>robust</code>, forbids em dashes, requires mermaid over ASCII, and asks for real numbers, names, and quotes. The evals enforce the same rules in code: <code>- absent:</code> regexes in each rubric fail a check on a banned word, an em dash, or an ASCII box diagram without asking the judge. See <a href="Evals.html">Evals</a>.</p>
+<h1 id="writing-a-good-guide">Writing a good guide</h1>
+<p>Be concrete: &quot;lead with the decision, then the reason&quot; teaches more than &quot;write clearly&quot;. Pair each rule with a two-line good and bad example. Give the agent a template to fill rather than ten prose rules. When a sensor's feedback points to a guide, phrase the guide so the agent can act on it in the next turn.</p>
+<p>See also <a href="Harness-Engineering.html">Harness Engineering</a>, <a href="Sensors.html">Sensors</a>, <a href="Evals.html">Evals</a>.</p>
 
-    <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Guides" target="_blank" rel="noopener">Guides (feedforward controls)</a> in the wiki. Edit it there.</p>
+    <p class="editnote">This page mirrors <a href="https://github.com/Pierry/harness-kit/wiki/Guides" target="_blank" rel="noopener">Guides</a> in the wiki. Edit it there.</p>
   </main>
 </div>
 

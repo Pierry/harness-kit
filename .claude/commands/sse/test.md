@@ -6,6 +6,8 @@ Run test suite for current repo. Follow .claude/agents/staff-software-engineer/g
 
 Print header card before running and footer card after suite finishes. Format: .claude/scripts/stage-card.md.
 
+If `repowise` present (`.claude/scripts/context-tools.sh`), run `repowise impacted-tests` on files changed in dev → report which tests cover the change and name uncovered files under Coverage.
+
 Detect project test command (in order):
 1. Check README.md or CONTRIBUTING.md for explicit test instructions.
 2. Maven (pom.xml present): `./mvnw test` or `mvn test`
@@ -28,6 +30,8 @@ Save .claude/runtime/outputs/sse/test/{feature_id}.md with:
 - passed, failed counts
 - failing test names (if any)
 - duration
+
+Graph, only when `python3 .claude/scripts/hk-config.py get graph` not `off`: for each test that proves a REQ run `python3 .claude/scripts/trace.py verify {feature_id} --req REQ-00N --test path::name --commit HEAD`; name REQs with no test under coverage gaps.
 
 Document gates (run on saved report):
 - Sensor: .claude/agents/staff-software-engineer/sensors/test-structure.md (auto-run by post-write hook)

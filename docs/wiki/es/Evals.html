@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Evals (feedback inferential) &middot; harness-kit wiki</title>
-<meta name="description" content="Los evals son el control de feedback inferential, basado en LLM. Donde un sensor revisa la estructura de forma determinista, un eval juzga el..." />
-<meta property="og:title" content="Evals (feedback inferential) &middot; harness-kit wiki" />
-<meta property="og:description" content="Los evals son el control de feedback inferential, basado en LLM. Donde un sensor revisa la estructura de forma determinista, un eval juzga el..." />
+<title>Evals (feedback inferencial) &middot; harness-kit wiki</title>
+<meta name="description" content="Un sensor revisa la estructura con regex. Un eval juzga el significado, por ejemplo si el plan se desprende del PRP. Cada eval es una rubric ponderada..." />
+<meta property="og:title" content="Evals (feedback inferencial) &middot; harness-kit wiki" />
+<meta property="og:description" content="Un sensor revisa la estructura con regex. Un eval juzga el significado, por ejemplo si el plan se desprende del PRP. Cada eval es una rubric ponderada..." />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="es" />
 <meta property="og:url" content="https://pierry.github.io/harness-kit/wiki/es/Evals.html" />
@@ -59,98 +59,84 @@
         aria-controls="wikinav">Contenido</button>
 
 <div class="wikishell">
-  <aside class="wikinav" id="wikinav"><h3 id="harness-kit">harness-kit</h3>
-<ul>
-<li><a href="index.html">Inicio</a></li>
-</ul>
-<p><strong>El harness</strong></p>
-<ul>
-<li><a href="Harness-Engineering.html">Harness Engineering</a></li>
-<li><a href="References.html">Referencias</a></li>
-<li><a href="Guides.html">Guides</a></li>
-<li><a href="Sensors.html">Sensores</a></li>
-<li><a href="Evals.html">Evals</a></li>
-<li><a href="Pipeline-and-Stages.html">Pipeline y stages</a></li>
-<li><a href="Golden-Path.html">Golden Path</a></li>
-<li><a href="Agents.html">Agents</a></li>
-<li><a href="Agent-Pipelines.html">Pipelines de los agents</a></li>
-<li><a href="Designer-Skill.html">Designer Skill</a></li>
-</ul>
-<p><strong>v5: autonomía</strong></p>
-<ul>
-<li><a href="Autonomy.html">Autonomía</a></li>
-<li><a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></li>
-</ul>
-<p><strong>System design</strong></p>
-<ul>
-<li><a href="System-Design-Method.html">Método de system design</a></li>
-<li><a href="URL-Shortener.html">URL Shortener</a></li>
-<li><a href="Rate-Limiter.html">Rate Limiter</a></li>
-<li><a href="Search-Engine.html">Search Engine</a></li>
-</ul>
-<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo →</a></p>
+  <aside class="wikinav" id="wikinav"><p><a href="index.html">Inicio</a></p>
+<p><a href="Harness-Engineering.html">Harness Engineering</a><br />
+<a href="References.html">Referencias</a><br />
+<a href="Guides.html">Guides</a><br />
+<a href="Sensors.html">Sensores</a><br />
+<a href="Evals.html">Evals</a><br />
+<a href="Pipeline-and-Stages.html">Pipeline y stages</a><br />
+<a href="Golden-Path.html">Golden Path</a><br />
+<a href="Agents.html">Agents</a><br />
+<a href="Agent-Pipelines.html">Pipelines de los agents</a><br />
+<a href="Designer-Skill.html">Designer Skill</a><br />
+<a href="Graph-Engineering.html">Graph Engineering</a></p>
+<p><a href="Autonomy.html">Autonomía</a><br />
+<a href="Orchestration-and-Subagents.html">Orquestación y subagents</a></p>
+<p><a href="System-Design-Method.html">Método de system design</a><br />
+<a href="URL-Shortener.html">URL Shortener</a><br />
+<a href="Rate-Limiter.html">Rate Limiter</a><br />
+<a href="Search-Engine.html">Search Engine</a></p>
+<p><a href="https://github.com/Pierry/harness-kit" target="_blank" rel="noopener">Volver al repo</a></p>
 </aside>
   <main class="wikibody">
-<h1 id="evals-feedback-inferential">Evals (feedback inferential)</h1>
-<p>Los evals son el control de feedback <strong>inferential, basado en LLM</strong>. Donde un <a href="Sensors.html">sensor</a> revisa
-la estructura de forma determinista, un eval juzga el <em>significado</em>: si este PRD es claro, si el
-trade-off de este diseño es real, si este plan realmente se desprende del PRP. Un eval es un LLM-judge
-puntuado de 0 a 10 contra una rubric, con un threshold de aprobación de <strong>8.0</strong> y <strong>hasta 3 retries</strong>.</p>
-<h2 id="por-qué-hacen-falta-controles-inferential">Por qué hacen falta controles inferential</h2>
-<p>Ningún regex te dice que el planteo del problema es vago, que la hipótesis es infalsable, o que un
-diseño escondió su trade-off más difícil. Eso es criterio semántico, y solo un modelo de lenguaje puede
-hacerlo con esta granularidad. El costo: es probabilístico, así que lo calibras con una rubric y pesos
-en vez de confiar en un &quot;califica esto del 1 al 10&quot; pelado.</p>
-<h2 id="anatomía-de-un-eval">Anatomía de un eval</h2>
-<p>Una rubric es un archivo markdown: dimensiones con peso, cada una con anclas en 0/5/10, un threshold, y
-un formato de salida estricto.</p>
-<pre><code class="language-markdown"># Eval: Design Quality
-Type: LLM-judge
-Mode: quality gate
-Threshold: weighted total &gt;= 8.0
+<h1 id="evals-feedback-inferencial">Evals (feedback inferencial)</h1>
+<p>Un <a href="Sensors.html">sensor</a> revisa la estructura con regex. Un eval juzga el significado, por ejemplo si el plan se desprende del PRP. Cada eval es una rubric ponderada que puntúa de 0 a 10; se aprueba con 8.0, con hasta 3 retries.</p>
+<h1 id="anatomía-de-una-rubric">Anatomía de una rubric</h1>
+<p>Las rubrics viven en <code>.claude/agents/{agent}/evals/*.md</code>. Cada dimensión <code>### Name (weight N%)</code> lleva checks atómicos de sí o no: las líneas <code>- check:</code> son preguntas para el judge, y las líneas <code>- absent:</code> son regex que corren en código (palabras prohibidas, raya larga, diagramas de cajas en ASCII).</p>
+<pre><code class="language-markdown">### Metric completeness (weight 20%)
+- check: Every metric in `sections.success_metrics` has a baseline value.
+- check: Every metric in `sections.success_metrics` has a target value.
+- check: `sections.success_metrics` states a kill criterion with a numeric threshold.
 
-## Rubric
-### Requirements rigor (weight 15%)
-Numeric targets + back-of-envelope math?
-- 10: numeric targets + sizing math
-- 5: some numbers, no math
-- 0: prose only
-...
-
-## On failure (total below 8.0)
-Retry. Regenerate lowest-scoring sections only. Max 3 attempts.
-
-## Output format
-{ &quot;scores&quot;: {...}, &quot;weighted_total&quot;: 0.0, &quot;feedback&quot;: [&quot;dimension: issue with line ref&quot;] }
+### Voice (weight 5%)
+- absent: (?i)\b(delve|leverage|utilize|unlock|streamline|robust|cutting-edge|seamless|best-in-class)\b
+- absent: (?m)^\s*\+[-=]{3,}\+
 </code></pre>
-<p><code>weighted_total = sum(score x weight%) / 100</code>. El judge debe citar una línea o sección cada vez que
-puntúa una dimensión por debajo de 7, para que el feedback sea accionable y no una corazonada.</p>
-<h2 id="el-loop-de-retry">El loop de retry</h2>
-<pre><code>generate -&gt; sensors (hard gate) -&gt; eval (score)
-   ^                                   |
-   |          below 8.0                v
-   +------ regenerate weak sections ---+   (max 3 attempts, then blocker)
+<p>Una dimensión puntúa 10 veces la proporción de sus checks cumplidos; las anclas 0/5/10 solo desempatan.</p>
+<h1 id="aritmética-verificada">Aritmética verificada</h1>
+<p><code>eval-score.py</code> recalcula el total ponderado a partir de los pesos de la rubric y rechaza un judge cuya aritmética o claves no coinciden.</p>
+<pre><code>python3 .claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
 </code></pre>
-<p>Lo crítico: el retry regenera <strong>solo las dimensiones con puntaje bajo</strong>, no el artefacto completo, y el
-feedback por dimensión del judge dice cuáles son. Después de 3 intentos fallidos, la stage devuelve un
-blocker en vez de entregar algo por debajo del threshold.</p>
-<h2 id="los-pesos-codifican-lo-que-importa">Los pesos codifican lo que importa</h2>
-<p>Los pesos son donde expresas prioridades. En la rubric de calidad de PRD, <em>completitud de métricas</em> y
-<em>claridad</em> llevan el mayor peso, porque un PRD vive o muere por un problema nítido y un éxito medible.
-En la rubric de calidad de diseño, <em>arquitectura + deep dives</em> y <em>disciplina de trade-off</em> dominan,
-porque eso es lo que separa un diseño de staff de un diagrama de cajitas. Ajustar los pesos es una
-acción de &quot;human on the loop&quot;: cambias una vez lo que a la gate le importa, y aplica a todo artefacto
-futuro.</p>
-<h2 id="calibración-y-anti-sello-de-goma">Calibración y anti-sello de goma</h2>
-<p>Un eval que siempre pasa no sirve de nada. Dos prácticas lo mantienen honesto:</p>
-<ul>
-<li><strong>Escalas ancladas.</strong> Cada dimensión define cómo se ven el 0, el 5 y el 10, así el judge no adivina
-qué significa un &quot;7&quot;.</li>
-<li><strong>Encuadre adversarial donde importa.</strong> El eval <code>design-review-depth</code> del system-architect puntúa un
-<em>review</em> y reprueba explícitamente al que solo pone el sello: un review sin brechas nombradas, con
-severidad plana, o con consejos genéricos de &quot;considera mejorar&quot; saca puntaje bajo por diseño.</li>
-</ul>
-<h2 id="evals-en-harness-kit">Evals en harness-kit</h2>
+<table>
+<thead>
+<tr>
+<th>Salida</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>consistente y en 8.0 o más; imprime el puntaje para el marker de aprobación</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>por debajo del threshold, reintentar</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>salida malformada, total incorrecto o dimensiones faltantes o sobrantes</td>
+</tr>
+</tbody>
+</table>
+<h1 id="el-loop-de-retry">El loop de retry</h1>
+<p>Los sensors corren primero, así ninguna llamada al judge va a un artefacto malformado. Un eval fallido regenera solo los checks que fallaron, que son el feedback textual. Después de 3 intentos fallidos el stage devuelve un blocker.</p>
+<pre class="mermaid">flowchart LR
+  G[generate] --&gt; S[sensors]
+  S --&gt;|fail| G
+  S --&gt;|pass| E[eval]
+  E --&gt;|below 8.0, max 3| R[regenerate failed checks]
+  R --&gt; S
+  E --&gt;|8.0 or more| A[approve]
+</pre>
+<h1 id="dos-judges">Dos judges</h1>
+<p><code>/hk:eval jev | local</code> elige el judge por proyecto. La elección vive en <code>.claude/hk-config.json</code>, se pregunta una vez en la instalación, y el default es <code>local</code>.</p>
+<p><code>local</code> es un evaluador nuevo de Claude que solo ve el artefacto y la rubric. <code>jev</code> es Jev de <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe AI</a>, un modelo System One que devuelve probabilidades calibradas en vez de texto, llamado desde <code>.claude/scripts/jev-judge.py</code>. Cada check es una pregunta Noul (sí o no). El artefacto se envía dividido por sección <code>## </code> (<code>sections.success_metrics</code>), así un check lee solo la parte que nombra; un check sobre una sección ausente falla sin llamada. Cada corrida agrega una línea a <code>.claude/runtime/outputs/evals/jev-judge.jsonl</code>.</p>
+<h1 id="escalamiento-a-claude">Escalamiento a Claude</h1>
+<p>La corrida escala al evaluador de Claude cuando Jev duda en checks que deciden el resultado: el total recalculado con las respuestas dudosas forzadas a no y a sí cae a ambos lados de 8.0. También escala cuando no hay key, cuando el artefacto supera los 32k tokens o ante un error de la API.</p>
+<p>La key vive en una variable de entorno (por default <code>TYPESAFE_API_KEY</code>) o en el bloque <code>env</code> de <code>.claude/settings.local.json</code>, nunca en un archivo commiteado. Jev es una API paga, unos $0.042 por millón de tokens de entrada, así que corre en local y nunca en CI. <code>spec-satisfied</code> y los gates de readiness siempre usan Claude.</p>
+<h1 id="evals-por-stage">Evals por stage</h1>
 <table>
 <thead>
 <tr>
@@ -176,8 +162,16 @@ severidad plana, o con consejos genéricos de &quot;considera mejorar&quot; saca
 <td><code>dev-quality</code></td>
 </tr>
 <tr>
+<td><code>test</code></td>
+<td><code>test-quality</code></td>
+</tr>
+<tr>
 <td><code>pr</code></td>
 <td><code>pr-quality</code></td>
+</tr>
+<tr>
+<td>loop <code>sdd</code></td>
+<td><code>spec-satisfied</code></td>
 </tr>
 <tr>
 <td>system design</td>
@@ -185,46 +179,17 @@ severidad plana, o con consejos genéricos de &quot;considera mejorar&quot; saca
 </tr>
 </tbody>
 </table>
-<h2 id="la-variante-passfail-spec-satisfied">La variante PASS/FAIL: spec-satisfied</h2>
-<p>El loop spec-driven (<code>/sse:sdd</code>) usa otra forma de eval. En vez de un puntaje de 0 a 10,
-<code>spec-satisfied</code> devuelve <strong>PASS/FAIL</strong> contra el <code>Success criteria (verifiable)</code> y los <code>Validation gates</code> del PRP. Un <code>FAIL</code> reingresa al loop dev↔test con una pista en <code>next_iter_focus</code>; el loop corre
-como máximo 3 iteraciones. Corre en una <strong>sesión nueva</strong>, sin contexto del worker, para que el judge no
-quede sesgado por la narrativa de quien implementó. Este es un eval usado como <em>predicado de objetivo</em>
-en lugar de puntaje de calidad.</p>
-<h2 id="sensor-primero-eval-después">Sensor primero, eval después</h2>
-<p>El orden importa: los sensors corren antes que los evals. No tiene sentido gastar una llamada a un LLM
-puntuando la prosa de un artefacto al que le falta la mitad de las secciones. La gate determinista
-despeja primero las fallas baratas y objetivas; el eval juzga solo artefactos bien formados.</p>
-<h2 id="ver-también">Ver también</h2>
-<ul>
-<li><a href="Sensors.html">Sensors</a>: la gate determinista que corre primero</li>
-<li><a href="Guides.html">Guides</a>: feedforward que reduce cuán seguido fallan los evals</li>
-<li><a href="Pipeline-and-Stages.html">Pipeline y stages</a>: dónde se ubican los evals dentro de una stage</li>
-</ul>
-<h2 id="lo-que-el-puntaje-no-es">Lo que el puntaje no es</h2>
-<p>El judge devuelve puntajes por dimensión y un total ponderado, y hasta hace poco nada verificaba que el
-total se desprendiera de los puntajes. Ahora sí: pasa el JSON del judge por el verificador de puntaje,
-que lee los pesos de la rubric y recalcula.</p>
-<pre><code>.claude/scripts/eval-score.py --rubric evals/prd-quality.md --scores judge.json
-</code></pre>
-<p>Exit 0 imprime el número que el marker de aprobación debe llevar. Exit 2 significa que el judge infló
-el total, puntuó una dimensión que la rubric no pesa, o se saltó una que sí pesa, y en ese caso el
-puntaje no significa nada y no apruebas con base en él.</p>
-<p>Eso arregla solo la mitad computable. Quedan dos límites en pie, y vale la pena ser franco sobre ellos:</p>
-<ul>
-<li><strong>Los puntajes no están validados contra etiquetas humanas.</strong> 8.0 es una convención, no un límite
-calibrado. <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Husain</a> sostiene que las escalas del 1 al 10 sin
-calibrar significan cosas distintas para distintos evaluadores, y que los juicios binarios más la
-concordancia humana medida son lo que vuelve confiable a un eval. Todavía no hacemos eso.</li>
-<li><strong>Un evaluador nuevo no es uno imparcial.</strong> Lanzar un judge sin contexto previo le quita el interés
-del autor en el texto, pero los LLM judges siguen inflando puntajes para salida de su propia familia
-(<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Panickssery et al.</a>). Un Claude nuevo juzgando a Claude sigue
-siendo autopreferencia. Arreglarlo en serio requiere otra familia de modelo o una persona.</li>
-</ul>
-<p>Lee el feedback, no solo el número. El puntaje es una señal que atrapa artefactos débiles, no una
-medición.</p>
+<p>Los pesos dicen qué le importa a cada gate; la calidad del PRD pone 20% en claridad y 20% en completitud de métricas. Ajustas un peso una vez y se aplica a todo artefacto futuro. <code>design-review-depth</code> hace fallar una revisión que aprueba por inercia: sin brechas nombradas, severidad plana, consejos genéricos.</p>
+<h1 id="spec-satisfied">spec-satisfied</h1>
+<p><code>/sse:sdd</code> usa <code>spec-satisfied</code>, que devuelve PASS o FAIL contra <code>Success criteria (verifiable)</code> y <code>Validation gates</code> del PRP. Un FAIL vuelve a entrar al loop de dev y test con una pista <code>next_iter_focus</code>, hasta 3 iteraciones. Corre en una sesión nueva, sin contexto del worker.</p>
+<h1 id="por-qué-esta-forma">Por qué esta forma</h1>
+<p>Un judge Claude que califica salida de Claude infla los puntajes (<a href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">Wataoka et al.</a>; <a href="https://arxiv.org/abs/2404.13076" target="_blank" rel="noopener">Panickssery et al.</a>); una familia distinta lo reduce, no lo elimina. Los checklists atómicos aumentan el acuerdo entre judges (<a href="https://arxiv.org/abs/2403.18771" target="_blank" rel="noopener">CheckEval</a>, <a href="https://arxiv.org/abs/2410.03608" target="_blank" rel="noopener">TICK</a>). El escalamiento sigue <a href="https://arxiv.org/abs/2407.18370" target="_blank" rel="noopener">Trust or Escalate</a>. Los checks de Jev siguen su <a href="https://docs.typesafe.ai/model-jaggedness/jev-1.13" target="_blank" rel="noopener">guía</a>: un juicio por pregunta, sin conteos, estado de filtro.</p>
+<h1 id="lo-que-el-puntaje-no-es">Lo que el puntaje no es</h1>
+<p>Ningún judge está validado todavía contra etiquetas humanas, y 8.0 es una convención, no un límite calibrado. <a href="https://hamel.dev/blog/posts/llm-judge/" target="_blank" rel="noopener">Hamel Husain</a> recomienda unos 100 ejemplos etiquetados por modo de falla; el log jsonl es el comienzo de ese conjunto. Lee los checks que fallaron, no solo el número.</p>
+<h1 id="ver-también">Ver también</h1>
+<p><a href="Sensors.html">Sensores</a>, <a href="Guides.html">Guides</a>, <a href="Pipeline-and-Stages.html">Pipeline y stages</a>, <a href="References.html">Referencias</a>.</p>
 
-    <p class="editnote">Traducci&oacute;n manual de <a href="https://github.com/Pierry/harness-kit/wiki/Evals" target="_blank" rel="noopener">Evals (feedback inferential)</a>, la p&aacute;gina original en ingl&eacute;s en la wiki.</p>
+    <p class="editnote">Traducci&oacute;n manual de <a href="https://github.com/Pierry/harness-kit/wiki/Evals" target="_blank" rel="noopener">Evals (feedback inferencial)</a>, la p&aacute;gina original en ingl&eacute;s en la wiki.</p>
   </main>
 </div>
 

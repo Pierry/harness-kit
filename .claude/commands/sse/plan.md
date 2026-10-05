@@ -26,11 +26,14 @@ Read:
 - project conventions if present: {repo}/.claude/conventions/{area}.md (see .claude/agents/staff-software-engineer/guides/conventions-override.md)
 - .claude/shared/context-strategy.md, pick the right tier for target-repo lookups
 
-Context lookups (per `context-strategy.md`):
-- Cached graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → query for callers/refs instead of grepping
-- Cached pack at `.claude/runtime/cache/repomix/{feature_id}.xml` → read for full file snapshot
-- Neither present → fall back to grep + Read on live repo
+Context lookups (per `context-strategy.md` § `/sse:plan`, probe with `.claude/scripts/context-tools.sh {repo}`):
+- semble on PRP-listed files for current shape; `repowise risk` on files touched → Risks section with score
+- context7 for any library API whose version matters
+- Cached graph at `.claude/runtime/cache/graphify/{slug}/graphify-out/graph.json` → callers/refs; cached pack at `.claude/runtime/cache/repomix/{feature_id}.xml` → file snapshot
+- None present → grep + Read on live repo
 - Don't double-load. If pack/graph covers a PRP-listed file, skip the grep for it.
+
+Graph, only when `python3 .claude/scripts/hk-config.py get graph` not `off` (`.claude/shared/graph-engineering.md` § `/sse:plan`): `trace.py settle --all` first; per REQ query `graph.py knowledge` + `graph.py symbols`, record each pick with `trace.py propose` (methods + evidence + confidence); Files touched = `trace.py scope {feature_id}`, nothing outside it; callers from `graph.py symbols` go in Risks as blast radius.
 
 Save to .claude/runtime/outputs/sse/plan/{feature_id}.md.
 

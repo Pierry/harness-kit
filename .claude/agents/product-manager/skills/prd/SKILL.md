@@ -23,6 +23,9 @@ Read:
 - guides/templates/prd.md
 - guides/pipeline.md
 - guides/examples/good-prd-example.md
+- .claude/shared/context-strategy.md § `/product-manager:prd`
+
+Optional tools (`.claude/scripts/context-tools.sh`): memoria skill → prior decisions on same problem, cite in Evidence or Risks. atomize skill → atoms from problem + hypothesis, feed Success Metrics, save `.claude/runtime/outputs/pm/prd/{feature_id}.atoms.json`. Absent → skip, no block.
 
 Save to .claude/runtime/outputs/pm/prd/{feature_id}.md.
 

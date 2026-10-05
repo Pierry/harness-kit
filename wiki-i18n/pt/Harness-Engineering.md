@@ -1,116 +1,48 @@
-# Engenharia de harness
+# Harness Engineering
 
-A teoria em cima da qual o harness-kit foi construído. Leia esta página para entender *por que* o repo
-tem o formato que tem: guides, sensors, evals, stages com gate.
+# Agent = Model + Harness
 
-## Agent = Model + Harness
-
-O termo **harness** é a forma curta de dizer tudo o que existe em um agent de código, menos o modelo em si.
+O harness é tudo num coding agent exceto o modelo.
 
 ```
 Agent = Model + Harness
 ```
 
-O modelo gera. O harness é o andaime em volta dele: os prompts e guides que o direcionam antes de ele
-agir, as ferramentas que ele pode chamar, as verificações que pegam os erros dele depois de ele agir,
-as permissões, a memória, o contexto que ele enxerga. Normalmente você não consegue mudar o modelo.
-Você consegue mudar o harness. **Harness engineering** é a prática de melhorar o harness para aumentar
-a probabilidade de uma boa saída e deixar o agent se corrigir antes que um humano veja o resultado.
+O harness são os guides, ferramentas, checks, permissões, memória e contexto em volta do modelo. Você raramente muda o modelo; você muda o harness, para que uma boa saída fique mais provável e o agent se corrija antes que uma pessoa veja o resultado.
 
-Fonte: Birgitta Böckeler, *Harness engineering for coding agent users*, na série *Exploring Gen AI* de
-Martin Fowler, martinfowler.com (2026). O texto companheiro, *Maintainability sensors for coding
-agents*, desenvolve a metade dos sensors.
+Fonte: Birgitta Böckeler, [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html), na série *Exploring Gen AI* de Martin Fowler (2026). O texto complementar, [Maintainability sensors for coding agents](https://martinfowler.com/articles/sensors-for-coding-agents.html), desenvolve a metade dos sensors.
 
-## Feedforward e feedback
+# Feedforward e feedback
 
-O harness tem dois tipos de controle, emprestados da teoria de controle.
+Controles feedforward conduzem o agent antes de ele agir: guias de estilo, templates, convenções, exemplos. No harness-kit eles são os [guides](Guides). Controles de feedback observam depois que ele age e deixam que ele se corrija: linters, testes, checagens de estrutura, reviews com nota. No harness-kit eles são os [sensors](Sensors) e os [evals](Evals). O feedback funciona melhor escrito para o modelo: "missing section X; add it with these fields".
 
-- **Controles feedforward (guides)** antecipam o comportamento do agent e o direcionam *antes* de ele
-  agir. Exemplos: um guia de estilo de escrita, um template, uma convenção de código, um exemplo de boa
-  saída. No harness-kit, são os [`guides/`](Guides).
-- **Controles de feedback (sensors e evals)** observam *depois* de o agent agir e ajudam ele a se
-  corrigir. Exemplos: um linter, um test, uma checagem de estrutura, um review pontuado. No harness-kit,
-  são os [`sensors/`](Sensors) e os [`evals/`](Evals).
+# Controles computacionais e inferenciais
 
-O feedback é mais poderoso quando o sinal dele é **otimizado para consumo por LLM**: um sensor que não
-diz apenas "falhou", mas diz "falta a seção X; adicione com estes campos", dá ao agent exatamente o que
-ele precisa para se consertar no próximo turno.
+Controles computacionais são determinísticos: mesma entrada, mesmo veredito, baratos, cegos ao significado. Controles inferenciais usam um modelo para julgamento semântico, como saber se um design nomeia seus trade-offs; eles são probabilísticos e precisam de calibração.
 
-## Controles computacionais e inferenciais
+A maioria dos sensors do harness-kit é computacional; os que precisam de julgamento declaram `Execution: inferential` e nunca reportam pass. Evals são inferenciais, pontuados por um avaliador Claude ou pelo Jev (veja [Evals](Evals)). Empurre para um sensor o que puder e deixe o eval para o significado.
 
-Cortando pelo outro eixo, os controles são:
+# O que os controles regulam
 
-- **Computacionais (determinísticos)**: linters, tests, checagens de schema, regras de estrutura. Mesma
-  entrada, mesmo veredito, sempre. Baratos, rápidos, exatos, mas cegos para significado. Os **sensors**
-  do harness-kit são computacionais.
-- **Inferenciais (baseados em LLM)**: julgamento semântico: "este PRD está claro?", "este design nomeia
-  os trade-offs dele?". Dão conta do significado que nenhuma regex alcança, mas são probabilísticos e
-  precisam de calibração. Os **evals** do harness-kit são inferenciais.
+Böckeler nomeia três dimensões: comportamento funcional (testes, critérios de aceite), manutenibilidade (linters, estrutura, estilo) e adequação de arquitetura (fitness functions, overrides de convenção). No harness-kit, sensors aplicam estrutura e convenções, evals pontuam clareza e rigor, e os arquivos `.claude/conventions/` por repo fixam a adequação de arquitetura.
 
-Você precisa dos dois. Uma checagem de estrutura não consegue te dizer que o texto está vago; e não dá
-para confiar em um juiz LLM para aplicar de forma determinística a regra "exatamente um heading H1". A
-disciplina é empurrar para dentro de um sensor tudo o que *dá* para tornar determinístico, e reservar o
-eval para o julgamento semântico de verdade.
+# Humanos fora, dentro ou sobre o loop
 
-## O que os controles regulam
+Fora do loop, o agent entrega sem review, o que é raro e de alto risco. Dentro do loop (in the loop), uma pessoa revisa cada saída, o que limita o throughput à velocidade da review. Sobre o loop (on the loop), a pessoa mantém o harness e o harness revisa as saídas. O harness-kit foi feito para on the loop, a única postura que escala: você ajusta uma rubric uma vez, e quando o agent desvia você corrige o guide, não a saída.
 
-Böckeler descreve três dimensões que um harness regula:
+# Como o harness-kit aplica isso
 
-1. **Comportamento funcional**: ele faz a coisa certa? (tests, critérios de aceite)
-2. **Maintainability**: está limpo, simples, dentro da convenção? (linters, estrutura, estilo)
-3. **Architecture fitness**: encaixa no design e nas restrições pretendidas? (fitness functions,
-   overrides de convenção)
+Cada stage de cada pipeline é um pequeno harness:
 
-As gates do harness-kit tocam as três: os sensors aplicam estrutura e convenções (maintainability,
-architecture fitness), os evals pontuam clareza e rigor (intenção funcional), e os arquivos
-`conventions/` de cada repo fixam o architecture fitness.
+| Camada | Controle | O que faz | Onde |
+|---|---|---|---|
+| Guide | feedforward | como escrever | `guides/`, `templates/`, `examples/` |
+| Referência | contexto | o que trazer | `AGENTS.md`, artefatos anteriores, `conventions/` |
+| Sensor | computacional ou inferencial | estrutura que precisa passar, bloqueia a aprovação | `sensors/`, rodado por `sensor-runner.py` |
+| Eval | inferencial | rubric ponderada de checks sim ou não, threshold 8.0, retry até 3 vezes | `evals/`, verificado por `eval-score.py` |
 
-## Humano fora, dentro ou acima do loop
+Um artefato só avança quando seus sensors passam e seu eval chega a 8.0, para PRDs, PRPs, plans, código, testes, PRs e System Design Docs. Guides, sensors e evals são markdown simples; só runners, scripts e hooks são código, então você pode ler e mudar o que é checado.
 
-Três posturas de envolvimento humano, pela forma como o humano se relaciona com o trabalho do agent:
+# Veja também
 
-- **Humano fora do loop** (human outside the loop): totalmente autônomo, o agent entrega sem review.
-  Raro, alto risco.
-- **Humano dentro do loop** (human in the loop): o humano revisa cada saída individual. Seguro, mas não
-  escala: sua velocidade de review limita o throughput do agent.
-- **Humano acima do loop** (human on the loop): o humano mantém e melhora o *harness* (os guides,
-  sensors, evals) em vez de inspecionar cada saída. O harness revisa as saídas; o humano revisa o
-  harness.
-
-"Humanos acima do loop" é a única postura que escala junto com o throughput do agent, e é a postura para
-a qual o harness-kit foi desenhado. Você não aprova na mão o texto de cada artefato; você ajusta a
-rubric uma vez e a rubric julga todos os artefatos. Quando o agent desvia, você conserta o guide, não a
-saída.
-
-## Como o harness-kit materializa isso
-
-Todo stage de todo pipeline é um harness pequeno:
-
-```
-GUIDE     feedforward      how to write it          (guides/, templates/, examples/)
-REF       context          what to pull in          (AGENTS.md, prior artifacts, conventions/)
-SENSOR    deterministic    must-pass structure      (blocks approval, regex via sensor-runner.py)
-EVAL      inferential      scored rubric            (LLM-judge, threshold 8.0, retry x3)
-```
-
-O artefato só avança quando o sensor passa e o eval supera 8.0. Nada avança por achismo. É a mesma
-divisão, computacional + inferencial, feedforward + feedback, aplicada a PRDs, PRPs, plans, código,
-tests, PRs e (no agent system-architect) System Design Docs.
-
-O retorno de escrever o harness em **markdown puro** (guides, sensors e evals são todos markdown; só o
-runner e os hooks são código) é que o harness fica legível e maleável. Você consegue ler exatamente o
-que vai ser checado, e mudar isso, sem encostar no modelo.
-
-## Veja também
-
-- [Guides](Guides): os controles feedforward
-- [Sensors](Sensors): feedback determinístico
-- [Evals](Evals): feedback inferencial
-- [Pipeline e stages](Pipeline-and-Stages): como um stage é montado
-- [Golden path](Golden-Path): a estrada pavimentada por todos os stages
-
-## Referências
-
-- Birgitta Böckeler, *Harness engineering for coding agent users*, martinfowler.com, 2026.
-- Birgitta Böckeler, *Maintainability sensors for coding agents*, martinfowler.com, 2026.
-- Martin Fowler, *Exploring Gen AI* (série de ensaios).
+[Guides](Guides), [Sensores](Sensors), [Evals](Evals), [Pipeline e stages](Pipeline-and-Stages), [Golden Path](Golden-Path), [Referências](References).
