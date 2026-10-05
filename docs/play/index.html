@@ -645,19 +645,19 @@ class Body {
 
 // ---------------------------------------------------------------- world (XPBD)
 const world = {
-  bodies: [], g: -981, subs: 10, firm: 0.8, damp: 1.0, speed: 1, friction: 0.55, grab: null, drive: null, paused: false, slow: false,
+  bodies: [], g: -981, subs: 10, firm: 0.8, damp: 1.0, speed: 1, beltV: 0, beltOff: 0, friction: 0.55, grab: null, drive: null, paused: false, slow: false,
   reset() { seed = 7; this.stage = 0;
-    this.bodies = [[-1.35, -0.9], [1.35, -0.9], [0, 1.45]].map(([x, z]) => new Body(circle(1.0, x, z, 18), 0.0, [0, 0, 0], null, RECIPE.egg)); },
+    this.bodies = [[-1.35, -0.9], [1.35, -0.9], [0, 1.45]].map(([x, z]) => new Body(circle(1.0, x, z, 18), BELT.h, [0, 0, 0], null, RECIPE.egg)); },
   transform(stage) { // the recipe advances: rebuild each piece as the next form, inheriting position and velocity
     this.stage = stage;
     const mv = (bs) => { const v = [0, 0, 0]; for (const b of bs) { const m = b.meanVel(); v[0] += m[0]; v[1] += m[1]; v[2] += m[2]; } return V3.scale(v, 1 / bs.length); };
     const cen = (bs) => { const c = [0, 0, 0]; let n = 0; for (const b of bs) { const k = b.centroid(); c[0] += k[0] * b.n; c[2] += k[2] * b.n; n += b.n; } return [c[0] / n, 0, c[2] / n]; };
     const pop = (v) => [v[0], 160, v[2]];
-    if (stage === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.1, c[0], c[2]), 0.02, pop(mv(this.bodies)), null, RECIPE.batter)]; }
-    else if (stage === 2) this.bodies = this.bodies.map(b => new Body(b.footprint(), 0.02, pop(b.meanVel()), null, RECIPE.cream));
+    if (stage === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.1, c[0], c[2]), BELT.h + 0.02, pop(mv(this.bodies)), null, RECIPE.batter)]; }
+    else if (stage === 2) this.bodies = this.bodies.map(b => new Body(b.footprint(), BELT.h + 0.02, pop(b.meanVel()), null, RECIPE.cream));
     else if (stage === 3) {
-      if (this.bodies.length === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.7, c[0], c[2]), 0.02, pop(mv(this.bodies)), { c: [c[0], c[2]], r: 1.15 }, RECIPE.pudim)]; }
-      else this.bodies = this.bodies.map(b => new Body(b.footprint(), 0.02, pop(b.meanVel()), null, RECIPE.pudim));
+      if (this.bodies.length === 1) { const c = cen(this.bodies); this.bodies = [new Body(circle(3.7, c[0], c[2]), BELT.h + 0.02, pop(mv(this.bodies)), { c: [c[0], c[2]], r: 1.15 }, RECIPE.pudim)]; }
+      else this.bodies = this.bodies.map(b => new Body(b.footprint(), BELT.h + 0.02, pop(b.meanVel()), null, RECIPE.pudim));
     }
     else for (const b of this.bodies) for (let i = 0; i < b.n; i++) b.vel[i*3+1] += stage === 6 ? 70 : 45;
     this.version++;
@@ -681,11 +681,12 @@ const world = {
       v[i*3] += ax * sdt; v[i*3+1] += this.g * sdt; v[i*3+2] += az * sdt;
       pr[i*3] = p[i*3]; pr[i*3+1] = p[i*3+1]; pr[i*3+2] = p[i*3+2];
       p[i*3] += v[i*3] * sdt; p[i*3+1] += v[i*3+1] * sdt; p[i*3+2] += v[i*3+2] * sdt;
-      if (p[i*3+1] < 0) { // floor contact with friction
-        p[i*3+1] = 0;
-        const dx = p[i*3] - pr[i*3], dz = p[i*3+2] - pr[i*3+2];
+      const belt = onBelt(p[i*3], p[i*3+2]), fy = belt ? BELT.h : 0;
+      if (p[i*3+1] < fy && pr[i*3+1] >= fy - 0.35) { // floor or belt contact with friction (the belt carries its surface speed)
+        p[i*3+1] = fy;
+        const dx = p[i*3] - pr[i*3] - (belt ? this.beltV * sdt : 0), dz = p[i*3+2] - pr[i*3+2];
         p[i*3] -= dx * this.friction; p[i*3+2] -= dz * this.friction;
-      }
+      } else if (p[i*3+1] < 0) { p[i*3+1] = 0; }
     }
   },
   solve(b, sdt, comp) {
@@ -769,7 +770,7 @@ const world = {
         let hole = null;
         if (b.hole) { const now = b.centroid(), hc = [b.hole.c[0] + now[0] - b.restCentroid[0], b.hole.c[1] + now[2] - b.restCentroid[2]];
           if (insideDist(cw, hc) > -b.hole.r * 0.9) hole = { c: hc, r: b.hole.r }; }
-        const nb = new Body(cw, 0.02, v, b.opt.profile === "pudim" ? hole : null, b.opt); nb.req = b.req; next.push(nb); made++;
+        const nb = new Body(cw, onBelt(cw[0][0], cw[0][1]) ? BELT.h + 0.02 : 0.02, v, b.opt.profile === "pudim" ? hole : null, b.opt); nb.req = b.req; next.push(nb); made++;
       }
     }
     this.bodies = next; return made;
@@ -788,6 +789,7 @@ struct U {
 @group(1) @binding(1) var backTex: texture_2d<f32>;
 
 const PI = 3.14159265;
+const BELT_HZ = 4.5;
 const YELLOW = vec3f(1.0, 0.72, 0.08);
 
 fn studio(d: vec3f) -> vec3f {
@@ -860,7 +862,27 @@ struct SOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f, @location(1
     let fog = smoothstep(60.0, 180.0, length(i.wp - u.camPos.xyz));
     return vec4f(mix(lit, studio(normalize(i.wp - u.camPos.xyz)) * 0.98, fog), 1.0);
   }
-  if (i.id > 9.5) { // knife: brushed steel
+  if (i.id > 29.5 && i.id < 30.5) { // conveyor belt: dark rubber, slats that move with the belt
+    var rubber = vec3f(0.07, 0.07, 0.075);
+    if (N.y > 0.5) {
+      let slat = fract((i.wp.x - u.gates[1].z) / 1.1);
+      rubber = mix(rubber, vec3f(0.16, 0.16, 0.17), smoothstep(0.0, 0.05, slat) * (1.0 - smoothstep(0.08, 0.13, slat)));
+      rubber *= 0.85 + 0.15 * smoothstep(BELT_HZ, BELT_HZ - 0.4, abs(i.wp.z));
+    }
+    var lit = rubber * (0.5 + 0.6 * max(dot(N, L), 0.0)) * floorOcclusion(i.wp) + ggx(N, V, L, 0.5, 0.04) * vec3f(1.2);
+    if (N.y > 0.5) {
+      var pud = 0.0;
+      for (var b = 0; b < i32(u.info.x); b++) {
+        let a = u.bodies[b * 2]; let ang = atan2(i.wp.z - a.y, i.wp.x - a.x);
+        let reach = 0.35 + 0.55 * vnoise1(ang * 2.2 + f32(b) * 3.1);
+        pud = max(pud, 1.0 - smoothstep(reach - 0.1, reach, roundedBox(i.wp.xz, a.xy, a.zw, min(a.z, a.w) * 0.98)));
+      }
+      let caramel = vec3f(0.30, 0.10, 0.01) + studio(reflect(-V, N)) * 0.06 + ggx(N, V, L, 0.05, 0.04) * vec3f(10.0);
+      lit = mix(lit, caramel, pud * 0.92 * step(4.5, u.params.w));
+    }
+    return vec4f(lit, 1.0);
+  }
+  if (i.id > 9.5) { // knife and conveyor rails: brushed steel
     let R = reflect(-V, N);
     let env = studio(R);
     let F = 0.62 + 0.38 * pow(1.0 - max(dot(N, V), 0.0), 5.0);
@@ -1173,7 +1195,7 @@ const R = {
     ub.set([...cam.eye, 1], 48); ub.set([...V3.norm([-0.45, 0.85, 0.35]), 0], 52);
     ub.set([this.W, this.H, 1 / this.W, 1 / this.H], 56);
     ub.set([performance.now() / 1000, ui.scanX, ui.scanOn ? 1 : 0, world.stage || 0], 60);
-    ub.set(ui.gates.concat([0, 0]), 64);
+    ub.set(ui.gates.concat([world.beltOff || 0, 0]), 64);
     const nb = Math.min(24, world.bodies.length), qy = quality(); ub.set([nb, cam.target[0], qy.yolks, qy.neat], 72);
     for (let i = 0; i < nb; i++) { const b = world.bodies[i];
       let mnx = Infinity, mxx = -Infinity, mnz = Infinity, mxz = -Infinity, mxy = 0, mny = Infinity;
@@ -1238,9 +1260,16 @@ function boxVerts(out, c, h, id, rot = null) { // centered box, optional rotatio
   }
 }
 const GATE_X = [11, 22, 33, 44, 55, 66];
+const BELT = { x0: -9, x1: 77, hz: 4.5, h: 0.6 }; // the conveyor every idea rides through the gates
+const onBelt = (x, z) => x > BELT.x0 && x < BELT.x1 && Math.abs(z) < BELT.hz;
 function staticScene() {
   const out = [], S = 400;
   for (const [x, z] of [[-S, -S], [S, -S], [S, S], [-S, -S], [S, S], [-S, S]]) out.push(x, 0, z, 0, 1, 0, -1);
+  const bx = (BELT.x0 + BELT.x1) / 2, bh = (BELT.x1 - BELT.x0) / 2;
+  boxVerts(out, [bx, BELT.h / 2, 0], [bh, BELT.h / 2, BELT.hz], 30);              // rubber belt
+  boxVerts(out, [bx, BELT.h * 0.75, -BELT.hz - 0.17], [bh + 0.3, BELT.h * 0.75, 0.17], 31); // steel side rails
+  boxVerts(out, [bx, BELT.h * 0.75, BELT.hz + 0.17], [bh + 0.3, BELT.h * 0.75, 0.17], 31);
+  for (const ex of [BELT.x0, BELT.x1]) boxVerts(out, [ex, BELT.h / 2, 0], [0.32, BELT.h / 2 + 0.02, BELT.hz + 0.34], 31); // end rollers
   GATE_X.forEach((gx, i) => {
     boxVerts(out, [gx, 3.3, -6.2], [0.2, 3.3, 0.2], i);
     boxVerts(out, [gx, 3.3, 6.2], [0.2, 3.3, 0.2], i);
@@ -1414,6 +1443,8 @@ const director = {
     const L = T(); this.t += dt;
     const c = this.centroid(); let vx = 0, vz = 0, nn = 0;
     for (const b of world.bodies) { const v = b.meanVel(); vx += v[0] * b.n; vz += v[2] * b.n; nn += b.n; } vx /= nn; vz /= nn;
+    const moving = ["move", "bounce", "hold", "done"].includes(this.state);
+    world.beltV += ((moving ? vx : 0) - world.beltV) * Math.min(1, dt * 6); world.beltOff += world.beltV * dt;
     if (this.state === "move" || this.state === "bounce") {
       const tx = this.state === "bounce" ? GATE_X[this.gate] - 7 : GATE_X[this.gate];
       world.drive = { tx, k: 16, c: 6, centroid: c, vx, vz };
